@@ -139,7 +139,13 @@ dialog.qz::backdrop { background: rgba(10, 12, 16, 0.6); }
 .newcomer ol { font-size: 16px; }
 
 /* ---------- paths ---------- */
-.pt-quick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.pt-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.pt-quick-label { flex-basis: 100%; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; }
+.pt-group { margin: 26px 0 6px; }
+.pt-grid + .pt-group { margin-top: 34px; }
+.pt-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
+.pt-pick-label { font-size: 14px; color: var(--muted); margin-right: 2px; }
+.pt-pick .gm-btn { padding: 5px 11px; font-size: 14px; }
 .pt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
 .pt-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
 .pt-card.chosen { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
