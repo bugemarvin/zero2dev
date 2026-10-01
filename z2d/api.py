@@ -15,7 +15,7 @@ import sys
 import tempfile
 import threading
 
-from . import background, core, doctor, jobs, origins, platforminfo, progress as prog, providers, runner, services, workspaces
+from . import background, core, doctor, jobs, origins, platforminfo, terminal, progress as prog, providers, runner, services, workspaces
 from .core import Skip
 from .toolchains import LANGS
 
@@ -362,6 +362,7 @@ def post_app(data):
 
 
 def stop_all_apps():
+    terminal.close_all()
     with _state_lock:
         apps = list(_apps.values())
         _apps.clear()
@@ -406,6 +407,53 @@ def get_track(data):
             return dict(track, can_sudo=can_sudo(), user_stacks=sorted(USER_STACKS),
                         fallback_stacks=sorted(FALLBACK_STACKS), platform=platforminfo.detect())
     raise ApiError("unknown track", 404)
+
+
+def get_activity(_data):
+    """What this machine is doing for the learner right now: installs, downloads, apps, databases."""
+    with _state_lock:
+        apps = [{"id": ex_id, "url": f"http://127.0.0.1:{app.port}/"} for ex_id, app in _apps.items()]
+    running = []
+    if providers.docker_state() == "ok":
+        for name in services.SERVICES:
+            if services.container_state(name) == "running":
+                spec = services.SERVICES[name]
+                running.append({"id": name, "name": spec["name"], "port": spec["host_port"]})
+    return {"jobs": [job.as_dict() for job in jobs.recent()], "apps": apps, "services": running,
+            "terminals": terminal.count(), "platform": platforminfo.detect()}
+
+
+def get_terminal(data):
+    """Wait for new output of a terminal. The page calls this again and again."""
+    session = terminal.get(str(data.get("id", "")))
+    if session is None:
+        raise ApiError("that terminal is closed", 404)
+    try:
+        since = max(int(data.get("since", 0)), 0)
+    except ValueError:
+        since = 0
+    return session.read(since, wait=20)
+
+
+def post_terminal(data):
+    """Open a terminal on this machine, type into it, or close it."""
+    action = data.get("action")
+    if action == "open":
+        session = terminal.open_session()
+        return {"id": session.id, "cwd": str(core.ROOT)}
+    session = terminal.get(str(data.get("id", "")))
+    if session is None:
+        raise ApiError("that terminal is closed", 404)
+    if action == "input":
+        text = data.get("data")
+        if not isinstance(text, str) or len(text) > 20_000:
+            raise ApiError("input must be text of a sensible length")
+        session.write(text)
+        return {"sent": True}
+    if action == "close":
+        terminal.close_session(session.id)
+        return {"closed": True}
+    raise ApiError("action must be open, input or close")
 
 
 def get_origins(_data):
@@ -572,8 +620,9 @@ def get_job(data):
     return job.as_dict()
 
 
-GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track, "game": get_game, "autostart": get_autostart, "origins": get_origins}
+GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track, "game": get_game, "autostart": get_autostart, "origins": get_origins,
+       "activity": get_activity, "terminal": get_terminal}
 POST = {"save": post_save, "lang": post_lang, "run": post_run, "reset": post_reset, "show": post_show,
         "shell": post_shell, "sandbox": post_sandbox, "app": post_app, "open": post_open,
         "profile": post_profile, "service": post_service, "job": post_job, "game": post_game, "autostart": post_autostart,
-        "pair": post_pair, "unpair": post_unpair}
+        "pair": post_pair, "unpair": post_unpair, "terminal": post_terminal}

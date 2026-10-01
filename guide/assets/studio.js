@@ -753,9 +753,13 @@
       job({ kind: "image", name: item.image }, "Download");
     } else if (item.state === "workspace-download") {
       job({ kind: "workspace", name: item.id }, "Download packages");
-    } else if (item.state === "missing" && item.stack &&
-               (USER_STACKS.indexOf(item.stack) >= 0 || canSudo) && item.id !== "docker") {
-      job({ kind: "install", name: item.stack }, "Install");
+    } else if (item.state === "missing" && item.stack && item.id !== "docker" && platformInfo && platformInfo.installer) {
+      // In the terminal, where the learner sees every step and can answer a password or a question.
+      var install = button("Install", "", function () {
+        install.disabled = true;
+        getMachine().run("./setup/install.sh --stack " + item.stack, function () { install.disabled = false; reload(); });
+      });
+      actions.appendChild(install);
     }
     return el("li", { class: "st-item" }, [
       el("span", { class: "st-badge " + badge[1], text: badge[0] }),
@@ -773,6 +777,7 @@
     function load() {
       live.textContent = "Checking this machine ...";
       api("GET", "track", { id: box.dataset.track }).then(function (track) {
+        platformInfo = track.platform || platformInfo;
         live.textContent = "";
         live.appendChild(el("p", {
           class: track.ready ? "st-tool st-ok" : "st-tool st-warn",
@@ -791,6 +796,7 @@
   function renderSetup(mount) {
     mount.textContent = "Checking this machine ...";
     api("GET", "doctor", { fresh: "1" }).then(function (report) {
+      platformInfo = report.platform || platformInfo;
       mount.textContent = "";
       var log = el("pre", { class: "st-log" });
       log.hidden = true;
@@ -910,17 +916,259 @@
       mount.appendChild(keep);
 
       mount.appendChild(button("Check again", "", reload));
-      if (!report.can_sudo) {
-        mount.appendChild(el("p", {
-          class: "st-count",
-          text: "System packages need your password, which a web page must never ask for. For those, the row shows the command to run in a terminal."
-        }));
-      }
+      mount.appendChild(el("p", {
+        class: "st-count",
+        text: "Install runs the project's install script in the terminal at the bottom of this page. You see every step, and if it asks for your password or a choice, you answer there. What you type goes to your own computer only."
+      }));
     }).catch(function (error) { mount.textContent = "Could not read the environment: " + error.message; });
+  }
+
+  // ---------------------------------------------------------------- this machine: terminal and activity
+  // A drawer at the bottom of the page. The terminal in it is a real shell on the learner's
+  // computer, so an install can ask for a password or a choice and be answered right here.
+  // Activity lists what the machine is doing for the app: installs, downloads, apps, databases.
+  var platformInfo = null;
+  var machine = null;
+
+  var ESCAPES = /\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_]/g;
+  var WHOLE_ESCAPE = /^(?:\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[@-Z\\-_])/;
+
+  // Turns what a terminal sends into plain lines: colour codes removed, carriage returns and
+  // backspaces applied. Enough for installers and compilers; not for full-screen programs.
+  function TermView(pre) {
+    this.pre = pre;
+    this.lines = [""];
+    this.carry = "";
+    this.returned = false;
+  }
+  TermView.prototype.feed = function (text) {
+    text = this.carry + text;
+    this.carry = "";
+    var cut = text.lastIndexOf("\x1b");
+    if (cut >= 0 && !WHOLE_ESCAPE.test(text.slice(cut))) {      // an escape sequence cut in two
+      this.carry = text.slice(cut);
+      text = text.slice(0, cut);
+    }
+    text = text.replace(ESCAPES, "");
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      var last = this.lines.length - 1;
+      if (ch === "\n") { this.lines.push(""); this.returned = false; }
+      else if (ch === "\r") { this.returned = true; }
+      else if (ch === "\b") { this.lines[last] = this.lines[last].slice(0, -1); }
+      else if (ch === "\x07" || ch === "\x00") { /* a bell, nothing to show */ }
+      else {
+        if (this.returned) { this.lines[last] = ""; this.returned = false; }
+        this.lines[last] += ch;
+      }
+    }
+    if (this.lines.length > 1500) this.lines = this.lines.slice(-1500);
+    this.pre.textContent = this.lines.join("\n");
+    this.pre.scrollTop = this.pre.scrollHeight;
+  };
+  TermView.prototype.lastLine = function () { return this.lines[this.lines.length - 1]; };
+  TermView.prototype.clear = function () { this.lines = [this.lastLine()]; this.pre.textContent = this.lines[0]; };
+
+  function Machine() {
+    var self = this;
+    this.session = null;
+    this.opening = null;
+    this.watchers = [];
+    this.history = [];
+    this.position = 0;
+    this.timer = null;
+
+    this.log = el("pre", { class: "mc-log", tabindex: "0", "aria-label": "Terminal output" });
+    this.view = new TermView(this.log);
+    this.input = el("input", {
+      class: "mc-input", type: "text", spellcheck: "false", autocapitalize: "off", autocomplete: "off",
+      "aria-label": "Type a command", placeholder: "type a command and press Enter"
+    });
+    this.activity = el("div", { class: "mc-activity" });
+    this.termPane = el("div", { class: "mc-pane" }, [this.log, el("label", { class: "mc-line" }, [el("span", { text: ">" }), this.input])]);
+    this.actPane = el("div", { class: "mc-pane" }, [this.activity]);
+    this.actPane.hidden = true;
+
+    this.tabTerm = el("button", { type: "button", class: "mc-tab", role: "tab", "aria-selected": "true", text: "Terminal" });
+    this.tabAct = el("button", { type: "button", class: "mc-tab", role: "tab", "aria-selected": "false", text: "Activity" });
+    this.tabTerm.addEventListener("click", function () { self.show("terminal"); });
+    this.tabAct.addEventListener("click", function () { self.show("activity"); });
+    var stop = button("Ctrl+C", "st-quiet", function () { self.send("\x03"); self.input.focus(); });
+    stop.title = "Stop the running command";
+    var clear = button("Clear", "st-quiet", function () { self.view.clear(); });
+    var close = el("button", { type: "button", class: "ws-icon", "aria-label": "Close", title: "Close", text: "✕" });
+    close.addEventListener("click", function () { self.close(); });
+    this.where = el("span", { class: "mc-where" });
+
+    this.panel = el("aside", { class: "mc", id: "machine", "aria-label": "This machine: terminal and activity" }, [
+      el("div", { class: "mc-head" }, [
+        el("div", { class: "mc-tabs", role: "tablist" }, [this.tabTerm, this.tabAct]), this.where, stop, clear, close
+      ]),
+      this.termPane, this.actPane
+    ]);
+    document.body.appendChild(this.panel);
+
+    this.input.addEventListener("keydown", function (event) {
+      if (event.key === "ArrowUp" && self.position > 0) { self.position--; self.input.value = self.history[self.position]; event.preventDefault(); }
+      if (event.key === "ArrowDown") {
+        self.position = Math.min(self.position + 1, self.history.length);
+        self.input.value = self.history[self.position] || "";
+        event.preventDefault();
+      }
+      if (event.key === "c" && event.ctrlKey && self.input.selectionStart === self.input.selectionEnd) { self.send("\x03"); event.preventDefault(); }
+      if (event.key !== "Enter") return;
+      var text = self.input.value;
+      if (self.input.type !== "password" && text.trim()) { self.history.push(text); }
+      self.position = self.history.length;
+      self.input.value = "";
+      self.send(text + "\n");
+    });
+  }
+
+  Machine.prototype.show = function (name) {
+    var term = name === "terminal";
+    this.termPane.hidden = !term;
+    this.actPane.hidden = term;
+    this.tabTerm.setAttribute("aria-selected", term ? "true" : "false");
+    this.tabAct.setAttribute("aria-selected", term ? "false" : "true");
+    if (term) { this.ensure(); this.input.focus(); } else { this.refreshActivity(); }
+  };
+
+  Machine.prototype.open = function (name) {
+    var self = this;
+    document.body.classList.add("mc-open");
+    this.show(name || "terminal");
+    clearInterval(this.timer);
+    this.timer = setInterval(function () { if (!self.actPane.hidden) self.refreshActivity(); }, 3000);
+  };
+
+  Machine.prototype.close = function () {
+    document.body.classList.remove("mc-open");
+    clearInterval(this.timer);
+  };
+
+  // Make sure a shell is running, and keep reading what it prints.
+  Machine.prototype.ensure = function () {
+    var self = this;
+    if (this.session) return Promise.resolve(this.session);
+    if (this.opening) return this.opening;
+    this.opening = api("POST", "terminal", { action: "open" }).then(function (reply) {
+      self.session = reply.id;
+      self.opening = null;
+      self.where.textContent = platformInfo ? platformInfo.name : "this computer";
+      self.pump(reply.id, 0);
+      return reply.id;
+    }).catch(function (error) {
+      self.opening = null;
+      self.view.feed("\n[could not open a terminal: " + error.message + "]\n");
+      throw error;
+    });
+    return this.opening;
+  };
+
+  Machine.prototype.pump = function (id, since) {
+    var self = this;
+    api("GET", "terminal", { id: id, since: since }).then(function (reply) {
+      if (self.session !== id) return;
+      if (reply.data) {
+        self.view.feed(reply.data);
+        self.watchers = self.watchers.filter(function (watch) { return !watch(reply.data); });
+        // a password is typed blind in a terminal; here the box hides it
+        self.input.type = /(password|passphrase)[^:\n]*:\s*$/i.test(self.view.lastLine()) ? "password" : "text";
+      }
+      if (!reply.alive) {
+        self.session = null;
+        self.view.feed("\n[the terminal was closed. Type a command to open a new one.]\n");
+        return;
+      }
+      self.pump(id, reply.next);
+    }).catch(function () {
+      if (self.session !== id) return;
+      self.session = null;
+      self.view.feed("\n[the connection to the app was lost. Type a command to try again.]\n");
+    });
+  };
+
+  Machine.prototype.send = function (text) {
+    var self = this;
+    return this.ensure().then(function (id) {
+      return api("POST", "terminal", { action: "input", id: id, data: text });
+    }).catch(function () { self.session = null; });
+  };
+
+  // Run a command where the learner can watch it and answer its questions. `done(ok)` when it ends.
+  Machine.prototype.run = function (command, done) {
+    var finished = false;
+    this.open("terminal");
+    if (done) {
+      this.watchers.push(function (chunk) {
+        var mark = /\[z2d-done:(\d+)\]/.exec(chunk);
+        if (!mark || finished) return false;
+        finished = true;
+        done(mark[1] === "0");
+        return true;
+      });
+    }
+    this.send(command + "; printf '\\n[z2d-done:%s]\\n' \"$?\"\n");
+  };
+
+  Machine.prototype.refreshActivity = function () {
+    var self = this;
+    api("GET", "activity").then(function (a) {
+      var box = self.activity;
+      box.textContent = "";
+      platformInfo = a.platform;
+      box.appendChild(el("p", { class: "mc-note", text: "This is " + a.platform.name + ". Everything below runs on this computer." }));
+      function group(title, rows, empty) {
+        box.appendChild(el("h3", { text: title }));
+        if (!rows.length) { box.appendChild(el("p", { class: "mc-note", text: empty })); return; }
+        box.appendChild(el("ul", { class: "st-items" }, rows));
+      }
+      group("Installs and downloads", a.jobs.map(function (job) {
+        var badge = { running: ["Running", "st-warn"], done: ["Done", "st-ok"], failed: ["Failed", "st-bad"] }[job.state] || [job.state, "st-warn"];
+        var row = el("li", { class: "st-item mc-job" }, [
+          el("span", { class: "st-badge " + badge[1], text: badge[0] }),
+          el("div", { class: "st-item-main" }, [el("strong", { text: job.title })])
+        ]);
+        if (job.log) row.appendChild(el("pre", { class: "mc-joblog", text: job.log.split("\n").slice(job.state === "running" ? -6 : -3).join("\n") }));
+        return row;
+      }), "Nothing has been downloaded through the app since it started. Installs you start from Setup run in the Terminal tab, where you see every step.");
+      group("Apps you started", a.apps.map(function (app) {
+        return el("li", { class: "st-item" }, [
+          el("span", { class: "st-badge st-ok", text: "Running" }),
+          el("div", { class: "st-item-main" }, [el("strong", { text: app.id + " " }), el("a", { href: app.url, target: "_blank", rel: "noopener", text: app.url })])
+        ]);
+      }), "No exercise app or preview is running.");
+      group("Databases in Docker", a.services.map(function (service) {
+        return el("li", { class: "st-item" }, [
+          el("span", { class: "st-badge st-ok", text: "Running" }),
+          el("div", { class: "st-item-main" }, [el("strong", { text: service.name }), el("span", { text: " on 127.0.0.1:" + service.port })])
+        ]);
+      }), "None is running. They start when an exercise needs one.");
+      box.appendChild(el("p", { class: "mc-note" }, [el("a", { href: root + "setup.html", text: "Setup: what is installed, and what can be" })]));
+    }).catch(function (error) { self.activity.textContent = "Could not ask the app: " + error.message; });
+  };
+
+  function getMachine() {
+    if (!machine) machine = new Machine();
+    return machine;
+  }
+
+  function addMachineButton() {
+    var bar = document.querySelector(".topbar");
+    if (!bar || document.getElementById("machine-btn")) return;
+    var btn = el("button", { type: "button", class: "top-link mc-btn", id: "machine-btn", title: "A terminal on this computer, and what it is doing", text: ">_ Terminal" });
+    btn.addEventListener("click", function () {
+      if (document.body.classList.contains("mc-open")) getMachine().close(); else getMachine().open("terminal");
+    });
+    bar.insertBefore(btn, document.getElementById("tour-btn") || document.getElementById("theme-btn"));
   }
 
   // ---------------------------------------------------------------- the guide hosted online
   var REPO_RAW = "https://raw.githubusercontent.com/bugemarvin/zero2dev/main/setup/";
+  // When the guide is read on a public https address, the install line names that address, so the
+  // app on the learner's computer accepts this site from the start. Running the line is the consent.
+  var SITE = location.protocol === "https:" && !onThisComputer ? location.origin : "";
   var INSTALL = {
     windows: {
       label: "Windows",
@@ -930,7 +1178,7 @@
         "The first time, Windows installs Ubuntu (a real Linux inside Windows) and asks you to restart. After the restart, open \"Ubuntu\" from the Start menu once, choose a user name and password, then paste the same line into PowerShell again.",
         "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
-      command: "irm " + REPO_RAW + "get.ps1 | iex"
+      command: (SITE ? "$env:Z2D_TRUST='" + SITE + "'; " : "") + "irm " + REPO_RAW + "get.ps1 | iex"
     },
     linux: {
       label: "Ubuntu / Linux",
@@ -940,7 +1188,7 @@
         "If git or Python is missing, it asks for your password to install them. Nothing shows while you type a password: that is normal.",
         "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
-      command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
+      command: "curl -fsSL " + REPO_RAW + "get.sh | " + (SITE ? "Z2D_TRUST=" + SITE + " " : "") + "bash"
     },
     macos: {
       label: "macOS",
@@ -950,7 +1198,7 @@
         "If macOS offers to install the \"command line developer tools\", accept, wait for it to finish, and paste the line again.",
         "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
-      command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
+      command: "curl -fsSL " + REPO_RAW + "get.sh | " + (SITE ? "Z2D_TRUST=" + SITE + " " : "") + "bash"
     }
   };
 
@@ -1019,10 +1267,14 @@
       hello().then(function (info) {
         try { localStorage.setItem("z2d-app-seen", "1"); } catch (e) { /* ignore */ }
         status.className = "in-status st-ok";
+        if (info.paired) {
+          status.textContent = "Connected. This site now works with the tools on your computer: exercises, Setup and a terminal. Loading ...";
+          setTimeout(function () { location.reload(); }, 1400);
+          return;
+        }
         status.textContent = "Found it. zero2dev is running on this computer. ";
-        status.appendChild(el("a", { class: "st-btn st-primary", href: LOCAL_APP, text: "Open my app" }));
-        if (!info.paired) status.appendChild(connectButton(info));
-        else status.appendChild(button("Use it on this page", "", function () { location.reload(); }));
+        status.appendChild(connectButton(info));
+        status.appendChild(el("a", { class: "st-btn", href: LOCAL_APP, text: "Open my app instead" }));
       }).catch(function () {
         // Either the app is not running yet, or the browser does not let this site look at this computer.
         function explain(blocked) {
@@ -1051,6 +1303,7 @@
     dialog.appendChild(body);
     dialog.appendChild(el("div", { class: "in-foot" }, [
       check, status,
+      SITE ? el("p", { class: "st-count", text: "The line also tells the app that " + SITE + " may work with it, so you can do everything from this site: see what your computer is installing, run exercises, use a terminal. That gives this site the power to run commands on your computer. Leave out the Z2D_TRUST part if you do not want that." }) : null,
       el("p", { class: "st-count", text: "Prefer to do it by hand? git clone https://github.com/bugemarvin/zero2dev.git, then: cd zero2dev && python3 app.py" })
     ]));
     document.body.appendChild(dialog);
@@ -1135,6 +1388,7 @@
   function interactive(session) {
     token = session.token;
     document.body.classList.add("z2d-local");
+    addMachineButton();
     var studios = [];
     var boxes = Array.prototype.slice.call(document.querySelectorAll(".exercise[data-ex]"));
     if (boxes.length) studios = new Workspace(boxes).studios;
@@ -1145,6 +1399,7 @@
     if (mount) renderSetup(mount);
     api("GET", "state").then(function (state) {
       window.Z2D_PROFILE = state.profile;
+      platformInfo = state.platform || platformInfo;
       if (state.platform && window.Z2D && window.Z2D.applyOs) window.Z2D.applyOs(state.platform);
       setProgress(state.progress);
     });

@@ -48,8 +48,12 @@ if ($distros -notcontains $Distro) {
     return
 }
 
+# The install line on a copy of the guide that is online sets Z2D_TRUST to that site's address.
+$trust = "$env:Z2D_TRUST"
+if ($trust -notmatch '^https://[A-Za-z0-9.-]+(:[0-9]+)?$') { $trust = '' }
+
 Write-Step "Downloading and starting zero2dev inside $Distro"
-wsl.exe -d $Distro -- bash -c "curl -fsSL $GetSh | bash"
+wsl.exe -d $Distro -- bash -c "curl -fsSL $GetSh | Z2D_TRUST='$trust' bash"
 if ($LASTEXITCODE -ne 0) {
     Write-Host ''
     Write-Host "That did not finish. If '$Distro' has never been opened, open it once from the Start menu, create your Linux user, and run this command again." -ForegroundColor Yellow

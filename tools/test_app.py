@@ -317,6 +317,35 @@ try:
 finally:
     (ROOT / "exercises" / CSS / "style.css").write_text(starter_css, encoding="utf-8")
 
+# ---------------------------------------------------------------- the terminal and the activity list
+status, body, _ = request("GET", "/api/activity")
+check("activity lists jobs, apps, services and the system",
+      status == 200 and all(key in body for key in ("jobs", "apps", "services", "terminals", "platform")), str(body)[:200])
+status, body, _ = request("POST", "/api/terminal", {"action": "open"}, token=None)
+check("a terminal cannot be opened without the token", status == 401)
+status, body, _ = request("POST", "/api/terminal", {"action": "open"}, headers={"Origin": "https://evil.example"})
+check("nor by a website that was not approved", status == 403)
+status, body, _ = request("POST", "/api/terminal", {"action": "open"})
+term = body.get("id")
+check("the app's own page can open a terminal", status == 200 and bool(term), str(body))
+request("POST", "/api/terminal", {"action": "input", "id": term, "data": "echo z2d-$((40 + 2)); pwd\n"})
+seen, position = "", 0
+for _ in range(20):
+    status, body, _ = request("GET", f"/api/terminal?id={term}&since={position}")
+    seen += body.get("data", "")
+    position = body.get("next", position)
+    if "z2d-42" in seen:
+        break
+check("what is typed runs on this machine, and the output comes back", "z2d-42" in seen and str(ROOT) in seen, seen[-300:])
+status, body, _ = request("GET", "/api/activity")
+check("activity counts the open terminal", body.get("terminals") == 1, str(body.get("terminals")))
+status, body, _ = request("POST", "/api/terminal", {"action": "input", "id": term, "data": "x" * 30_000})
+check("oversized input is refused", status == 400)
+status, body, _ = request("POST", "/api/terminal", {"action": "close", "id": term})
+check("a terminal can be closed", status == 200 and body == {"closed": True})
+status, body, _ = request("GET", f"/api/terminal?id={term}&since=0")
+check("a closed terminal is gone", status == 404)
+
 # ---------------------------------------------------------------- following a link from another site
 CLICK = {"Sec-Fetch-Site": "cross-site", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "document"}
 status, body, resp = request("GET", "/", token=None, headers=CLICK)

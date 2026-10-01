@@ -43,3 +43,12 @@ def start(title, work):
 def get(job_id):
     with _lock:
         return _jobs.get(job_id)
+
+
+def recent(limit=12):
+    """The newest jobs, running ones first, for the page that shows what the machine is doing."""
+    with _lock:
+        jobs = list(_jobs.values())
+    jobs.reverse()
+    jobs.sort(key=lambda job: job.state != "running")
+    return jobs[:limit]
