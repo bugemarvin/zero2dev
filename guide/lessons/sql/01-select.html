@@ -28,8 +28,9 @@
 <p><strong>SQL</strong> is the language for working with tables. You describe <strong>what</strong> you want, and the database works out how to get it.</p>
 <h2 id="sql-and-postgresql">SQL and PostgreSQL</h2>
 <p>SQL is a standard, and every database speaks its own dialect of it. <strong>PostgreSQL</strong> is a free, powerful database server used in a great many production systems. <strong>SQLite</strong> is a tiny database that lives in a single file, with no server.</p>
-<p>Almost everything in this track is standard SQL and runs on both. Most exercises are checked with SQLite, which is built into Python, so they need nothing installed. Two later exercises use features specific to PostgreSQL and need a running server:</p>
-<pre><code class="lang-console">$ ./setup/install.sh --stack postgres</code></pre>
+<p>Almost everything in this track is standard SQL and runs on both. Most exercises are checked with SQLite, which is built into Python, so they need nothing installed.</p>
+<p>Two later exercises use features specific to PostgreSQL. For those the app looks for a PostgreSQL server on your machine and uses it. If there is none and Docker is installed, it starts one in a container named <code>z2d-postgres</code>, reachable only from your computer. You can also start it yourself:</p>
+<pre><code class="lang-console">$ python3 check.py services up postgres</code></pre>
 <h2 id="select">SELECT</h2>
 <pre><code class="lang-sql">SELECT title, price
 FROM books;</code></pre>
@@ -53,14 +54,15 @@ SELECT title FROM books WHERE title LIKE 'The %';</code></pre>
 <p><code>NULL</code> is never equal to anything, not even to another <code>NULL</code>. So <code>WHERE city = NULL</code> matches <strong>no rows at all</strong>. Test for it with <code>IS NULL</code> and <code>IS NOT NULL</code>:</p>
 <pre><code class="lang-sql">SELECT name FROM customers WHERE city IS NULL;</code></pre>
 <h2 id="trying-queries">Trying queries</h2>
-<p>Each SQL exercise has a file named <code>query.sql</code> where you write your answer, and a <code>seed.sql</code> that creates the sample tables. To see what your query returns, without judging it:</p>
+<p>Each SQL exercise has a file named <code>query.sql</code> where you write your answer, and a <code>seed.sql</code> that creates the sample tables.</p>
+<p>In the app, <strong>Show result</strong> runs your query on the sample data and displays the table it returns, without judging it. <strong>Run tests</strong> then checks it.</p>
+<p>In a terminal, the same two steps are:</p>
 <pre><code class="lang-console">$ python3 check.py show sql/01-select-where
 sql/01-select-where  result of query.sql
   title | price
   The Silent River | 12.5
-  (1 row)</code></pre>
-<p>When it looks right, check it:</p>
-<pre><code class="lang-console">$ python3 check.py sql/01-select-where</code></pre>
+  (1 row)
+$ python3 check.py sql/01-select-where</code></pre>
 <p>To explore the data freely, load the seed file into a database shell:</p>
 <pre><code class="lang-console">$ sqlite3 shop.db &lt; exercises/sql/01-select-where/seed.sql
 $ sqlite3 shop.db

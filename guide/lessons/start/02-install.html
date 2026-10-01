@@ -43,14 +43,20 @@ $ ./install.sh --stack java,elixir,postgres</code></pre>
 <p>The script does not cover macOS. Install the Xcode command line tools, which include <code>gcc</code>, <code>make</code> and <code>git</code>, then Python from python.org or Homebrew:</p>
 <pre><code class="lang-console">$ xcode-select --install</code></pre>
 <h2 id="check-that-it-worked">Check that it worked</h2>
-<p>From the <code>zero2dev</code> folder:</p>
+<p>Start the app from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ python3 app.py</code></pre>
+<p>It opens in your browser. Go to <strong>Setup</strong>. Every tool is listed with what the app found:</p>
+<div class="table-wrap"><table><thead><tr><th>Badge</th><th>Meaning</th></tr></thead><tbody><tr><td>Installed</td><td>already on your machine. It is used as it is, and there is nothing to do.</td></tr><tr><td>Via Docker</td><td>not installed, and that is fine: the app runs it in a container</td></tr><tr><td>Needs download</td><td>available after a one-time download, with a button to start it</td></tr><tr><td>Not installed</td><td>missing, with the command that installs it</td></tr></tbody></table></div>
+<p>To begin you need C, Git and Python to show <strong>Installed</strong> or <strong>Via Docker</strong>. The rest can wait until you reach their track.</p>
+<p>The same report is available in the terminal:</p>
 <pre><code class="lang-console">$ python3 check.py doctor
-Toolchains
-  ✓ C           gcc (Ubuntu 13.2.0) 13.2.0
-  ✓ git         git version 2.43.0
-  ✓ Python      Python 3.12.3
-  – Java        not installed   (setup/install.sh --stack java)</code></pre>
-<p>You need the first three lines to show a tick to begin. The others can wait until you reach their track.</p>
+Languages
+  ✓ C            already installed on this machine (gcc 13.2.0). Nothing to do.
+  ✓ Python       already installed on this machine (Python 3.12.3). Nothing to do.
+  – Java         not installed. It can run in Docker after a one-time download of eclipse-temurin:21-jdk.</code></pre>
+<h2 id="you-do-not-have-to-install-everything">You do not have to install everything</h2>
+<p>If <strong>Docker</strong> is on your machine, a language that is missing runs in a container instead. You can start the Java track without installing Java. Databases work the same way: when an exercise needs PostgreSQL, the app uses one that is already running, or starts a container for it.</p>
+<p>Docker itself comes with <code>./setup/install.sh --stack docker</code> on Linux, or Docker Desktop on Windows and macOS.</p>
 <h2 id="if-something-fails">If something fails</h2>
 <ul><li><strong><code>command not found</code></strong>: the tool is not installed, or the terminal was opened before the install. Close the terminal and open a new one.</li><li><strong><code>Permission denied</code> when running a script</strong>: run it as <code>bash install.sh</code>.</li><li><strong><code>sudo</code> asks for a password</strong>: it is the Linux password you chose, not your Windows one.</li></ul>
 <p>Next: <a href="../start/03-terminal.html">the terminal</a>.</p>

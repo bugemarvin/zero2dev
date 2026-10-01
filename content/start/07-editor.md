@@ -34,7 +34,20 @@ $ nano notes.txt
 
 ## The work loop
 
-Every exercise in this guide goes the same way.
+Every exercise in this guide goes the same way, and there are two places to do it.
+
+### In the app
+
+Start it once with `python3 app.py`. At the end of each lesson, under **Test yourself**:
+
+1. Read the task.
+2. Write your code in the editor on the page. It is saved into the exercise folder, so the same file is there for VS Code.
+3. Press **Run tests**, or Ctrl+Enter. Each test shows a tick or a cross, with what was expected and what your program did.
+4. Fix one thing and run again. **Hint** reveals a hint, and **Reset** brings the starter back.
+
+Exercises on Git and the shell have a command line on the page in place of an editor: type a command, press Enter, and then **Check my work**.
+
+### In a terminal, with your own editor
 
 **1. Find the next task.**
 
@@ -55,14 +68,14 @@ $ python3 check.py start/04-greet
 start/04-greet  Greet by name
   ✓ has no syntax errors
   ✓ greets the name given
-  ✗ prints usage when no name is given
+  ✗ with no name: prints nothing on stdout and exits with code 1
       the program exited with code 0, expected exit code 1
   FAILED 2/3 passed
 ```
 
 **4. Read the failure.** It shows what went in, what was expected and what your program did. Fix one thing, run again.
 
-**5. Passed?** Move on. Your progress appears on the home page of this guide.
+Both ways use the same files and record the same progress, so you can switch at any time.
 
 ## Checker commands
 
@@ -74,7 +87,8 @@ start/04-greet  Greet by name
 | `python3 check.py list` | every exercise and its status |
 | `python3 check.py progress` | totals per track |
 | `python3 check.py hint start/04` | hints, when you are stuck |
-| `python3 check.py doctor` | which languages are installed |
+| `python3 check.py doctor` | what this machine has, and what Docker can supply |
+| `python3 check.py stacks` | the tracks, and whether this machine is ready for each |
 
 ## When you are stuck
 

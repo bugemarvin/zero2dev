@@ -158,7 +158,7 @@ def cmd_progress():
         total_done += done
         width = 24
         filled = round(width * done / len(items))
-        print(f"  {track:<8} {'#' * filled}{'.' * (width - filled)} {done}/{len(items)}")
+        print(f"  {track:<14} {'#' * filled}{'.' * (width - filled)} {done}/{len(items)}")
     print(bold(f"\n  {total_done}/{len(exercises)} exercises passed"))
     return 0
 

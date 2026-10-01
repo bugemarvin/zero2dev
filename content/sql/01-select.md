@@ -21,10 +21,12 @@ The exercises in this track use a small bookshop. Here is part of its `books` ta
 
 SQL is a standard, and every database speaks its own dialect of it. **PostgreSQL** is a free, powerful database server used in a great many production systems. **SQLite** is a tiny database that lives in a single file, with no server.
 
-Almost everything in this track is standard SQL and runs on both. Most exercises are checked with SQLite, which is built into Python, so they need nothing installed. Two later exercises use features specific to PostgreSQL and need a running server:
+Almost everything in this track is standard SQL and runs on both. Most exercises are checked with SQLite, which is built into Python, so they need nothing installed.
+
+Two later exercises use features specific to PostgreSQL. For those the app looks for a PostgreSQL server on your machine and uses it. If there is none and Docker is installed, it starts one in a container named `z2d-postgres`, reachable only from your computer. You can also start it yourself:
 
 ```console
-$ ./setup/install.sh --stack postgres
+$ python3 check.py services up postgres
 ```
 
 ## SELECT
@@ -88,7 +90,11 @@ SELECT name FROM customers WHERE city IS NULL;
 
 ## Trying queries
 
-Each SQL exercise has a file named `query.sql` where you write your answer, and a `seed.sql` that creates the sample tables. To see what your query returns, without judging it:
+Each SQL exercise has a file named `query.sql` where you write your answer, and a `seed.sql` that creates the sample tables.
+
+In the app, **Show result** runs your query on the sample data and displays the table it returns, without judging it. **Run tests** then checks it.
+
+In a terminal, the same two steps are:
 
 ```console
 $ python3 check.py show sql/01-select-where
@@ -96,11 +102,6 @@ sql/01-select-where  result of query.sql
   title | price
   The Silent River | 12.5
   (1 row)
-```
-
-When it looks right, check it:
-
-```console
 $ python3 check.py sql/01-select-where
 ```
 

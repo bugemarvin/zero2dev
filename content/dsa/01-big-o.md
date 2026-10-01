@@ -91,7 +91,7 @@ The limits of a problem tell you which complexity you can afford. As a rule of t
 
 Every exercise here is defined by **input and output**. Your program reads from standard input and prints to standard output, so you can write it in any language you have installed.
 
-Each exercise ships with a Python starter that already reads the input. To use another language:
+Each exercise ships with a Python starter that already reads the input. In the app, choose another language in the **Language** box above the editor. In a terminal:
 
 ```console
 $ python3 check.py start dsa/01-max-of-list --lang java

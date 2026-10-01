@@ -142,6 +142,9 @@ def make_handler(token, port):
 
 def create(port=4750, tries=20):
     """Bind to the first free port from `port` upwards. Returns (server, token, port)."""
+    # A request must never hang for minutes on a download: the page offers a button instead.
+    providers.AUTO_PULL = False
+    workspaces.AUTO_INSTALL = False
     token = secrets.token_urlsafe(32)
     last_error = None
     for candidate in range(port, port + tries):
@@ -156,9 +159,6 @@ def create(port=4750, tries=20):
 
 
 def serve(port=4750, open_browser=True):
-    # A request must never hang for minutes on a download: the page offers a button instead.
-    providers.AUTO_PULL = False
-    workspaces.AUTO_INSTALL = False
     server, _token, port = create(port)
     url = f"http://127.0.0.1:{port}/"
     print(f"zero2dev is running at {url}")

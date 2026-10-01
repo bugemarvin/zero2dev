@@ -34,7 +34,12 @@ $ code .</code></pre>
 <pre><code class="lang-console">$ nano notes.txt</code></pre>
 <p><code>Ctrl+O</code> then Enter saves. <code>Ctrl+X</code> exits.</p>
 <h2 id="the-work-loop">The work loop</h2>
-<p>Every exercise in this guide goes the same way.</p>
+<p>Every exercise in this guide goes the same way, and there are two places to do it.</p>
+<h3 id="in-the-app">In the app</h3>
+<p>Start it once with <code>python3 app.py</code>. At the end of each lesson, under <strong>Test yourself</strong>:</p>
+<ol><li>Read the task.</li><li>Write your code in the editor on the page. It is saved into the exercise folder, so the same file is there for VS Code.</li><li>Press <strong>Run tests</strong>, or Ctrl+Enter. Each test shows a tick or a cross, with what was expected and what your program did.</li><li>Fix one thing and run again. <strong>Hint</strong> reveals a hint, and <strong>Reset</strong> brings the starter back.</li></ol>
+<p>Exercises on Git and the shell have a command line on the page in place of an editor: type a command, press Enter, and then <strong>Check my work</strong>.</p>
+<h3 id="in-a-terminal-with-your-own-editor">In a terminal, with your own editor</h3>
 <p><strong>1. Find the next task.</strong></p>
 <pre><code class="lang-console">$ python3 check.py next
 Next: start/04-greet  Greet by name
@@ -47,13 +52,13 @@ Next: start/04-greet  Greet by name
 start/04-greet  Greet by name
   ✓ has no syntax errors
   ✓ greets the name given
-  ✗ prints usage when no name is given
+  ✗ with no name: prints nothing on stdout and exits with code 1
       the program exited with code 0, expected exit code 1
   FAILED 2/3 passed</code></pre>
 <p><strong>4. Read the failure.</strong> It shows what went in, what was expected and what your program did. Fix one thing, run again.</p>
-<p><strong>5. Passed?</strong> Move on. Your progress appears on the home page of this guide.</p>
+<p>Both ways use the same files and record the same progress, so you can switch at any time.</p>
 <h2 id="checker-commands">Checker commands</h2>
-<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>python3 check.py next</code></td><td>the next exercise you have not passed</td></tr><tr><td><code>python3 check.py start/04</code></td><td>run one exercise (a unique start of the name is enough)</td></tr><tr><td><code>python3 check.py start</code></td><td>run a whole track</td></tr><tr><td><code>python3 check.py list</code></td><td>every exercise and its status</td></tr><tr><td><code>python3 check.py progress</code></td><td>totals per track</td></tr><tr><td><code>python3 check.py hint start/04</code></td><td>hints, when you are stuck</td></tr><tr><td><code>python3 check.py doctor</code></td><td>which languages are installed</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>python3 check.py next</code></td><td>the next exercise you have not passed</td></tr><tr><td><code>python3 check.py start/04</code></td><td>run one exercise (a unique start of the name is enough)</td></tr><tr><td><code>python3 check.py start</code></td><td>run a whole track</td></tr><tr><td><code>python3 check.py list</code></td><td>every exercise and its status</td></tr><tr><td><code>python3 check.py progress</code></td><td>totals per track</td></tr><tr><td><code>python3 check.py hint start/04</code></td><td>hints, when you are stuck</td></tr><tr><td><code>python3 check.py doctor</code></td><td>what this machine has, and what Docker can supply</td></tr><tr><td><code>python3 check.py stacks</code></td><td>the tracks, and whether this machine is ready for each</td></tr></tbody></table></div>
 <h2 id="when-you-are-stuck">When you are stuck</h2>
 <ol><li>Read the error message again, slowly. Find the line number.</li><li>Make the problem smaller. Test one small piece on its own.</li><li>Print values to see what the program is really doing.</li><li>Ask for the hint.</li><li>Take a break. A surprising number of bugs solve themselves on a walk.</li></ol>
 <p>Next up: <a href="../git/01-first-commit.html">Git</a>, so that none of your work is ever lost.</p>

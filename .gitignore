@@ -1,5 +1,6 @@
 # learner progress (written by check.py)
 .progress.json
+.profile.json
 guide/progress.js
 
 # build output
