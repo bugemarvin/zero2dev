@@ -1,0 +1,23 @@
+{
+  "title": "Catch the stars",
+  "lesson": "gamedev/05-a-complete-game",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "game.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "preview": "static",
+  "hints": [
+    "Begin with: if (game.mode !== \"playing\") return game; then copy the paddle and compute its new x with Math.min(Math.max(...)).",
+    "Move the stars with map into new objects, then handle the spawn timer: let spawnIn = game.spawnIn - dt; if (spawnIn <= 0) { stars.push({...}); spawnIn += 1; }",
+    "One filter over the stars handles both catching and missing: return false for a caught star (score += 10) and for one below the bottom (lives -= 1).",
+    "Finish with: return { ...game, paddle, stars, score, lives, spawnIn, mode: lives <= 0 ? \"over\" : \"playing\" } and set lives to 0 when it went below."
+  ]
+}

@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which structure fits an object with fields, such as a user?",
+  "options": [
+   "String",
+   "Hash",
+   "List",
+   "Set"
+  ],
+  "answer": 1,
+  "why": "A hash stores fields and values under one key."
+ },
+ {
+  "q": "For a first-in, first-out queue you add with RPUSH. Which command takes the next job?",
+  "options": [
+   "RPOP",
+   "LPOP",
+   "LRANGE",
+   "LLEN"
+  ],
+  "answer": 1,
+  "why": "Add on one end, take from the other."
+ },
+ {
+  "q": "SADD tags redis is run twice. How many members does the set have?",
+  "accept": [
+   "1"
+  ],
+  "why": "A set holds each value at most once."
+ },
+ {
+  "q": "Which command gives the members that two sets share?",
+  "options": [
+   "SUNION",
+   "SDIFF",
+   "SINTER",
+   "SCARD"
+  ],
+  "answer": 2,
+  "why": "SINTER is the intersection."
+ }
+]

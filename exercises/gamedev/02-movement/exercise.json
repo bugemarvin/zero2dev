@@ -1,0 +1,22 @@
+{
+  "title": "Move and jump",
+  "lesson": "gamedev/02-input-and-movement",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "game.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "preview": "static",
+  "hints": [
+    "direction: x = (keys.right ? 1 : 0) - (keys.left ? 1 : 0), the same for y, then divide both by Math.hypot(x, y) when that is not 0.",
+    "movePlayer: use direction(keys), and clamp x between 0 and bounds.width - player.w with Math.min(Math.max(value, min), max).",
+    "jump: copy the body first. Step 1 only sets vy and onGround. Step 2 runs when it is not on the ground, in the same call."
+  ]
+}

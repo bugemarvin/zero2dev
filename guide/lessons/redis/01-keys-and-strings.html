@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keys, strings and expiry · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="redis/01-keys-and-strings">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Redis · lesson 1 of 5</p>
+<h1>Keys, strings and expiry</h1>
+<p class="lede">What Redis is, the basic commands, and keys that delete themselves.</p>
+<details class="install" id="install" data-track="redis">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack redis,python</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks redis,python</code></pre>
+<h4>Redis: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y redis-server
+$ sudo service redis-server start</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install redis
+$ brew services start redis</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ redis-cli ping</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs Redis in the image <code>redis:7-alpine</code> (one download).</p>
+<h4>Python 3: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y python3 python3-pip python3-venv</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install python</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ python3 --version</code></pre>
+<p><strong>Redis</strong> is started for you: the app uses a server already running on this machine, or starts the Docker image <code>redis:7-alpine</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="what-redis-is">What Redis is</h2>
+<p>Redis is a database that keeps its data <strong>in memory</strong>. Reading and writing take well under a millisecond. It stores <strong>values under keys</strong>, and the values are data structures: strings, lists, hashes, sets and sorted sets.</p>
+<p>That speed makes it the standard tool for:</p>
+<ul><li><strong>caching</strong> the results of slow queries and API calls;</li><li><strong>sessions</strong> and other short-lived data;</li><li><strong>counters</strong> and <strong>rate limits</strong>;</li><li><strong>queues</strong> between services;</li><li><strong>leaderboards</strong> and other rankings.</li></ul>
+<p>It usually sits <strong>next to</strong> a main database such as PostgreSQL, not in place of it.</p>
+<h2 id="trying-it">Trying it</h2>
+<p>The app starts Redis for you: on the Setup page, or with <code>python3 check.py services up redis</code>. Then talk to it with <code>redis-cli</code>:</p>
+<pre><code class="lang-console">$ redis-cli -p 63790
+127.0.0.1:63790&gt; PING
+PONG</code></pre>
+<p>If Redis is already installed on your machine, it runs on port 6379 and plain <code>redis-cli</code> connects to it. Without installing anything: <code>docker exec -it z2d-redis redis-cli</code>.</p>
+<p>Commands are not case-sensitive. Keys and values are.</p>
+<h2 id="strings">Strings</h2>
+<pre><code class="lang-text">SET greeting "hello"
+GET greeting              -&gt; "hello"
+GET nothing               -&gt; (nil)
+EXISTS greeting           -&gt; 1
+DEL greeting              -&gt; 1   (the number of keys deleted)</code></pre>
+<p>A "string" is any sequence of bytes up to 512 MB: text, a number, JSON, an image.</p>
+<p>Several at once:</p>
+<pre><code class="lang-text">MSET a 1 b 2
+MGET a b nothing          -&gt; "1", "2", (nil)</code></pre>
+<h2 id="counters">Counters</h2>
+<pre><code class="lang-text">SET visits 10
+INCR visits               -&gt; 11
+INCRBY visits 5           -&gt; 16
+DECR visits               -&gt; 15</code></pre>
+<p><code>INCR</code> on a key that does not exist starts from 0.</p>
+<p>Redis runs commands <strong>one at a time</strong>. An <code>INCR</code> is never interrupted, so a thousand clients incrementing the same counter always get a thousand different numbers. You do not need locks.</p>
+<h2 id="expiry">Expiry</h2>
+<p>A key can delete itself after a time. This is what makes Redis a cache:</p>
+<pre><code class="lang-text">SET session:abc "user 42" EX 3600     # expires in 3600 seconds
+TTL session:abc                       -&gt; 3597: seconds left
+EXPIRE greeting 60                    # put a time limit on an existing key
+PERSIST greeting                      # remove the limit</code></pre>
+<div class="table-wrap"><table><thead><tr><th><code>TTL</code> answer</th><th>Meaning</th></tr></thead><tbody><tr><td>a positive number</td><td>seconds left</td></tr><tr><td><code>-1</code></td><td>the key exists and never expires</td></tr><tr><td><code>-2</code></td><td>the key does not exist</td></tr></tbody></table></div>
+<p>A plain <code>SET</code> on a key <strong>removes</strong> its expiry. Write <code>SET key value KEEPTTL</code> to keep it.</p>
+<h2 id="only-if-it-does-not-exist">Only if it does not exist</h2>
+<pre><code class="lang-text">SET lock:report "worker-1" NX EX 30</code></pre>
+<p><code>NX</code> sets the key only when it is absent. The reply is <code>OK</code> if you got it and <code>(nil)</code> if someone else did. With an expiry it is a simple <strong>lock</strong> that frees itself if its holder crashes.</p>
+<h2 id="naming-keys">Naming keys</h2>
+<p>Redis has one flat space of keys. The convention is to build names with colons:</p>
+<pre><code class="lang-text">user:42:name
+session:abc123
+cache:product:17</code></pre>
+<p>Good names say what kind of thing it is and which one.</p>
+<h2 id="finding-keys">Finding keys</h2>
+<pre><code class="lang-text">SCAN 0 MATCH user:* COUNT 100</code></pre>
+<p><code>SCAN</code> walks through the keys in steps. <strong>Never use <code>KEYS *</code> on a production server</strong>: it looks at every key in one go, and since Redis does one thing at a time, everything else waits.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Treating Redis as the only copy of important data.</strong> Memory is lost on a crash unless persistence is configured, and a cache may evict keys when memory is full.</li><li><strong>Keys with no expiry</strong> in a cache, which grow until memory runs out.</li><li><strong><code>KEYS *</code> in production.</strong></li><li><strong>Overwriting a key with <code>SET</code> and losing its expiry.</strong></li><li><strong>Storing a number, reading it, adding one and writing it back.</strong> Use <code>INCR</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="redis/01-strings">
+<h3>Strings, counters and expiry <span class="ex-id">redis/01-strings</span></h3>
+<p>Write the commands that leave Redis in this state:</p>
+<ol><li>The key <code>site:name</code> holds the text <code>zero2dev</code>.</li><li>The key <code>page:home:views</code> is a counter with the value <code>5</code>. Reach it with <code>INCR</code> or <code>INCRBY</code>, not by setting 5 directly.</li><li>The key <code>session:abc</code> holds the text <code>user:42</code> and expires in <strong>300 seconds</strong>.</li><li>The key <code>temp</code> is set and then deleted again, so it does not exist at the end.</li><li>The key <code>lock:report</code> is set to <code>worker-1</code> with <code>NX</code>, and then a second <code>SET ... NX</code> tries to set it to <code>worker-2</code>. The first one must win.</li></ol>
+<p>Write one command per line in <code>commands.redis</code>. Lines starting with <code>#</code> are comments. <strong>Run commands</strong> shows the reply to each line. Every run starts with an empty database.</p>
+<p class="ex-files">Files: <code>exercises/redis/01-strings/</code></p>
+<pre><code class="lang-console">$ python3 check.py redis/01-strings</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../mongodb/05-indexes-and-schema.html"><span>Previous</span>Indexes and schema design</a><a class="next" href="../redis/02-hashes-lists-sets.html"><span>Next</span>Hashes, lists and sets</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

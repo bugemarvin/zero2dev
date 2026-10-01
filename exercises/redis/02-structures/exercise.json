@@ -1,0 +1,84 @@
+{
+  "title": "A user, a queue and tags",
+  "lesson": "redis/02-hashes-lists-sets",
+  "kind": "redis",
+  "timeout": 30,
+  "require": [
+    "HINCRBY",
+    "SINTERSTORE"
+  ],
+  "checks": [
+    {
+      "name": "user:1 is a hash",
+      "cmd": "TYPE user:1",
+      "expect": "hash"
+    },
+    {
+      "name": "user:1 has the name Ada",
+      "cmd": "HGET user:1 name",
+      "expect": "Ada"
+    },
+    {
+      "name": "user:1 has the email",
+      "cmd": "HGET user:1 email",
+      "expect": "ada@example.com"
+    },
+    {
+      "name": "logins was incremented twice",
+      "cmd": "HGET user:1 logins",
+      "expect": "2"
+    },
+    {
+      "name": "user:1 has exactly three fields",
+      "cmd": "HLEN user:1",
+      "expect": "3"
+    },
+    {
+      "name": "jobs is a list",
+      "cmd": "TYPE jobs",
+      "expect": "list"
+    },
+    {
+      "name": "the two oldest jobs were taken: c and d are left, in order",
+      "cmd": "LRANGE jobs 0 -1",
+      "expect": [
+        "c",
+        "d"
+      ]
+    },
+    {
+      "name": "post:1:tags has its three tags",
+      "cmd": "SMEMBERS post:1:tags",
+      "expect": [
+        "redis",
+        "cache",
+        "database"
+      ],
+      "unordered": true
+    },
+    {
+      "name": "post:2:tags has its three tags",
+      "cmd": "SMEMBERS post:2:tags",
+      "expect": [
+        "cache",
+        "python",
+        "database"
+      ],
+      "unordered": true
+    },
+    {
+      "name": "common:tags holds the tags of both posts",
+      "cmd": "SMEMBERS common:tags",
+      "expect": [
+        "cache",
+        "database"
+      ],
+      "unordered": true
+    }
+  ],
+  "hints": [
+    "HSET user:1 name Ada email ada@example.com logins 0 sets three fields at once. HINCRBY user:1 logins 1 adds one.",
+    "A queue: RPUSH jobs a b c d adds on the right, LPOP jobs takes from the left.",
+    "SINTERSTORE common:tags post:1:tags post:2:tags stores the intersection in a new set."
+  ]
+}

@@ -1,0 +1,42 @@
+[
+ {
+  "q": "A model returns valid JSON matching your schema. Is the data correct?",
+  "options": [
+   "Yes",
+   "Not necessarily: the shape is right, the values may be wrong"
+  ],
+  "answer": 1,
+  "why": "Schema features guarantee structure, not truth. Validate content with code."
+ },
+ {
+  "q": "Why allow null for a field such as due_date?",
+  "options": [
+   "To save tokens",
+   "So the model can say 'not in the document' and need not invent a value",
+   "JSON requires it",
+   "For speed"
+  ],
+  "answer": 1,
+  "why": "A model forced to fill every field will make something up."
+ },
+ {
+  "q": "Validation fails. What is a good next step?",
+  "options": [
+   "Retry for ever",
+   "Send the error back and ask for a correction, a limited number of times",
+   "Use the data anyway",
+   "Raise the temperature"
+  ],
+  "answer": 1,
+  "why": "Models correct specific mistakes well. Limit the attempts."
+ },
+ {
+  "q": "In Python, isinstance(True, int) is ...",
+  "options": [
+   "True",
+   "False"
+  ],
+  "answer": 0,
+  "why": "bool is a subclass of int, so check for bool first when a number is expected."
+ }
+]

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structure and testing · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/06-structure-and-testing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 6 of 6</p>
+<h1>Structure and testing</h1>
+<p class="lede">Arrange a backend in layers, pass dependencies in, and test each part without a server or a database.</p>
+<h2 id="the-problem-with-one-big-file">The problem with one big file</h2>
+<p>A route handler that parses input, applies business rules, runs SQL and formats the response works. It cannot be tested without starting the server and a database, and every change risks breaking something unrelated.</p>
+<h2 id="layers">Layers</h2>
+<p>Split the work into three kinds of code:</p>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>Knows about</th><th>Example</th></tr></thead><tbody><tr><td><strong>routes</strong> (or controllers)</td><td>HTTP: requests, status codes, JSON</td><td><code>routes/orders.mjs</code></td></tr><tr><td><strong>services</strong></td><td>the rules of your business. No HTTP, no SQL.</td><td><code>services/orders.mjs</code></td></tr><tr><td><strong>repositories</strong></td><td>where the data lives: SQL, MongoDB, files</td><td><code>repositories/orders.mjs</code></td></tr></tbody></table></div>
+<pre><code class="lang-text">src/
+  app.mjs               builds the Express app
+  server.mjs            reads the configuration and starts listening
+  routes/
+  services/
+  repositories/
+test/</code></pre>
+<p>A request goes down the layers, and the answer comes back up. Each layer talks only to the one below it.</p>
+<h2 id="dependency-injection">Dependency injection</h2>
+<p>A service must not create its own database connection. It <strong>receives</strong> what it needs:</p>
+<pre><code class="lang-javascript">export function createOrderService({ orders, clock = () =&gt; new Date() }) {
+  return {
+    async place(customerId, lines) {
+      if (lines.length === 0) {
+        throw new Error("an order needs at least one line");
+      }
+      const total = lines.reduce((sum, line) =&gt; sum + line.price * line.quantity, 0);
+      return orders.insert({ customerId, lines, total, placedAt: clock() });
+    },
+  };
+}</code></pre>
+<p>In production you pass the real repository. In a test you pass a <strong>fake</strong>:</p>
+<pre><code class="lang-javascript">const saved = [];
+const service = createOrderService({
+  orders: { insert: async (order) =&gt; { saved.push(order); return { id: 1, ...order }; } },
+  clock: () =&gt; new Date("2025-01-01T00:00:00Z"),
+});</code></pre>
+<p>The test runs in a millisecond, needs no database, and controls the time. Anything a function depends on that is slow, random or outside the program should arrive as a parameter: the database, the network, the clock, the random generator.</p>
+<h2 id="the-built-in-test-runner">The built-in test runner</h2>
+<pre><code class="lang-javascript">import test from "node:test";
+import assert from "node:assert/strict";
+
+test("an order needs at least one line", async () =&gt; {
+  const service = createOrderService({ orders: { insert: async () =&gt; ({}) } });
+  await assert.rejects(() =&gt; service.place(1, []), { message: "an order needs at least one line" });
+});</code></pre>
+<pre><code class="lang-console">$ node --test
+$ node --test --watch
+$ node --test --experimental-test-coverage</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Assertion</th><th>Checks</th></tr></thead><tbody><tr><td><code>assert.equal(a, b)</code></td><td>the same value (strict)</td></tr><tr><td><code>assert.deepEqual(a, b)</code></td><td>the same structure, for objects and arrays</td></tr><tr><td><code>assert.ok(value)</code></td><td>truthy</td></tr><tr><td><code>assert.throws(fn, expected)</code></td><td>a synchronous function throws</td></tr><tr><td><code>assert.rejects(fn, expected)</code></td><td>an async function rejects</td></tr></tbody></table></div>
+<p><code>test.beforeEach</code> prepares fresh state for every test. The <code>mock</code> object of <code>node:test</code> creates functions that record their calls: <code>mock.fn()</code>.</p>
+<h2 id="which-tests">Which tests?</h2>
+<div class="table-wrap"><table><thead><tr><th>Kind</th><th>Tests</th><th>Speed</th><th>How many</th></tr></thead><tbody><tr><td>unit</td><td>one function or service, with fakes</td><td>milliseconds</td><td>most</td></tr><tr><td>integration</td><td>several parts together, with a real database</td><td>slower</td><td>some</td></tr><tr><td>end to end</td><td>the running system through HTTP</td><td>slowest</td><td>a few</td></tr></tbody></table></div>
+<p>Test <strong>behaviour</strong>, not implementation: what goes in and what comes out. A test that breaks whenever you rename a private function is a burden.</p>
+<p>A good test has three parts: <strong>arrange</strong> the situation, <strong>act</strong> once, <strong>assert</strong> the result.</p>
+<h2 id="separate-the-app-from-the-server">Separate the app from the server</h2>
+<pre><code class="lang-javascript">// app.mjs
+export function createApp(deps) {
+  const app = express();
+  app.use(express.json());
+  app.use("/orders", ordersRouter(deps));
+  return app;
+}
+
+// server.mjs
+const app = createApp({ orders: createOrderService({ orders: realRepository }) });
+const server = app.listen(config.port);</code></pre>
+<p>Tests can now build the app with fakes and call it without a fixed port.</p>
+<h2 id="shutting-down-cleanly">Shutting down cleanly</h2>
+<p>A deployment sends <code>SIGTERM</code> and then waits a little before killing the process. Finish what you are doing:</p>
+<pre><code class="lang-javascript">process.on("SIGTERM", () =&gt; {
+  server.close(() =&gt; {            // stop accepting, let running requests finish
+    database.end();
+    process.exit(0);
+  });
+});</code></pre>
+<p>Without this, every deployment drops the requests that were in flight.</p>
+<h2 id="logging">Logging</h2>
+<ul><li>Write logs to <strong>standard output</strong>, one event per line. The platform collects them.</li><li>Use <strong>structured</strong> logs (JSON), so they can be searched: <code>{"level":"error","msg":"payment failed","orderId":42}</code>.</li><li>Give each request an id, and include it in every log line of that request.</li><li>Never log passwords, tokens or card numbers.</li></ul>
+<h2 id="health-checks">Health checks</h2>
+<p>Platforms ask your service whether it is well:</p>
+<pre><code class="lang-javascript">app.get("/health", (req, res) =&gt; res.json({ status: "ok" }));</code></pre>
+<p>A <strong>readiness</strong> check also verifies the things it needs, such as the database, so that traffic is sent only when it can be served.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Business rules inside route handlers.</strong></li><li><strong><code>new Date()</code> and <code>Math.random()</code> buried in the logic</strong>, which makes tests unpredictable.</li><li><strong>Tests that need a running server and a real database</strong> for everything.</li><li><strong>Fakes that behave differently from the real thing.</strong> Keep them tiny, and cover the real one with a few integration tests.</li><li><strong>No graceful shutdown.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/06-service">
+<h3>A service with injected dependencies <span class="ex-id">node/06-service</span></h3>
+<p>Write <code>createLibrary(deps)</code> in <code>solution.mjs</code>. It contains the rules of a small library and knows nothing about HTTP or databases.</p>
+<p><code>deps</code> is an object with:</p>
+<ul><li><code>books</code>: a repository with the async methods <code>findById(id)</code> (a book or <code>null</code>), and <code>save(book)</code></li><li><code>clock</code>: a function that returns the current time in milliseconds</li><li><code>notify</code>: an async function <code>notify(memberId, message)</code></li></ul>
+<p>A book looks like <code>{ id, title, borrowedBy, dueAt }</code>. A free book has <code>borrowedBy: null</code> and <code>dueAt: null</code>.</p>
+<p><code>createLibrary</code> returns an object with three async methods.</p>
+<h4><code>borrow(bookId, memberId)</code></h4>
+<ul><li>An unknown book throws an <code>Error</code> with the message <code>book not found</code>.</li><li>A book that is already borrowed throws <code>book is already borrowed</code>.</li><li>Otherwise it sets <code>borrowedBy</code> to the member and <code>dueAt</code> to <strong>14 days</strong> after <code>clock()</code>, saves the book with <code>books.save</code>, and returns the saved book.</li></ul>
+<h4><code>giveBack(bookId, memberId)</code></h4>
+<ul><li>An unknown book throws <code>book not found</code>.</li><li>A book that this member has not borrowed throws <code>not borrowed by this member</code>.</li><li>Otherwise it clears <code>borrowedBy</code> and <code>dueAt</code>, saves, and returns <code>{ late: false, fee: 0 }</code> when it is on time. When <code>clock()</code> is later than <code>dueAt</code>, it returns <code>{ late: true, fee }</code>, where the fee is <strong>50 per started day</strong> of delay, and it calls <code>notify(memberId, "late fee: FEE")</code>.</li></ul>
+<h4><code>isAvailable(bookId)</code></h4>
+<p>Returns <code>true</code> when the book exists and is not borrowed, otherwise <code>false</code>.</p>
+<p>Do not use <code>Date.now()</code> in your code. The time comes from <code>clock</code>, which is what lets the tests travel in time.</p>
+<p class="ex-files">Files: <code>exercises/node/06-service/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/06-service</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../node/05-authentication.html"><span>Previous</span>Authentication and security</a><a class="next" href="../php/01-basics.html"><span>Next</span>PHP basics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

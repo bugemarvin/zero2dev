@@ -1,0 +1,40 @@
+[
+ {
+  "q": "stop_reason is max_tokens. What does that tell you?",
+  "options": [
+   "The answer is complete",
+   "The answer was cut off at your limit",
+   "The key is wrong",
+   "The model refused"
+  ],
+  "answer": 1,
+  "why": "The model ran into max_tokens before finishing."
+ },
+ {
+  "q": "Where must an API key never be?",
+  "options": [
+   "In an environment variable on the server",
+   "In the JavaScript of a web page",
+   "In a secrets manager"
+  ],
+  "answer": 1,
+  "why": "Anything sent to a user's device can be read. Call the model from your server."
+ },
+ {
+  "q": "Which error is worth retrying?",
+  "options": [
+   "400 bad request",
+   "401 wrong key",
+   "429 rate limit"
+  ],
+  "answer": 2,
+  "why": "A rate limit passes with time. A bad request fails the same way every time."
+ },
+ {
+  "q": "With exponential backoff starting at 1 second, how long is the third wait in seconds?",
+  "accept": [
+   "4"
+  ],
+  "why": "1, 2, 4: each wait doubles."
+ }
+]

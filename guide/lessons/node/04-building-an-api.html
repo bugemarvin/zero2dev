@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building a solid API · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/04-building-an-api">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 4 of 6</p>
+<h1>Building a solid API</h1>
+<p class="lede">Middleware, validation, consistent errors, filtering and paging: what separates a demo from a service.</p>
+<p>The JavaScript track introduced <a href="../js/08-express-api.html">Express</a>: routes, <code>req</code>, <code>res</code>, JSON. This lesson is about building an API that other people can depend on.</p>
+<h2 id="middleware">Middleware</h2>
+<p>A <strong>middleware</strong> is a function that runs for a request before, or in place of, the route handler:</p>
+<pre><code class="lang-javascript">function logRequests(req, res, next) {
+  const started = Date.now();
+  res.on("finish", () =&gt; {
+    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - started}ms`);
+  });
+  next();             // pass the request on
+}
+
+app.use(express.json());      // parses JSON bodies into req.body
+app.use(logRequests);</code></pre>
+<p>A request passes through the middleware <strong>in the order they were added</strong>. Each one calls <code>next()</code> to continue, or sends a response to stop. Authentication, logging, rate limits and body parsing are all middleware.</p>
+<h2 id="routers">Routers</h2>
+<p>Group the routes of one resource in a router, in its own file:</p>
+<pre><code class="lang-javascript">// routes/books.mjs
+import { Router } from "express";
+
+export const books = Router();
+
+books.get("/", (req, res) =&gt; { /* list */ });
+books.get("/:id", (req, res) =&gt; { /* one */ });
+books.post("/", (req, res) =&gt; { /* create */ });</code></pre>
+<pre><code class="lang-javascript">app.use("/books", books);</code></pre>
+<h2 id="validation">Validation</h2>
+<p>Never use input you have not checked. Validate at the edge, and reject with <strong>400</strong> and a message that says what is wrong:</p>
+<pre><code class="lang-javascript">function validateBook(body) {
+  const errors = {};
+  if (typeof body.title !== "string" || body.title.trim() === "") {
+    errors.title = "title is required";
+  }
+  if (!Number.isInteger(body.year) || body.year &lt; 0) {
+    errors.year = "year must be a positive whole number";
+  }
+  return errors;
+}
+
+books.post("/", (req, res) =&gt; {
+  const errors = validateBook(req.body ?? {});
+  if (Object.keys(errors).length &gt; 0) {
+    return res.status(400).json({ error: "validation failed", fields: errors });
+  }
+  // ...
+});</code></pre>
+<p>Report <strong>all</strong> the problems at once, per field. A form can then show each message next to its field. In real projects a schema library such as Zod does this, and also gives you the TypeScript types.</p>
+<p>Copy only the fields you expect. <code>Object.assign(book, req.body)</code> lets a client set <code>id</code>, <code>ownerId</code> or <code>isAdmin</code>. That is <strong>mass assignment</strong>.</p>
+<h2 id="one-shape-for-every-error">One shape for every error</h2>
+<p>Clients need to handle errors with one piece of code. Pick a shape and use it everywhere:</p>
+<pre><code class="lang-json">{ "error": "not found" }</code></pre>
+<p>Throw errors that carry their status, and turn them into responses in <strong>one</strong> place:</p>
+<pre><code class="lang-javascript">class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+
+books.get("/:id", (req, res) =&gt; {
+  const book = store.find(Number(req.params.id));
+  if (!book) {
+    throw new HttpError(404, "not found");
+  }
+  res.json(book);
+});</code></pre>
+<p>The <strong>error handler</strong> is a middleware with four parameters, added last:</p>
+<pre><code class="lang-javascript">app.use((req, res) =&gt; {
+  res.status(404).json({ error: "not found" });        // no route matched
+});
+
+app.use((error, req, res, next) =&gt; {
+  if (error.type === "entity.parse.failed") {           // express.json() met invalid JSON
+    return res.status(400).json({ error: "invalid JSON" });
+  }
+  if (error instanceof HttpError) {
+    return res.status(error.status).json({ error: error.message });
+  }
+  console.error(error);                                 // a bug: log it, hide the details
+  res.status(500).json({ error: "internal error" });
+});</code></pre>
+<p>Never send a stack trace or a database message to the client. It tells an attacker how your system is built. Express 5 passes errors from <code>async</code> handlers to this function automatically.</p>
+<h2 id="status-codes-that-mean-something">Status codes that mean something</h2>
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Use</th></tr></thead><tbody><tr><td>200</td><td>success with a body</td></tr><tr><td>201</td><td>created. Add a <code>Location</code> header with the new address.</td></tr><tr><td>204</td><td>success, no body</td></tr><tr><td>400</td><td>the request is malformed or fails validation</td></tr><tr><td>401</td><td>not authenticated: who are you?</td></tr><tr><td>403</td><td>authenticated, and not allowed</td></tr><tr><td>404</td><td>no such resource</td></tr><tr><td>409</td><td>conflict with the current state: a duplicate</td></tr><tr><td>422</td><td>well-formed, and semantically wrong (some APIs use it for validation)</td></tr><tr><td>429</td><td>too many requests</td></tr><tr><td>500</td><td>a bug on the server</td></tr></tbody></table></div>
+<h2 id="filtering-sorting-paging">Filtering, sorting, paging</h2>
+<p>A list endpoint must never return "everything". It will have a million rows one day.</p>
+<pre><code class="lang-text">GET /books?author=austen&amp;sort=-year&amp;limit=20&amp;offset=40</code></pre>
+<pre><code class="lang-javascript">const limit = Math.min(Number(req.query.limit) || 20, 100);     // a default and a maximum
+const offset = Math.max(Number(req.query.offset) || 0, 0);</code></pre>
+<p>Return the page together with what the client needs to ask for the next one:</p>
+<pre><code class="lang-json">{ "items": [], "total": 137, "limit": 20, "offset": 40 }</code></pre>
+<p>Query values are always <strong>strings</strong>. Convert and check them like any other input.</p>
+<h2 id="idempotency">Idempotency</h2>
+<p><code>GET</code>, <code>PUT</code> and <code>DELETE</code> should give the same result when repeated: a client that got no answer can safely try again. <code>POST</code> creates something new each time, so a retried payment can charge twice. Real APIs accept an <code>Idempotency-Key</code> header and remember the outcome per key.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No validation</strong>, or validation scattered through the handlers.</li><li><strong>A different error shape in every route.</strong></li><li><strong>200 with <code>{ "error": ... }</code></strong> in the body. The status code is the first thing a client looks at.</li><li><strong>Unbounded lists.</strong></li><li><strong>Leaking internal errors</strong> to the client.</li><li><strong>Trusting <code>req.body</code> enough to store it as it is.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/04-books-api">
+<h3>A books API with validation and paging <span class="ex-id">node/04-books-api</span></h3>
+<p>Finish <code>server.mjs</code>. The store, the <code>HttpError</code> class and the three starting books are given.</p>
+<h4>Routes</h4>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Answer</th></tr></thead><tbody><tr><td><code>GET /books</code></td><td>200 and a page: <code>{ "items": [...], "total": N, "limit": L, "offset": O }</code></td></tr><tr><td><code>GET /books/:id</code></td><td>200 and the book, or 404</td></tr><tr><td><code>POST /books</code></td><td>201, the new book, and the header <code>Location: /books/ID</code></td></tr><tr><td><code>DELETE /books/:id</code></td><td>204, or 404</td></tr></tbody></table></div>
+<h4>The list</h4>
+<ul><li><code>?author=NAME</code> keeps the books of that author, ignoring upper and lower case.</li><li><code>?sort=year</code> orders by year, oldest first. <code>?sort=-year</code> newest first. Without <code>sort</code>, the order is by id.</li><li><code>?limit=N</code> is the page size: 20 by default, at least 1, at most 100.</li><li><code>?offset=N</code> skips that many books: 0 by default, never negative.</li><li><code>total</code> is the number of books after filtering and before paging.</li></ul>
+<h4>Creating</h4>
+<p>The body needs <code>title</code> (non-empty text), <code>author</code> (non-empty text) and <code>year</code> (a whole number). Title and author are trimmed. Any other field in the body is ignored, including <code>id</code>.</p>
+<p>When the body is wrong, answer 400 with every problem at once:</p>
+<pre><code class="lang-json">{ "error": "validation failed", "fields": { "title": "title is required", "year": "year must be a whole number" } }</code></pre>
+<p>The messages are <code>title is required</code>, <code>author is required</code> and <code>year must be a whole number</code>.</p>
+<h4>Errors</h4>
+<p>Every error has the shape <code>{ "error": "..." }</code>:</p>
+<ul><li>an unknown book or an unknown path: 404 and <code>not found</code></li><li>a body that is not valid JSON: 400 and <code>invalid JSON</code></li></ul>
+<p class="ex-files">Files: <code>exercises/node/04-books-api/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/04-books-api</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../node/03-events-and-streams.html"><span>Previous</span>Events and streams</a><a class="next" href="../node/05-authentication.html"><span>Next</span>Authentication and security</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

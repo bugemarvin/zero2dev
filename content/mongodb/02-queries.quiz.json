@@ -1,0 +1,44 @@
+[
+ {
+  "q": "Which filter finds books with a price above 10?",
+  "options": [
+   "{ price: > 10 }",
+   "{ price: { $gt: 10 } }",
+   "{ $gt: { price: 10 } }",
+   "{ price: \"> 10\" }"
+  ],
+  "answer": 1,
+  "why": "The operator goes inside a document that is the value of the field."
+ },
+ {
+  "q": "A document has tags: [\"sf\", \"classic\"]. Does { tags: \"sf\" } match it?",
+  "options": [
+   "Yes",
+   "No"
+  ],
+  "answer": 0,
+  "why": "A filter on an array matches when any element matches."
+ },
+ {
+  "q": "How do you filter on the field shop inside stock?",
+  "options": [
+   "{ stock.shop: 1 }",
+   "{ \"stock.shop\": 1 }",
+   "{ stock: shop: 1 }",
+   "{ stock->shop: 1 }"
+  ],
+  "answer": 1,
+  "why": "Dot notation, in quotes."
+ },
+ {
+  "q": "In a projection, how do you leave out _id?",
+  "options": [
+   "It is left out by default",
+   "_id: 0",
+   "_id: false only",
+   "hide: \"_id\""
+  ],
+  "answer": 1,
+  "why": "_id is included unless you set it to 0."
+ }
+]

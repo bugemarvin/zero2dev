@@ -1,0 +1,12 @@
+{
+  "title": "Fit a conversation into the context window",
+  "lesson": "llm/01-how-llms-work",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "estimate_tokens: math.ceil(len(text) / 4).",
+    "trim_history: first set aside the system messages and subtract their cost from the limit. That is your budget.",
+    "Walk the other messages from the end: for index in range(len(messages) - 1, -1, -1). Stop with break at the first that costs more than the budget.",
+    "Remember the indexes you keep, and build the result with a list comprehension over the original list, so the order is preserved."
+  ]
+}

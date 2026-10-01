@@ -1,0 +1,17 @@
+# 1. site:name
+SET site:name zero2dev
+
+# 2. page:home:views, counted up to 5
+INCR page:home:views
+INCRBY page:home:views 4
+
+# 3. session:abc with a time limit
+SET session:abc user:42 EX 300
+
+# 4. temp, set and deleted
+SET temp x
+DEL temp
+
+# 5. lock:report, taken by worker-1
+SET lock:report worker-1 NX
+SET lock:report worker-2 NX

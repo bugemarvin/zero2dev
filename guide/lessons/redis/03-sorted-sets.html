@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorted sets · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="redis/03-sorted-sets">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Redis · lesson 3 of 5</p>
+<h1>Sorted sets</h1>
+<p class="lede">Rankings, leaderboards and time-ordered data, always kept in order.</p>
+<h2 id="a-set-with-scores">A set with scores</h2>
+<p>A <strong>sorted set</strong> holds unique members, each with a number called its <strong>score</strong>. Redis keeps the members ordered by score at all times.</p>
+<pre><code class="lang-text">ZADD leaderboard 1500 ada
+ZADD leaderboard 900 sam 2100 kim</code></pre>
+<p>Adding a member that exists <strong>updates its score</strong>.</p>
+<h2 id="reading-by-rank">Reading by rank</h2>
+<pre><code class="lang-text">ZRANGE leaderboard 0 -1                     # lowest score first: sam, ada, kim
+ZREVRANGE leaderboard 0 2                   # highest first, positions 0 to 2: the top three
+ZREVRANGE leaderboard 0 2 WITHSCORES        # with the scores</code></pre>
+<p>Positions start at 0, and <code>-1</code> is the last one.</p>
+<h2 id="one-member">One member</h2>
+<pre><code class="lang-text">ZSCORE leaderboard ada              -&gt; "1500"
+ZREVRANK leaderboard ada            -&gt; 1: second place, counting from 0
+ZRANK leaderboard ada               -&gt; 1: position from the lowest
+ZINCRBY leaderboard 700 ada         -&gt; "2200": add to the score
+ZREM leaderboard sam
+ZCARD leaderboard                   -&gt; how many members</code></pre>
+<p><code>ZINCRBY</code> is atomic, like <code>INCR</code>. A game server calls it after every match and the board is always right.</p>
+<h2 id="reading-by-score">Reading by score</h2>
+<pre><code class="lang-text">ZRANGEBYSCORE leaderboard 1000 2000         # scores from 1000 to 2000
+ZRANGEBYSCORE leaderboard (1000 +inf        # more than 1000: ( excludes the value
+ZCOUNT leaderboard 1000 2000                # how many
+ZREMRANGEBYSCORE leaderboard -inf 500       # delete the low scores</code></pre>
+<h2 id="why-not-sort-in-the-application">Why not sort in the application?</h2>
+<p>Sorting a million players on every page view is slow. A sorted set finds the top ten, or one player's rank, in a time that barely grows with the number of members. Each operation costs about the logarithm of the size: a million members take around twenty steps.</p>
+<h2 id="time-as-the-score">Time as the score</h2>
+<p>Use a timestamp as the score, and the sorted set becomes a timeline:</p>
+<pre><code class="lang-text">ZADD events 1717000000 "user 42 logged in"
+ZADD events 1717000060 "user 42 bought a mug"
+
+ZRANGEBYSCORE events 1717000000 1717003600      # everything in that hour
+ZREMRANGEBYSCORE events -inf 1716913600         # drop what is older than a day</code></pre>
+<p>The same idea gives:</p>
+<ul><li>a <strong>delayed queue</strong>: the score is the time a job should run, and a worker takes those with a score up to now;</li><li>a <strong>sliding-window rate limit</strong>: one entry per request, count the entries in the last minute;</li><li><strong>"recently active" lists</strong>.</li></ul>
+<h2 id="ties">Ties</h2>
+<p>Members with equal scores are ordered alphabetically. If you need "who got there first" as a tie-breaker, build it into the score.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Storing a list and sorting it yourself.</strong></li><li><strong>Forgetting <code>REV</code></strong> and showing the lowest scores as the "top".</li><li><strong>Thinking ranks start at 1.</strong> They start at 0.</li><li><strong>A sorted set that grows for ever.</strong> Trim it with <code>ZREMRANGEBYRANK</code> or <code>ZREMRANGEBYSCORE</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="redis/03-leaderboard">
+<h3>A leaderboard <span class="ex-id">redis/03-leaderboard</span></h3>
+<p>Build the sorted set <code>game:scores</code>.</p>
+<ol><li>Add five players with these scores: <code>ada</code> 1200, <code>sam</code> 800, <code>kim</code> 1500, <code>lee</code> 300, <code>zoe</code> 950.</li><li><code>sam</code> wins a match: add 500 to sam's score with <code>ZINCRBY</code>.</li><li><code>lee</code> leaves the game: remove lee.</li><li>Store the <strong>top three</strong> in a second key: copy them, highest first, into the <strong>list</strong> <code>game:top3</code> with <code>RPUSH</code>. Look at the board with <code>ZREVRANGE game:scores 0 2</code> to see who they are.</li></ol>
+<p>Write one command per line in <code>commands.redis</code>. Lines starting with <code>#</code> are comments. <strong>Run commands</strong> shows the reply to each line. Every run starts with an empty database.</p>
+<p class="ex-files">Files: <code>exercises/redis/03-leaderboard/</code></p>
+<pre><code class="lang-console">$ python3 check.py redis/03-leaderboard</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../redis/02-hashes-lists-sets.html"><span>Previous</span>Hashes, lists and sets</a><a class="next" href="../redis/04-caching.html"><span>Next</span>Caching</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

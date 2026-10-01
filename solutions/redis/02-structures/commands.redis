@@ -1,0 +1,14 @@
+# a user as a hash
+HSET user:1 name Ada email ada@example.com logins 0
+HINCRBY user:1 logins 1
+HINCRBY user:1 logins 1
+
+# a queue as a list
+RPUSH jobs a b c d
+LPOP jobs
+LPOP jobs
+
+# tags as sets
+SADD post:1:tags redis cache database
+SADD post:2:tags cache python database
+SINTERSTORE common:tags post:1:tags post:2:tags

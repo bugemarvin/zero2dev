@@ -1,0 +1,44 @@
+[
+ {
+  "q": "What is a hitbox?",
+  "options": [
+   "The picture of a sprite",
+   "A simple invisible shape used for collision tests",
+   "A sound effect",
+   "A health bar"
+  ],
+  "answer": 1,
+  "why": "Collisions are tested between simple shapes, not pixels."
+ },
+ {
+  "q": "Two circles have radii 10 and 5, with centres 14 apart. Do they overlap?",
+  "options": [
+   "Yes",
+   "No"
+  ],
+  "answer": 0,
+  "why": "14 is less than 10 + 5."
+ },
+ {
+  "q": "Why compare squared distances?",
+  "options": [
+   "It is more exact",
+   "It avoids a slow square root and gives the same answer",
+   "It is required",
+   "It prevents tunnelling"
+  ],
+  "answer": 1,
+  "why": "If d < r then d*d < r*r, for positive numbers."
+ },
+ {
+  "q": "A fast bullet passes through a thin wall without a collision being found. What is this called?",
+  "options": [
+   "Clipping",
+   "Tunnelling",
+   "Lag",
+   "Overflow"
+  ],
+  "answer": 1,
+  "why": "The bullet was never inside the wall on any frame."
+ }
+]

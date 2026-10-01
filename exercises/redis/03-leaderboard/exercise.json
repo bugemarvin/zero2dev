@@ -1,0 +1,62 @@
+{
+  "title": "A leaderboard",
+  "lesson": "redis/03-sorted-sets",
+  "kind": "redis",
+  "timeout": 30,
+  "require": [
+    "ZADD",
+    "ZINCRBY",
+    "ZREM"
+  ],
+  "checks": [
+    {
+      "name": "game:scores is a sorted set",
+      "cmd": "TYPE game:scores",
+      "expect": "zset"
+    },
+    {
+      "name": "four players are left",
+      "cmd": "ZCARD game:scores",
+      "expect": "4"
+    },
+    {
+      "name": "sam has 1300 points",
+      "cmd": "ZSCORE game:scores sam",
+      "expect": "1300"
+    },
+    {
+      "name": "lee is gone",
+      "cmd": "ZSCORE game:scores lee",
+      "expect": []
+    },
+    {
+      "name": "the board from the top: kim, sam, ada, zoe",
+      "cmd": "ZREVRANGE game:scores 0 -1",
+      "expect": [
+        "kim",
+        "sam",
+        "ada",
+        "zoe"
+      ]
+    },
+    {
+      "name": "sam is in second place (rank 1)",
+      "cmd": "ZREVRANK game:scores sam",
+      "expect": "1"
+    },
+    {
+      "name": "game:top3 lists the top three, highest first",
+      "cmd": "LRANGE game:top3 0 -1",
+      "expect": [
+        "kim",
+        "sam",
+        "ada"
+      ]
+    }
+  ],
+  "hints": [
+    "ZADD game:scores 1200 ada 800 sam 1500 kim 300 lee 950 zoe: the score comes before the member.",
+    "ZINCRBY game:scores 500 sam adds to a score. ZREM game:scores lee removes a member.",
+    "After the changes the top three are kim, sam and ada: RPUSH game:top3 kim sam ada"
+  ]
+}

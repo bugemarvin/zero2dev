@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Why use $inc in place of reading a number, adding one, and writing it back?",
+  "options": [
+   "It is shorter",
+   "It is one step inside the database, so concurrent updates are not lost",
+   "It is the only way",
+   "It creates an index"
+  ],
+  "answer": 1,
+  "why": "Read-modify-write in the application can lose updates when two clients do it at once."
+ },
+ {
+  "q": "Which operator adds a value to an array only if it is not already there?",
+  "options": [
+   "$push",
+   "$addToSet",
+   "$pull",
+   "$set"
+  ],
+  "answer": 1,
+  "why": "$addToSet treats the array as a set."
+ },
+ {
+  "q": "What does upsert: true do when no document matches the filter?",
+  "options": [
+   "Nothing",
+   "Throws an error",
+   "Creates the document",
+   "Updates all documents"
+  ],
+  "answer": 2,
+  "why": "Upsert means update, or insert if there is nothing to update."
+ },
+ {
+  "q": "updateOne matches 5 documents. How many does it change?",
+  "accept": [
+   "1"
+  ],
+  "why": "updateOne stops at the first match. Use updateMany for all."
+ }
+]

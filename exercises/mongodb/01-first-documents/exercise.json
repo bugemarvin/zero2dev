@@ -1,0 +1,56 @@
+{
+  "title": "Your first documents",
+  "lesson": "mongodb/01-documents-and-crud",
+  "kind": "mongo",
+  "timeout": 60,
+  "expect": {
+    "ordered": true,
+    "docs": [
+      {
+        "title": "Call Sam",
+        "done": true
+      },
+      {
+        "title": "Write report",
+        "done": false
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "two tasks are left",
+      "eval": "db.tasks.countDocuments({})",
+      "expect": 2
+    },
+    {
+      "name": "task 1 is stored with all its fields",
+      "eval": "db.tasks.findOne({ _id: 1 })",
+      "expect": {
+        "_id": 1,
+        "title": "Write report",
+        "done": false,
+        "priority": 2
+      }
+    },
+    {
+      "name": "task 3 is done and keeps its other fields",
+      "eval": "db.tasks.findOne({ _id: 3 })",
+      "expect": {
+        "_id": 3,
+        "title": "Call Sam",
+        "done": true,
+        "priority": 1
+      }
+    },
+    {
+      "name": "task 2 is deleted",
+      "eval": "db.tasks.findOne({ _id: 2 })",
+      "expect": null
+    }
+  ],
+  "hints": [
+    "db.tasks.insertMany([{ _id: 1, title: \"Write report\", done: false, priority: 2 }, ...]);",
+    "db.tasks.updateOne({ _id: 3 }, { $set: { done: true } });",
+    "const result = db.tasks.find({}, { title: 1, done: 1, _id: 0 }).sort({ title: 1 });"
+  ]
+}

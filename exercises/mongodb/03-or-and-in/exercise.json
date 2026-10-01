@@ -1,0 +1,33 @@
+{
+  "title": "Or, in and distinct",
+  "lesson": "mongodb/02-queries",
+  "kind": "mongo",
+  "timeout": 60,
+  "seed": "seed.js",
+  "expect": {
+    "value": {
+      "cheapOrNew": 3,
+      "austenTitles": [
+        "Emma",
+        "Persuasion",
+        "The Martian"
+      ],
+      "tags": [
+        "classic",
+        "cyberpunk",
+        "fantasy",
+        "romance",
+        "sf"
+      ]
+    }
+  },
+  "require": [
+    "$or",
+    "$in"
+  ],
+  "hints": [
+    "countDocuments takes a filter: db.books.countDocuments({ $or: [ {...}, {...} ] }).",
+    "db.books.find({ author: { $in: [...] } }).sort({ title: 1 }).toArray().map((book) => book.title)",
+    "db.books.distinct(\"tags\") returns an array. Call .sort() on it."
+  ]
+}

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does a readiness check answer?",
+  "options": [
+   "Is the process running?",
+   "Can this instance serve requests right now?",
+   "Is the disk full?",
+   "Who deployed it?"
+  ],
+  "answer": 1,
+  "why": "An instance can be alive and not ready, for example while it starts."
+ },
+ {
+  "q": "In a rolling deployment, what is true for a while?",
+  "options": [
+   "The service is down",
+   "Old and new versions run at the same time",
+   "Only the new version runs",
+   "No version runs"
+  ],
+  "answer": 1,
+  "why": "So both versions must work with the same database and the same clients."
+ },
+ {
+  "q": "What is a canary release?",
+  "options": [
+   "Deploying at night",
+   "Sending a small share of real traffic to the new version first",
+   "Running two full environments",
+   "A release with no tests"
+  ],
+  "answer": 1,
+  "why": "If the canary shows problems, only a few users were affected."
+ },
+ {
+  "q": "A deployment is causing errors for users. What comes first?",
+  "options": [
+   "Find the root cause",
+   "Roll back",
+   "Write a report",
+   "Add more servers"
+  ],
+  "answer": 1,
+  "why": "Restore service first. Investigate afterwards, calmly."
+ }
+]

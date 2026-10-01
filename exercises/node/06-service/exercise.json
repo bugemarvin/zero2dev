@@ -1,0 +1,21 @@
+{
+  "title": "A service with injected dependencies",
+  "lesson": "node/06-structure-and-testing",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "borrow: const book = await books.findById(bookId); throw new Error(\"book not found\") when it is null, and \"book is already borrowed\" when book.borrowedBy !== null.",
+    "The due date: clock() + 14 * DAY. Save a copy: const updated = { ...book, borrowedBy: memberId, dueAt: ... }; await books.save(updated); return updated;",
+    "giveBack: const delay = clock() - book.dueAt. When delay > 0 the fee is Math.ceil(delay / DAY) * 50, and you call await notify(memberId, `late fee: ${fee}`)."
+  ]
+}

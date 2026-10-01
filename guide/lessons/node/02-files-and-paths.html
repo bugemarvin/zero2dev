@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Files and paths · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/02-files-and-paths">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 2 of 6</p>
+<h1>Files and paths</h1>
+<p class="lede">Read, write and walk the file system with promises, and handle the errors that will happen.</p>
+<h2 id="fs-promises">fs/promises</h2>
+<pre><code class="lang-javascript">import { readFile, writeFile, appendFile, mkdir, readdir, stat, rm, rename } from "node:fs/promises";
+
+const text = await readFile("notes.txt", "utf8");       // without "utf8" you get a Buffer of bytes
+await writeFile("out.txt", "hello\n");                  // creates or replaces
+await appendFile("log.txt", "one more line\n");
+await mkdir("data/cache", { recursive: true });         // like mkdir -p: no error if it exists
+await rm("data/cache", { recursive: true, force: true });</code></pre>
+<p>Every function returns a promise. Forgetting <code>await</code> means the next line runs before the file is written.</p>
+<h2 id="paths">Paths</h2>
+<p>Never build paths by joining strings with <code>/</code>. Windows uses <code>\</code>, and it is easy to produce <code>a//b</code> or to forget a separator.</p>
+<pre><code class="lang-javascript">import path from "node:path";
+
+path.join("data", "users", "42.json")       // data/users/42.json
+path.resolve("data")                        // an absolute path, from the current folder
+path.basename("/tmp/report.csv")            // report.csv
+path.extname("report.csv")                  // .csv
+path.dirname("/tmp/report.csv")             // /tmp</code></pre>
+<p>A relative path is resolved from the folder the program was <strong>started</strong> in, not from the folder of the source file. To find files that live next to your code:</p>
+<pre><code class="lang-javascript">const here = import.meta.dirname;                       // the folder of this module
+const template = path.join(here, "templates", "mail.txt");</code></pre>
+<h2 id="errors-have-codes">Errors have codes</h2>
+<p>File operations fail for ordinary reasons. The error object has a <code>code</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody><tr><td><code>ENOENT</code></td><td>no such file or directory</td></tr><tr><td><code>EEXIST</code></td><td>it already exists</td></tr><tr><td><code>EACCES</code></td><td>permission denied</td></tr><tr><td><code>EISDIR</code></td><td>it is a directory, a file was expected</td></tr></tbody></table></div>
+<pre><code class="lang-javascript">async function readJsonOr(file, fallback) {
+  try {
+    return JSON.parse(await readFile(file, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return fallback;
+    }
+    throw error;        // anything else is a real problem: pass it on
+  }
+}</code></pre>
+<p>Catch the error you expect, and <strong>rethrow the rest</strong>. A bare <code>catch {}</code> that swallows everything hides permission problems and broken JSON.</p>
+<p>Do not check whether a file exists and then open it. Between the check and the use, the file can disappear. Just try, and handle <code>ENOENT</code>.</p>
+<h2 id="directories">Directories</h2>
+<pre><code class="lang-javascript">const names = await readdir("data");                                // names only
+const entries = await readdir("data", { withFileTypes: true });     // with their kind
+for (const entry of entries) {
+  if (entry.isDirectory()) {
+    // ...
+  }
+}
+
+const info = await stat("data/users.json");
+console.log(info.size, info.mtime, info.isFile());</code></pre>
+<p>Walking a tree is a recursive function: for each entry, if it is a folder, call yourself.</p>
+<pre><code class="lang-javascript">async function walk(dir) {
+  const files = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await walk(full)));
+    } else {
+      files.push(full);
+    }
+  }
+  return files;
+}</code></pre>
+<h2 id="writing-safely">Writing safely</h2>
+<p>If the program crashes in the middle of <code>writeFile</code>, the file is left half written. For data that matters, write to a temporary file and rename it. A rename is atomic: readers see the old file or the new one, never a mixture.</p>
+<pre><code class="lang-javascript">await writeFile(file + ".tmp", JSON.stringify(data, null, 2));
+await rename(file + ".tmp", file);</code></pre>
+<h2 id="several-things-at-once">Several things at once</h2>
+<pre><code class="lang-javascript">const [users, orders] = await Promise.all([
+  readFile("users.json", "utf8"),
+  readFile("orders.json", "utf8"),
+]);</code></pre>
+<p><code>Promise.all</code> starts all of them and waits for all. With <code>await</code> in a loop they run one after another. For hundreds of files, limit how many run together, or you will hit "too many open files".</p>
+<h2 id="never-trust-a-path-from-a-user">Never trust a path from a user</h2>
+<pre><code class="lang-javascript">const file = path.join("uploads", req.params.name);     // name = "../../etc/passwd"</code></pre>
+<p>This is <strong>path traversal</strong>. Resolve the path and check that it is still inside the folder you meant:</p>
+<pre><code class="lang-javascript">const root = path.resolve("uploads");
+const file = path.resolve(root, name);
+if (!file.startsWith(root + path.sep)) {
+  throw new Error("invalid path");
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>await</code>.</strong></li><li><strong>Joining paths with <code>+</code>.</strong></li><li><strong>Assuming the current folder</strong> is the folder of the script.</li><li><strong>Catching every error</strong> and returning a default.</li><li><strong>Reading a multi-gigabyte file with <code>readFile</code>.</strong> It must fit in memory. Use streams, the subject of the next lesson.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/02-files">
+<h3>A small file store <span class="ex-id">node/02-files</span></h3>
+<p>Write four <code>async</code> functions in <code>solution.mjs</code>. Use <code>node:fs/promises</code> and <code>node:path</code>.</p>
+<ul><li><code>readJsonOr(file, fallback)</code> returns the parsed JSON of the file. When the file does <strong>not exist</strong>, it returns <code>fallback</code>. Any other problem, such as invalid JSON, is thrown on.</li><li><code>saveJson(file, data)</code> writes the data as JSON. It creates the parent folders when they are missing. It writes to <code>file + ".tmp"</code> first and then renames it to <code>file</code>, so no <code>.tmp</code> file is left behind.</li><li><code>countLines(file)</code> returns the number of lines of a text file. A last line without a newline counts. An empty file has 0 lines.</li><li><code>findFiles(dir, extension)</code> returns the paths of all files under <code>dir</code>, in sub-folders too, whose name ends with the extension, for example <code>".md"</code>. The paths are relative to <code>dir</code>, use <code>/</code> between the parts, and are sorted alphabetically.</li></ul>
+<p class="ex-files">Files: <code>exercises/node/02-files/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/02-files</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../node/01-runtime-and-processes.html"><span>Previous</span>The runtime: event loop, modules and processes</a><a class="next" href="../node/03-events-and-streams.html"><span>Next</span>Events and streams</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

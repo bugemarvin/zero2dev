@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What is the MongoDB word for a row?",
+  "options": [
+   "Collection",
+   "Document",
+   "Field",
+   "Record set"
+  ],
+  "answer": 1,
+  "why": "A collection holds documents, as a table holds rows."
+ },
+ {
+  "q": "Which field does every document have?",
+  "options": [
+   "id",
+   "_id",
+   "key",
+   "uuid"
+  ],
+  "answer": 1,
+  "why": "_id is the primary key. MongoDB creates an ObjectId if you give none."
+ },
+ {
+  "q": "What does updateOne({title: \"Dune\"}, {$set: {price: 9}}) do to the other fields of the document?",
+  "options": [
+   "Removes them",
+   "Leaves them unchanged",
+   "Sets them to null",
+   "Copies them"
+  ],
+  "answer": 1,
+  "why": "$set changes only the fields it names."
+ },
+ {
+  "q": "What does deleteMany({}) delete?",
+  "options": [
+   "Nothing",
+   "One document",
+   "Every document in the collection",
+   "The database"
+  ],
+  "answer": 2,
+  "why": "An empty filter matches everything."
+ }
+]

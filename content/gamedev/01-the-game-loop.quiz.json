@@ -1,0 +1,40 @@
+[
+ {
+  "q": "What are the three steps of a game loop?",
+  "options": [
+   "Load, save, quit",
+   "Read input, update, draw",
+   "Compile, link, run",
+   "Request, response, render"
+  ],
+  "answer": 1,
+  "why": "Every frame: input, update the world, draw the world."
+ },
+ {
+  "q": "On a canvas, in which direction does y grow?",
+  "options": [
+   "Up",
+   "Down"
+  ],
+  "answer": 1,
+  "why": "The origin is the top left corner, and y grows downwards."
+ },
+ {
+  "q": "Why multiply speeds by delta time?",
+  "options": [
+   "To make the game harder",
+   "So the game runs at the same speed on every screen",
+   "To save memory",
+   "It is required by the canvas"
+  ],
+  "answer": 1,
+  "why": "Movement per second, not per frame, is independent of the frame rate."
+ },
+ {
+  "q": "A ball moves at 120 pixels per second. How many pixels does it move in a frame of 0.05 seconds?",
+  "accept": [
+   "6"
+  ],
+  "why": "120 times 0.05."
+ }
+]

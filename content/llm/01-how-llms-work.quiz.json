@@ -1,0 +1,40 @@
+[
+ {
+  "q": "What does a language model fundamentally do?",
+  "options": [
+   "Looks answers up in a database",
+   "Predicts the next token, again and again",
+   "Runs your code",
+   "Searches the web"
+  ],
+  "answer": 1,
+  "why": "Generation is repeated next-token prediction."
+ },
+ {
+  "q": "Roughly how many characters of English make one token?",
+  "accept": [
+   "4"
+  ],
+  "why": "About four characters, or three quarters of a word."
+ },
+ {
+  "q": "How does a chat application make a model 'remember' earlier turns?",
+  "options": [
+   "The model stores them",
+   "It sends the whole conversation again with each request",
+   "It retrains the model",
+   "It uses cookies"
+  ],
+  "answer": 1,
+  "why": "Models are stateless between calls. The application supplies the history."
+ },
+ {
+  "q": "Which temperature suits extracting data from an invoice?",
+  "options": [
+   "0",
+   "1.5"
+  ],
+  "answer": 0,
+  "why": "Low temperature gives the most likely, most repeatable output."
+ }
+]

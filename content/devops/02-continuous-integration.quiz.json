@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What tells a CI system that a step failed?",
+  "options": [
+   "The word ERROR in the output",
+   "A non-zero exit code",
+   "A red colour",
+   "A missing log"
+  ],
+  "answer": 1,
+  "why": "The exit code is the interface: 0 is success, anything else is failure."
+ },
+ {
+  "q": "Why run the linter before the tests?",
+  "options": [
+   "It is more important",
+   "It is fast, so mistakes are found sooner",
+   "Tests need it",
+   "It is alphabetical"
+  ],
+  "answer": 1,
+  "why": "Fail fast: order the steps from quick to slow."
+ },
+ {
+  "q": "What does a CI machine start with on each run?",
+  "options": [
+   "The files of the last run",
+   "A clean, empty machine",
+   "Your laptop's files",
+   "A copy of production"
+  ],
+  "answer": 1,
+  "why": "A fresh machine proves the project does not depend on anything left lying around."
+ },
+ {
+  "q": "A test fails at random one run in ten. What should the team do?",
+  "options": [
+   "Re-run until green",
+   "Fix or remove it now",
+   "Ignore red pipelines",
+   "Disable CI"
+  ],
+  "answer": 1,
+  "why": "Flaky tests teach people to ignore failures."
+ }
+]

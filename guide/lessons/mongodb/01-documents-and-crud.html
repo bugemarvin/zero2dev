@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documents and CRUD · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="mongodb/01-documents-and-crud">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">MongoDB · lesson 1 of 5</p>
+<h1>Documents and CRUD</h1>
+<p class="lede">What a document database is, and the four basic operations.</p>
+<details class="install" id="install" data-track="mongodb">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack mongodb</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks mongodb</code></pre>
+<h4>MongoDB: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console"># follow https://www.mongodb.com/docs/manual/administration/install-on-linux/ for your version of Ubuntu or Debian
+$ sudo apt-get install -y mongodb-org
+$ sudo systemctl start mongod</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew tap mongodb/brew
+$ brew install mongodb-community
+$ brew services start mongodb-community</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ mongosh --eval 'db.runCommand({ping: 1})'</code></pre>
+<p>MongoDB is not in the standard Ubuntu packages: the quick install adds MongoDB's own package source first. The easiest route is Docker: the app starts a MongoDB container for you.</p>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs MongoDB in the image <code>mongo:7</code> (one download).</p>
+<p><strong>MongoDB</strong> is started for you: the app uses a server already running on this machine, or starts the Docker image <code>mongo:7</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="documents-not-rows">Documents, not rows</h2>
+<p>A relational database stores <strong>rows</strong> in <strong>tables</strong> with fixed columns. MongoDB stores <strong>documents</strong> in <strong>collections</strong>. A document looks like JSON:</p>
+<pre><code class="lang-javascript">{
+  _id: 1,
+  title: "Dune",
+  author: "Frank Herbert",
+  year: 1965,
+  tags: ["sf", "classic"],
+  stock: { shop: 4, warehouse: 20 }
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>SQL</th><th>MongoDB</th></tr></thead><tbody><tr><td>database</td><td>database</td></tr><tr><td>table</td><td>collection</td></tr><tr><td>row</td><td>document</td></tr><tr><td>column</td><td>field</td></tr><tr><td>primary key</td><td>the <code>_id</code> field</td></tr></tbody></table></div>
+<p>Two things are different from a table:</p>
+<ul><li>A field can hold a <strong>list</strong> or another <strong>document</strong>. Data that belongs together is stored together, with no join.</li><li>Documents in one collection need not have the same fields. The schema is flexible, and it is your application that keeps it sensible.</li></ul>
+<p>When is this a good fit? When your data is naturally a tree (a blog post with its comments, an order with its lines), when the shape varies from item to item, or when you need to spread data over many servers. When your data is many-to-many relationships that you query in every direction, <a href="../sql/01-select.html">a relational database</a> is the better tool.</p>
+<h2 id="the-shell">The shell</h2>
+<p><code>mongosh</code> is MongoDB's shell. It is a JavaScript prompt with a <code>db</code> object:</p>
+<pre><code class="lang-console">$ mongosh
+test&gt; use shop
+shop&gt; db.books.find()</code></pre>
+<ul><li><code>use shop</code> switches to the database <code>shop</code>. It is created when you first store something.</li><li><code>db.books</code> is the collection <code>books</code>. It also appears on first use.</li></ul>
+<p>The app starts MongoDB for you: on the Setup page, or with <code>python3 check.py services up mongodb</code>. Connect to it with <code>mongosh --port 27170</code>, or without installing anything: <code>docker exec -it z2d-mongodb mongosh</code>.</p>
+<h2 id="create">Create</h2>
+<pre><code class="lang-javascript">db.books.insertOne({ title: "Dune", year: 1965 });
+
+db.books.insertMany([
+  { title: "Emma", year: 1815 },
+  { title: "Foundation", year: 1951 },
+]);</code></pre>
+<p>Every document gets an <code>_id</code>. If you do not give one, MongoDB creates an <code>ObjectId</code>, a 12-byte value that is unique and roughly ordered by time. Two documents in a collection can never share an <code>_id</code>.</p>
+<h2 id="read">Read</h2>
+<pre><code class="lang-javascript">db.books.find();                        // every document
+db.books.find({ year: 1965 });          // those where year is 1965
+db.books.find({ year: 1965, title: "Dune" });   // both conditions
+db.books.findOne({ title: "Dune" });    // the first match, or null
+db.books.countDocuments({ year: 1965 });</code></pre>
+<p>The first argument is a <strong>filter</strong>: a document that describes what you are looking for.</p>
+<p><code>find</code> returns a <strong>cursor</strong>, which hands out results in batches. In a script, <code>.toArray()</code> collects them into an array.</p>
+<h2 id="update">Update</h2>
+<pre><code class="lang-javascript">db.books.updateOne(
+  { title: "Dune" },                  // which document
+  { $set: { price: 12.5 } }           // what to change
+);</code></pre>
+<p><code>$set</code> changes the named fields and leaves the rest alone. Without an operator such as <code>$set</code> the command is rejected, which protects you from replacing a whole document by accident. <code>updateMany</code> changes every match.</p>
+<h2 id="delete">Delete</h2>
+<pre><code class="lang-javascript">db.books.deleteOne({ title: "Emma" });
+db.books.deleteMany({ year: { $lt: 1900 } });</code></pre>
+<p><code>deleteMany({})</code> with an empty filter deletes <strong>everything</strong> in the collection.</p>
+<h2 id="choosing-fields-and-order">Choosing fields and order</h2>
+<pre><code class="lang-javascript">db.books.find({}, { title: 1, year: 1, _id: 0 })    // projection: only these fields
+        .sort({ year: -1 })                         // 1 ascending, -1 descending
+        .limit(3);</code></pre>
+<p>In a projection, <code>1</code> includes a field. <code>_id</code> is included unless you write <code>_id: 0</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>An update with no operator</strong>, intending to change one field.</li><li><strong>An empty filter on <code>deleteMany</code> or <code>updateMany</code>.</strong> Run the same filter with <code>find</code> first and look at what it matches.</li><li><strong>Inconsistent field names</strong> such as <code>userName</code> in one document and <code>username</code> in another. Nothing stops you, and queries silently miss documents.</li><li><strong>Expecting <code>find</code> to return an array.</strong> It is a cursor.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="mongodb/01-first-documents">
+<h3>Your first documents <span class="ex-id">mongodb/01-first-documents</span></h3>
+<p>Work in the collection <code>tasks</code>. It starts empty.</p>
+<ol><li>Insert these three documents. Give each the <code>_id</code> shown.</li></ol>
+<div class="table-wrap"><table><thead><tr><th><code>_id</code></th><th><code>title</code></th><th><code>done</code></th><th><code>priority</code></th></tr></thead><tbody><tr><td>1</td><td><code>"Write report"</code></td><td><code>false</code></td><td>2</td></tr><tr><td>2</td><td><code>"Buy milk"</code></td><td><code>true</code></td><td>3</td></tr><tr><td>3</td><td><code>"Call Sam"</code></td><td><code>false</code></td><td>1</td></tr></tbody></table></div>
+<ol><li>Mark the task with <code>_id</code> 3 as done, using <code>updateOne</code> and <code>$set</code>.</li><li>Delete the task with <code>_id</code> 2.</li><li>Put the remaining tasks in a variable named <code>result</code>: only the fields <code>title</code> and <code>done</code> (no <code>_id</code>), sorted by <code>title</code>.</li></ol>
+<p>Write your commands in <code>query.js</code>. <strong>Show result</strong> runs the file on the sample data and prints <code>result</code>. Each run starts from a fresh copy of the data, so you can experiment freely.</p>
+<p class="ex-files">Files: <code>exercises/mongodb/01-first-documents/</code></p>
+<pre><code class="lang-console">$ python3 check.py mongodb/01-first-documents</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/10-window-functions-and-json.html"><span>Previous</span>Window functions and JSON</a><a class="next" href="../mongodb/02-queries.html"><span>Next</span>Queries</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

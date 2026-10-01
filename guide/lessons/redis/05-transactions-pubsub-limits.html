@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transactions, rate limits and messaging · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="redis/05-transactions-pubsub-limits">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Redis · lesson 5 of 5</p>
+<h1>Transactions, rate limits and messaging</h1>
+<p class="lede">Several commands as one, limiting how often something may happen, and sending messages between programs.</p>
+<h2 id="several-commands-as-one">Several commands as one</h2>
+<p>Redis runs one command at a time, so each command is atomic. Two commands in a row are not: another client can run between them.</p>
+<p><code>MULTI</code> and <code>EXEC</code> group commands so that <strong>nothing else runs in between</strong>:</p>
+<pre><code class="lang-text">MULTI
+DECRBY account:1 50
+INCRBY account:2 50
+EXEC</code></pre>
+<p>The commands are queued, and <code>EXEC</code> runs them all. <code>DISCARD</code> drops the queue.</p>
+<p>This is not a transaction in the SQL sense. If one command fails while running, for example an <code>INCR</code> on a text value, the others still take effect. There is no rollback.</p>
+<h2 id="check-then-act">Check, then act</h2>
+<p>To act only if a value has not changed since you read it, <code>WATCH</code> the key first:</p>
+<pre><code class="lang-text">WATCH stock:mug
+GET stock:mug          # the program sees 3 and decides to sell one
+MULTI
+DECR stock:mug
+EXEC                   # replies (nil) if another client changed stock:mug meanwhile</code></pre>
+<p>When <code>EXEC</code> returns nil, the program reads again and retries. This is <strong>optimistic locking</strong>: nobody waits, and a conflict costs a retry.</p>
+<p>For more complex atomic logic, Redis runs <strong>Lua scripts</strong> on the server with <code>EVAL</code>. The whole script runs as one command.</p>
+<h2 id="rate-limiting">Rate limiting</h2>
+<p>"At most 5 login attempts per minute for each address." A counter with an expiry does it:</p>
+<pre><code class="lang-python">def allow(redis, client, limit=5, window=60):
+    key = f"rate:{client}"
+    count = redis.incr(key)
+    if count == 1:
+        redis.expire(key, window)      # the window starts with the first request
+    return count &lt;= limit</code></pre>
+<ul><li>The first request creates the counter and starts the clock.</li><li>Every request adds one.</li><li>When the key expires, the client starts fresh.</li></ul>
+<p>This is a <strong>fixed window</strong>. It is simple, and it allows a burst at the edge of two windows: 5 requests at the end of one minute and 5 more at the start of the next. A <strong>sliding window</strong> is more exact: store one entry per request in a sorted set with the time as its score, remove entries older than the window, and count the rest.</p>
+<p>One subtlety: if the program stops between <code>INCR</code> and <code>EXPIRE</code>, the key never expires and the client is locked out for ever. Send both in one <code>MULTI</code>, or use a Lua script.</p>
+<h2 id="publish-and-subscribe">Publish and subscribe</h2>
+<p>A program <strong>subscribes</strong> to a channel, and every message <strong>published</strong> to it is delivered at once to all subscribers:</p>
+<pre><code class="lang-text">SUBSCRIBE news                    # terminal 1: waits for messages
+PUBLISH news "we are live"        # terminal 2: replies with the number of receivers</code></pre>
+<p>Pub/sub is "fire and forget". A message published while nobody is listening is gone. Use it for live notifications, such as pushing chat messages to connected browsers, and never for work that must not be lost.</p>
+<h2 id="streams">Streams</h2>
+<p>A <strong>stream</strong> is a log of messages that <strong>stays</strong>. Readers keep their own position, and a <strong>consumer group</strong> shares the messages among several workers and tracks which were finished:</p>
+<pre><code class="lang-text">XADD orders * customer ada total 42            # * lets Redis choose the id
+XRANGE orders - +                              # read everything
+XGROUP CREATE orders billing 0
+XREADGROUP GROUP billing worker-1 COUNT 10 STREAMS orders &gt;
+XACK orders billing 1717000000000-0            # this message is done</code></pre>
+<p>A worker that crashes before <code>XACK</code> leaves its messages pending, and another worker can claim them. That is what a reliable queue needs.</p>
+<div class="table-wrap"><table><thead><tr><th>You need</th><th>Use</th></tr></thead><tbody><tr><td>a simple job queue, one consumer</td><td>a list with <code>BLPOP</code></td></tr><tr><td>live notifications that may be missed</td><td>pub/sub</td></tr><tr><td>a durable log, several workers, acknowledgements</td><td>a stream</td></tr></tbody></table></div>
+<h2 id="persistence">Persistence</h2>
+<p>Redis can write its memory to disk in two ways:</p>
+<ul><li><strong>RDB</strong>: a snapshot every so often. Compact, and you may lose the minutes since the last one.</li><li><strong>AOF</strong>: a log of every write. Loses at most about a second.</li></ul>
+<p>A pure cache can run with neither. Data you cannot rebuild needs AOF, and backups.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting <code>MULTI</code> to roll back</strong> when a command fails.</li><li><strong>A rate limit whose key never expires.</strong></li><li><strong>Pub/sub for jobs</strong> that must be done.</li><li><strong>Long Lua scripts.</strong> While one runs, nothing else does.</li><li><strong>No password on a Redis server reachable from the network.</strong> Bind it to localhost or set <code>requirepass</code>. Open Redis servers are found and abused within hours.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="redis/05-rate-limit">
+<h3>A rate limiter <span class="ex-id">redis/05-rate-limit</span></h3>
+<p>Write two functions in <code>solution.py</code>. They receive a <code>redis</code> object with the methods <code>incr(key)</code>, <code>expire(key, seconds)</code> and <code>get(key)</code>. The tests pass a fake one whose clock they control.</p>
+<h4><code>allow(redis, client, limit, window)</code></h4>
+<p>Returns <code>True</code> when the client may make a request, <code>False</code> when it has used up its allowance.</p>
+<ul><li>The key is <code>rate:</code> followed by the client, for example <code>rate:10.0.0.1</code>.</li><li>Each call adds 1 to the counter with <code>incr</code>.</li><li>On the <strong>first</strong> request of a window, set the key to expire after <code>window</code> seconds. Do not reset the expiry on later requests.</li><li>The request is allowed when the count is at most <code>limit</code>.</li></ul>
+<h4><code>remaining(redis, client, limit)</code></h4>
+<p>Returns how many requests the client has left in the current window, never less than 0. A client with no counter has <code>limit</code> left. <code>redis.get</code> returns a string or <code>None</code>.</p>
+<p class="ex-files">Files: <code>exercises/redis/05-rate-limit/</code></p>
+<pre><code class="lang-console">$ python3 check.py redis/05-rate-limit</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../redis/04-caching.html"><span>Previous</span>Caching</a><a class="next" href="../html/01-page-structure.html"><span>Next</span>The structure of a page</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

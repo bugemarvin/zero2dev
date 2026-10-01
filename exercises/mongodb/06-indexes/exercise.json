@@ -1,0 +1,55 @@
+{
+  "title": "Indexes that enforce and speed up",
+  "lesson": "mongodb/05-indexes-and-schema",
+  "kind": "mongo",
+  "timeout": 60,
+  "seed": "seed.js",
+  "expect": {
+    "ordered": true,
+    "docs": [
+      {
+        "date": "2025-02-11",
+        "total": 9.0
+      },
+      {
+        "date": "2025-01-04",
+        "total": 33.0
+      }
+    ]
+  },
+  "checks": [
+    {
+      "name": "users has a unique index on email",
+      "eval": "db.users.getIndexes().some((i) => i.unique === true && JSON.stringify(i.key) === '{\"email\":1}')",
+      "expect": true,
+      "fail": "no unique index with the key { email: 1 } was found on users"
+    },
+    {
+      "name": "a second user with the same email is rejected",
+      "eval": "db.users.insertOne({ _id: 99, email: 'ada@example.com', name: 'Impostor' })",
+      "error": true
+    },
+    {
+      "name": "a user with a new email is accepted",
+      "eval": "db.users.insertOne({ _id: 3, email: 'kim@example.com', name: 'Kim' }).acknowledged",
+      "expect": true
+    },
+    {
+      "name": "orders has the compound index customer, date descending",
+      "eval": "db.orders.getIndexes().some((i) => JSON.stringify(i.key) === '{\"customer\":1,\"date\":-1}')",
+      "expect": true,
+      "fail": "no index with the key { customer: 1, date: -1 } was found on orders"
+    },
+    {
+      "name": "the query for ada's orders uses an index, not a collection scan",
+      "eval": "JSON.stringify(db.orders.find({ customer: 'ada' }).sort({ date: -1 }).explain().queryPlanner.winningPlan).includes('IXSCAN')",
+      "expect": true,
+      "fail": "the winning plan has no IXSCAN stage"
+    }
+  ],
+  "hints": [
+    "db.users.createIndex({ email: 1 }, { unique: true });",
+    "db.orders.createIndex({ customer: 1, date: -1 });",
+    "const result = db.orders.find({ customer: \"ada\" }, { date: 1, total: 1, _id: 0 }).sort({ date: -1 });"
+  ]
+}

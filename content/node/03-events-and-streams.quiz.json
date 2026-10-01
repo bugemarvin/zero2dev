@@ -1,0 +1,44 @@
+[
+ {
+  "q": "When does emitter.emit(\"x\") call the listeners?",
+  "options": [
+   "Later, on the event loop",
+   "Immediately, one after another",
+   "In another thread",
+   "Only once"
+  ],
+  "answer": 1,
+  "why": "emit is synchronous."
+ },
+ {
+  "q": "Why use a stream to process a 5 GB file?",
+  "options": [
+   "Streams are encrypted",
+   "Data arrives in chunks, so memory use stays small",
+   "It is the only API for files",
+   "It sorts the file"
+  ],
+  "answer": 1,
+  "why": "readFile would need the whole file in memory."
+ },
+ {
+  "q": "Is a chunk of a text stream always a whole line?",
+  "options": [
+   "Yes",
+   "No: it can end anywhere"
+  ],
+  "answer": 1,
+  "why": "Keep the unfinished tail and join it with the next chunk, or use readline."
+ },
+ {
+  "q": "Which function connects streams and handles errors and clean-up?",
+  "options": [
+   "pipe",
+   "pipeline",
+   "connect",
+   "join"
+  ],
+  "answer": 1,
+  "why": "pipeline from node:stream/promises forwards errors and closes every stream."
+ }
+]

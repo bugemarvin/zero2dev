@@ -1,0 +1,12 @@
+# 1. five players
+ZADD game:scores 1200 ada 800 sam 1500 kim 300 lee 950 zoe
+
+# 2. sam wins 500
+ZINCRBY game:scores 500 sam
+
+# 3. lee leaves
+ZREM game:scores lee
+
+# 4. the top three, as a list
+ZREVRANGE game:scores 0 2
+RPUSH game:top3 kim sam ada

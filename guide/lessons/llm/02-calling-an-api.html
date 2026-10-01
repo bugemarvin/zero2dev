@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calling a model · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="llm/02-calling-an-api">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Building with LLMs · lesson 2 of 6</p>
+<h1>Calling a model</h1>
+<p class="lede">Requests, roles, system prompts, limits and errors, with a real client and with any provider.</p>
+<h2 id="models-are-web-services">Models are web services</h2>
+<p>You do not run a large model yourself. You send an HTTP request to a provider and get the answer back. Every provider has the same ingredients:</p>
+<div class="table-wrap"><table><thead><tr><th>Ingredient</th><th>Meaning</th></tr></thead><tbody><tr><td>an <strong>API key</strong></td><td>identifies and bills you. A secret.</td></tr><tr><td>a <strong>model</strong> name</td><td>which model to use. Bigger models are smarter, slower and dearer.</td></tr><tr><td><strong>messages</strong></td><td>the conversation so far</td></tr><tr><td>a <strong>system prompt</strong></td><td>standing instructions: role, tone, rules</td></tr><tr><td>a <strong>maximum number of output tokens</strong></td><td>where the answer is cut off</td></tr></tbody></table></div>
+<h2 id="a-request">A request</h2>
+<p>With Anthropic's Python library (<code>pip install anthropic</code>):</p>
+<pre><code class="lang-python">import anthropic
+
+client = anthropic.Anthropic()          # reads the key from the environment variable ANTHROPIC_API_KEY
+
+response = client.messages.create(
+    model="claude-sonnet-5-5",
+    max_tokens=500,
+    system="You are a concise assistant for a bicycle shop.",
+    messages=[
+        {"role": "user", "content": "Which tyre pressure for a road bike?"},
+    ],
+)
+
+print(response.content[0].text)</code></pre>
+<p>Model names change as new ones are released. Look them up in the provider's documentation when you start a project.</p>
+<p>Other providers differ in spelling, not in ideas. With OpenAI's library the system prompt is a message with the role <code>system</code> and the call is <code>client.chat.completions.create(...)</code>. What you learn here carries over.</p>
+<h2 id="roles">Roles</h2>
+<p>A conversation is a list of messages that alternate between two roles:</p>
+<pre><code class="lang-python">messages = [
+    {"role": "user", "content": "My name is Sam."},
+    {"role": "assistant", "content": "Nice to meet you, Sam."},
+    {"role": "user", "content": "What is my name?"},
+]</code></pre>
+<ul><li><code>user</code>: what the person, or your program, says.</li><li><code>assistant</code>: what the model said earlier.</li></ul>
+<p>To continue a conversation, append the model's answer and the next user message, and send <strong>everything</strong> again.</p>
+<h2 id="the-response">The response</h2>
+<pre><code class="lang-python">response.content            # a list of blocks. A text answer has one block of type "text".
+response.stop_reason        # why the model stopped
+response.usage.input_tokens
+response.usage.output_tokens</code></pre>
+<div class="table-wrap"><table><thead><tr><th><code>stop_reason</code></th><th>Meaning</th></tr></thead><tbody><tr><td><code>end_turn</code></td><td>the model finished its answer</td></tr><tr><td><code>max_tokens</code></td><td>it hit your limit: <strong>the answer is cut off</strong></td></tr><tr><td><code>stop_sequence</code></td><td>it produced a text you told it to stop at</td></tr><tr><td><code>tool_use</code></td><td>it wants to call a tool (<a href="../llm/05-tools-and-agents.html">lesson 5</a>)</td></tr></tbody></table></div>
+<p>Always check the stop reason. An answer cut at <code>max_tokens</code> can look complete and be missing its second half, or be JSON without its closing brace.</p>
+<h2 id="keys-are-secrets">Keys are secrets</h2>
+<pre><code class="lang-console">$ export ANTHROPIC_API_KEY="..."</code></pre>
+<ul><li>Never write a key in the source code and never commit it.</li><li>Never put a key in a web page or a mobile app. Anything shipped to a user's device can be read. Calls to the model go through <strong>your server</strong>.</li><li>Give each environment its own key, and set a spending limit.</li></ul>
+<h2 id="things-go-wrong">Things go wrong</h2>
+<p>A call over the network to a busy service fails sometimes. Plan for it:</p>
+<div class="table-wrap"><table><thead><tr><th>Problem</th><th>Typical status</th><th>What to do</th></tr></thead><tbody><tr><td>rate limit: too many requests</td><td>429</td><td>wait and retry</td></tr><tr><td>the service is overloaded or down</td><td>500, 529</td><td>wait and retry</td></tr><tr><td>a network timeout</td><td></td><td>retry</td></tr><tr><td>a bad request: wrong parameter, too many tokens</td><td>400</td><td>do not retry: fix the request</td></tr><tr><td>a wrong key</td><td>401</td><td>do not retry</td></tr></tbody></table></div>
+<p>Retry with <strong>exponential backoff</strong>: wait 1 second, then 2, then 4, and give up after a few attempts.</p>
+<pre><code class="lang-python">import time
+
+def call_with_retry(send, attempts=4):
+    for attempt in range(attempts):
+        try:
+            return send()
+        except anthropic.RateLimitError:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(2 ** attempt)</code></pre>
+<p>The official libraries retry a couple of times by themselves. You still need to decide what your application does when the model is unavailable: queue the work, show a message, fall back to something simpler.</p>
+<h2 id="streaming">Streaming</h2>
+<p>A long answer takes many seconds. With <strong>streaming</strong>, the text arrives piece by piece as it is generated, and the user starts reading at once:</p>
+<pre><code class="lang-python">with client.messages.stream(model="claude-sonnet-5-5", max_tokens=500, messages=messages) as stream:
+    for text in stream.text_stream:
+        print(text, end="", flush=True)</code></pre>
+<p>Use it for anything a person waits for.</p>
+<h2 id="cost-and-speed">Cost and speed</h2>
+<ul><li>You pay for <strong>input and output tokens</strong>. A long system prompt is paid on every call.</li><li><strong>Output is the slow part.</strong> Ask for short answers when short is enough.</li><li>Use the <strong>smallest model that does the job well</strong>. Classifying support tickets does not need the largest model.</li><li>Providers offer <strong>prompt caching</strong>: a long, unchanging start of a prompt is processed once and reused at a discount.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A key in the code or in the browser.</strong></li><li><strong>Not checking <code>stop_reason</code>.</strong></li><li><strong>Retrying a 400</strong>, which fails the same way for ever.</li><li><strong>No timeout and no limit on retries.</strong></li><li><strong>Forgetting to send the earlier messages</strong> and wondering why the model lost the thread.</li><li><strong>The largest model for every task.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="llm/02-client">
+<h3>A client wrapper with retries <span class="ex-id">llm/02-client</span></h3>
+<p>Write two functions in <code>solution.py</code>. They receive a <code>client</code> whose <code>create</code> method takes keyword arguments and returns a dictionary:</p>
+<pre><code class="lang-python">{
+    "content": [{"type": "text", "text": "The answer."}],
+    "stop_reason": "end_turn",
+    "usage": {"input_tokens": 12, "output_tokens": 5},
+}</code></pre>
+<h4><code>ask(client, question, system=None, history=None, max_tokens=500)</code></h4>
+<ul><li>Calls <code>client.create(model="demo-model", max_tokens=..., messages=...)</code>.</li><li><code>messages</code> is the <code>history</code> (a list of earlier messages, or nothing) followed by <code>{"role": "user", "content": question}</code>. The <code>history</code> list itself is not changed.</li><li>The keyword <code>system</code> is passed <strong>only</strong> when a system prompt was given.</li><li>Returns the text of the answer: the <code>text</code> of every block of type <code>text</code>, joined together.</li><li>When the response's <code>stop_reason</code> is <code>max_tokens</code>, raise <code>ValueError("the answer was cut off")</code>.</li></ul>
+<h4><code>ask_with_retry(client, question, attempts=3, sleep=time.sleep)</code></h4>
+<p>Calls <code>ask(client, question)</code>. The fake client may raise <code>RateLimited</code> or <code>BadRequest</code>, both defined in the starter.</p>
+<ul><li>On <code>RateLimited</code>, wait and try again: <code>sleep(1)</code> after the first failure, <code>sleep(2)</code> after the second, <code>sleep(4)</code> after the third, and so on.</li><li>After <code>attempts</code> failed tries, let the last <code>RateLimited</code> exception out. Do not sleep after the final failure.</li><li>A <code>BadRequest</code> is never retried: it goes straight out.</li></ul>
+<p><code>sleep</code> is a parameter so that the tests do not really wait.</p>
+<p>The tests use a <strong>fake client</strong>, so nothing here needs an API key, an account or the internet. The fake has the same shape as a real one: you call <code>client.create(...)</code> and get a response dictionary back.</p>
+<p class="ex-files">Files: <code>exercises/llm/02-client/</code></p>
+<pre><code class="lang-console">$ python3 check.py llm/02-client</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../llm/01-how-llms-work.html"><span>Previous</span>How language models work</a><a class="next" href="../llm/03-prompting.html"><span>Next</span>Writing prompts</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "title": "A sales report",
+  "lesson": "mongodb/04-aggregation",
+  "kind": "mongo",
+  "timeout": 60,
+  "seed": "seed.js",
+  "expect": {
+    "ordered": true,
+    "docs": [
+      {
+        "_id": "sam",
+        "spent": 110.0,
+        "items": 22
+      },
+      {
+        "_id": "ada",
+        "spent": 42.0,
+        "items": 13
+      },
+      {
+        "_id": "kim",
+        "spent": 15.0,
+        "items": 5
+      }
+    ]
+  },
+  "require": [
+    "$match",
+    "$unwind",
+    "$group"
+  ],
+  "hints": [
+    "The first two stages: { $match: { status: \"paid\" } } and { $unwind: \"$lines\" }.",
+    "spent: { $sum: { $multiply: [\"$lines.quantity\", \"$lines.price\"] } }",
+    "Group with _id: \"$customer\" (with the $), then { $sort: { spent: -1 } }."
+  ]
+}

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Input and movement · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="gamedev/02-input-and-movement">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Game development · lesson 2 of 5</p>
+<h1>Input and movement</h1>
+<p class="lede">Keyboard state, velocity, acceleration, gravity and jumping.</p>
+<h2 id="keys-are-a-state-not-an-event">Keys are a state, not an event</h2>
+<p>The browser tells you when a key goes down and when it comes up. A game needs to know, every frame, <strong>which keys are held right now</strong>. So record them:</p>
+<pre><code class="lang-javascript">const keys = {};
+
+window.addEventListener("keydown", (event) =&gt; { keys[event.code] = true; });
+window.addEventListener("keyup", (event) =&gt; { keys[event.code] = false; });</code></pre>
+<p><code>event.code</code> names the physical key: <code>"ArrowLeft"</code>, <code>"KeyA"</code>, <code>"Space"</code>. In <code>update</code> you then ask:</p>
+<pre><code class="lang-javascript">if (keys.ArrowLeft) { player.x -= player.speed * dt; }</code></pre>
+<p>Do not move the player inside the <code>keydown</code> handler. The operating system repeats a held key after a pause and at its own rate, which gives jerky movement that differs from machine to machine.</p>
+<p>Calling <code>event.preventDefault()</code> for the arrow keys and the space bar stops the page from scrolling while playing.</p>
+<h2 id="direction-as-a-vector">Direction as a vector</h2>
+<p>Turn the keys into a direction:</p>
+<pre><code class="lang-javascript">let dx = 0;
+let dy = 0;
+if (keys.ArrowLeft) dx -= 1;
+if (keys.ArrowRight) dx += 1;
+if (keys.ArrowUp) dy -= 1;          // up is negative y
+if (keys.ArrowDown) dy += 1;</code></pre>
+<p>Holding left and right together gives 0: they cancel, which is what players expect.</p>
+<h2 id="the-diagonal-problem">The diagonal problem</h2>
+<p>With right and down both held, the direction is <code>(1, 1)</code>. Its length is not 1 but the square root of 2, about 1.41. The player moves <strong>41% faster diagonally</strong>. Many old games have this bug.</p>
+<p><strong>Normalise</strong> the vector: divide it by its length, so that its length becomes 1.</p>
+<pre><code class="lang-javascript">const length = Math.hypot(dx, dy);
+if (length &gt; 0) {
+  dx /= length;
+  dy /= length;
+}
+
+player.x += dx * player.speed * dt;
+player.y += dy * player.speed * dt;</code></pre>
+<p><code>Math.hypot(dx, dy)</code> is the length of the vector. Check for 0 before dividing.</p>
+<h2 id="staying-on-the-screen">Staying on the screen</h2>
+<p><strong>Clamp</strong> a value between two limits:</p>
+<pre><code class="lang-javascript">function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+player.x = clamp(player.x, 0, width - player.w);</code></pre>
+<h2 id="velocity-and-acceleration">Velocity and acceleration</h2>
+<p>Moving at a fixed speed the instant a key is pressed feels stiff. Real things speed up and slow down:</p>
+<ul><li><strong>position</strong> changes by <strong>velocity</strong>;</li><li><strong>velocity</strong> changes by <strong>acceleration</strong>.</li></ul>
+<pre><code class="lang-javascript">player.vx += acceleration * dx * dt;      // the keys push
+player.vx *= 0.9;                         // friction slows it down
+player.x += player.vx * dt;</code></pre>
+<p>Tuning these few numbers is most of what makes a game "feel" right.</p>
+<h2 id="gravity-and-jumping">Gravity and jumping</h2>
+<p>Gravity is a constant acceleration downwards. A jump is a sudden velocity upwards:</p>
+<pre><code class="lang-javascript">const GRAVITY = 1500;       // pixels per second, per second
+const JUMP = -550;          // negative: up
+
+if (keys.Space &amp;&amp; body.onGround) {
+  body.vy = JUMP;
+  body.onGround = false;
+}
+
+body.vy += GRAVITY * dt;
+body.y += body.vy * dt;
+
+if (body.y &gt;= groundY) {    // landed
+  body.y = groundY;
+  body.vy = 0;
+  body.onGround = true;
+}</code></pre>
+<p>The check <code>body.onGround</code> is what prevents jumping again in mid-air.</p>
+<h2 id="mouse-and-touch">Mouse and touch</h2>
+<pre><code class="lang-javascript">canvas.addEventListener("pointermove", (event) =&gt; {
+  const box = canvas.getBoundingClientRect();
+  mouse.x = (event.clientX - box.left) * (canvas.width / box.width);
+  mouse.y = (event.clientY - box.top) * (canvas.height / box.height);
+});</code></pre>
+<p>Pointer events cover mouse, pen and touch. The scaling matters when CSS shows the canvas at a different size than its <code>width</code> and <code>height</code>.</p>
+<h2 id="keep-input-out-of-the-logic">Keep input out of the logic</h2>
+<p>Pass the input <strong>into</strong> <code>update</code> as plain data:</p>
+<pre><code class="lang-javascript">update(state, { left: keys.ArrowLeft, right: keys.ArrowRight, jump: keys.Space }, dt);</code></pre>
+<p>Then the game logic does not know about keyboards. A test can feed it any input, and adding a gamepad or touch buttons later only changes how that small object is filled.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Moving inside the key event.</strong></li><li><strong>Faster diagonal movement.</strong></li><li><strong>Dividing by a length of 0.</strong></li><li><strong>Forgetting <code>dt</code></strong> on velocity or acceleration.</li><li><strong>Jumping in mid-air</strong>, because nothing checks the ground.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="gamedev/02-movement">
+<h3>Move and jump <span class="ex-id">gamedev/02-movement</span></h3>
+<p>Write three functions in <code>game.mjs</code>. The input is plain data, so they are easy to test.</p>
+<h4><code>direction(keys)</code></h4>
+<p><code>keys</code> is <code>{ left, right, up, down }</code>, each <code>true</code> or <code>false</code>. Returns <code>{ x, y }</code>:</p>
+<ul><li><code>x</code> is -1 for left, 1 for right, and 0 for neither or both. <code>y</code> is -1 for up and 1 for down, the same way.</li><li>A diagonal is <strong>normalised</strong>: its length is 1, so <code>x</code> and <code>y</code> are about 0.7071 in size.</li></ul>
+<h4><code>movePlayer(player, keys, dt, bounds)</code></h4>
+<p>A player is <code>{ x, y, w, h, speed }</code>: the top left corner, the size, and the speed in pixels per second. <code>bounds</code> is <code>{ width, height }</code>. Returns a <strong>new</strong> player, moved in the direction of the keys by <code>speed * dt</code>, and kept fully inside the bounds: <code>x</code> between <code>0</code> and <code>width - w</code>, <code>y</code> between <code>0</code> and <code>height - h</code>.</p>
+<h4><code>jump(body, pressed, dt, groundY)</code></h4>
+<p>A body is <code>{ y, vy, onGround }</code>. Returns a <strong>new</strong> body after <code>dt</code> seconds:</p>
+<ol><li>If <code>pressed</code> is true and the body is on the ground, set <code>vy</code> to <code>-550</code> and <code>onGround</code> to <code>false</code>.</li><li>If it is not on the ground: add <code>1500 * dt</code> to <code>vy</code>, then add <code>vy * dt</code> to <code>y</code>.</li><li>If <code>y</code> is now at or below the ground (<code>y &gt;= groundY</code>), put it on the ground: <code>y = groundY</code>, <code>vy = 0</code>, <code>onGround = true</code>.</li></ol>
+<p>A body resting on the ground with nothing pressed does not change.</p>
+<p><strong>Start app</strong> opens the game in a browser tab. It runs your <code>game.mjs</code>, so you see your work move. Reload the tab after each change.</p>
+<p class="ex-files">Files: <code>exercises/gamedev/02-movement/</code></p>
+<pre><code class="lang-console">$ python3 check.py gamedev/02-movement</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../gamedev/01-the-game-loop.html"><span>Previous</span>The game loop</a><a class="next" href="../gamedev/03-collisions.html"><span>Next</span>Collisions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

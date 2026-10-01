@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools and agents · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="llm/05-tools-and-agents">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Building with LLMs · lesson 5 of 6</p>
+<h1>Tools and agents</h1>
+<p class="lede">Let a model call your functions, and run the loop that turns a chatbot into something that gets work done.</p>
+<h2 id="why-tools">Why tools</h2>
+<p>A model alone can only produce text. It cannot look up an order, do exact arithmetic, read today's news or send an email. <strong>Tools</strong> close the gap: you describe functions to the model, and it can ask you to call them.</p>
+<p>The model never runs anything. It <strong>requests</strong> a call, your code runs it, and you send the result back. You stay in control of what really happens.</p>
+<h2 id="describing-a-tool">Describing a tool</h2>
+<p>A tool has a name, a description and a schema for its input:</p>
+<pre><code class="lang-python">tools = [
+    {
+        "name": "get_order",
+        "description": "Look up an order by its number. Returns the status and the items. "
+                       "Use this whenever the customer mentions an order number.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "order_id": {"type": "string", "description": "The order number, such as A-1042"},
+            },
+            "required": ["order_id"],
+        },
+    }
+]</code></pre>
+<p>The <strong>description is a prompt</strong>. It is how the model decides when to use the tool and what to pass. Say what the tool does, when to use it, and what it returns.</p>
+<h2 id="the-exchange">The exchange</h2>
+<pre><code class="lang-python">response = client.messages.create(model="claude-sonnet-5-5", max_tokens=500, tools=tools, messages=messages)</code></pre>
+<p>When the model wants a tool, the response has <code>stop_reason</code> <code>"tool_use"</code> and a block like this:</p>
+<pre><code class="lang-json">{"type": "tool_use", "id": "toolu_01", "name": "get_order", "input": {"order_id": "A-1042"}}</code></pre>
+<p>You run your function, then continue the conversation with two more messages: the model's turn, and a <code>user</code> message carrying the result:</p>
+<pre><code class="lang-python">messages.append({"role": "assistant", "content": response.content})
+messages.append({
+    "role": "user",
+    "content": [
+        {"type": "tool_result", "tool_use_id": "toolu_01", "content": '{"status": "shipped"}'},
+    ],
+})</code></pre>
+<p>The <code>tool_use_id</code> connects the result to the request. The model then answers in words, or asks for another tool.</p>
+<h2 id="the-agent-loop">The agent loop</h2>
+<p>Repeat that exchange until the model stops asking for tools, and you have an <strong>agent</strong>:</p>
+<pre><code class="lang-python">def run_agent(client, tools, functions, question, max_steps=10):
+    messages = [{"role": "user", "content": question}]
+    for _ in range(max_steps):
+        response = client.messages.create(model=MODEL, max_tokens=1000, tools=tools, messages=messages)
+        messages.append({"role": "assistant", "content": response.content})
+        if response.stop_reason != "tool_use":
+            return response
+
+        results = []
+        for block in response.content:
+            if block.type == "tool_use":
+                output = functions[block.name](**block.input)
+                results.append({"type": "tool_result", "tool_use_id": block.id, "content": str(output)})
+        messages.append({"role": "user", "content": results})
+    raise RuntimeError("too many steps")</code></pre>
+<p>That is the whole idea behind coding assistants, research agents and support bots: a model, some tools, and a loop. A response can contain several tool requests. Answer all of them in one message.</p>
+<h2 id="errors-are-results">Errors are results</h2>
+<p>When a tool fails, do not crash the loop. Tell the model:</p>
+<pre><code class="lang-python">{"type": "tool_result", "tool_use_id": block.id, "content": "error: order not found", "is_error": True}</code></pre>
+<p>It will often try something else: correct a typo in the id, ask the user, or explain what went wrong.</p>
+<h2 id="limits">Limits</h2>
+<p>An agent can loop for ever, or burn money going in circles. Always set:</p>
+<ul><li>a <strong>maximum number of steps</strong>;</li><li>a <strong>budget</strong> in tokens or money;</li><li>a <strong>timeout</strong> per tool call.</li></ul>
+<h2 id="safety">Safety</h2>
+<p>A tool is real power. The model decides when to use it, and its decision can be steered by any text it reads, including a web page or an email written by an attacker (<a href="../llm/03-prompting.html">prompt injection</a>).</p>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody><tr><td><strong>least privilege</strong></td><td>give read-only tools unless writing is needed</td></tr><tr><td><strong>validate tool input</strong></td><td>treat it like input from an anonymous user</td></tr><tr><td><strong>ask a human</strong> before irreversible actions</td><td>paying, deleting, sending</td></tr><tr><td><strong>scope the access</strong></td><td>the tool for customer 42 can read only customer 42's orders. Enforce it in the tool, not in the prompt.</td></tr><tr><td><strong>log every call</strong></td><td>you will need to explain what happened</td></tr></tbody></table></div>
+<p>Never rely on the prompt to keep the model from doing harm. Rely on what the tools <strong>can</strong> do.</p>
+<h2 id="designing-good-tools">Designing good tools</h2>
+<ul><li><strong>Few and distinct.</strong> Ten overlapping tools confuse the model.</li><li><strong>Named by intent</strong>: <code>search_orders</code>, not <code>query_db</code>.</li><li><strong>Return what matters</strong>, briefly. The result goes into the context window.</li><li><strong>Helpful errors</strong>: "no order with that id. Order ids look like A-1042" lets the model fix its call.</li></ul>
+<h2 id="workflow-or-agent">Workflow or agent?</h2>
+<p>If you know the steps in advance, write them as ordinary code with model calls where needed. That is a <strong>workflow</strong>: predictable, cheap, easy to test. Use an <strong>agent</strong> when the steps depend on what is found along the way. Start with the simplest thing that works.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No step limit.</strong></li><li><strong>A vague tool description.</strong></li><li><strong>Powerful tools with no confirmation.</strong></li><li><strong>Raising an exception</strong> when a tool fails, in place of returning the error to the model.</li><li><strong>Huge tool results</strong> that fill the context.</li><li><strong>Trusting the model to respect a rule</strong> that the tool itself should enforce.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="llm/05-agent-loop">
+<h3>The agent loop <span class="ex-id">llm/05-agent-loop</span></h3>
+<p>Write <code>run_agent(client, functions, question, max_steps=5)</code> in <code>solution.py</code>.</p>
+<ul><li><code>functions</code> maps tool names to Python functions, for example <code>{"add": add, "get_order": get_order}</code>.</li><li>Start with one message: <code>{"role": "user", "content": question}</code>.</li><li>Call <code>client.create(model="demo-model", max_tokens=500, messages=messages)</code>. The response is a dictionary with <code>content</code> (a list of blocks) and <code>stop_reason</code>.</li><li>Append the model's turn: <code>{"role": "assistant", "content": response["content"]}</code>.</li><li>If <code>stop_reason</code> is not <code>"tool_use"</code>, you are done: return the text of the answer, which is the <code>text</code> of all blocks of type <code>text</code> joined together.</li><li>Otherwise run <strong>every</strong> block of type <code>tool_use</code>. Such a block looks like <code>{"type": "tool_use", "id": "t1", "name": "add", "input": {"a": 2, "b": 3}}</code>. Call the function with the input as keyword arguments.</li><li>Append <strong>one</strong> user message whose content is the list of results, in the same order. A result is <code>{"type": "tool_result", "tool_use_id": ID, "content": TEXT}</code>, where <code>TEXT</code> is <code>str</code> of what the function returned.</li><li>A tool that raises an exception must not stop the loop. Its result has the content <code>error: </code> followed by the exception's text, and the extra field <code>"is_error": True</code>.</li><li>A tool name that is not in <code>functions</code> gives the result <code>error: unknown tool NAME</code>, also with <code>"is_error": True</code>.</li><li>If the model still wants tools after <code>max_steps</code> calls to the model, raise <code>RuntimeError("too many steps")</code>.</li></ul>
+<p>The tests use a <strong>fake client</strong>, so nothing here needs an API key, an account or the internet. The fake has the same shape as a real one: you call <code>client.create(...)</code> and get a response dictionary back.</p>
+<p class="ex-files">Files: <code>exercises/llm/05-agent-loop/</code></p>
+<pre><code class="lang-console">$ python3 check.py llm/05-agent-loop</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../llm/04-structured-output.html"><span>Previous</span>Structured output</a><a class="next" href="../llm/06-rag-and-evaluation.html"><span>Next</span>Retrieval and evaluation</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

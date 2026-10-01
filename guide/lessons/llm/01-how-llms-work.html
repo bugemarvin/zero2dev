@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How language models work · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="llm/01-how-llms-work">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Building with LLMs · lesson 1 of 6</p>
+<h1>How language models work</h1>
+<p class="lede">Tokens, context windows and sampling: enough of the inside to use a model well.</p>
+<details class="install" id="install" data-track="llm">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack python</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks python</code></pre>
+<h4>Python 3: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y python3 python3-pip python3-venv</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install python</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ python3 --version</code></pre>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track is about <strong>using</strong> large language models (LLMs) as a component of software. You need <a href="../python/01-basics.html">Python</a>. You do not need any mathematics.</p>
+<h2 id="what-a-model-does">What a model does</h2>
+<p>An LLM is a program that, given some text, predicts what comes next. It produces one small piece, adds it to the text, and predicts again. A whole essay comes out of that one loop.</p>
+<p>It learned to predict by reading an enormous amount of text. Nothing in it is a database of facts or a list of rules. It is a very large function with numbers (the <strong>weights</strong>) that were adjusted until its predictions were good.</p>
+<p>Three consequences follow, and they explain most of what you will see:</p>
+<ul><li>It is <strong>fluent before it is correct</strong>. A plausible wrong answer and a right answer look the same from the inside. When it invents a fact, a quote or a function that does not exist, that is called a <strong>hallucination</strong>.</li><li>It knows nothing after its <strong>training cutoff</strong>, and nothing about your private data, unless you put that in the text you send.</li><li>It has <strong>no memory between calls</strong>. Each request starts from zero. A chat "remembers" because the application sends the whole conversation again every time.</li></ul>
+<h2 id="tokens">Tokens</h2>
+<p>Models read and write <strong>tokens</strong>, not characters or words. A token is a common piece of text: a short word, part of a longer word, a punctuation mark.</p>
+<pre><code class="lang-text">"Unbelievable results!"  -&gt;  ["Un", "believ", "able", " results", "!"]</code></pre>
+<p>Rules of thumb for English: one token is about <strong>four characters</strong>, and 100 tokens are about 75 words. Code and other languages use more tokens per word.</p>
+<p>Tokens matter because they are the unit of everything:</p>
+<ul><li><strong>limits</strong>: a model accepts only so many tokens;</li><li><strong>cost</strong>: you pay per token, usually more for output than for input;</li><li><strong>speed</strong>: output is generated token by token, so long answers are slow.</li></ul>
+<h2 id="the-context-window">The context window</h2>
+<p>The <strong>context window</strong> is the maximum number of tokens a model can consider at once: your instructions, the conversation so far, any documents you included, and the answer it is writing.</p>
+<p>Whatever is not in the window does not exist for the model. Whatever is in it costs money and attention on every call. Deciding what goes into the window is the central skill of building with LLMs. It is called <strong>context engineering</strong>.</p>
+<p>A long conversation eventually exceeds the window. The application must then drop or summarise old messages. The usual policy keeps the instructions and the most recent turns.</p>
+<h2 id="sampling-and-temperature">Sampling and temperature</h2>
+<p>For each next token the model produces a probability for every possible token. Then one is <strong>sampled</strong>.</p>
+<ul><li><strong>Temperature 0</strong> always takes the most likely token. The output is nearly the same on every run: use it for extraction, classification and code.</li><li>A <strong>higher temperature</strong> takes less likely tokens more often. The output varies more: use it for brainstorming and creative writing.</li></ul>
+<p>Even at temperature 0, do not rely on identical output from run to run. Write your code so that it does not matter.</p>
+<h2 id="what-models-are-good-and-bad-at">What models are good and bad at</h2>
+<div class="table-wrap"><table><thead><tr><th>Good at</th><th>Poor at</th></tr></thead><tbody><tr><td>summarising, rewriting, translating</td><td>exact arithmetic on large numbers</td></tr><tr><td>extracting structured data from messy text</td><td>recalling precise facts, quotes, links</td></tr><tr><td>classifying and routing</td><td>anything after the training cutoff</td></tr><tr><td>writing and explaining code</td><td>knowing what they do not know</td></tr><tr><td>answering questions about text you provide</td><td>counting characters or words exactly</td></tr></tbody></table></div>
+<p>The fix for most weaknesses is the same: <strong>do not ask the model to remember, give it the material</strong>. Put the document in the prompt. Let it call a calculator or a search function (<a href="../llm/05-tools-and-agents.html">lesson 5</a>). Check its output with ordinary code.</p>
+<h2 id="the-mental-model-to-keep">The mental model to keep</h2>
+<p>Treat an LLM as a very well-read, very fast assistant who has never seen your project, forgets everything between conversations, and never says "I am not sure" unless you make room for it. Everything in this track follows from that.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Trusting an answer because it sounds confident.</strong></li><li><strong>Asking for facts it cannot have</strong>: today's prices, your database, last week's news.</li><li><strong>Sending the whole history for ever</strong>, until the context limit is hit in production.</li><li><strong>Using a high temperature</strong> for a task that needs the same answer each time.</li><li><strong>Counting in characters or words</strong> when the limits are in tokens.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="llm/01-context-window">
+<h3>Fit a conversation into the context window <span class="ex-id">llm/01-context-window</span></h3>
+<p>A chat application sends the whole conversation with every request. When it grows past the model's limit, old messages must go. Write three functions in <code>solution.py</code>.</p>
+<p>A message is a dictionary such as <code>{"role": "user", "content": "Hello"}</code>. The roles are <code>system</code>, <code>user</code> and <code>assistant</code>.</p>
+<h4><code>estimate_tokens(text)</code></h4>
+<p>Returns a rough token count: the number of characters divided by 4, rounded <strong>up</strong>. An empty text is 0 tokens.</p>
+<h4><code>count_tokens(messages)</code></h4>
+<p>Returns the total for a list of messages: the estimate for each <code>content</code>, plus <strong>4</strong> tokens of overhead per message.</p>
+<h4><code>trim_history(messages, limit)</code></h4>
+<p>Returns a new list that fits in <code>limit</code> tokens (by <code>count_tokens</code>), built like this:</p>
+<ul><li>Every <code>system</code> message is always kept.</li><li>Of the other messages, keep as many of the <strong>most recent</strong> ones as fit. Stop at the first one that does not fit: do not skip it and keep older ones.</li><li>The result is in the original order.</li><li>The input list is not changed.</li></ul>
+<p>If even the system messages do not fit, return only the system messages.</p>
+<p>The tests use a <strong>fake client</strong>, so nothing here needs an API key, an account or the internet. The fake has the same shape as a real one: you call <code>client.create(...)</code> and get a response dictionary back.</p>
+<p class="ex-files">Files: <code>exercises/llm/01-context-window/</code></p>
+<pre><code class="lang-console">$ python3 check.py llm/01-context-window</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/10-typing.html"><span>Previous</span>Type hints</a><a class="next" href="../llm/02-calling-an-api.html"><span>Next</span>Calling a model</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What must a middleware do to let the request continue?",
+  "options": [
+   "Return true",
+   "Call next()",
+   "Call res.end()",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "next() passes the request to the following middleware or route."
+ },
+ {
+  "q": "How does Express recognise an error-handling middleware?",
+  "options": [
+   "Its name is errorHandler",
+   "It has four parameters",
+   "It is added first",
+   "It returns a promise"
+  ],
+  "answer": 1,
+  "why": "The signature (error, req, res, next) marks it as an error handler."
+ },
+ {
+  "q": "A client is logged in and asks for something it may not see. Which status?",
+  "options": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "answer": 2,
+  "why": "401 means not authenticated. 403 means authenticated, and not allowed."
+ },
+ {
+  "q": "Why cap the limit of a list endpoint?",
+  "options": [
+   "To save typing",
+   "So that one request cannot ask for millions of rows",
+   "Because HTTP requires it",
+   "To sort faster"
+  ],
+  "answer": 1,
+  "why": "An unbounded list is a performance problem and an easy way to overload the server."
+ }
+]

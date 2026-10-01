@@ -1,0 +1,42 @@
+[
+ {
+  "q": "What are the three kinds of observability signal?",
+  "options": [
+   "Logs, metrics, traces",
+   "CPU, memory, disk",
+   "Unit, integration, end to end",
+   "Push, pull, poll"
+  ],
+  "answer": 0,
+  "why": "Events, numbers over time, and the path of one request."
+ },
+ {
+  "q": "p95 latency is 300 ms. What does that mean?",
+  "options": [
+   "The average is 300 ms",
+   "95% of requests are faster than 300 ms",
+   "5% of requests are faster",
+   "The slowest request took 300 ms"
+  ],
+  "answer": 1,
+  "why": "One request in twenty is slower than the p95."
+ },
+ {
+  "q": "Values sorted: 10 20 30 40 50 60 70 80 90 100. What is the p50 by nearest rank?",
+  "accept": [
+   "50"
+  ],
+  "why": "ceil(0.5 * 10) = 5, and the 5th value is 50."
+ },
+ {
+  "q": "Which is a good reason to wake someone at night?",
+  "options": [
+   "CPU at 80%",
+   "The error rate users see has tripled",
+   "A disk at 60%",
+   "A deployment finished"
+  ],
+  "answer": 1,
+  "why": "Alert on symptoms that users feel and that someone can act on."
+ }
+]

@@ -1,0 +1,12 @@
+{
+  "title": "A client wrapper with retries",
+  "lesson": "llm/02-calling-an-api",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "Build the keyword arguments in a dictionary, add \"system\" only when it is not None, and call client.create(**arguments).",
+    "messages = list(history or []) + [{\"role\": \"user\", \"content\": question}] leaves the caller's list alone.",
+    "The text: \"\".join(block[\"text\"] for block in response[\"content\"] if block[\"type\"] == \"text\").",
+    "ask_with_retry: for attempt in range(attempts): try return ask(...), except RateLimited: re-raise on the last attempt, otherwise sleep(2 ** attempt)."
+  ]
+}

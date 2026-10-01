@@ -1,0 +1,130 @@
+{
+  "title": "A configuration check",
+  "lesson": "devops/01-environments-and-config",
+  "kind": "program",
+  "lang": "bash",
+  "cases": [
+    {
+      "name": "everything is set",
+      "args": [
+        "app.env",
+        "DATABASE_URL",
+        "PORT"
+      ],
+      "files": {
+        "app.env": "DATABASE_URL=postgres://localhost/shop\nPORT=8080\n"
+      },
+      "stdout": "ok\n"
+    },
+    {
+      "name": "one key is missing",
+      "args": [
+        "app.env",
+        "DATABASE_URL",
+        "PORT",
+        "SECRET_KEY"
+      ],
+      "files": {
+        "app.env": "DATABASE_URL=postgres://localhost/shop\nPORT=8080\n"
+      },
+      "stdout": "missing: SECRET_KEY\n",
+      "exit": 1
+    },
+    {
+      "name": "several are missing, reported in the order asked",
+      "args": [
+        "app.env",
+        "B",
+        "A",
+        "PORT",
+        "C"
+      ],
+      "files": {
+        "app.env": "PORT=8080\n"
+      },
+      "stdout": "missing: B\nmissing: A\nmissing: C\n",
+      "exit": 1
+    },
+    {
+      "name": "an empty value counts as missing",
+      "args": [
+        "app.env",
+        "PORT",
+        "SECRET_KEY"
+      ],
+      "files": {
+        "app.env": "PORT=8080\nSECRET_KEY=\n"
+      },
+      "stdout": "missing: SECRET_KEY\n",
+      "exit": 1
+    },
+    {
+      "name": "comments and blank lines are ignored",
+      "args": [
+        "app.env",
+        "PORT",
+        "DEBUG"
+      ],
+      "files": {
+        "app.env": "# settings\n\nPORT=8080\n#DEBUG=1\n"
+      },
+      "stdout": "missing: DEBUG\n",
+      "exit": 1
+    },
+    {
+      "name": "a value may contain an equals sign",
+      "args": [
+        "app.env",
+        "URL"
+      ],
+      "files": {
+        "app.env": "URL=https://example.com/?a=1&b=2\n"
+      },
+      "stdout": "ok\n"
+    },
+    {
+      "name": "a key is not found inside another key or inside a value",
+      "args": [
+        "app.env",
+        "PORT",
+        "KEY"
+      ],
+      "files": {
+        "app.env": "SUPPORT=yes\nAPI_KEY=abc\nNOTE=PORT=1\n"
+      },
+      "stdout": "missing: PORT\nmissing: KEY\n",
+      "exit": 1
+    },
+    {
+      "name": "no keys to check",
+      "args": [
+        "app.env"
+      ],
+      "files": {
+        "app.env": "PORT=1\n"
+      },
+      "stdout": "ok\n"
+    },
+    {
+      "name": "the file does not exist",
+      "args": [
+        "nothing.env",
+        "PORT"
+      ],
+      "stdout": "",
+      "exit": 2
+    },
+    {
+      "name": "no arguments at all",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "Start with the argument check: if [[ $# -lt 1 ]]; then echo \"usage: ...\" >&2; exit 2; fi. Then test the file with [[ -f \"$file\" ]].",
+    "file=\"$1\"; shift leaves the keys in \"$@\". Loop over them with for key in \"$@\".",
+    "grep -q \"^${key}=.\" \"$file\" is true when a line starts with KEY= followed by at least one character.",
+    "Count the missing keys in a variable, and at the end print ok and exit 0, or exit 1."
+  ]
+}

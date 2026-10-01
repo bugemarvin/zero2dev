@@ -1,0 +1,12 @@
+{
+  "title": "Cache-aside",
+  "lesson": "redis/04-caching",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "get_user: build the key f\"user:{user_id}\", try cache.get(key), and on a hit return json.loads(cached).",
+    "On a miss call db.load_user(user_id). Store a found user with cache.setex(key, 300, json.dumps(user)), and a missing one with cache.setex(key, 30, \"null\").",
+    "json.loads(\"null\") is None, so a cached \"not found\" is returned as None without any special case.",
+    "update_user: db.save_user(user_id, fields) and then cache.delete(key)."
+  ]
+}

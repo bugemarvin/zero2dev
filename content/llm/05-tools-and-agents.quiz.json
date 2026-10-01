@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Who executes a tool call?",
+  "options": [
+   "The model",
+   "Your code",
+   "The provider",
+   "The user's browser"
+  ],
+  "answer": 1,
+  "why": "The model only requests a call. Your program runs the function and returns the result."
+ },
+ {
+  "q": "What connects a tool result to the request it answers?",
+  "options": [
+   "The tool name",
+   "The tool_use_id",
+   "The order of messages only",
+   "The model name"
+  ],
+  "answer": 1,
+  "why": "Each tool_use block has an id, repeated in the tool_result."
+ },
+ {
+  "q": "A tool raises an exception. What should the agent loop do?",
+  "options": [
+   "Crash",
+   "Return the error to the model as the tool's result",
+   "Retry for ever",
+   "Ignore the call"
+  ],
+  "answer": 1,
+  "why": "The model can often recover: fix its input, try another way, or explain."
+ },
+ {
+  "q": "What should stop an agent from refunding a million dollars?",
+  "options": [
+   "A firm sentence in the prompt",
+   "A limit enforced inside the refund tool, and human approval",
+   "A lower temperature",
+   "A bigger model"
+  ],
+  "answer": 1,
+  "why": "Safety must come from what the tools can do, not from instructions."
+ }
+]

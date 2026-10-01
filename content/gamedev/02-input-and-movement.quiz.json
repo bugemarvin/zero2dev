@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Why record which keys are held, instead of moving in the keydown event?",
+  "options": [
+   "Events are slow",
+   "Key repeat is jerky and differs between machines",
+   "keydown does not exist",
+   "To save memory"
+  ],
+  "answer": 1,
+  "why": "The game reads the key state every frame and moves by speed times dt."
+ },
+ {
+  "q": "Right and down are held, giving the direction (1, 1). What is its length, to two decimals?",
+  "accept": [
+   "1.41"
+  ],
+  "why": "The square root of 2. Without normalising, diagonal movement is 41% faster."
+ },
+ {
+  "q": "What does normalising a vector do?",
+  "options": [
+   "Sets it to zero",
+   "Scales it to length 1, keeping its direction",
+   "Rounds it",
+   "Reverses it"
+  ],
+  "answer": 1,
+  "why": "Divide each part by the vector's length."
+ },
+ {
+  "q": "What stops a player from jumping again in mid-air?",
+  "options": [
+   "Gravity",
+   "Checking that the body is on the ground",
+   "The frame rate",
+   "Friction"
+  ],
+  "answer": 1,
+  "why": "A jump starts only when onGround is true."
+ }
+]

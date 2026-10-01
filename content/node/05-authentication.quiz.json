@@ -1,0 +1,44 @@
+[
+ {
+  "q": "Why is SHA-256 a poor choice for storing passwords?",
+  "options": [
+   "It is broken",
+   "It is fast, so guessing is cheap, and it has no salt",
+   "It is too long",
+   "It cannot be stored"
+  ],
+  "answer": 1,
+  "why": "Password hashing must be slow and salted: scrypt, bcrypt or argon2."
+ },
+ {
+  "q": "What is the purpose of a salt?",
+  "options": [
+   "To encrypt the password",
+   "To make equal passwords hash differently",
+   "To make hashing faster",
+   "To hide the user name"
+  ],
+  "answer": 1,
+  "why": "A per-user random salt defeats precomputed tables."
+ },
+ {
+  "q": "Can a client read the payload of a signed token?",
+  "options": [
+   "No, it is encrypted",
+   "Yes, it is only encoded"
+  ],
+  "answer": 1,
+  "why": "Signing proves who made it. It does not hide the content."
+ },
+ {
+  "q": "Which status code means 'you are not authenticated'?",
+  "options": [
+   "400",
+   "401",
+   "403",
+   "404"
+  ],
+  "answer": 1,
+  "why": "401: unknown who you are. 403: known, and not allowed."
+ }
+]

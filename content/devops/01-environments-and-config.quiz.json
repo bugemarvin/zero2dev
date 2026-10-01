@@ -1,0 +1,44 @@
+[
+ {
+  "q": "What should differ between staging and production?",
+  "options": [
+   "The code",
+   "The build artifact",
+   "Only the configuration",
+   "The programming language"
+  ],
+  "answer": 2,
+  "why": "Build once, and move the same artifact through the environments."
+ },
+ {
+  "q": "Where do database passwords belong?",
+  "options": [
+   "In the source code",
+   "In the Git repository, in a private file",
+   "In a secret store, passed in at run time",
+   "In the Docker image"
+  ],
+  "answer": 2,
+  "why": "Secrets never go into Git or images."
+ },
+ {
+  "q": "A required setting is missing. When should the service complain?",
+  "options": [
+   "On the first request that needs it",
+   "At start-up",
+   "Never",
+   "After a day"
+  ],
+  "answer": 1,
+  "why": "Failing at start-up is noticed by the deployment, not by a customer."
+ },
+ {
+  "q": "A secret was committed by mistake and then removed in the next commit. Is it safe?",
+  "options": [
+   "Yes",
+   "No: it is in the history, so rotate it"
+  ],
+  "answer": 1,
+  "why": "Git keeps every version. Create a new secret and disable the old one."
+ }
+]

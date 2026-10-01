@@ -1,0 +1,46 @@
+[
+ {
+  "q": "In cache-aside, what happens on a miss?",
+  "options": [
+   "An error is returned",
+   "The source is asked, and the answer is stored in the cache",
+   "The cache is emptied",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "The application falls back to the source and fills the cache for next time."
+ },
+ {
+  "q": "The data in the database changes. What is the simple, safe thing to do with its cache key?",
+  "options": [
+   "Leave it",
+   "Delete it",
+   "Double its TTL",
+   "Rename it"
+  ],
+  "answer": 1,
+  "why": "Delete on write. The next read reloads the fresh value."
+ },
+ {
+  "q": "Why cache the answer 'this id does not exist'?",
+  "options": [
+   "To save memory",
+   "So that repeated requests for missing ids do not all hit the database",
+   "It is required by Redis",
+   "To log errors"
+  ],
+  "answer": 1,
+  "why": "Otherwise every request for a missing id is a miss. This is cache penetration."
+ },
+ {
+  "q": "Many requests miss the same expired key at once and all run the slow query. What is this called?",
+  "options": [
+   "A deadlock",
+   "A cache stampede",
+   "An eviction",
+   "A hit"
+  ],
+  "answer": 1,
+  "why": "Also called a thundering herd. Jitter on TTLs and a rebuild lock soften it."
+ }
+]

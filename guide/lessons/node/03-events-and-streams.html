@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Events and streams · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/03-events-and-streams">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 3 of 6</p>
+<h1>Events and streams</h1>
+<p class="lede">The two patterns behind most of Node's library: things that announce, and data that flows.</p>
+<h2 id="eventemitter">EventEmitter</h2>
+<p>Many objects in Node announce what happens to them: a server announces a <code>request</code>, a stream announces <code>data</code>, a process announces <code>exit</code>. They all use <code>EventEmitter</code>:</p>
+<pre><code class="lang-javascript">import { EventEmitter } from "node:events";
+
+const orders = new EventEmitter();
+
+orders.on("created", (order) =&gt; {
+  console.log("send a confirmation for", order.id);
+});
+orders.once("created", () =&gt; console.log("the first order ever"));   // runs one time
+
+orders.emit("created", { id: 1 });</code></pre>
+<ul><li><code>on</code> registers a listener, <code>once</code> a listener that removes itself after one call, <code>off</code> removes one.</li><li><code>emit</code> calls the listeners <strong>one after another, immediately</strong>. It is not asynchronous.</li><li>An <code>"error"</code> event with no listener throws. Always listen for <code>error</code> on emitters that can fail.</li></ul>
+<p>Your own class can extend it:</p>
+<pre><code class="lang-javascript">class Downloader extends EventEmitter {
+  async fetch(url) {
+    this.emit("start", url);
+    // ...
+    this.emit("done", url);
+  }
+}</code></pre>
+<p>Events let parts of a program react to each other without knowing each other. The order module does not import the email module. It only says what happened.</p>
+<h2 id="streams">Streams</h2>
+<p><code>readFile</code> loads the whole file into memory. For a 5 GB log on a server with 1 GB of memory, that does not work. A <strong>stream</strong> delivers data in <strong>chunks</strong>, and memory use stays small and constant.</p>
+<div class="table-wrap"><table><thead><tr><th>Kind</th><th>Example</th></tr></thead><tbody><tr><td>Readable</td><td>a file being read, an incoming HTTP request</td></tr><tr><td>Writable</td><td>a file being written, an HTTP response</td></tr><tr><td>Transform</td><td>reads, changes, passes on: compression, encryption</td></tr><tr><td>Duplex</td><td>both directions: a network socket</td></tr></tbody></table></div>
+<h2 id="reading-line-by-line">Reading line by line</h2>
+<pre><code class="lang-javascript">import { createReadStream } from "node:fs";
+import { createInterface } from "node:readline";
+
+const lines = createInterface({ input: createReadStream("access.log") });
+
+let errors = 0;
+for await (const line of lines) {
+  if (line.includes(" 500 ")) {
+    errors++;
+  }
+}
+console.log(errors);</code></pre>
+<p><code>for await</code> consumes any readable stream. This loop handles a file of any size.</p>
+<h2 id="connecting-streams">Connecting streams</h2>
+<p><code>pipeline</code> connects streams, passes errors on, and closes everything when it is over:</p>
+<pre><code class="lang-javascript">import { pipeline } from "node:stream/promises";
+import { createReadStream, createWriteStream } from "node:fs";
+import { createGzip } from "node:zlib";
+
+await pipeline(
+  createReadStream("access.log"),
+  createGzip(),
+  createWriteStream("access.log.gz"),
+);</code></pre>
+<p>It is the same idea as a shell pipe: <code>cat access.log | gzip &gt; access.log.gz</code>.</p>
+<h2 id="backpressure">Backpressure</h2>
+<p>A fast reader feeding a slow writer would fill memory with waiting chunks. Streams prevent it: when the writer's buffer is full, the reader is paused until it drains. <code>pipeline</code> and <code>for await</code> do this for you. Calling <code>.write()</code> in a loop by hand and ignoring its return value does not, which is why you should use <code>pipeline</code>.</p>
+<h2 id="your-own-transform">Your own transform</h2>
+<p>An async generator is the easiest way to write one. It works as a stage of <code>pipeline</code>:</p>
+<pre><code class="lang-javascript">async function* upperCase(source) {
+  for await (const chunk of source) {
+    yield String(chunk).toUpperCase();
+  }
+}
+
+await pipeline(process.stdin, upperCase, process.stdout);</code></pre>
+<h2 id="chunks-are-not-lines">Chunks are not lines</h2>
+<p>A chunk is whatever amount of data arrived. It can end in the middle of a line, or in the middle of a character. Code that splits lines must keep the unfinished tail for the next chunk:</p>
+<pre><code class="lang-javascript">async function* lines(source) {
+  let rest = "";
+  for await (const chunk of source) {
+    const parts = (rest + chunk).split("\n");
+    rest = parts.pop();             // the last piece may be incomplete
+    yield* parts;
+  }
+  if (rest !== "") {
+    yield rest;
+  }
+}</code></pre>
+<p><code>readline</code> does exactly this for you.</p>
+<h2 id="http-is-streams">HTTP is streams</h2>
+<p>In an HTTP server, the request is a readable stream and the response is a writable one. A large file is sent without loading it:</p>
+<pre><code class="lang-javascript">await pipeline(createReadStream("video.mp4"), res);</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>readFile</code> for large files.</strong></li><li><strong><code>.pipe()</code> without error handling.</strong> Use <code>pipeline</code>.</li><li><strong>Assuming a chunk is a whole line</strong>, or a whole JSON document.</li><li><strong>No <code>error</code> listener</strong> on an emitter.</li><li><strong>Adding listeners in a loop</strong> and never removing them. Node warns about a memory leak after ten.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/03-streams">
+<h3>Events and a stream of lines <span class="ex-id">node/03-streams</span></h3>
+<p>Write the following in <code>solution.mjs</code>.</p>
+<h4><code>Stock</code></h4>
+<p>A class that extends <code>EventEmitter</code> and tracks the quantity of products.</p>
+<ul><li><code>add(name, quantity)</code> adds to the quantity of a product (it starts at 0) and emits <code>"changed"</code> with <code>{ name, quantity }</code>, where <code>quantity</code> is the new total.</li><li><code>remove(name, quantity)</code> subtracts. When that would go below 0, nothing changes and it emits <code>"error"</code> with an <code>Error</code> whose message is <code>not enough NAME</code>. Otherwise it emits <code>"changed"</code>, and when the new total is exactly 0 it <strong>also</strong> emits <code>"empty"</code> with the name, after <code>"changed"</code>.</li><li><code>quantity(name)</code> returns the current quantity, 0 for an unknown product.</li></ul>
+<h4><code>splitLines(source)</code></h4>
+<p>An <code>async function*</code> that receives an async iterable of text chunks and yields complete lines, without the newline. A chunk can end in the middle of a line. A last line without a newline is yielded too. Empty lines in the middle are yielded as empty strings.</p>
+<h4><code>summarize(source)</code></h4>
+<p>An <code>async</code> function that receives chunks of an access log with lines such as <code>GET /home 200 12</code> (method, path, status, milliseconds) and returns:</p>
+<pre><code class="lang-javascript">{ requests: 3, errors: 1, slowest: "/report" }</code></pre>
+<p><code>errors</code> counts the lines whose status is 500 or more. <code>slowest</code> is the path of the line with the most milliseconds, or <code>null</code> when there are no lines. Blank lines are ignored. Use <code>splitLines</code>.</p>
+<p class="ex-files">Files: <code>exercises/node/03-streams/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/03-streams</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../node/02-files-and-paths.html"><span>Previous</span>Files and paths</a><a class="next" href="../node/04-building-an-api.html"><span>Next</span>Building a solid API</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retrieval and evaluation · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="llm/06-rag-and-evaluation">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Building with LLMs · lesson 6 of 6</p>
+<h1>Retrieval and evaluation</h1>
+<p class="lede">Answer from your own documents, and measure whether the system is any good.</p>
+<h2 id="the-problem">The problem</h2>
+<p>A model does not know your company's handbook, yesterday's tickets or your product catalogue. You could paste everything into the prompt, until it no longer fits, or costs too much, or the relevant paragraph is lost among a thousand others.</p>
+<p><strong>Retrieval-augmented generation (RAG)</strong> is the standard answer: <strong>find</strong> the few passages that matter for this question, and put only those in the prompt.</p>
+<pre><code class="lang-text">question -&gt; search your documents -&gt; top passages -&gt; prompt -&gt; answer, with sources</code></pre>
+<h2 id="embeddings">Embeddings</h2>
+<p>To find passages by <strong>meaning</strong>, not only by shared words, we use <strong>embeddings</strong>. An embedding model turns a text into a list of numbers, a <strong>vector</strong>, such that texts with similar meaning get vectors that point in similar directions.</p>
+<pre><code class="lang-python">embed("How do I reset my password?")     # [0.021, -0.433, 0.118, ...]  hundreds of numbers
+embed("I forgot my login")               # a vector close to the first
+embed("Opening hours of the shop")       # a vector far away</code></pre>
+<p>Embedding models are separate from chat models: small, fast and cheap.</p>
+<h2 id="cosine-similarity">Cosine similarity</h2>
+<p>The usual measure of closeness is the <strong>cosine</strong> of the angle between two vectors:</p>
+<pre><code class="lang-python">import math
+
+def cosine(a, b):
+    dot = sum(x * y for x, y in zip(a, b))
+    length_a = math.sqrt(sum(x * x for x in a))
+    length_b = math.sqrt(sum(y * y for y in b))
+    return dot / (length_a * length_b)</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Value</th><th>Meaning</th></tr></thead><tbody><tr><td>1</td><td>the same direction: very similar</td></tr><tr><td>0</td><td>unrelated</td></tr><tr><td>-1</td><td>opposite</td></tr></tbody></table></div>
+<h2 id="chunking">Chunking</h2>
+<p>A whole manual is too big to embed as one piece, and too vague: its vector would be the average of everything. Split documents into <strong>chunks</strong> of a few hundred words.</p>
+<ul><li>Split at natural borders where you can: headings, paragraphs.</li><li>Let neighbouring chunks <strong>overlap</strong> a little, so that a sentence cut at a border is whole in one of them.</li><li>Keep with each chunk where it came from: the document, the section, the page. You need it for citations.</li></ul>
+<p>Chunk size is a trade-off. Small chunks match precisely and lack context. Large chunks carry context and match loosely.</p>
+<h2 id="the-pipeline">The pipeline</h2>
+<p><strong>Once, and whenever documents change (indexing):</strong></p>
+<ol><li>Load the documents and split them into chunks.</li><li>Embed every chunk.</li><li>Store the vectors with their text and source.</li></ol>
+<p><strong>For each question:</strong></p>
+<ol><li>Embed the question.</li><li>Find the <code>k</code> chunks with the highest similarity.</li><li>Build a prompt with those chunks and the question.</li><li>Ask the model to answer <strong>from the chunks only</strong>, and to cite them.</li></ol>
+<pre><code class="lang-text">Answer the question using only the passages below.
+Cite the passage number for each claim, like [2].
+If the passages do not contain the answer, say that you do not know.
+
+&lt;passage id="1" source="handbook.md#returns"&gt;
+...
+&lt;/passage&gt;
+&lt;passage id="2" source="faq.md#shipping"&gt;
+...
+&lt;/passage&gt;
+
+Question: Can I return a bike after 40 days?</code></pre>
+<p>For a few thousand chunks, a list in memory and a loop are enough. Larger collections use a <strong>vector database</strong>, or the vector extension of a database you already run, such as <code>pgvector</code> for PostgreSQL.</p>
+<h2 id="when-retrieval-goes-wrong">When retrieval goes wrong</h2>
+<p>Most bad answers of a RAG system come from retrieval, not from the model: the right passage was not found, so the model had nothing to work with.</p>
+<div class="table-wrap"><table><thead><tr><th>Problem</th><th>Remedy</th></tr></thead><tbody><tr><td>exact terms are missed: product codes, names</td><td>combine with keyword search (<strong>hybrid search</strong>)</td></tr><tr><td>the right chunk is ranked 8th of 10</td><td>a <strong>reranking</strong> step on the top results</td></tr><tr><td>the question is vague or refers to earlier turns</td><td>rewrite it into a standalone question first</td></tr><tr><td>the answer needs several documents</td><td>retrieve more, or let an agent search several times</td></tr></tbody></table></div>
+<p>Look at what was retrieved before blaming the prompt.</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>"It looked good when I tried it" is not a measurement. LLM systems change behaviour with every edit to a prompt, a model version or a chunk size. Without tests you cannot tell an improvement from a regression.</p>
+<p>Build an <strong>evaluation set</strong>: 30 to 100 real questions, each with what a good answer must contain. Then measure, automatically, on every change:</p>
+<div class="table-wrap"><table><thead><tr><th>Check</th><th>How</th></tr></thead><tbody><tr><td>retrieval: is the right passage among the top <code>k</code>?</td><td>compare ids with the expected ones: <strong>recall@k</strong></td></tr><tr><td>exact answers: labels, numbers, extracted fields</td><td>compare with the expected value</td></tr><tr><td>format: valid JSON, required fields</td><td>code</td></tr><tr><td>free-text quality</td><td>a second model acting as a <strong>judge</strong>, with a clear rubric. Spot-check its verdicts by hand.</td></tr><tr><td>safety: refusals, leaks, injections</td><td>a set of adversarial inputs</td></tr></tbody></table></div>
+<p>Start small. Ten test cases that you run on every change are worth more than a thousand you never run.</p>
+<p>Also record, in production: the question, what was retrieved, the answer, the time, the cost, and whether the user was satisfied. Failures found there become new test cases.</p>
+<h2 id="the-rest-of-the-picture">The rest of the picture</h2>
+<ul><li><strong>Cost and latency</strong> are part of quality. Track both per request.</li><li><strong>Privacy</strong>: know what data you send to a provider, and what its terms allow.</li><li><strong>Fallbacks</strong>: decide what the product does when the model is down or unsure.</li><li><strong>People</strong>: for decisions that matter, keep a human in the loop.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No evaluation set</strong>, and changes made on a feeling.</li><li><strong>Chunks without their source</strong>, so answers cannot be checked.</li><li><strong>Blaming the model</strong> for an answer whose passage was never retrieved.</li><li><strong>Stuffing 50 chunks into the prompt</strong> in the hope that one is right.</li><li><strong>Letting the model answer from its own memory</strong> when the passages do not cover the question.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="llm/06-retrieval">
+<h3>Retrieval from scratch <span class="ex-id">llm/06-retrieval</span></h3>
+<p>Build the core of a RAG system in <code>solution.py</code>. Real systems get their vectors from an embedding model. Here the tests supply small vectors, so that you can check every number by hand.</p>
+<h4><code>cosine(a, b)</code></h4>
+<p>The cosine similarity of two vectors of equal length. If either vector has length 0, return <code>0.0</code>.</p>
+<h4><code>chunk(words, size, overlap)</code></h4>
+<p>Splits a list of words into chunks of at most <code>size</code> words. Each chunk starts <code>size - overlap</code> words after the previous one. The last chunk may be shorter. Stop as soon as a chunk reaches the end of the list. An empty list gives no chunks.</p>
+<p><code>chunk(["a", "b", "c", "d", "e"], 3, 1)</code> is <code>[["a", "b", "c"], ["c", "d", "e"]]</code>.</p>
+<h4><code>top_k(query, documents, k)</code></h4>
+<p><code>documents</code> is a list of dictionaries with the keys <code>id</code>, <code>text</code> and <code>vector</code>. Returns the <code>k</code> documents most similar to the <code>query</code> vector, most similar first. Documents with equal similarity keep their original order.</p>
+<h4><code>build_prompt(question, passages)</code></h4>
+<p><code>passages</code> is a list of documents as above. Returns exactly this layout, with one <code>&lt;passage&gt;</code> block per document:</p>
+<pre><code class="lang-text">Answer using only the passages below. Cite passage ids like [id]. If the answer is not in them, say you do not know.
+
+&lt;passage id="p1"&gt;
+First text
+&lt;/passage&gt;
+
+&lt;passage id="p2"&gt;
+Second text
+&lt;/passage&gt;
+
+Question: What is it?</code></pre>
+<h4><code>recall_at_k(retrieved_ids, relevant_ids, k)</code></h4>
+<p>Evaluation: the fraction of the relevant ids that appear among the first <code>k</code> retrieved ids. With no relevant ids, return <code>1.0</code>.</p>
+<p class="ex-files">Files: <code>exercises/llm/06-retrieval/</code></p>
+<pre><code class="lang-console">$ python3 check.py llm/06-retrieval</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../llm/05-tools-and-agents.html"><span>Previous</span>Tools and agents</a><a class="next" href="../dsa/01-big-o.html"><span>Next</span>Big-O and how to measure code</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

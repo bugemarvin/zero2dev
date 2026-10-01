@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which layer should know about HTTP status codes?",
+  "options": [
+   "The repository",
+   "The service",
+   "The route",
+   "All of them"
+  ],
+  "answer": 2,
+  "why": "Routes translate between HTTP and the service. Services hold the rules and know nothing about HTTP."
+ },
+ {
+  "q": "Why pass the clock into a service as a parameter?",
+  "options": [
+   "It is faster",
+   "So that tests can control the time",
+   "Because Date is deprecated",
+   "To save memory"
+  ],
+  "answer": 1,
+  "why": "Anything slow, random or external should be injected, so tests can replace it."
+ },
+ {
+  "q": "Which assertion checks that an async function rejects?",
+  "options": [
+   "assert.throws",
+   "assert.rejects",
+   "assert.equal",
+   "assert.ok"
+  ],
+  "answer": 1,
+  "why": "assert.rejects awaits the promise and expects a rejection."
+ },
+ {
+  "q": "What should a server do when it receives SIGTERM?",
+  "options": [
+   "Exit at once",
+   "Stop accepting new requests, finish the running ones, then exit",
+   "Ignore it",
+   "Restart"
+  ],
+  "answer": 1,
+  "why": "A graceful shutdown avoids dropping requests during a deployment."
+ }
+]

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Continuous integration · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="devops/02-continuous-integration">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">DevOps · lesson 2 of 5</p>
+<h1>Continuous integration</h1>
+<p class="lede">Every change is built and tested automatically, before it reaches the main branch.</p>
+<h2 id="the-problem">The problem</h2>
+<p>Three developers work for two weeks on separate branches. On the last day they merge. Nothing fits, the tests that still exist fail, and nobody knows which change broke what.</p>
+<p><strong>Continuous integration (CI)</strong> is the cure: everyone merges small changes into the main branch <strong>often</strong>, at least daily, and <strong>a machine checks every change</strong> before it is merged.</p>
+<h2 id="what-a-pipeline-does">What a pipeline does</h2>
+<p>A <strong>pipeline</strong> is a script that runs on a clean machine for every push and every pull request:</p>
+<pre><code class="lang-text">checkout  -&gt;  install dependencies  -&gt;  lint  -&gt;  test  -&gt;  build</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Catches</th></tr></thead><tbody><tr><td><strong>lint</strong> and format check</td><td>syntax errors, style, obvious bugs. Fast, so it runs first.</td></tr><tr><td><strong>test</strong></td><td>behaviour that broke</td></tr><tr><td><strong>build</strong></td><td>code that does not compile or package</td></tr><tr><td><strong>security scan</strong></td><td>vulnerable dependencies, leaked secrets</td></tr></tbody></table></div>
+<p>If any step fails, the pipeline is <strong>red</strong> and the change cannot be merged. The rule that makes CI work: <strong>a red main branch is the team's first priority.</strong> Nobody builds on top of a broken base.</p>
+<h2 id="fail-fast">Fail fast</h2>
+<p>Order the steps from quick to slow. A typo found in ten seconds costs nothing. The same typo found after a twenty-minute test run costs a coffee and your concentration.</p>
+<p>A script that stops at the first failure:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+echo "== lint"
+python3 -m py_compile *.py
+
+echo "== test"
+python3 -m unittest -q
+
+echo "== all checks passed"</code></pre>
+<p><code>set -e</code> makes the script exit as soon as a command fails, with that command's exit code. The <strong>exit code</strong> is the whole interface between your checks and the CI system: 0 is green, anything else is red.</p>
+<p>Keep the checks in a script like this, in the repository. Then everyone can run exactly what CI runs, <strong>before</strong> pushing: <code>./ci.sh</code>.</p>
+<h2 id="github-actions">GitHub Actions</h2>
+<p>GitHub runs pipelines described in YAML files under <code>.github/workflows/</code>:</p>
+<pre><code class="lang-yaml">name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run the checks
+        run: ./ci.sh</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>Meaning</th></tr></thead><tbody><tr><td><code>on</code></td><td>the events that start the workflow</td></tr><tr><td><code>jobs</code></td><td>independent units of work. Jobs run in parallel unless one <code>needs</code> another.</td></tr><tr><td><code>runs-on</code></td><td>the kind of machine: a fresh virtual machine every time</td></tr><tr><td><code>steps</code></td><td>run in order. A failing step stops the job.</td></tr><tr><td><code>uses</code></td><td>a ready-made action from the marketplace</td></tr><tr><td><code>run</code></td><td>a shell command</td></tr></tbody></table></div>
+<p>The machine starts <strong>empty</strong> every time. Nothing is left from the previous run. That is the point: if it passes there, it does not depend on something lying around on your laptop.</p>
+<p>GitLab CI, Jenkins, CircleCI and others have the same ideas with different spelling.</p>
+<h2 id="useful-features">Useful features</h2>
+<p><strong>A matrix</strong> runs the same job in several configurations:</p>
+<pre><code class="lang-yaml">    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]</code></pre>
+<p><strong>Caching</strong> keeps downloaded dependencies between runs, which often halves the time:</p>
+<pre><code class="lang-yaml">      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm</code></pre>
+<p><strong>Secrets</strong> are stored in the repository settings and reach a step as environment variables. They are hidden in the logs:</p>
+<pre><code class="lang-yaml">      - run: ./deploy.sh
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}</code></pre>
+<h2 id="protecting-the-main-branch">Protecting the main branch</h2>
+<p>CI helps only if it cannot be skipped. In the repository settings, a <strong>branch protection rule</strong> for <code>main</code> requires:</p>
+<ul><li>changes arrive through a pull request;</li><li>the CI checks have passed;</li><li>someone has reviewed the change.</li></ul>
+<p>From then on, <code>main</code> always works. That is what makes it safe to deploy from.</p>
+<h2 id="good-pipelines">Good pipelines</h2>
+<ul><li><strong>Fast.</strong> Under ten minutes. People stop waiting for slow pipelines and merge blind.</li><li><strong>Reliable.</strong> A test that fails at random teaches everyone to ignore red. Fix or remove flaky tests at once.</li><li><strong>The same as local.</strong> One script, used by people and by CI.</li><li><strong>Quiet when green, clear when red.</strong> The failure message should say what to fix.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Checks that exist only in the CI configuration</strong>, so nobody can run them locally.</li><li><strong>Ignoring a red pipeline</strong> "because it is probably flaky".</li><li><strong>Slow steps first.</strong></li><li><strong>Secrets printed to the log</strong> by a debugging <code>echo</code>.</li><li><strong>Merging without CI</strong> "just this once".</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="devops/02-ci-pipeline">
+<h3>A CI script and a workflow <span class="ex-id">devops/02-ci-pipeline</span></h3>
+<p>Your working folder is a Git repository with a small Python project: <code>calc.py</code> and <code>test_calc.py</code>. Add continuous integration to it.</p>
+<h4>1. <code>ci.sh</code></h4>
+<p>A script that runs the checks and stops at the first failure.</p>
+<ul><li>It prints the line <code>== lint</code>, then checks every Python file for syntax errors: <code>python3 -m py_compile *.py</code></li><li>It prints <code>== test</code>, then runs the tests: <code>python3 -m unittest -q</code></li><li>If both succeed it prints <code>== all checks passed</code> and exits with code 0.</li><li>If a step fails, the script stops there with a code other than 0.</li><li>It is executable: <code>chmod +x ci.sh</code>.</li></ul>
+<p>Try it: <code>./ci.sh</code>. Then break <code>calc.py</code> on purpose, run it again, and repair the file.</p>
+<h4>2. <code>.github/workflows/ci.yml</code></h4>
+<p>A GitHub Actions workflow that:</p>
+<ul><li>runs on every <code>push</code> and every <code>pull_request</code>;</li><li>has one job that <code>runs-on: ubuntu-latest</code>;</li><li>checks out the code with <code>actions/checkout@v4</code>;</li><li>runs <code>./ci.sh</code>.</li></ul>
+<h4>3. Commit</h4>
+<p>Commit both files. <code>git status</code> must report a clean working tree.</p>
+<p class="ex-files">Files: <code>exercises/devops/02-ci-pipeline/</code></p>
+<pre><code class="lang-console">$ python3 check.py devops/02-ci-pipeline</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../devops/01-environments-and-config.html"><span>Previous</span>Environments and configuration</a><a class="next" href="../devops/03-releases-and-versions.html"><span>Next</span>Releases and versions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
