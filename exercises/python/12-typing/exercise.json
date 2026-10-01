@@ -1,0 +1,11 @@
+{
+  "title": "Annotated functions and a dataclass",
+  "lesson": "python/10-typing",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "A hint goes after each parameter name and after the arrow: def mean(values: list[float]) -> float:",
+    "find_user can return None, so its return hint is str | None (or Optional[str]).",
+    "Put @dataclass above class Point and list the fields as x: float and y: float."
+  ]
+}

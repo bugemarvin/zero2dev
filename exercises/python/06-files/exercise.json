@@ -1,0 +1,11 @@
+{
+  "title": "Read and write score files",
+  "lesson": "python/04-files",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "Loop over the open file to get one line at a time, and strip() each line before using it.",
+    "name, score = line.split(\",\") then int(score).",
+    "save_report: sorted(scores.items(), key=lambda item: (-item[1], item[0])) orders by score, highest first, then by name."
+  ]
+}

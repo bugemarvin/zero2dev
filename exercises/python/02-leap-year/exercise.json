@@ -1,0 +1,106 @@
+{
+  "title": "Leap years and grades",
+  "lesson": "python/01-basics",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "is_leap_year",
+      "args": [
+        2024
+      ],
+      "expect": true
+    },
+    {
+      "call": "is_leap_year",
+      "args": [
+        2023
+      ],
+      "expect": false
+    },
+    {
+      "call": "is_leap_year",
+      "args": [
+        1900
+      ],
+      "expect": false,
+      "name": "is_leap_year(1900): divisible by 100 but not by 400"
+    },
+    {
+      "call": "is_leap_year",
+      "args": [
+        2000
+      ],
+      "expect": true,
+      "name": "is_leap_year(2000): divisible by 400"
+    },
+    {
+      "call": "is_leap_year",
+      "args": [
+        2100
+      ],
+      "expect": false
+    },
+    {
+      "call": "grade",
+      "args": [
+        95
+      ],
+      "expect": "A"
+    },
+    {
+      "call": "grade",
+      "args": [
+        90
+      ],
+      "expect": "A",
+      "name": "grade(90): the boundary belongs to A"
+    },
+    {
+      "call": "grade",
+      "args": [
+        89
+      ],
+      "expect": "B"
+    },
+    {
+      "call": "grade",
+      "args": [
+        70
+      ],
+      "expect": "C"
+    },
+    {
+      "call": "grade",
+      "args": [
+        69
+      ],
+      "expect": "D"
+    },
+    {
+      "call": "grade",
+      "args": [
+        60
+      ],
+      "expect": "D"
+    },
+    {
+      "call": "grade",
+      "args": [
+        59
+      ],
+      "expect": "F"
+    },
+    {
+      "call": "grade",
+      "args": [
+        0
+      ],
+      "expect": "F"
+    }
+  ],
+  "hints": [
+    "A year is a leap year if it is divisible by 4, except that century years must be divisible by 400.",
+    "One expression does it: year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)",
+    "For grade, test from the top down with if / elif, using >=."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "title": "Write generators",
+  "lesson": "python/08-iterators-and-generators",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "A function becomes a generator as soon as its body contains yield.",
+    "fibonacci never ends: while True, yield a, then a, b = b, a + b.",
+    "chunks: collect items in a list, yield it when it reaches the size, and yield what is left at the end if it is not empty."
+  ]
+}

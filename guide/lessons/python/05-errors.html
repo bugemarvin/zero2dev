@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Errors and exceptions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/05-errors">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 5 of 10</p>
+<h1>Errors and exceptions</h1>
+<p class="lede">Read a traceback, catch the errors you can handle, and raise your own when input is wrong.</p>
+<h2 id="reading-a-traceback">Reading a traceback</h2>
+<p>When something goes wrong, Python stops and prints a traceback:</p>
+<pre><code class="lang-text">Traceback (most recent call last):
+  File "shop.py", line 9, in &lt;module&gt;
+    print(total(prices))
+  File "shop.py", line 4, in total
+    result += float(p)
+ValueError: could not convert string to float: 'abc'</code></pre>
+<p><strong>Read it from the bottom.</strong> The last line gives the type of error and a message. The lines above show the route: <code>total</code> was called from line 9, and the failure happened on line 4.</p>
+<div class="table-wrap"><table><thead><tr><th>Exception</th><th>Usual cause</th></tr></thead><tbody><tr><td><code>NameError</code></td><td>a misspelled or undefined name</td></tr><tr><td><code>TypeError</code></td><td>the wrong kind of value, like <code>"a" + 1</code></td></tr><tr><td><code>ValueError</code></td><td>the right type with an unusable value, like <code>int("abc")</code></td></tr><tr><td><code>IndexError</code></td><td>a list index past the end</td></tr><tr><td><code>KeyError</code></td><td>a dictionary key that is not there</td></tr><tr><td><code>ZeroDivisionError</code></td><td>dividing by zero</td></tr><tr><td><code>FileNotFoundError</code></td><td>opening a file that does not exist</td></tr><tr><td><code>AttributeError</code></td><td>calling a method on the wrong type, often on <code>None</code></td></tr></tbody></table></div>
+<h2 id="catching">Catching</h2>
+<pre><code class="lang-python">try:
+    age = int(text)
+except ValueError:
+    print("That is not a number")</code></pre>
+<p>If the code in <code>try</code> raises a <code>ValueError</code>, Python jumps to the <code>except</code> block. Any other exception passes through untouched.</p>
+<p>The full form:</p>
+<pre><code class="lang-python">try:
+    f = open(path, encoding="utf-8")
+except FileNotFoundError:
+    print("no such file")
+else:
+    print(f.read())      # runs only if no exception happened
+    f.close()
+finally:
+    print("done")        # runs in every case</code></pre>
+<p>Catch several types with a tuple, and get hold of the exception object with <code>as</code>:</p>
+<pre><code class="lang-python">try:
+    value = data[key] / count
+except (KeyError, ZeroDivisionError) as exc:
+    print(f"could not compute: {exc}")</code></pre>
+<h2 id="catch-only-what-you-can-handle">Catch only what you can handle</h2>
+<pre><code class="lang-python">try:
+    do_work()
+except Exception:      # bad: hides every bug, including typos
+    pass</code></pre>
+<p>A broad <code>except</code> that does nothing makes bugs invisible. Catch the specific exception you expect. Let everything else stop the program with a traceback, because that traceback is how you find the bug.</p>
+<h2 id="raising">Raising</h2>
+<p>When your function is given something it cannot work with, raise an exception. Do not return a made-up value.</p>
+<pre><code class="lang-python">def set_age(age):
+    if age &lt; 0:
+        raise ValueError("age cannot be negative")
+    return age</code></pre>
+<p>Choose the type that fits: <code>ValueError</code> for a bad value, <code>TypeError</code> for the wrong type.</p>
+<h2 id="your-own-exception-types">Your own exception types</h2>
+<pre><code class="lang-python">class InsufficientFunds(Exception):
+    pass
+
+def withdraw(balance, amount):
+    if amount &gt; balance:
+        raise InsufficientFunds(f"need {amount}, have {balance}")
+    return balance - amount</code></pre>
+<p>A named type lets callers catch exactly this problem and nothing else.</p>
+<h2 id="ask-forgiveness-not-permission">Ask forgiveness, not permission</h2>
+<p>Two ways to handle a key that may be missing:</p>
+<pre><code class="lang-python"># check first
+if "name" in user:
+    name = user["name"]
+else:
+    name = "unknown"
+
+# just try
+try:
+    name = user["name"]
+except KeyError:
+    name = "unknown"</code></pre>
+<p>Python code often prefers the second style when failure is rare. For this particular case <code>user.get("name", "unknown")</code> beats both.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A bare <code>except:</code> or <code>except Exception: pass</code>.</strong> It hides real bugs.</li><li><strong>Catching too early.</strong> If a function cannot do anything useful about an error, let it travel up to code that can.</li><li><strong>Returning <code>None</code> or <code>-1</code> to signal an error.</strong> Callers forget to check. Raise.</li><li><strong>Reading the traceback from the top.</strong> The answer is on the last line.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/07-errors">
+<h3>Handle and raise errors <span class="ex-id">python/07-errors</span></h3>
+<p>Write three functions in <code>solution.py</code>.</p>
+<p><code>safe_divide(a, b)</code> returns <code>a / b</code>, or <code>None</code> when <code>b</code> is zero. Catch the exception; do not test <code>b</code> with an <code>if</code>.</p>
+<p><code>parse_age(text)</code> converts a string to an integer age and returns it.</p>
+<ul><li>If the text is not a whole number, it raises <code>ValueError</code>.</li><li>If the number is below 0 or above 150, it raises <code>ValueError</code> with the message <code>age out of range</code>.</li></ul>
+<p><code>first_valid(items)</code> takes a list of strings and returns the first one that can be converted to an integer, as an integer. If none can, it returns <code>None</code>.</p>
+<pre><code class="lang-python">first_valid(["x", "12", "7"])    # 12</code></pre>
+<p class="ex-files">Files: <code>exercises/python/07-errors/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/07-errors</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/04-files.html"><span>Previous</span>Files</a><a class="next" href="../python/06-modules-and-venv.html"><span>Next</span>Modules, packages and virtual environments</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

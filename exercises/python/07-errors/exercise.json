@@ -1,0 +1,128 @@
+{
+  "title": "Handle and raise errors",
+  "lesson": "python/05-errors",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "safe_divide",
+      "args": [
+        10,
+        4
+      ],
+      "expect": 2.5
+    },
+    {
+      "call": "safe_divide",
+      "args": [
+        1,
+        0
+      ],
+      "expect": null,
+      "name": "safe_divide(1, 0) returns None"
+    },
+    {
+      "call": "safe_divide",
+      "args": [
+        0,
+        5
+      ],
+      "expect": 0.0
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "42"
+      ],
+      "expect": 42
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        " 7 "
+      ],
+      "expect": 7,
+      "name": "parse_age accepts spaces around the number"
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "0"
+      ],
+      "expect": 0
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "150"
+      ],
+      "expect": 150
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "abc"
+      ],
+      "raises": "ValueError",
+      "name": "parse_age('abc') raises ValueError"
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        ""
+      ],
+      "raises": "ValueError",
+      "name": "parse_age('') raises ValueError"
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "-1"
+      ],
+      "raises": "ValueError",
+      "name": "parse_age('-1') raises ValueError"
+    },
+    {
+      "call": "parse_age",
+      "args": [
+        "151"
+      ],
+      "raises": "ValueError",
+      "name": "parse_age('151') raises ValueError"
+    },
+    {
+      "call": "first_valid",
+      "args": [
+        [
+          "x",
+          "12",
+          "7"
+        ]
+      ],
+      "expect": 12
+    },
+    {
+      "call": "first_valid",
+      "args": [
+        [
+          "",
+          "nope"
+        ]
+      ],
+      "expect": null,
+      "name": "first_valid with no numbers returns None"
+    },
+    {
+      "call": "first_valid",
+      "args": [
+        []
+      ],
+      "expect": null
+    }
+  ],
+  "tests": "tests.py",
+  "hints": [
+    "safe_divide: try the division, and return None in an except ZeroDivisionError block.",
+    "parse_age: int(text) already raises ValueError for text that is not a number. Add your own raise ValueError(...) for the range.",
+    "first_valid: loop over the items, try int(item), and continue to the next one on ValueError."
+  ]
+}

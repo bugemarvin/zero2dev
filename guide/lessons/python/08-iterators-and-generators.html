@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterators and generators · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/08-iterators-and-generators">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 8 of 10</p>
+<h1>Iterators and generators</h1>
+<p class="lede">Produce values one at a time, only when they are asked for.</p>
+<h2 id="what-a-for-loop-really-does">What a for loop really does</h2>
+<p>Anything you can loop over is an <strong>iterable</strong>: lists, strings, dictionaries, files, ranges. A <code>for</code> loop asks the iterable for an <strong>iterator</strong>, then asks that iterator for the next value, again and again, until it runs out.</p>
+<p>You can do the same by hand:</p>
+<pre><code class="lang-python">it = iter([10, 20])
+next(it)      # 10
+next(it)      # 20
+next(it)      # raises StopIteration: nothing left</code></pre>
+<p>An iterator remembers where it is, and goes forward only. Once used up, it stays empty.</p>
+<h2 id="generators">Generators</h2>
+<p>A <strong>generator</strong> is the easy way to write your own iterator. It is a function that uses <code>yield</code>:</p>
+<pre><code class="lang-python">def countdown(n):
+    while n &gt; 0:
+        yield n
+        n -= 1
+
+for x in countdown(3):
+    print(x)          # 3, 2, 1</code></pre>
+<p>Calling <code>countdown(3)</code> runs <strong>none</strong> of the body. It returns a generator object. Each time a value is requested, the function runs up to the next <code>yield</code>, hands that value over, and <strong>pauses</strong>, keeping all its local variables. The next request resumes right after the <code>yield</code>.</p>
+<pre><code class="lang-python">gen = countdown(2)
+next(gen)     # 2
+next(gen)     # 1
+next(gen)     # StopIteration</code></pre>
+<h2 id="why-this-matters-laziness">Why this matters: laziness</h2>
+<p>A list holds all of its values in memory at once. A generator produces each value when it is needed and then forgets it.</p>
+<pre><code class="lang-python">def read_big_file(path):
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            yield line.rstrip("\n")</code></pre>
+<p>This handles a file of any size with the memory of one line.</p>
+<p>A generator can even be endless, because nothing is computed until someone asks:</p>
+<pre><code class="lang-python">def naturals():
+    n = 0
+    while True:
+        yield n
+        n += 1</code></pre>
+<p>Never write <code>list(naturals())</code>. Take only what you need:</p>
+<pre><code class="lang-python">from itertools import islice
+
+list(islice(naturals(), 5))     # [0, 1, 2, 3, 4]</code></pre>
+<h2 id="generator-expressions">Generator expressions</h2>
+<p>Like a list comprehension, with round brackets. It builds no list.</p>
+<pre><code class="lang-python">total = sum(n * n for n in range(1_000_000))</code></pre>
+<p>The squares are produced one by one and added up. A list of a million numbers never exists.</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>List comprehension</th><th>Generator expression</th></tr></thead><tbody><tr><td>Syntax</td><td><code>[x for x in data]</code></td><td><code>(x for x in data)</code></td></tr><tr><td>Memory</td><td>holds everything</td><td>one value at a time</td></tr><tr><td>Reusable</td><td>yes</td><td>no, one pass only</td></tr><tr><td>Index with <code>[i]</code>, <code>len()</code></td><td>yes</td><td>no</td></tr></tbody></table></div>
+<h2 id="tools-that-work-with-any-iterable">Tools that work with any iterable</h2>
+<pre><code class="lang-python">names = ["ada", "linus"]
+ages = [36, 54]
+
+for name, age in zip(names, ages):      # pairs things up
+    print(name, age)
+
+for i, name in enumerate(names, start=1):
+    print(i, name)
+
+any(a &gt; 50 for a in ages)     # True: at least one
+all(a &gt; 50 for a in ages)     # False: not every one</code></pre>
+<p>The <code>itertools</code> module has many more: <code>islice</code> (take a slice), <code>chain</code> (join iterables end to end), <code>count</code> (count upwards for ever).</p>
+<h2 id="pipelines">Pipelines</h2>
+<p>Generators connect like the pipes in the <a href="../start/05-pipes-and-redirection.html">terminal</a>. Each stage pulls from the one before it:</p>
+<pre><code class="lang-python">lines = read_big_file("access.log")
+errors = (line for line in lines if "ERROR" in line)
+users = (line.split()[2] for line in errors)
+
+for user in users:
+    print(user)</code></pre>
+<p>Nothing is read from the file until the final loop starts asking.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using a generator twice.</strong> The second loop gets nothing. Create a new generator, or store the values in a list.</li><li><strong>Calling <code>len()</code> or indexing on a generator.</strong> Neither is supported.</li><li><strong>Expecting the body to run at the call.</strong> It runs only when values are requested.</li><li><strong><code>return</code> with a value</strong> in a generator does not produce that value. Use <code>yield</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/10-generators">
+<h3>Write generators <span class="ex-id">python/10-generators</span></h3>
+<p>Write four functions in <code>solution.py</code>. The first three must be generators: they use <code>yield</code> and produce values one at a time.</p>
+<ul><li><code>countdown(n)</code> yields <code>n, n - 1, ..., 1</code>. For <code>n</code> of 0 or less it yields nothing.</li><li><code>fibonacci()</code> yields the Fibonacci numbers for ever: <code>0, 1, 1, 2, 3, 5, 8, ...</code></li><li><code>chunks(items, size)</code> yields lists of <code>size</code> consecutive items. The last list may be shorter. It must work on any iterable, including another generator, and must not load everything into memory first.</li><li><code>take(n, iterable)</code> returns a <strong>list</strong> of the first <code>n</code> values of any iterable. It must stop asking for values after <code>n</code>, so that it works on an endless generator.</li></ul>
+<pre><code class="lang-python">list(countdown(3))               # [3, 2, 1]
+take(6, fibonacci())             # [0, 1, 1, 2, 3, 5]
+list(chunks([1, 2, 3, 4, 5], 2)) # [[1, 2], [3, 4], [5]]</code></pre>
+<p class="ex-files">Files: <code>exercises/python/10-generators/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/10-generators</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/07-classes.html"><span>Previous</span>Classes</a><a class="next" href="../python/09-testing.html"><span>Next</span>Testing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

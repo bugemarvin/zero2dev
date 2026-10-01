@@ -1,0 +1,133 @@
+{
+  "title": "Use the standard library",
+  "lesson": "python/06-modules-and-venv",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "days_between",
+      "args": [
+        "2025-01-01",
+        "2025-03-01"
+      ],
+      "expect": 59
+    },
+    {
+      "call": "days_between",
+      "args": [
+        "2024-02-28",
+        "2024-03-01"
+      ],
+      "expect": 2,
+      "name": "days_between across a leap day"
+    },
+    {
+      "call": "days_between",
+      "args": [
+        "2025-03-01",
+        "2025-01-01"
+      ],
+      "expect": 59,
+      "name": "days_between is never negative"
+    },
+    {
+      "call": "days_between",
+      "args": [
+        "2025-06-15",
+        "2025-06-15"
+      ],
+      "expect": 0
+    },
+    {
+      "call": "top_words",
+      "args": [
+        [
+          "a",
+          "b",
+          "a",
+          "c",
+          "b",
+          "a"
+        ],
+        2
+      ],
+      "expect": [
+        [
+          "a",
+          3
+        ],
+        [
+          "b",
+          2
+        ]
+      ]
+    },
+    {
+      "call": "top_words",
+      "args": [
+        [
+          "x",
+          "y"
+        ],
+        5
+      ],
+      "expect": [
+        [
+          "x",
+          1
+        ],
+        [
+          "y",
+          1
+        ]
+      ],
+      "name": "top_words: equal counts are ordered alphabetically"
+    },
+    {
+      "call": "top_words",
+      "args": [
+        [
+          "b",
+          "a",
+          "b",
+          "a"
+        ],
+        1
+      ],
+      "expect": [
+        [
+          "a",
+          2
+        ]
+      ]
+    },
+    {
+      "call": "top_words",
+      "args": [
+        [],
+        3
+      ],
+      "expect": []
+    },
+    {
+      "call": "hypotenuse",
+      "args": [
+        3,
+        4
+      ],
+      "expect": 5.0
+    },
+    {
+      "call": "hypotenuse",
+      "args": [
+        1,
+        1
+      ],
+      "expect": 1.4142135623730951
+    }
+  ],
+  "hints": [
+    "date.fromisoformat(text) turns '2025-01-01' into a date. Subtracting two dates gives an object with .days",
+    "collections.Counter(words) counts everything for you. Sort its items by (-count, word).",
+    "math.hypot(a, b) or math.sqrt(a * a + b * b)."
+  ]
+}

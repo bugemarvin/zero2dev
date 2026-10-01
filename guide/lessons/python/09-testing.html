@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/09-testing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 9 of 10</p>
+<h1>Testing</h1>
+<p class="lede">Write code that checks your code, so you can change things without fear.</p>
+<h2 id="why-test">Why test</h2>
+<p>You already test: you run the program and look at the output. An automated test does the same check, the same way, every time, in milliseconds. That means:</p>
+<ul><li>you find out at once when a change breaks something that used to work;</li><li>you can restructure code and know it still behaves the same;</li><li>the tests show how the code is meant to be used.</li></ul>
+<p>The checker you have been running is exactly this: tests written in advance.</p>
+<h2 id="assert">assert</h2>
+<p><code>assert</code> checks that something is true. If it is not, the program stops with an <code>AssertionError</code>.</p>
+<pre><code class="lang-python">def add(a, b):
+    return a + b
+
+assert add(2, 3) == 5
+assert add(-1, 1) == 0, "adding opposites should give zero"</code></pre>
+<p>The optional text after the comma is shown when the assertion fails.</p>
+<h2 id="test-functions">Test functions</h2>
+<p>Put each check in its own function with a name starting with <code>test_</code>. One test, one behaviour.</p>
+<pre><code class="lang-python"># test_cart.py
+from cart import total
+
+def test_empty_cart_is_zero():
+    assert total([]) == 0
+
+def test_sums_prices():
+    assert total([2.50, 1.25]) == 3.75</code></pre>
+<p><strong>pytest</strong>, the most widely used test runner, finds and runs these with no extra code. Install it in a <a href="../python/06-modules-and-venv.html">virtual environment</a>:</p>
+<pre><code class="lang-console">(.venv) $ python -m pip install pytest
+(.venv) $ pytest
+test_cart.py ..                                    [100%]
+2 passed in 0.01s</code></pre>
+<p>When a test fails, pytest shows the values on both sides of the comparison.</p>
+<h2 id="testing-that-errors-are-raised">Testing that errors are raised</h2>
+<p>A function that rejects bad input should be tested for that too:</p>
+<pre><code class="lang-python">import pytest
+
+def test_negative_price_is_rejected():
+    with pytest.raises(ValueError):
+        total([-1])</code></pre>
+<p>Without pytest, the same check is:</p>
+<pre><code class="lang-python">def test_negative_price_is_rejected():
+    try:
+        total([-1])
+    except ValueError:
+        return                # the expected error happened
+    assert False, "expected a ValueError"</code></pre>
+<h2 id="what-to-test">What to test</h2>
+<p>Bugs gather at the edges. For any function, ask what happens with:</p>
+<div class="table-wrap"><table><thead><tr><th>Kind of input</th><th>Examples</th></tr></thead><tbody><tr><td>the normal case</td><td>a typical value</td></tr><tr><td>empty</td><td><code>[]</code>, <code>""</code>, <code>0</code>, <code>None</code></td></tr><tr><td>one element</td><td>a list with a single item</td></tr><tr><td>boundaries</td><td>the first and last valid values, and the values just outside them</td></tr><tr><td>invalid input</td><td>negative numbers, the wrong type</td></tr><tr><td>duplicates and ties</td><td>two equal items</td></tr></tbody></table></div>
+<p>If a rule says "between 0 and 100", then test 0, 100, -1 and 101. An off-by-one mistake shows up at exactly those four values and nowhere else.</p>
+<h2 id="good-tests">Good tests</h2>
+<ul><li><strong>Small and focused.</strong> When one fails, its name should tell you what broke.</li><li><strong>Independent.</strong> No test relies on another having run first.</li><li><strong>Repeatable.</strong> No dependence on the clock, the network, or random numbers.</li><li><strong>Checking behaviour</strong>, not how the function is written inside.</li></ul>
+<h2 id="floating-point">Floating point</h2>
+<p>Decimal fractions are not stored exactly:</p>
+<pre><code class="lang-python">0.1 + 0.2 == 0.3          # False</code></pre>
+<p>Compare with a tolerance:</p>
+<pre><code class="lang-python">import math
+math.isclose(0.1 + 0.2, 0.3)      # True</code></pre>
+<h2 id="test-first">Test first</h2>
+<p>A useful routine, especially for fixing bugs:</p>
+<ol><li>Write a test that fails because of the bug.</li><li>Fix the code until the test passes.</li><li>Keep the test. The bug cannot return unnoticed.</li></ol>
+<h2 id="the-standard-library-option">The standard library option</h2>
+<p>Python includes <code>unittest</code>, which needs nothing installed. Tests are methods of a class:</p>
+<pre><code class="lang-python">import unittest
+from cart import total
+
+class TestTotal(unittest.TestCase):
+    def test_empty(self):
+        self.assertEqual(total([]), 0)
+
+if __name__ == "__main__":
+    unittest.main()</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Testing only the happy path.</strong> The normal case is the least likely to be broken.</li><li><strong>One giant test</strong> that checks ten things. The first failure hides the other nine.</li><li><strong>Tests that never fail.</strong> A test that would still pass with the function body deleted checks nothing. Break the code on purpose once, and watch the test catch it.</li><li><strong>Comparing floats with <code>==</code>.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/11-testing">
+<h3>Write tests that catch bugs <span class="ex-id">python/11-testing</span></h3>
+<p>This time <strong>you</strong> write the tests.</p>
+<p>The function under test is <code>discount(price, percent)</code>:</p>
+<ul><li>It returns <code>price</code> reduced by <code>percent</code> percent, rounded to 2 decimal places. <code>discount(200, 25)</code> is <code>150.0</code>.</li><li>It raises <code>ValueError</code> if <code>price</code> is negative.</li><li>It raises <code>ValueError</code> if <code>percent</code> is below 0 or above 100. Both 0 and 100 are allowed.</li></ul>
+<p>In <code>solution.py</code>, write test functions. Each one takes the function to test as its parameter, and its name starts with <code>test_</code>:</p>
+<pre><code class="lang-python">def test_quarter_off(discount):
+    assert discount(200, 25) == 150.0</code></pre>
+<p>The checker runs your tests against a correct <code>discount</code> and against <strong>five broken versions</strong>. You pass when:</p>
+<ol><li>every one of your tests passes on the correct version, and</li><li>each broken version makes at least one of your tests fail.</li></ol>
+<p>You are not shown the broken versions. Think about where bugs hide: the boundaries, the rounding, the invalid input.</p>
+<p class="ex-files">Files: <code>exercises/python/11-testing/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/11-testing</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/08-iterators-and-generators.html"><span>Previous</span>Iterators and generators</a><a class="next" href="../python/10-typing.html"><span>Next</span>Type hints</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
