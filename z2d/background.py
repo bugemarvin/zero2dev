@@ -101,19 +101,31 @@ def status():
 
 def _wsl_keeper(port):
     """Under WSL a background process dies when the last Ubuntu window closes, because Windows
-    shuts the whole Linux system down. A hidden wsl.exe that runs the server keeps it up.
-    Returns True when that was started."""
-    script = _windows_script_text(port)
-    wscript = platforminfo._windows_tool("wscript.exe")
-    if not wscript or shutil.which("wslpath") is None:
+    shuts the whole Linux system down. A hidden wsl.exe on the Windows side that runs the server
+    keeps it up. Returns True when that was launched (which does not yet mean it works)."""
+    powershell = platforminfo._windows_tool("powershell.exe")
+    if not powershell:
         return False
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    local = STATE_DIR / WINDOWS_SCRIPT
-    local.write_text(script, encoding="utf-8")
-    target = platforminfo.windows_path(local)
-    if not target:
-        return False
-    return platforminfo._spawn([wscript, target], "/mnt/c" if os.path.isdir("/mnt/c") else None)
+    arguments = _wsl_arguments(port).replace("'", "''")
+    command = f"Start-Process -FilePath wsl.exe -ArgumentList '{arguments}' -WindowStyle Hidden"
+    return platforminfo._spawn([powershell, "-NoProfile", "-NonInteractive", "-Command", command],
+                               "/mnt/c" if os.path.isdir("/mnt/c") else None)
+
+
+def _launch(port):
+    with open(LOG_FILE, "ab") as log:
+        subprocess.Popen([sys.executable, str(APP), "--no-browser", "--exact-port", "--port", str(port)],
+                         cwd=str(core.ROOT), stdin=subprocess.DEVNULL, stdout=log, stderr=log,
+                         start_new_session=True)
+
+
+def _wait(port, seconds):
+    deadline = time.time() + seconds
+    while time.time() < deadline:
+        if answers(port, 0.5):
+            return True
+        time.sleep(0.25)
+    return False
 
 
 def start(port=DEFAULT_PORT, open_browser=True, quiet=False):
@@ -126,25 +138,23 @@ def start(port=DEFAULT_PORT, open_browser=True, quiet=False):
             platforminfo.open_url(now["url"])
         return 0
     STATE_DIR.mkdir(parents=True, exist_ok=True)
-    kept = platforminfo.detect()["os"] == "wsl" and _wsl_keeper(port)
+    wsl = platforminfo.detect()["os"] == "wsl"
+    kept = wsl and _wsl_keeper(port) and _wait(port, 12)
     if not kept:
-        with open(LOG_FILE, "ab") as log:
-            subprocess.Popen([sys.executable, str(APP), "--no-browser", "--exact-port", "--port", str(port)],
-                             cwd=str(core.ROOT), stdin=subprocess.DEVNULL, stdout=log, stderr=log,
-                             start_new_session=True)
-    for _ in range(60):
-        if answers(port, 0.5):
-            say(f"zero2dev is running in the background at {url(port)}")
-            say("Stop it with: python3 app.py stop")
-            if platforminfo.detect()["os"] == "wsl" and not kept:
-                say("Note: Windows stops Ubuntu when its last window closes, and the app with it. "
-                    "`python3 app.py autostart on` keeps it running.")
-            if open_browser:
-                platforminfo.open_url(url(port))
-            return 0
-        time.sleep(0.25)
-    say(f"The app did not start. Port {port} may be in use by another program: try --port 4760. Log: {LOG_FILE}")
-    return 1
+        # The ordinary way. Under WSL it is also the way back when the Windows side did not
+        # manage to start it: the app must come up whatever Windows makes of the request.
+        _launch(port)
+        if not _wait(port, 15):
+            say(f"The app did not start. Port {port} may be in use by another program: try --port 4760. Log: {LOG_FILE}")
+            return 1
+    say(f"zero2dev is running in the background at {url(port)}")
+    say("Stop it with: python3 app.py stop")
+    if wsl and not kept:
+        say("Note: Windows stops Ubuntu when its last Ubuntu window closes, and the app with it. "
+            "Keep an Ubuntu window open, or start the app again when you need it.")
+    if open_browser:
+        platforminfo.open_url(url(port))
+    return 0
 
 
 def stop(quiet=False):
@@ -189,31 +199,31 @@ def first_run_enable(port):
 
     Returns a message when the app is now running in the background, otherwise None
     (already decided, not available here, or it did not work: the caller then runs it as before).
+    Whatever goes wrong in here must never stop the app from starting.
     """
     if choice() is not None or os.environ.get("Z2D_AUTOSTART", "1") == "0" or port != DEFAULT_PORT:
         return None
-    if method() is None:
-        record_choice("unavailable")
-        return None
     try:
+        how = method()
+        if how is None:
+            record_choice("unavailable")
+            return None
+        print("First start: setting zero2dev up to start when you log in ...", flush=True)
         ok, _message = autostart_on(port)
-    except (OSError, subprocess.SubprocessError):
-        ok = False
-    for _ in range(40):
-        if not ok or answers(port, 0.5):
-            break
-        time.sleep(0.25)
-    if not ok or not answers(port):
-        try:
-            autostart_off()
-        except (OSError, subprocess.SubprocessError):
-            pass
-        record_choice("unavailable")
-        return None
-    record_choice("on")
-    return ("zero2dev now starts by itself when you log in, and stays at " + url(port) + "\n"
-            "It uses " + DESCRIPTION[method()] + ". No administrator rights were needed.\n"
-            "To switch that off: python3 app.py autostart off     To stop it now: python3 app.py stop")
+        if ok and _wait(port, 12):
+            record_choice("on")
+            return ("zero2dev now starts by itself when you log in, and stays at " + url(port) + "\n"
+                    "It uses " + DESCRIPTION[how] + ". No administrator rights were needed.\n"
+                    "To switch that off: python3 app.py autostart off     To stop it now: python3 app.py stop")
+    except Exception as error:      # noqa: BLE001 - a convenience must not break the app
+        print(f"(Could not set up start at login: {error}. Carrying on without it.)", flush=True)
+    try:
+        autostart_off()
+    except Exception:               # noqa: BLE001
+        pass
+    record_choice("unavailable")
+    return None
+
 
 def _systemd_user():
     if shutil.which("systemctl") is None:
@@ -231,29 +241,48 @@ def _windows_startup_folder():
     if not powershell or shutil.which("wslpath") is None:
         return None
     try:
-        out = subprocess.run([powershell, "-NoProfile", "-Command", "[Environment]::GetFolderPath('Startup')"],
-                             capture_output=True, text=True, timeout=30, cwd="/mnt/c" if os.path.isdir("/mnt/c") else None)
+        out = subprocess.run([powershell, "-NoProfile", "-NonInteractive", "-Command", "[Environment]::GetFolderPath('Startup')"],
+                             capture_output=True, text=True, errors="replace", timeout=30,
+                             stdin=subprocess.DEVNULL, cwd="/mnt/c" if os.path.isdir("/mnt/c") else None)
         folder = out.stdout.strip().splitlines()[-1].strip() if out.stdout.strip() else ""
         if not folder:
             return None
-        unix = subprocess.run(["wslpath", "-u", folder], capture_output=True, text=True, timeout=10).stdout.strip()
-    except (OSError, subprocess.SubprocessError, IndexError):
+        unix = subprocess.run(["wslpath", "-u", folder], capture_output=True, text=True, errors="replace",
+                              timeout=10).stdout.strip()
+    except (OSError, ValueError, subprocess.SubprocessError, IndexError):
         return None
     return Path(unix) if unix and os.path.isdir(unix) else None
 
 
-def _windows_script_text(port):
+def _wsl_arguments(port):
+    """What wsl.exe is given, on the Windows side, to run the server inside this Linux."""
     distro = platforminfo.detect().get("wsl_distro") or "Ubuntu"
-    command = (f'wsl.exe -d {distro} --cd "{core.ROOT}" --exec {os.path.basename(sys.executable)} app.py '
-               f'--no-browser --exact-port --port {port}')
+    return (f'-d {distro} --cd "{core.ROOT}" --exec {os.path.basename(sys.executable)} app.py '
+            f'--no-browser --exact-port --port {port}')
+
+
+def _windows_script_text(port):
+    command = "wsl.exe " + _wsl_arguments(port)
     quoted = command.replace('"', '""')
     return ("' zero2dev: runs the learning app inside WSL, with no window.\r\n"
             "' Created by: python3 app.py autostart on.  Removed by: python3 app.py autostart off\r\n"
             f'CreateObject("WScript.Shell").Run "{quoted}", 0, False\r\n')
 
 
+_method = []
+
+
 def method():
-    """Which mechanism this system offers: systemd, xdg, launchd, windows-startup or None."""
+    """Which mechanism this system offers: systemd, xdg, launchd, windows-startup or None.
+
+    Worked out once: under WSL the answer costs a call into Windows, which is slow.
+    """
+    if not _method:
+        _method.append(_find_method())
+    return _method[0]
+
+
+def _find_method():
     kind = platforminfo.detect()["os"]
     if kind == "macos":
         return "launchd"
@@ -346,8 +375,11 @@ def autostart_on(port=DEFAULT_PORT):
         return True, f"The app now starts when you log in, and is running at {url(port)}"
     if how == "windows-startup":
         folder = _windows_startup_folder()
+        if folder is None:
+            return False, "The Windows Startup folder could not be found from inside Ubuntu."
         (folder / WINDOWS_SCRIPT).write_text(_windows_script_text(port), encoding="utf-8")
-        start(port, open_browser=False, quiet=True)
+        if start(port, open_browser=False, quiet=True) != 0:
+            return False, "The entry was added to the Windows Startup folder, but the app did not start now."
         return True, (f"The app now starts when you log in to Windows, and is running at {url(port)}\n"
                       f"It was added to the Windows Startup folder as {WINDOWS_SCRIPT}.")
     return False, "Starting at login is not available on this system. `python3 app.py start` runs it in the background."

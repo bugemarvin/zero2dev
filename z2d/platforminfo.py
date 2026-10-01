@@ -103,8 +103,8 @@ def windows_path(path):
     if detect()["os"] != "wsl" or shutil.which("wslpath") is None:
         return None
     try:
-        out = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.SubprocessError):
+        out = subprocess.run(["wslpath", "-w", str(path)], capture_output=True, text=True, errors="replace", timeout=10)
+    except (OSError, ValueError, subprocess.SubprocessError):
         return None
     return out.stdout.strip() or None
 
