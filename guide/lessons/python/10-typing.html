@@ -78,7 +78,7 @@ Found 1 error in 1 file (checked 1 source file)</code></pre>
 <p>Hints do not replace tests. Types tell you that a function returns a <code>float</code>. Tests tell you it returns the <em>right</em> float.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Expecting hints to be enforced at run time.</strong> They are not. Validate real input with code.</li><li><strong><code>list</code> with no element type.</strong> <code>list[int]</code> tells the reader, and the checker, far more.</li><li><strong>Leaving out <code>| None</code></strong> on a function that can return <code>None</code>.</li><li><strong>Using <code>list</code> in the signature when any iterable would do.</strong> For a parameter you only loop over, <code>Iterable[int]</code> from <code>collections.abc</code> accepts lists, sets and generators alike.</li></ul>
-<p>That completes the Python track. Carry on with data structures and algorithms, which you can solve in Python.</p>
+<p>That completes the Python track. Carry on with <a href="../dsa/01-big-o.html">data structures and algorithms</a>, which you can solve in Python.</p>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="python/12-typing">
@@ -94,7 +94,7 @@ Point(0, 0).distance_to(Point(3, 4)) # 5.0</code></pre>
 <pre><code class="lang-console">$ python3 check.py python/12-typing</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../python/09-testing.html"><span>Previous</span>Testing</a></nav>
+<nav class="pager"><a class="prev" href="../python/09-testing.html"><span>Previous</span>Testing</a><a class="next" href="../dsa/01-big-o.html"><span>Next</span>Big-O and how to measure code</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>

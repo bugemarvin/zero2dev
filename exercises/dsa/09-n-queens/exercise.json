@@ -1,0 +1,53 @@
+{
+  "title": "Count the N queens solutions",
+  "lesson": "dsa/06-recursion-and-backtracking",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "n = 1",
+      "stdin": "1\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "n = 2 has no solution",
+      "stdin": "2\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "n = 3 has no solution",
+      "stdin": "3\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "n = 4",
+      "stdin": "4\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "n = 5",
+      "stdin": "5\n",
+      "stdout": "10\n"
+    },
+    {
+      "name": "n = 6",
+      "stdin": "6\n",
+      "stdout": "4\n"
+    },
+    {
+      "name": "n = 8",
+      "stdin": "8\n",
+      "stdout": "92\n"
+    },
+    {
+      "name": "n = 9",
+      "stdin": "9\n",
+      "stdout": "352\n"
+    }
+  ],
+  "hints": [
+    "One queen per row means you only choose a column for each row.",
+    "Two squares are on the same diagonal when row - col is equal, or when row + col is equal.",
+    "Keep three sets: used columns, used row - col values and used row + col values. Remove from them when you backtrack."
+  ]
+}

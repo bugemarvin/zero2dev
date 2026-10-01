@@ -1,0 +1,53 @@
+{
+  "title": "Build a binary search tree",
+  "lesson": "dsa/09-trees-and-bst",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "10\ninsert 8\ninsert 3\ninsert 10\ninsert 1\ncontains 3\ncontains 7\nmin\nmax\nheight\ninorder\n",
+      "stdout": "yes\nno\n1\n10\n3\n1 3 8 10\n"
+    },
+    {
+      "name": "an empty tree",
+      "stdin": "5\ncontains 1\nmin\nmax\nheight\ninorder\n",
+      "stdout": "no\nempty\nempty\n0\nempty\n"
+    },
+    {
+      "name": "one node",
+      "stdin": "4\ninsert 5\nheight\nmin\nmax\n",
+      "stdout": "1\n5\n5\n"
+    },
+    {
+      "name": "duplicates are ignored",
+      "stdin": "5\ninsert 4\ninsert 4\ninsert 4\ninorder\nheight\n",
+      "stdout": "4\n1\n"
+    },
+    {
+      "name": "sorted input makes a chain",
+      "stdin": "7\ninsert 1\ninsert 2\ninsert 3\ninsert 4\ninsert 5\nheight\ninorder\n",
+      "stdout": "5\n1 2 3 4 5\n"
+    },
+    {
+      "name": "a balanced tree",
+      "stdin": "9\ninsert 8\ninsert 3\ninsert 10\ninsert 1\ninsert 6\ninsert 14\ninsert 9\nheight\ninorder\n",
+      "stdout": "3\n1 3 6 8 9 10 14\n"
+    },
+    {
+      "name": "negative values",
+      "stdin": "6\ninsert 0\ninsert -5\ninsert 5\ninsert -7\nmin\ninorder\n",
+      "stdout": "-7\n-7 -5 0 5\n"
+    },
+    {
+      "name": "a chain of 2,000 nodes",
+      "stdin_py": "'2002\\n' + ''.join(f'insert {i}\\n' for i in range(2000)) + 'height\\nmax\\n'",
+      "stdout": "2000\n1999\n"
+    }
+  ],
+  "hints": [
+    "insert: walk down from the root, going left for smaller and right for larger, until you reach an empty spot.",
+    "min is the leftmost node. max is the rightmost.",
+    "The chain test has 2,000 nodes in a row. A recursive height or in_order may exceed the recursion limit there: use a loop with a stack, or raise the limit."
+  ]
+}

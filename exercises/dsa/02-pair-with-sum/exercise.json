@@ -1,0 +1,53 @@
+{
+  "title": "Pair with a given sum",
+  "lesson": "dsa/02-arrays-and-two-pointers",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "a pair exists",
+      "stdin": "6 10\n1 2 4 7 9 12\n",
+      "stdout": "1 9\n"
+    },
+    {
+      "name": "no pair",
+      "stdin": "4 100\n1 2 3 4\n",
+      "stdout": "none\n"
+    },
+    {
+      "name": "several pairs: smallest first number wins",
+      "stdin": "6 10\n1 3 4 6 7 9\n",
+      "stdout": "1 9\n"
+    },
+    {
+      "name": "negative numbers",
+      "stdin": "5 0\n-7 -3 1 3 8\n",
+      "stdout": "-3 3\n"
+    },
+    {
+      "name": "a number cannot be paired with itself",
+      "stdin": "3 8\n1 4 9\n",
+      "stdout": "none\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "1 5\n5\n",
+      "stdout": "none\n"
+    },
+    {
+      "name": "200,000 numbers, no pair (needs O(n))",
+      "stdin_py": "'200000 399999\\n' + ' '.join(str(2 * i) for i in range(200000)) + '\\n'",
+      "stdout": "none\n"
+    },
+    {
+      "name": "200,000 numbers, pair in the middle",
+      "stdin_py": "'200000 400002\\n' + ' '.join(str(2 * i + (1 if i in (99999, 100001) else 0)) for i in range(200000)) + '\\n'",
+      "stdout": "4 399998\n"
+    }
+  ],
+  "hints": [
+    "Keep one index at the start and one at the end. Compare the sum of those two numbers with the target.",
+    "Sum too small: move the left index right. Sum too large: move the right index left.",
+    "Stop when the two indexes meet. The loop condition is lo < hi."
+  ]
+}

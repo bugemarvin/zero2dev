@@ -1,0 +1,42 @@
+{
+  "title": "Group anagrams",
+  "lesson": "dsa/05-hashing",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "6\neat tea tan ate nat bat\n",
+      "stdout": "3 3\n"
+    },
+    {
+      "name": "one word",
+      "stdin": "1\nhello\n",
+      "stdout": "1 1\n"
+    },
+    {
+      "name": "no anagrams",
+      "stdin": "3\nabc def ghi\n",
+      "stdout": "3 1\n"
+    },
+    {
+      "name": "all the same group",
+      "stdin": "4\nabc bca cab abc\n",
+      "stdout": "1 4\n"
+    },
+    {
+      "name": "same letters, different counts",
+      "stdin": "4\naab abb aba bab\n",
+      "stdout": "2 2\n"
+    },
+    {
+      "name": "5,000 words",
+      "stdin_py": "'5000\\n' + ' '.join(''.join(chr(97 + (i * k) % 7) for k in (1, 3, 5, 7, 11)) for i in range(5000)) + '\\n'",
+      "stdout": "7 715\n"
+    }
+  ],
+  "hints": [
+    "Anagrams have the same letters. Sorting the letters of each word gives the same text for all of them.",
+    "Use the sorted letters as a dictionary key and count how many words map to each key."
+  ]
+}

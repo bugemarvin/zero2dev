@@ -18,5 +18,10 @@
     "id": "python",
     "title": "Python",
     "blurb": "The fastest way to get things done: from first functions to classes, generators, tests and type hints."
+  },
+  {
+    "id": "dsa",
+    "title": "Data structures and algorithms",
+    "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language."
   }
 ]

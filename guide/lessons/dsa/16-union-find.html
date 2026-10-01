@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Union-find · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/16-union-find">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 16 of 17</p>
+<h1>Union-find</h1>
+<p class="lede">Keep track of which items belong to the same group while groups keep merging.</p>
+<h2 id="the-problem">The problem</h2>
+<p>You have <code>n</code> items, each in its own group at the start. Two operations arrive in any order:</p>
+<ul><li><strong>union(a, b):</strong> merge the groups containing <code>a</code> and <code>b</code>;</li><li><strong>find(a):</strong> which group is <code>a</code> in? From this follows: are <code>a</code> and <code>b</code> in the same group?</li></ul>
+<p>Examples: computers being connected by cables, pixels of the same colour joining into regions, accounts that turn out to belong to the same person.</p>
+<p>Running a <a href="../dsa/11-graphs-bfs-dfs.html">graph search</a> for every question is O(n) each. <strong>Union-find</strong>, also called a disjoint-set union, answers in practically constant time.</p>
+<h2 id="the-representation">The representation</h2>
+<p>Each group is a tree, and each item stores its <strong>parent</strong>. The root of the tree is the group's representative. A root is its own parent.</p>
+<pre><code class="lang-text">parent:  index  0  1  2  3  4  5
+         value  0  0  1  3  3  5
+
+    0        3      5
+    |        |
+    1        4
+    |
+    2</code></pre>
+<p>Three groups: {0, 1, 2}, {3, 4} and {5}.</p>
+<ul><li><strong>find(a):</strong> follow parents until you reach a root.</li><li><strong>union(a, b):</strong> find both roots. If they differ, make one the parent of the other.</li></ul>
+<p>Two items are in the same group exactly when they have the same root.</p>
+<h2 id="basic-version">Basic version</h2>
+<pre><code class="lang-python">parent = list(range(n))          # everyone starts as their own root
+
+def find(x):
+    while parent[x] != x:
+        x = parent[x]
+    return x
+
+def union(a, b):
+    root_a, root_b = find(a), find(b)
+    if root_a != root_b:
+        parent[root_a] = root_b</code></pre>
+<p>This is correct and can be slow. Unlucky unions build a tall chain, and <code>find</code> then walks all of it: O(n).</p>
+<h2 id="two-improvements">Two improvements</h2>
+<p><strong>Path compression.</strong> After finding the root, point every node on the path directly at it. The next <code>find</code> for any of them takes one step.</p>
+<pre><code class="lang-python">def find(x):
+    root = x
+    while parent[root] != root:
+        root = parent[root]
+    while parent[x] != root:          # second pass: re-point the path
+        parent[x], x = root, parent[x]
+    return root</code></pre>
+<p><strong>Union by size.</strong> Always attach the smaller tree beneath the root of the larger one, so that trees stay shallow.</p>
+<p>Together:</p>
+<pre><code class="lang-python">class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.size = [1] * n
+        self.groups = n
+
+    def find(self, x):
+        root = x
+        while self.parent[root] != root:
+            root = self.parent[root]
+        while self.parent[x] != root:
+            self.parent[x], x = root, self.parent[x]
+        return root
+
+    def union(self, a, b):
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb:
+            return False              # already together
+        if self.size[ra] &lt; self.size[rb]:
+            ra, rb = rb, ra
+        self.parent[rb] = ra          # smaller tree goes under the larger
+        self.size[ra] += self.size[rb]
+        self.groups -= 1
+        return True
+
+    def same(self, a, b):
+        return self.find(a) == self.find(b)</code></pre>
+<p>With both improvements, each operation costs so close to O(1) that for any input that fits in a computer you can treat it as constant.</p>
+<p>Keeping <code>groups</code> up to date gives the number of groups at any moment for free. <code>size[find(x)]</code> is the size of the group containing <code>x</code>.</p>
+<h2 id="uses">Uses</h2>
+<p><strong>Connected components.</strong> Union the two ends of every edge. The number of groups left is the number of components.</p>
+<p><strong>Cycle detection</strong> in an undirected graph. Before adding an edge, check whether its two ends are already in the same group. If they are, the edge closes a cycle.</p>
+<p><strong>Kruskal's algorithm</strong> for the cheapest set of edges that connects every node, a <strong>minimum spanning tree</strong>. Sort the edges by weight and add each one unless it would close a cycle:</p>
+<pre><code class="lang-python">def minimum_spanning_tree(n, edges):
+    uf = UnionFind(n)
+    total = 0
+    for weight, a, b in sorted(edges):
+        if uf.union(a, b):
+            total += weight
+    return total</code></pre>
+<p>It is a <a href="../dsa/14-greedy.html">greedy algorithm</a>, and union-find is what makes the cycle check fast.</p>
+<h2 id="union-find-or-graph-search">Union-find or graph search?</h2>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody><tr><td>connections fixed, one question</td><td>BFS or DFS</td></tr><tr><td>connections added over time, many questions</td><td>union-find</td></tr><tr><td>connections also <strong>removed</strong></td><td>neither works directly: union-find cannot split a group</td></tr><tr><td>need the actual path</td><td>BFS or DFS</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Comparing <code>parent[a] == parent[b]</code>.</strong> Compare the roots: <code>find(a) == find(b)</code>.</li><li><strong>Attaching a node instead of its root.</strong> <code>parent[a] = b</code> cuts <code>a</code> away from the rest of its group. Link root to root.</li><li><strong>Updating <code>size</code> or the group count when the two were already together.</strong></li><li><strong>Mixing 0-based and 1-based item numbers.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/23-union-find">
+<h3>Merge groups <span class="ex-id">dsa/23-union-find</span></h3>
+<p>There are <code>n</code> items, numbered 0 to <code>n - 1</code>. At the start every item is in a group of its own.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Effect</th><th>Prints</th></tr></thead><tbody><tr><td><code>union a b</code></td><td>merge the groups containing <code>a</code> and <code>b</code></td><td>nothing</td></tr><tr><td><code>same a b</code></td><td></td><td><code>yes</code> if <code>a</code> and <code>b</code> are in the same group, otherwise <code>no</code></td></tr><tr><td><code>count</code></td><td></td><td>the current number of groups</td></tr></tbody></table></div>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>q</code>. Then <code>q</code> commands, one per line.</p>
+<pre><code class="lang-text">input         output
+5 6           no
+same 0 1      yes
+union 0 1     3
+union 1 2     no
+same 0 2
+count
+same 3 4</code></pre>
+<p>The four output lines come from <code>same 0 1</code>, <code>same 0 2</code>, <code>count</code> and <code>same 3 4</code>.</p>
+<p>One test has 100,000 items and 150,000 unions. Use path compression and union by size.</p>
+<p class="ex-files">Files: <code>exercises/dsa/23-union-find/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/23-union-find --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/23-union-find</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/15-tries.html"><span>Previous</span>Tries</a><a class="next" href="../dsa/17-segment-trees.html"><span>Next</span>Segment trees</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

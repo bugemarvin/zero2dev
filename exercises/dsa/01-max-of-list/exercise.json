@@ -1,0 +1,37 @@
+{
+  "title": "Largest number",
+  "lesson": "dsa/01-big-o",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "five numbers",
+      "stdin": "5\n3 9 -2 7 4\n",
+      "stdout": "9\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "1\n42\n",
+      "stdout": "42\n"
+    },
+    {
+      "name": "all negative",
+      "stdin": "3\n-8 -3 -5\n",
+      "stdout": "-3\n"
+    },
+    {
+      "name": "the largest comes first",
+      "stdin": "4\n10 2 3 4\n",
+      "stdout": "10\n"
+    },
+    {
+      "name": "200,000 numbers",
+      "stdin_py": "'200000\\n' + ' '.join(str((i * 7919) % 100003) for i in range(200000)) + '\\n'",
+      "stdout": "100002\n"
+    }
+  ],
+  "hints": [
+    "Start with the first number as the best so far, not with 0. All the numbers may be negative.",
+    "Loop over the list and replace the best whenever you see a larger value."
+  ]
+}

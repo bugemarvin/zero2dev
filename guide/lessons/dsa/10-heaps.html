@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heaps and priority queues · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/10-heaps">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 10 of 17</p>
+<h1>Heaps and priority queues</h1>
+<p class="lede">Always know the smallest item, with cheap inserts and removals.</p>
+<h2 id="priority-queue">Priority queue</h2>
+<p>A normal queue serves items in arrival order. A <strong>priority queue</strong> always serves the item with the highest priority, such as the smallest number, whatever order things arrived in.</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Meaning</th></tr></thead><tbody><tr><td>push</td><td>add an item</td></tr><tr><td>pop</td><td>remove and return the smallest item</td></tr><tr><td>peek</td><td>look at the smallest item</td></tr></tbody></table></div>
+<p>Simple attempts are slow somewhere. An unsorted list has an O(1) push and an O(n) pop. A sorted list has an O(1) pop and an O(n) push. A <strong>heap</strong> gives O(log n) for both, and O(1) for peek.</p>
+<h2 id="the-heap">The heap</h2>
+<p>A <strong>binary min-heap</strong> is a binary tree with two properties:</p>
+<ol><li><strong>Shape:</strong> every level is full, except possibly the last, which is filled from the left.</li><li><strong>Order:</strong> every node is smaller than or equal to its children.</li></ol>
+<pre><code class="lang-text">            1
+          /   \
+         3     2
+        / \   /
+       7   4 5</code></pre>
+<p>The smallest value is therefore always at the root. Nothing else is promised: the heap is <strong>not</strong> fully sorted.</p>
+<h2 id="stored-in-an-array">Stored in an array</h2>
+<p>Because of the shape property, the tree packs into an array with no gaps and no pointers, reading level by level:</p>
+<pre><code class="lang-text">index:  0  1  2  3  4  5
+value:  1  3  2  7  4  5</code></pre>
+<p>For the node at index <code>i</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>Relative</th><th>Index</th></tr></thead><tbody><tr><td>parent</td><td><code>(i - 1) // 2</code></td></tr><tr><td>left child</td><td><code>2 * i + 1</code></td></tr><tr><td>right child</td><td><code>2 * i + 2</code></td></tr></tbody></table></div>
+<h2 id="push-sift-up">Push: sift up</h2>
+<p>Put the new value at the end of the array, which keeps the shape. Then swap it with its parent for as long as it is smaller than the parent.</p>
+<pre><code class="lang-python">def push(heap, value):
+    heap.append(value)
+    i = len(heap) - 1
+    while i &gt; 0:
+        parent = (i - 1) // 2
+        if heap[parent] &lt;= heap[i]:
+            break
+        heap[parent], heap[i] = heap[i], heap[parent]
+        i = parent</code></pre>
+<h2 id="pop-sift-down">Pop: sift down</h2>
+<p>The answer is the root. To remove it, move the <strong>last</strong> element to the root, which keeps the shape, then swap it with its <strong>smaller</strong> child for as long as it is larger than that child.</p>
+<pre><code class="lang-python">def pop(heap):
+    top = heap[0]
+    last = heap.pop()
+    if heap:
+        heap[0] = last
+        i = 0
+        n = len(heap)
+        while True:
+            left, right = 2 * i + 1, 2 * i + 2
+            smallest = i
+            if left &lt; n and heap[left] &lt; heap[smallest]:
+                smallest = left
+            if right &lt; n and heap[right] &lt; heap[smallest]:
+                smallest = right
+            if smallest == i:
+                break
+            heap[i], heap[smallest] = heap[smallest], heap[i]
+            i = smallest
+    return top</code></pre>
+<p>The tree has height about log n, and both operations walk one path: <strong>O(log n)</strong>.</p>
+<h2 id="costs">Costs</h2>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Cost</th></tr></thead><tbody><tr><td>peek at the smallest</td><td>O(1)</td></tr><tr><td>push</td><td>O(log n)</td></tr><tr><td>pop</td><td>O(log n)</td></tr><tr><td>build a heap from n items</td><td>O(n)</td></tr><tr><td>search for an arbitrary value</td><td>O(n)</td></tr></tbody></table></div>
+<h2 id="in-practice">In practice</h2>
+<p>Python has <code>heapq</code>, which treats a plain list as a min-heap:</p>
+<pre><code class="lang-python">import heapq
+
+heap = []
+heapq.heappush(heap, 5)
+heapq.heappush(heap, 1)
+heapq.heappush(heap, 3)
+heapq.heappop(heap)      # 1
+heap[0]                  # 3: peek</code></pre>
+<p>For a <strong>max-heap</strong>, push the negated values and negate again on the way out. To order by priority, push tuples: <code>(priority, item)</code>.</p>
+<p>Java has <code>PriorityQueue</code>, C++ has <code>priority_queue</code>.</p>
+<h2 id="what-heaps-are-for">What heaps are for</h2>
+<p><strong>The k largest of n items.</strong> Keep a min-heap of size <code>k</code>. For each item, push it, and if the heap grows beyond <code>k</code>, pop the smallest. What remains are the <code>k</code> largest. That is O(n log k), better than sorting everything when <code>k</code> is small.</p>
+<pre><code class="lang-python">def k_largest(items, k):
+    heap = []
+    for x in items:
+        heapq.heappush(heap, x)
+        if len(heap) &gt; k:
+            heapq.heappop(heap)
+    return sorted(heap, reverse=True)</code></pre>
+<p><strong>Merging sorted lists</strong>, <strong>scheduling</strong> the next event in a simulation, and <a href="../dsa/12-shortest-paths.html">Dijkstra's shortest path algorithm</a>, which repeatedly needs the closest unvisited node.</p>
+<p><strong>Heap sort:</strong> build a heap from the data, then pop everything. O(n log n), in place.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting the array to be sorted.</strong> Only <code>heap[0]</code> is guaranteed.</li><li><strong>Sifting down toward the larger child.</strong> Swap with the <strong>smaller</strong> one in a min-heap.</li><li><strong>Popping from an empty heap.</strong></li><li><strong>Using a heap to search.</strong> It only finds the minimum quickly.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/15-priority-queue">
+<h3>Build a min-heap <span class="ex-id">dsa/15-priority-queue</span></h3>
+<p>Implement a priority queue of whole numbers that always hands out the smallest value first.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Prints</th></tr></thead><tbody><tr><td><code>push x</code></td><td>nothing</td></tr><tr><td><code>pop</code></td><td>removes the smallest value and prints it, or prints <code>empty</code></td></tr><tr><td><code>peek</code></td><td>prints the smallest value without removing it, or <code>empty</code></td></tr><tr><td><code>size</code></td><td>the number of values stored</td></tr></tbody></table></div>
+<p><strong>Input:</strong> the first line holds <code>q</code>. Then one command per line.</p>
+<pre><code class="lang-text">input       output
+7           1
+push 5      1
+push 1      3
+push 3      1
+peek
+pop
+pop
+size</code></pre>
+<p>The four output lines come from <code>peek</code>, <code>pop</code>, <code>pop</code> and <code>size</code>.</p>
+<p>Write the heap yourself, as an array with sift-up and sift-down. The same value may be pushed more than once.</p>
+<p class="ex-files">Files: <code>exercises/dsa/15-priority-queue/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/15-priority-queue --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/15-priority-queue</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/09-trees-and-bst.html"><span>Previous</span>Trees and binary search trees</a><a class="next" href="../dsa/11-graphs-bfs-dfs.html"><span>Next</span>Graphs, BFS and DFS</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

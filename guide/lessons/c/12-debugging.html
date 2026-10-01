@@ -65,7 +65,7 @@ Program received signal SIGSEGV, Segmentation fault.
 <ul><li><strong>Uninitialised variable.</strong> A counter or total that was never set to 0.</li><li><strong>Off by one.</strong> <code>&lt;=</code> where <code>&lt;</code> was meant, or a string buffer with no room for <code>'\0'</code>.</li><li><strong>Missing <code>free</code></strong>, or a <code>free</code> in only one of several exit paths.</li><li><strong>Using a pointer after the thing it pointed to is gone.</strong></li><li><strong><code>=</code> in a condition</strong> where <code>==</code> was meant.</li><li><strong>Integer division</strong> producing 0.</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Fixing the symptom.</strong> If a value is wrong at line 40, find where it first became wrong.</li><li><strong>Not reading the whole message.</strong> The line number is right there.</li><li><strong>Debugging without <code>-g</code>.</strong> The reports show addresses with no file names or lines.</li></ul>
-<p>That is the end of the C track. The data structures and algorithms track builds on everything here.</p>
+<p>That is the end of the C track. The <a href="../dsa/01-big-o.html">data structures and algorithms</a> track builds on everything here.</p>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="c/14-fix-the-bugs">

@@ -1,0 +1,53 @@
+{
+  "title": "Build a linked list",
+  "lesson": "dsa/03-linked-lists",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "push and print",
+      "stdin": "4\npush_front 1\npush_front 2\npush_back 3\nprint\n",
+      "stdout": "2 1 3\n"
+    },
+    {
+      "name": "pop_front returns the first value",
+      "stdin": "5\npush_back 5\npush_back 6\npop_front\npop_front\nprint\n",
+      "stdout": "5\n6\nempty\n"
+    },
+    {
+      "name": "an empty list",
+      "stdin": "3\nprint\npop_front\nprint\n",
+      "stdout": "empty\nempty\nempty\n"
+    },
+    {
+      "name": "reverse",
+      "stdin": "6\npush_back 1\npush_back 2\npush_back 3\npush_back 4\nreverse\nprint\n",
+      "stdout": "4 3 2 1\n"
+    },
+    {
+      "name": "reverse an empty list and a list of one",
+      "stdin": "5\nreverse\nprint\npush_back 7\nreverse\nprint\n",
+      "stdout": "empty\n7\n"
+    },
+    {
+      "name": "push_back still works after reverse",
+      "stdin": "7\npush_back 1\npush_back 2\nreverse\npush_back 3\npush_front 0\nprint\npop_front\n",
+      "stdout": "0 2 1 3\n0\n"
+    },
+    {
+      "name": "push_back works again after the list became empty",
+      "stdin": "6\npush_back 1\npop_front\npush_back 2\npush_back 3\nprint\npop_front\n",
+      "stdout": "1\n2 3\n2\n"
+    },
+    {
+      "name": "a longer mix",
+      "stdin": "12\npush_front 3\npush_front 2\npush_front 1\nreverse\nprint\npop_front\npush_back 9\nreverse\nprint\npop_front\npop_front\nprint\n",
+      "stdout": "3 2 1\n3\n9 1 2\n9\n1\n2\n"
+    }
+  ],
+  "hints": [
+    "push_front: the new node's next is the old head, and the new node becomes the head.",
+    "push_back: handle the empty list separately. Otherwise walk to the last node (or keep a tail pointer) and attach there.",
+    "reverse: walk the list with three variables: prev, node and the saved node.next. If you keep a tail pointer, update it too."
+  ]
+}

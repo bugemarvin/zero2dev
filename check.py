@@ -122,9 +122,9 @@ def clip(text, max_lines=12, max_chars=1200):
     return text
 
 
-def block(label, text):
+def block(label, text, max_lines=12, max_chars=1200):
     """Format a labelled, indented block for a failure report."""
-    text = clip(text)
+    text = clip(text, max_lines, max_chars)
     if text == "":
         text = "(nothing)"
     lines = text.split("\n")
@@ -310,6 +310,17 @@ def pick_language(ex, exdir, lang_override=None):
     return "python" if "python" in candidates else candidates[0]
 
 
+def case_stdin(case):
+    """The input of a test case.
+
+    Large inputs are not stored. "stdin_py" holds a Python expression that
+    builds the text, so a 200,000-number test costs one line in exercise.json.
+    """
+    if "stdin_py" in case:
+        return eval(case["stdin_py"], {})
+    return case.get("stdin", "")
+
+
 def check_program(ex, exdir, lang_override=None):
     lang = pick_language(ex, exdir, lang_override)
     sources = ex.spec.get("sources") or [LANGS[lang]["file"]]
@@ -334,14 +345,20 @@ def check_program(ex, exdir, lang_override=None):
             rundir.mkdir()
             for fname, content in case.get("files", {}).items():
                 (rundir / fname).write_text(content, encoding="utf-8")
+            stdin = case_stdin(case)
             code, out, err = run(runner + case.get("args", []), cwd=rundir,
-                                 stdin=case.get("stdin", ""), timeout=ex.timeout, env=env)
+                                 stdin=stdin, timeout=ex.timeout, env=env)
             want_exit = case.get("exit", 0)
             parts = []
-            if case.get("stdin"):
-                parts.append(block("input:   ", case["stdin"]))
+            if stdin:
+                parts.append(block("input:   ", stdin, 8, 300))
             if case.get("args"):
                 parts.append(block("args:    ", " ".join(case["args"])))
+            if code is None:
+                parts.append(f"the program did not finish within {ex.timeout} seconds: "
+                             "too slow for this input, or an infinite loop")
+                results.append(Result(False, name, "\n".join(parts)))
+                continue
             if code != want_exit:
                 parts.append(f"the program {describe_exit(code)}, expected exit code {want_exit}")
                 if out.strip():

@@ -1,0 +1,37 @@
+{
+  "title": "Rank the students",
+  "lesson": "dsa/07-sorting",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "4\nada 91\nlinus 78\ngrace 95\nbob 91\n",
+      "stdout": "grace\nada\nbob\nlinus\n"
+    },
+    {
+      "name": "one student",
+      "stdin": "1\nzed 10\n",
+      "stdout": "zed\n"
+    },
+    {
+      "name": "all scores equal: alphabetical",
+      "stdin": "3\ncarol 50\nalice 50\nbob 50\n",
+      "stdout": "alice\nbob\ncarol\n"
+    },
+    {
+      "name": "already in order",
+      "stdin": "3\na 30\nb 20\nc 10\n",
+      "stdout": "a\nb\nc\n"
+    },
+    {
+      "name": "zero and negative scores",
+      "stdin": "4\nw 0\nx -5\ny 3\nz -5\n",
+      "stdout": "y\nw\nx\nz\n"
+    }
+  ],
+  "hints": [
+    "Sort with a key that is a pair: first the score, then the name.",
+    "To sort scores from high to low while names go from a to z, negate the score in the key: (-score, name)."
+  ]
+}

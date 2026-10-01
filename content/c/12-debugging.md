@@ -120,4 +120,4 @@ When a C program misbehaves, check these first:
 - **Not reading the whole message.** The line number is right there.
 - **Debugging without `-g`.** The reports show addresses with no file names or lines.
 
-That is the end of the C track. The data structures and algorithms track builds on everything here.
+That is the end of the C track. The [data structures and algorithms](dsa/01-big-o) track builds on everything here.

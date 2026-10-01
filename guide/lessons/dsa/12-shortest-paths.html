@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shortest paths with weights · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/12-shortest-paths">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 12 of 17</p>
+<h1>Shortest paths with weights</h1>
+<p class="lede">When edges have different costs, BFS is not enough. Dijkstra's algorithm, and what to use when it does not apply.</p>
+<h2 id="why-bfs-stops-working">Why BFS stops working</h2>
+<p>BFS finds the path with the fewest <strong>edges</strong>. With weights, the path with the fewest edges may not be the cheapest:</p>
+<pre><code class="lang-text">A --1-- B --1-- C
+ \             /
+  -----5------</code></pre>
+<p>From A to C the direct edge costs 5. The path through B uses two edges and costs 2.</p>
+<h2 id="dijkstra-s-algorithm">Dijkstra's algorithm</h2>
+<p>Dijkstra finds the cheapest distance from one start node to every other node, as long as <strong>no edge has a negative weight</strong>.</p>
+<p>The idea: always settle the unsettled node that is currently closest to the start. Its distance cannot be improved any more, because every other route would have to pass through a node that is at least as far away, and edges only add cost.</p>
+<ol><li>Set the distance of the start to 0 and of everything else to infinity.</li><li>Take the closest node that is not yet settled.</li><li>For each of its edges, check whether going through this node gives a shorter distance to the neighbour. If so, record it. This step is called <strong>relaxing</strong> the edge.</li><li>Repeat until no nodes are left.</li></ol>
+<p>A <a href="../dsa/10-heaps.html">heap</a> supplies "the closest node" efficiently.</p>
+<pre><code class="lang-python">import heapq
+
+def dijkstra(graph, start, n):
+    # graph[node] is a list of (neighbour, weight) pairs
+    INF = float("inf")
+    dist = [INF] * (n + 1)
+    dist[start] = 0
+    heap = [(0, start)]
+
+    while heap:
+        d, node = heapq.heappop(heap)
+        if d &gt; dist[node]:
+            continue                  # an outdated entry: skip it
+        for neighbour, weight in graph[node]:
+            candidate = d + weight
+            if candidate &lt; dist[neighbour]:
+                dist[neighbour] = candidate
+                heapq.heappush(heap, (candidate, neighbour))
+    return dist</code></pre>
+<p>When a shorter distance to a node is found, a new entry is pushed and the old one stays in the heap. The check <code>if d &gt; dist[node]: continue</code> throws those old entries away when they surface. That is simpler than updating entries in place.</p>
+<p>With a heap the running time is <strong>O((nodes + edges) log nodes)</strong>.</p>
+<h2 id="recovering-the-path">Recovering the path</h2>
+<p>Record where each improvement came from, then walk backwards from the goal:</p>
+<pre><code class="lang-python">            if candidate &lt; dist[neighbour]:
+                dist[neighbour] = candidate
+                parent[neighbour] = node</code></pre>
+<pre><code class="lang-python">def path_to(goal, parent):
+    path = [goal]
+    while path[-1] in parent:
+        path.append(parent[path[-1]])
+    return path[::-1]</code></pre>
+<h2 id="why-negative-weights-break-it">Why negative weights break it</h2>
+<p>Dijkstra assumes a settled node is final. A negative edge found later could make it cheaper after all, and the algorithm never looks back.</p>
+<h2 id="bellman-ford">Bellman-Ford</h2>
+<p>Bellman-Ford handles negative edges. It relaxes <strong>every</strong> edge, <code>n - 1</code> times over. A shortest path has at most <code>n - 1</code> edges, so after that many rounds every distance is final.</p>
+<pre><code class="lang-python">def bellman_ford(edges, start, n):
+    INF = float("inf")
+    dist = [INF] * (n + 1)
+    dist[start] = 0
+    for _ in range(n - 1):
+        for a, b, w in edges:
+            if dist[a] + w &lt; dist[b]:
+                dist[b] = dist[a] + w
+    return dist</code></pre>
+<p>If one more round still improves something, the graph has a <strong>negative cycle</strong>: a loop whose total weight is below zero. Then "shortest" has no meaning, since going round again always costs less.</p>
+<p>It runs in O(nodes × edges), far slower than Dijkstra.</p>
+<h2 id="choosing">Choosing</h2>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Algorithm</th><th>Cost</th></tr></thead><tbody><tr><td>all edges cost the same</td><td>BFS</td><td>O(V + E)</td></tr><tr><td>weights zero or more</td><td>Dijkstra</td><td>O((V + E) log V)</td></tr><tr><td>negative weights</td><td>Bellman-Ford</td><td>O(V × E)</td></tr><tr><td>shortest paths between all pairs, small graph</td><td>Floyd-Warshall</td><td>O(V³)</td></tr></tbody></table></div>
+<p>V is the number of nodes and E the number of edges.</p>
+<p><strong>Floyd-Warshall</strong> is three nested loops that allow each node in turn as a stop-over:</p>
+<pre><code class="lang-python">for k in nodes:
+    for i in nodes:
+        for j in nodes:
+            if dist[i][k] + dist[k][j] &lt; dist[i][j]:
+                dist[i][j] = dist[i][k] + dist[k][j]</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using Dijkstra with negative edges.</strong> The answers are silently wrong.</li><li><strong>Marking a node as done when it is pushed.</strong> In Dijkstra a node is final only when it is <strong>popped</strong>.</li><li><strong>Leaving out the stale-entry check</strong>, which makes the algorithm slow.</li><li><strong>Treating "unreachable" as 0.</strong> Keep infinity until the end, and report it separately.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/18-dijkstra">
+<h3>Cheapest routes from node 1 <span class="ex-id">dsa/18-dijkstra</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>m</code>. The nodes are numbered 1 to <code>n</code>. Each of the next <code>m</code> lines holds <code>a b w</code>: a <strong>one-way</strong> road from <code>a</code> to <code>b</code> that costs <code>w</code>. Costs are zero or more.</p>
+<p><strong>Output:</strong> one line with <code>n</code> numbers: the cheapest total cost from node 1 to each of the nodes 1, 2, ..., <code>n</code>. Print <code>-1</code> for a node that cannot be reached.</p>
+<pre><code class="lang-text">input      output
+4 4        0 2 3 -1
+1 2 2
+1 3 5
+2 3 1
+4 1 1</code></pre>
+<p>Node 3 is cheaper through node 2 (2 + 1) than directly (5). Node 4 has a road out and none in, so it cannot be reached.</p>
+<p class="ex-files">Files: <code>exercises/dsa/18-dijkstra/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/18-dijkstra --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/18-dijkstra</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/11-graphs-bfs-dfs.html"><span>Previous</span>Graphs, BFS and DFS</a><a class="next" href="../dsa/13-dynamic-programming.html"><span>Next</span>Dynamic programming</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

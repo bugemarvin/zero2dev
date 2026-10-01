@@ -1,0 +1,53 @@
+{
+  "title": "Fewest coins",
+  "lesson": "dsa/13-dynamic-programming",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example: greedy fails here",
+      "stdin": "3 6\n1 3 4\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "amount 0",
+      "stdin": "2 0\n5 7\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "impossible",
+      "stdin": "2 3\n2 4\n",
+      "stdout": "-1\n"
+    },
+    {
+      "name": "one coin value",
+      "stdin": "1 12\n4\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "ordinary coins",
+      "stdin": "4 63\n1 5 10 25\n",
+      "stdout": "6\n"
+    },
+    {
+      "name": "the coin is larger than the amount",
+      "stdin": "1 3\n5\n",
+      "stdout": "-1\n"
+    },
+    {
+      "name": "greedy fails again",
+      "stdin": "3 12\n1 5 6\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "a large amount",
+      "stdin": "4 99999\n1 7 13 250\n",
+      "stdout": "420\n"
+    }
+  ],
+  "hints": [
+    "Let dp[a] be the fewest coins for amount a. dp[0] is 0.",
+    "For each amount a, try every coin c that fits: dp[a] = min(dp[a - c] + 1).",
+    "Use a very large value for amounts that cannot be made, and turn it into -1 at the end."
+  ]
+}

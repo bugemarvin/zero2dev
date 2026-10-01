@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trees and binary search trees · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/09-trees-and-bst">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 9 of 17</p>
+<h1>Trees and binary search trees</h1>
+<p class="lede">Data arranged in levels, and a tree that keeps its values in order for fast search.</p>
+<h2 id="trees">Trees</h2>
+<p>A tree is made of <strong>nodes</strong> joined by links, with one node at the top called the <strong>root</strong>. Each node has zero or more <strong>children</strong>. A node with no children is a <strong>leaf</strong>.</p>
+<pre><code class="lang-text">            8            &lt;- root
+          /   \
+         3     10
+        / \      \
+       1   6      14     &lt;- 1, 6 and 14 are leaves</code></pre>
+<ul><li>The <strong>depth</strong> of a node is its distance from the root.</li><li>The <strong>height</strong> of a tree is the number of nodes on the longest path from the root down to a leaf. This tree has height 3. An empty tree has height 0.</li></ul>
+<p>File systems, the structure of an HTML page and the organisation of a company are all trees.</p>
+<p>In a <strong>binary tree</strong> every node has at most two children, called left and right.</p>
+<pre><code class="lang-python">class Node:
+    def __init__(self, value):
+        self.value = value
+        self.left = None
+        self.right = None</code></pre>
+<h2 id="trees-are-recursive">Trees are recursive</h2>
+<p>Each child of a node is itself the root of a smaller tree. So almost every tree function has the same shape: handle the empty tree, then combine the answers from the two subtrees.</p>
+<pre><code class="lang-python">def height(node):
+    if node is None:
+        return 0
+    return 1 + max(height(node.left), height(node.right))
+
+def size(node):
+    if node is None:
+        return 0
+    return 1 + size(node.left) + size(node.right)</code></pre>
+<h2 id="traversals">Traversals</h2>
+<p>Three ways to visit every node, depending on when the node itself is handled relative to its children:</p>
+<div class="table-wrap"><table><thead><tr><th>Order</th><th>Sequence</th><th>Result for the tree above</th></tr></thead><tbody><tr><td>pre-order</td><td>node, left, right</td><td>8 3 1 6 10 14</td></tr><tr><td>in-order</td><td>left, node, right</td><td>1 3 6 8 10 14</td></tr><tr><td>post-order</td><td>left, right, node</td><td>1 6 3 14 10 8</td></tr></tbody></table></div>
+<pre><code class="lang-python">def in_order(node, out):
+    if node is None:
+        return
+    in_order(node.left, out)
+    out.append(node.value)
+    in_order(node.right, out)</code></pre>
+<p>Visiting level by level, top to bottom, is a <a href="../dsa/11-graphs-bfs-dfs.html">breadth-first search</a> and uses a queue.</p>
+<h2 id="binary-search-trees">Binary search trees</h2>
+<p>A <strong>binary search tree</strong> (BST) adds one rule. For every node:</p>
+<ul><li>everything in its <strong>left</strong> subtree is <strong>smaller</strong>;</li><li>everything in its <strong>right</strong> subtree is <strong>larger</strong>.</li></ul>
+<p>The tree in the picture is a BST. The rule means each comparison tells you which way to go, exactly like binary search.</p>
+<p><strong>Search:</strong></p>
+<pre><code class="lang-python">def contains(node, target):
+    while node is not None:
+        if target == node.value:
+            return True
+        node = node.left if target &lt; node.value else node.right
+    return False</code></pre>
+<p><strong>Insert:</strong> search for the value. The empty spot where the search falls off the tree is where it belongs.</p>
+<pre><code class="lang-python">def insert(node, value):
+    if node is None:
+        return Node(value)
+    if value &lt; node.value:
+        node.left = insert(node.left, value)
+    elif value &gt; node.value:
+        node.right = insert(node.right, value)
+    return node              # an equal value is already there: nothing to do
+
+root = None
+for v in [8, 3, 10, 1, 6, 14]:
+    root = insert(root, v)</code></pre>
+<p>The in-order traversal of a BST visits the values <strong>in sorted order</strong>. That is the property a hash table cannot give you.</p>
+<p>The smallest value is found by going left until you cannot. The largest by going right.</p>
+<h2 id="cost-depends-on-shape">Cost depends on shape</h2>
+<p>Every operation follows one path from the root, so it costs O(height).</p>
+<div class="table-wrap"><table><thead><tr><th>Shape</th><th>Height</th><th>Search, insert</th></tr></thead><tbody><tr><td>balanced</td><td>about log n</td><td>O(log n)</td></tr><tr><td>degenerate (a chain)</td><td>n</td><td>O(n)</td></tr></tbody></table></div>
+<p>Insert the values 1, 2, 3, 4, 5 in that order and every node goes to the right of the one before. The "tree" is a linked list.</p>
+<p><strong>Self-balancing trees</strong>, such as red-black trees and AVL trees, rearrange themselves on insert and delete to keep the height near log n. They are what sits behind <code>TreeMap</code> in Java and <code>std::map</code> in C++. You rarely write one, and it is worth knowing they exist.</p>
+<h2 id="removing-a-node">Removing a node</h2>
+<p>Three cases:</p>
+<ol><li><strong>A leaf:</strong> remove it.</li><li><strong>One child:</strong> replace the node with its child.</li><li><strong>Two children:</strong> replace the node's value with the smallest value in its right subtree (its <strong>in-order successor</strong>), then remove that successor, which has at most one child.</li></ol>
+<h2 id="hash-table-or-bst">Hash table or BST?</h2>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Hash table</th><th>Balanced BST</th></tr></thead><tbody><tr><td>lookup, insert, delete</td><td>O(1) average</td><td>O(log n)</td></tr><tr><td>keys in sorted order</td><td>no</td><td>yes</td></tr><tr><td>smallest, largest, next larger</td><td>O(n)</td><td>O(log n)</td></tr><tr><td>all keys in a range</td><td>O(n)</td><td>O(log n + results)</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Not handling <code>None</code></strong> before reading <code>node.left</code> or <code>node.value</code>.</li><li><strong>Forgetting to re-attach</strong> in a recursive insert: <code>node.left = insert(node.left, value)</code>.</li><li><strong>Assuming a BST is balanced.</strong> Sorted input gives the worst case.</li><li><strong>Checking the BST rule only against the direct children.</strong> It applies to the whole subtree.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/14-bst">
+<h3>Build a binary search tree <span class="ex-id">dsa/14-bst</span></h3>
+<p>Implement a binary search tree of whole numbers that supports these commands.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Prints</th></tr></thead><tbody><tr><td><code>insert x</code></td><td>nothing. Inserting a value that is already present changes nothing.</td></tr><tr><td><code>contains x</code></td><td><code>yes</code> or <code>no</code></td></tr><tr><td><code>min</code></td><td>the smallest value, or <code>empty</code></td></tr><tr><td><code>max</code></td><td>the largest value, or <code>empty</code></td></tr><tr><td><code>height</code></td><td>the number of nodes on the longest path from the root to a leaf. An empty tree has height 0.</td></tr><tr><td><code>inorder</code></td><td>all values in increasing order, separated by spaces, or <code>empty</code></td></tr></tbody></table></div>
+<p><strong>Input:</strong> the first line holds <code>q</code>. Then one command per line.</p>
+<pre><code class="lang-text">input          output
+10             yes
+insert 8       no
+insert 3       1
+insert 10      10
+insert 1       3
+contains 3     1 3 8 10
+contains 7
+min
+max
+height
+inorder</code></pre>
+<p>Do not rebalance the tree: <code>height</code> must reflect plain insertion in the order given.</p>
+<p class="ex-files">Files: <code>exercises/dsa/14-bst/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/14-bst --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/14-bst</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/08-binary-search.html"><span>Previous</span>Binary search</a><a class="next" href="../dsa/10-heaps.html"><span>Next</span>Heaps and priority queues</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
