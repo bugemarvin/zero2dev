@@ -1,0 +1,26 @@
+{
+  "title": "Borrow, do not take",
+  "lesson": "rust/02-ownership-and-borrowing",
+  "kind": "harness",
+  "lang": "rust",
+  "edit": [
+    "solution.rs"
+  ],
+  "build": [
+    "rustc",
+    "--edition",
+    "2021",
+    "-o",
+    "{build}/tests",
+    "tests.rs"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "longest: if b.len() > a.len() { b } else { a }, with no semicolons, so the if is the result.",
+    "double_all: for n in numbers.iter_mut() { *n *= 2; }. The * reaches the value behind the reference.",
+    "append_exclamation: text.push('!');"
+  ]
+}

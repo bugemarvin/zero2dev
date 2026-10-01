@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Colours, fonts, units and variables · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="css/03-colours-fonts-units">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">CSS · lesson 3 of 6</p>
+<h1>Colours, fonts, units and variables</h1>
+<p class="lede">Readable text, sizes that scale, and values you name once and reuse.</p>
+<h2 id="colours">Colours</h2>
+<div class="table-wrap"><table><thead><tr><th>Form</th><th>Example</th><th>Notes</th></tr></thead><tbody><tr><td>name</td><td><code>navy</code>, <code>white</code>, <code>tomato</code></td><td>about 140 names</td></tr><tr><td>hex</td><td><code>#1a73e8</code>, <code>#fff</code></td><td>red, green, blue in base 16. <code>#fff</code> is short for <code>#ffffff</code>.</td></tr><tr><td>rgb</td><td><code>rgb(26 115 232)</code></td><td>the same three numbers in decimal, 0 to 255</td></tr><tr><td>with transparency</td><td><code>rgb(0 0 0 / 0.5)</code></td><td>the last number is opacity, 0 to 1</td></tr><tr><td>hsl</td><td><code>hsl(215 80% 50%)</code></td><td>hue (0 to 360), saturation, lightness. Easy to adjust by hand.</td></tr></tbody></table></div>
+<pre><code class="lang-css">.alert {
+  color: #7a0000;               /* the text */
+  background-color: #ffe5e5;
+}</code></pre>
+<p>Text must <strong>contrast</strong> with its background. Light grey on white looks elegant and cannot be read by many people. The developer tools show the contrast ratio when you click a colour: aim for 4.5 or more for normal text.</p>
+<h2 id="fonts">Fonts</h2>
+<pre><code class="lang-css">body {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}</code></pre>
+<ul><li><code>font-family</code> is a list. The browser uses the first font it has. Always end with a generic family: <code>sans-serif</code>, <code>serif</code> or <code>monospace</code>.</li><li><code>system-ui</code> is the font of the operating system. It needs no download and looks native.</li><li><code>line-height: 1.5</code> is the space between lines, as a multiple of the font size. Write it without a unit.</li></ul>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Values</th></tr></thead><tbody><tr><td><code>font-weight</code></td><td><code>normal</code> (400), <code>bold</code> (700), or a number</td></tr><tr><td><code>font-style</code></td><td><code>normal</code>, <code>italic</code></td></tr><tr><td><code>text-align</code></td><td><code>left</code>, <code>center</code>, <code>right</code></td></tr><tr><td><code>text-transform</code></td><td><code>uppercase</code>, <code>lowercase</code>, <code>capitalize</code></td></tr><tr><td><code>text-decoration</code></td><td><code>none</code>, <code>underline</code></td></tr></tbody></table></div>
+<h2 id="units">Units</h2>
+<div class="table-wrap"><table><thead><tr><th>Unit</th><th>Relative to</th><th>Use for</th></tr></thead><tbody><tr><td><code>px</code></td><td>nothing: a fixed size</td><td>borders, small details</td></tr><tr><td><code>rem</code></td><td>the font size of the root element (16px by default)</td><td>font sizes, spacing</td></tr><tr><td><code>em</code></td><td>the font size of the element itself</td><td>padding that should grow with the text</td></tr><tr><td><code>%</code></td><td>the parent's size</td><td>widths</td></tr><tr><td><code>vw</code>, <code>vh</code></td><td>1% of the window's width or height</td><td>full-screen sections</td></tr></tbody></table></div>
+<p>Use <code>rem</code> for font sizes. A person who sets a larger default text size in their browser then gets larger text on your page too. With <code>px</code> they get nothing.</p>
+<pre><code class="lang-css">h1 { font-size: 2rem; }       /* 32px by default */
+.small { font-size: 0.875rem; }</code></pre>
+<h2 id="custom-properties-variables">Custom properties: variables</h2>
+<p>Name a value once, use it everywhere:</p>
+<pre><code class="lang-css">:root {
+  --brand: #1a73e8;
+  --space: 1rem;
+}
+
+.button {
+  background-color: var(--brand);
+  padding: var(--space);
+}
+
+a {
+  color: var(--brand);
+}</code></pre>
+<ul><li>A custom property starts with two dashes.</li><li><code>:root</code> is the <code>html</code> element. Properties set there are available on the whole page, because custom properties are inherited.</li><li><code>var(--name)</code> reads the value. <code>var(--name, grey)</code> gives a fallback.</li></ul>
+<p>Change <code>--brand</code> in one place and every use changes. A dark theme is the same variables with other values:</p>
+<pre><code class="lang-css">@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #eeeeee;
+    --page: #111111;
+  }
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Font sizes in <code>px</code></strong>, which ignore the reader's settings.</li><li><strong>A font family with no generic fallback.</strong></li><li><strong><code>line-height</code> with a unit</strong> such as <code>24px</code>, which does not scale when the font size changes.</li><li><strong>Low contrast.</strong></li><li><strong>The same colour typed in twenty places</strong> in place of one variable.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="css/03-theme">
+<h3>A theme with variables <span class="ex-id">css/03-theme</span></h3>
+<p>Write <code>style.css</code> for <code>index.html</code>.</p>
+<ul><li>On <code>:root</code>, define three custom properties: <code>--brand</code> is <code>#1a73e8</code>, <code>--text</code> is <code>#222222</code>, <code>--page</code> is <code>#ffffff</code>.</li><li><code>body</code> uses them: <code>color: var(--text)</code> and <code>background-color: var(--page)</code>. Its font family ends with <code>sans-serif</code> and its <code>line-height</code> is <code>1.5</code>.</li><li>The <code>h1</code> has <code>font-size: 2rem</code> and the colour <code>var(--brand)</code>.</li><li><code>.lead</code> has <code>font-size: 1.25rem</code>.</li><li><code>.small</code> has <code>font-size: 0.875rem</code>.</li><li><code>.button</code> has <code>background-color: var(--brand)</code> and the colour <code>var(--page)</code>.</li></ul>
+<p>The tests follow your variables: <code>color: var(--brand)</code> counts as <code>#1a73e8</code>.</p>
+<p>The tests read your CSS as it is written. Use the property names given here: for example <code>background-color</code>, not the <code>background</code> shorthand with several values.</p>
+<p class="ex-files">Files: <code>exercises/css/03-theme/</code></p>
+<pre><code class="lang-console">$ python3 check.py css/03-theme</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../css/02-box-model.html"><span>Previous</span>The box model</a><a class="next" href="../css/04-flexbox.html"><span>Next</span>Flexbox</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

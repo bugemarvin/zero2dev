@@ -6,13 +6,17 @@
 <title>Branches · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="git/03-branches">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -62,6 +66,7 @@ README.md</code></pre>
 <p>Use short names that say what the branch is for, with a prefix for the kind of work: <code>feature/search</code>, <code>fix/login-crash</code>, <code>docs/install-guide</code>.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Committing on the wrong branch.</strong> Run <code>git status</code> before you start. The first line tells you where you are.</li><li><strong>Switching with unsaved changes.</strong> Git either carries them along or refuses to switch. Commit first, and switching is always clean.</li><li><strong>Thinking a branch is a copy of the files.</strong> It is only a label. The commits are shared.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="git/03-branches">
@@ -77,7 +82,9 @@ README.md</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

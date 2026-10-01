@@ -1,0 +1,26 @@
+{
+  "title": "Parsing with Option and Result",
+  "lesson": "rust/04-option-result",
+  "kind": "harness",
+  "lang": "rust",
+  "edit": [
+    "solution.rs"
+  ],
+  "build": [
+    "rustc",
+    "--edition",
+    "2021",
+    "-o",
+    "{build}/tests",
+    "tests.rs"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "find_user: for (index, name) in names.iter().enumerate() { if *name == wanted { return Some(index); } } and None at the end.",
+    "parse_percent: let n: i64 = text.parse().map_err(|_| ParseError::NotANumber(text.to_string()))?;",
+    "average_percent: sum += parse_percent(text)? as f64; inside a loop. The ? returns the error straight away."
+  ]
+}

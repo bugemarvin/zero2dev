@@ -1,0 +1,39 @@
+{
+  "title": "Top words",
+  "lesson": "rust/05-collections-and-strings",
+  "kind": "program",
+  "lang": "rust",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "the cat and the dog and the bird\n",
+      "stdout": "the 3\nand 2\nbird 1\n"
+    },
+    {
+      "name": "case is ignored",
+      "stdin": "Go go GO rust Rust c\n",
+      "stdout": "go 3\nrust 2\nc 1\n"
+    },
+    {
+      "name": "fewer than three words",
+      "stdin": "b a\nb\n",
+      "stdout": "b 2\na 1\n"
+    },
+    {
+      "name": "ties are alphabetical",
+      "stdin": "d c b a\n",
+      "stdout": "a 1\nb 1\nc 1\n"
+    },
+    {
+      "name": "no input",
+      "stdin": "",
+      "stdout": ""
+    }
+  ],
+  "timeout": 20,
+  "hints": [
+    "*counts.entry(word.to_lowercase()).or_insert(0) += 1; counts one word.",
+    "Collect the entries into a vector: let mut entries: Vec<(&String, &u32)> = counts.iter().collect();",
+    "entries.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0))); then loop over entries.iter().take(3)."
+  ]
+}

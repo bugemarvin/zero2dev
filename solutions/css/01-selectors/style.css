@@ -1,0 +1,28 @@
+body {
+  color: #222222;
+  font-family: sans-serif;
+}
+
+h1 {
+  color: navy;
+}
+
+.intro {
+  font-size: 1.25rem;
+}
+
+nav a {
+  text-decoration: none;
+}
+
+nav a.active {
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+li:first-child {
+  font-weight: bold;
+}

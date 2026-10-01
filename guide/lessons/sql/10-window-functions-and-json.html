@@ -6,13 +6,17 @@
 <title>Window functions and JSON · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="sql/10-window-functions-and-json">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -103,6 +107,7 @@ ORDER BY logins DESC, user_name;</code></pre>
 <p>To go deeper with PostgreSQL, explore <code>psql</code> (<code>\d</code> lists tables, <code>\d books</code> describes one, <code>\timing</code> shows how long queries take), read <code>EXPLAIN ANALYZE</code> plans for your own queries, and look at views, triggers and full-text search.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A window function in <code>WHERE</code>.</strong> Use a CTE or subquery.</li><li><strong>Expecting <code>PARTITION BY</code> to reduce the number of rows.</strong> It does not.</li><li><strong><code>-&gt;</code> where <code>-&gt;&gt;</code> was needed</strong>, which compares JSON with text and matches nothing.</li><li><strong>Putting everything in one JSON column.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="sql/13-rank-in-genre">
@@ -127,11 +132,13 @@ ORDER BY logins DESC, user_name;</code></pre>
 <pre><code class="lang-console">$ python3 check.py sql/14-jsonb-logins</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../sql/09-transactions.html"><span>Previous</span>Transactions</a><a class="next" href="../java/01-hello-jvm.html"><span>Next</span>Hello, Java</a></nav>
+<nav class="pager"><a class="prev" href="../sql/09-transactions.html"><span>Previous</span>Transactions</a><a class="next" href="../html/01-page-structure.html"><span>Next</span>The structure of a page</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

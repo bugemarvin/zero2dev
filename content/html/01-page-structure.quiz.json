@@ -1,0 +1,47 @@
+[
+ {
+  "q": "Where does the text shown on the browser tab come from?",
+  "options": [
+   "The first h1",
+   "The <title> element in the head",
+   "The file name",
+   "The lang attribute"
+  ],
+  "answer": 1,
+  "why": "<title> lives in the head and is used for the tab, bookmarks and search results."
+ },
+ {
+  "q": "Which of these is a void element (it has no closing tag)?",
+  "options": [
+   "<p>",
+   "<h1>",
+   "<img>",
+   "<body>"
+  ],
+  "answer": 2,
+  "why": "img, br, meta, input and hr have no content, so they have no closing tag."
+ },
+ {
+  "q": "How many h1 elements should a page normally have?",
+  "options": [
+   "None",
+   "One",
+   "One per section",
+   "As many as you like"
+  ],
+  "answer": 1,
+  "why": "One h1 says what the whole page is about. Sections use h2, h3 and so on."
+ },
+ {
+  "q": "What is wrong here?",
+  "options": [
+   "Nothing",
+   "The tags are closed in the wrong order",
+   "strong cannot be inside p",
+   "p needs an attribute"
+  ],
+  "answer": 1,
+  "why": "Elements nest like boxes: the one opened last is closed first.",
+  "code": "<p>Read <strong>this</p></strong>"
+ }
+]

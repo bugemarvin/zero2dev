@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which selector matches every element with class=\"note\"?",
+  "options": [
+   "note",
+   "#note",
+   ".note",
+   "*note"
+  ],
+  "answer": 2,
+  "why": "A dot selects a class, a hash selects an id."
+ },
+ {
+  "q": "p { color: black } and .note { color: green } both match <p class=\"note\">. Which colour wins?",
+  "options": [
+   "black",
+   "green",
+   "The first one in the file",
+   "Neither"
+  ],
+  "answer": 1,
+  "why": "A class is more specific than an element, wherever the rules are in the file."
+ },
+ {
+  "q": "Two rules with the same specificity set the same property. Which wins?",
+  "options": [
+   "The first",
+   "The later one",
+   "The shorter one",
+   "It is random"
+  ],
+  "answer": 1,
+  "why": "With equal specificity, the rule that comes later wins."
+ },
+ {
+  "q": "Which of these is inherited by child elements?",
+  "options": [
+   "margin",
+   "border",
+   "color",
+   "padding"
+  ],
+  "answer": 2,
+  "why": "Text properties such as color and font-family are inherited. Box properties are not."
+ }
+]

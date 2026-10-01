@@ -1,0 +1,44 @@
+[
+ {
+  "q": "What does `$a[] = 5;` do?",
+  "options": [
+   "Empties the array",
+   "Adds 5 to the end",
+   "Sets every item to 5",
+   "It is an error"
+  ],
+  "answer": 1,
+  "why": "Empty brackets append."
+ },
+ {
+  "q": "What does `$x = $user['email'] ?? 'none';` do when the key is missing?",
+  "options": [
+   "Throws an error",
+   "Sets $x to 'none'",
+   "Sets $x to null",
+   "Sets $x to false"
+  ],
+  "answer": 1,
+  "why": "?? gives the right-hand value when the left side is missing or null."
+ },
+ {
+  "q": "After `$b = $a;` (arrays) and `$b[] = 1;`, is $a changed?",
+  "options": [
+   "Yes",
+   "No: arrays are copied"
+  ],
+  "answer": 1,
+  "why": "Arrays have value semantics: assigning copies."
+ },
+ {
+  "q": "Why call array_values after array_filter?",
+  "options": [
+   "To sort",
+   "To renumber the keys 0, 1, 2",
+   "To remove nulls",
+   "To copy"
+  ],
+  "answer": 1,
+  "why": "array_filter keeps the original keys, which leaves gaps."
+ }
+]

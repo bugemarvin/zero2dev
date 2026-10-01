@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classes and objects · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="php/04-classes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">PHP · lesson 4 of 6</p>
+<h1>Classes and objects</h1>
+<p class="lede">Objects with private state, interfaces, exceptions of your own, and how projects are organised.</p>
+<h2 id="a-class">A class</h2>
+<pre><code class="lang-php">class Product
+{
+    public function __construct(
+        private string $name,
+        private float $price,
+    ) {
+    }
+
+    public function name(): string
+    {
+        return $this-&gt;name;
+    }
+
+    public function priceWithTax(float $rate): float
+    {
+        return round($this-&gt;price * (1 + $rate), 2);
+    }
+}
+
+$mug = new Product("Mug", 9.0);
+echo $mug-&gt;priceWithTax(0.16);</code></pre>
+<ul><li><code>__construct</code> runs when the object is created with <code>new</code>.</li><li>Writing <code>private string $name</code> in the constructor's parameter list declares the property and assigns it in one go. This is <strong>constructor promotion</strong>.</li><li><code>$this</code> is the object itself. Properties and methods are reached with <code>-&gt;</code>.</li></ul>
+<h2 id="visibility">Visibility</h2>
+<div class="table-wrap"><table><thead><tr><th>Keyword</th><th>Reachable from</th></tr></thead><tbody><tr><td><code>public</code></td><td>anywhere</td></tr><tr><td><code>private</code></td><td>inside this class only</td></tr><tr><td><code>protected</code></td><td>this class and classes that extend it</td></tr></tbody></table></div>
+<p>Make properties <code>private</code> and offer methods. Then the class controls its own data: a balance cannot become negative unless a method allows it.</p>
+<p><code>readonly</code> properties can be set once, in the constructor:</p>
+<pre><code class="lang-php">class Point
+{
+    public function __construct(
+        public readonly int $x,
+        public readonly int $y,
+    ) {
+    }
+}</code></pre>
+<h2 id="objects-are-handles">Objects are handles</h2>
+<p>Unlike arrays, objects are <strong>not copied</strong> when assigned or passed:</p>
+<pre><code class="lang-php">$a = new Counter();
+$b = $a;
+$b-&gt;increment();
+echo $a-&gt;value();   // 1: one object, two variables</code></pre>
+<p><code>clone $a</code> makes a copy.</p>
+<h2 id="static-members-and-constants">Static members and constants</h2>
+<pre><code class="lang-php">class Temperature
+{
+    public const FREEZING = 0.0;
+
+    public static function fromFahrenheit(float $f): float
+    {
+        return ($f - 32) * 5 / 9;
+    }
+}
+
+echo Temperature::FREEZING;
+echo Temperature::fromFahrenheit(212);</code></pre>
+<h2 id="interfaces">Interfaces</h2>
+<p>An interface lists methods. A class that <code>implements</code> it must have them all:</p>
+<pre><code class="lang-php">interface Shape
+{
+    public function area(): float;
+}
+
+class Circle implements Shape
+{
+    public function __construct(private float $radius)
+    {
+    }
+
+    public function area(): float
+    {
+        return M_PI * $this-&gt;radius ** 2;
+    }
+}
+
+function totalArea(Shape ...$shapes): float
+{
+    return array_sum(array_map(fn(Shape $s) =&gt; $s-&gt;area(), $shapes));
+}</code></pre>
+<p><code>totalArea</code> works with every class that implements <code>Shape</code>, including ones written later.</p>
+<h2 id="inheritance">Inheritance</h2>
+<pre><code class="lang-php">class Animal
+{
+    public function __construct(protected string $name)
+    {
+    }
+
+    public function describe(): string
+    {
+        return "{$this-&gt;name} makes a sound";
+    }
+}
+
+class Dog extends Animal
+{
+    public function describe(): string
+    {
+        return "{$this-&gt;name} barks";
+    }
+}</code></pre>
+<p><code>parent::describe()</code> calls the version of the parent class. Use inheritance sparingly: an interface plus small classes is usually easier to change.</p>
+<h2 id="your-own-exceptions">Your own exceptions</h2>
+<pre><code class="lang-php">class InsufficientFunds extends RuntimeException
+{
+}
+
+throw new InsufficientFunds("balance too low");</code></pre>
+<p>Callers can then catch exactly that problem:</p>
+<pre><code class="lang-php">try {
+    $account-&gt;withdraw(500);
+} catch (InsufficientFunds $e) {
+    echo $e-&gt;getMessage();
+} finally {
+    // runs in every case
+}</code></pre>
+<h2 id="enums">Enums</h2>
+<pre><code class="lang-php">enum Status: string
+{
+    case Open = "open";
+    case Closed = "closed";
+}
+
+$status = Status::from("open");
+echo $status-&gt;value;</code></pre>
+<h2 id="namespaces-and-composer">Namespaces and Composer</h2>
+<p>Real projects put each class in its own file, inside a <strong>namespace</strong>:</p>
+<pre><code class="lang-php">// src/Shop/Product.php
+namespace App\Shop;
+
+class Product
+{
+}</code></pre>
+<pre><code class="lang-php">use App\Shop\Product;</code></pre>
+<p><strong>Composer</strong> is PHP's package manager. It also generates an <strong>autoloader</strong>, which loads a class file the first time the class is used:</p>
+<pre><code class="lang-console">$ composer init
+$ composer require guzzlehttp/guzzle</code></pre>
+<pre><code class="lang-php">require __DIR__ . '/vendor/autoload.php';</code></pre>
+<p><code>composer.json</code> and <code>composer.lock</code> go into Git. The <code>vendor/</code> folder does not.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Public properties everywhere</strong>, so any code can put the object in a broken state.</li><li><strong>Forgetting <code>$this-&gt;</code></strong> when using a property inside a method.</li><li><strong>Expecting an object to be copied</strong> when it is assigned.</li><li><strong>Deep inheritance trees.</strong></li><li><strong>Catching <code>Exception</code> and doing nothing.</strong> The error is hidden, not solved.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="php/04-cart">
+<h3>A shopping cart <span class="ex-id">php/04-cart</span></h3>
+<p>Write the following in <code>solution.php</code>.</p>
+<h4><code>OutOfStock</code></h4>
+<p>An exception class that extends <code>RuntimeException</code>.</p>
+<h4><code>Item</code></h4>
+<p>Its constructor takes a <code>string $name</code>, a <code>float $price</code> and an <code>int $stock</code>. Offer the methods <code>name(): string</code>, <code>price(): float</code> and <code>stock(): int</code>. The properties are private.</p>
+<p>A price below 0 or a stock below 0 throws an <code>InvalidArgumentException</code>.</p>
+<h4><code>Cart</code></h4>
+<ul><li><code>add(Item $item, int $quantity = 1): void</code> puts the item in the cart. Adding the same item again increases its quantity. A quantity of 0 or less throws an <code>InvalidArgumentException</code>. If the total quantity of that item would be larger than its stock, it throws <code>OutOfStock</code> and the cart does not change.</li><li><code>quantityOf(string $name): int</code> returns the quantity of that item in the cart, and 0 when it is not there.</li><li><code>count(): int</code> returns the total number of pieces in the cart.</li><li><code>total(): float</code> returns the sum of price times quantity, rounded to 2 decimals.</li><li><code>remove(string $name): void</code> takes the item out. Removing something that is not there does nothing.</li><li><code>Cart</code> implements the built-in interface <code>Countable</code>, so <code>count($cart)</code> works.</li></ul>
+<p class="ex-files">Files: <code>exercises/php/04-cart/</code></p>
+<pre><code class="lang-console">$ python3 check.py php/04-cart</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../php/03-functions.html"><span>Previous</span>Functions and types</a><a class="next" href="../php/05-web.html"><span>Next</span>Requests, forms and JSON</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

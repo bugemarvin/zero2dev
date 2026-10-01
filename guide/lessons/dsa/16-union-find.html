@@ -6,13 +6,17 @@
 <title>Union-find · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="dsa/16-union-find">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -108,6 +112,7 @@ def union(a, b):
 <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody><tr><td>connections fixed, one question</td><td>BFS or DFS</td></tr><tr><td>connections added over time, many questions</td><td>union-find</td></tr><tr><td>connections also <strong>removed</strong></td><td>neither works directly: union-find cannot split a group</td></tr><tr><td>need the actual path</td><td>BFS or DFS</td></tr></tbody></table></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Comparing <code>parent[a] == parent[b]</code>.</strong> Compare the roots: <code>find(a) == find(b)</code>.</li><li><strong>Attaching a node instead of its root.</strong> <code>parent[a] = b</code> cuts <code>a</code> away from the rest of its group. Link root to root.</li><li><strong>Updating <code>size</code> or the group count when the two were already together.</strong></li><li><strong>Mixing 0-based and 1-based item numbers.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="dsa/23-union-find">
@@ -133,7 +138,9 @@ same 3 4</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

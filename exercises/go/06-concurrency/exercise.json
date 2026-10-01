@@ -1,0 +1,26 @@
+{
+  "title": "Parallel work with goroutines",
+  "lesson": "go/06-goroutines-and-channels",
+  "kind": "harness",
+  "lang": "go",
+  "edit": [
+    "solution.go"
+  ],
+  "build": [
+    "go",
+    "build",
+    "-o",
+    "{build}/tests",
+    "solution.go",
+    "tests.go"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "SafeCounter: add a field mu sync.Mutex, and in both methods c.mu.Lock() followed by defer c.mu.Unlock().",
+    "Squares: start a goroutine that sends i*i for i from 1 to n and then closes the channel (defer close(out)). Return the channel straight away.",
+    "ParallelMap: a jobs channel of indexes, `workers` goroutines that do results[index] = f(inputs[index]), then close(jobs) and wg.Wait()."
+  ]
+}

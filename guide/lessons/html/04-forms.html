@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="html/04-forms">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">HTML · lesson 4 of 5</p>
+<h1>Forms</h1>
+<p class="lede">Collect input: fields, labels, choices, buttons, and the checks the browser does for you.</p>
+<h2 id="a-form">A form</h2>
+<pre><code class="lang-html">&lt;form action="/signup" method="post"&gt;
+  &lt;label for="email"&gt;Email&lt;/label&gt;
+  &lt;input type="email" id="email" name="email" required&gt;
+
+  &lt;button type="submit"&gt;Sign up&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<ul><li><code>action</code> is the address the data is sent to. <code>method</code> is <code>get</code> (the data goes in the address, for searches) or <code>post</code> (the data goes in the body, for anything that changes something).</li><li>When the form is submitted, the browser sends one <code>name=value</code> pair for every field that has a <strong><code>name</code></strong>. A field with no <code>name</code> is not sent.</li></ul>
+<h2 id="labels">Labels</h2>
+<p>Every field needs a label, and the label must be <strong>connected</strong> to the field:</p>
+<pre><code class="lang-html">&lt;label for="email"&gt;Email&lt;/label&gt;
+&lt;input type="email" id="email" name="email"&gt;</code></pre>
+<p>The <code>for</code> of the label equals the <code>id</code> of the field. Then:</p>
+<ul><li>clicking the label puts the cursor in the field, a bigger target on a phone;</li><li>a screen reader says "Email, edit text" in place of just "edit text".</li></ul>
+<p>A <code>placeholder</code> is not a label. It disappears as soon as the user types.</p>
+<h2 id="input-types">Input types</h2>
+<p>The <code>type</code> chooses the keyboard on a phone and the check the browser applies:</p>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>For</th></tr></thead><tbody><tr><td><code>text</code></td><td>one line of text (the default)</td></tr><tr><td><code>email</code></td><td>an email address</td></tr><tr><td><code>password</code></td><td>hidden characters</td></tr><tr><td><code>number</code></td><td>a number, with <code>min</code>, <code>max</code>, <code>step</code></td></tr><tr><td><code>date</code></td><td>a date picker</td></tr><tr><td><code>checkbox</code></td><td>on or off</td></tr><tr><td><code>radio</code></td><td>one choice out of several</td></tr><tr><td><code>file</code></td><td>a file to upload</td></tr></tbody></table></div>
+<h2 id="choices">Choices</h2>
+<p>Radio buttons that share a <code>name</code> form one group: only one can be chosen.</p>
+<pre><code class="lang-html">&lt;fieldset&gt;
+  &lt;legend&gt;Plan&lt;/legend&gt;
+  &lt;input type="radio" id="basic" name="plan" value="basic" checked&gt;
+  &lt;label for="basic"&gt;Basic&lt;/label&gt;
+  &lt;input type="radio" id="pro" name="plan" value="pro"&gt;
+  &lt;label for="pro"&gt;Pro&lt;/label&gt;
+&lt;/fieldset&gt;</code></pre>
+<p><code>fieldset</code> groups related fields and <code>legend</code> names the group.</p>
+<p>A drop-down list:</p>
+<pre><code class="lang-html">&lt;label for="country"&gt;Country&lt;/label&gt;
+&lt;select id="country" name="country"&gt;
+  &lt;option value=""&gt;Choose one&lt;/option&gt;
+  &lt;option value="ke"&gt;Kenya&lt;/option&gt;
+  &lt;option value="ug"&gt;Uganda&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+<p>Several lines of text:</p>
+<pre><code class="lang-html">&lt;label for="message"&gt;Message&lt;/label&gt;
+&lt;textarea id="message" name="message" rows="4"&gt;&lt;/textarea&gt;</code></pre>
+<p>A checkbox:</p>
+<pre><code class="lang-html">&lt;input type="checkbox" id="terms" name="terms" required&gt;
+&lt;label for="terms"&gt;I accept the terms&lt;/label&gt;</code></pre>
+<h2 id="validation-by-the-browser">Validation by the browser</h2>
+<div class="table-wrap"><table><thead><tr><th>Attribute</th><th>Rule</th></tr></thead><tbody><tr><td><code>required</code></td><td>must not be empty</td></tr><tr><td><code>minlength</code>, <code>maxlength</code></td><td>length of the text</td></tr><tr><td><code>min</code>, <code>max</code></td><td>range of a number or date</td></tr><tr><td><code>pattern</code></td><td>a regular expression the text must match</td></tr></tbody></table></div>
+<p>The browser refuses to submit and shows a message next to the first wrong field. This is a convenience for the user. It is <strong>not security</strong>: anyone can send a request without your form, so the server must check everything again.</p>
+<h2 id="buttons">Buttons</h2>
+<pre><code class="lang-html">&lt;button type="submit"&gt;Send&lt;/button&gt;
+&lt;button type="button"&gt;Does nothing by itself: for JavaScript&lt;/button&gt;</code></pre>
+<p>A <code>button</code> inside a form is a submit button unless you say <code>type="button"</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A field with no <code>name</code>.</strong> Its value is never sent.</li><li><strong>A label that is not connected</strong>: no <code>for</code>, or a <code>for</code> that matches no <code>id</code>.</li><li><strong>Using a placeholder as the label.</strong></li><li><strong>Radio buttons with different names</strong>, so all of them can be selected.</li><li><strong>Trusting browser validation</strong> on the server.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="html/04-signup-form">
+<h3>A sign-up form <span class="ex-id">html/04-signup-form</span></h3>
+<p>Build a form in <code>index.html</code>.</p>
+<ul><li>The form sends its data with <code>method="post"</code> to <code>action="/signup"</code>.</li><li>A text field with <code>id</code> and <code>name</code> equal to <code>username</code>. It is required and has <code>minlength="3"</code>.</li><li>An email field with <code>id</code> and <code>name</code> equal to <code>email</code>. It is required.</li><li>A password field with <code>id</code> and <code>name</code> equal to <code>password</code>. It is required and has <code>minlength="8"</code>.</li><li>A <code>select</code> with <code>id</code> and <code>name</code> equal to <code>plan</code>, with three options whose values are <code>free</code>, <code>pro</code> and <code>team</code>.</li><li>A checkbox with <code>id</code> and <code>name</code> equal to <code>terms</code>. It is required.</li><li><strong>Each of the five fields has a <code>label</code></strong> whose <code>for</code> matches the field's <code>id</code>.</li><li>A submit button with the text <code>Create account</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/html/04-signup-form/</code></p>
+<pre><code class="lang-console">$ python3 check.py html/04-signup-form</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../html/03-tables.html"><span>Previous</span>Tables</a><a class="next" href="../html/05-semantic-html.html"><span>Next</span>Semantic HTML and accessibility</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

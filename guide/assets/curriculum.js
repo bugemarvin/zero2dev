@@ -1,4 +1,5 @@
 window.Z2D_CURRICULUM = {
+ "paths": [],
  "tracks": [
   {
    "id": "start",
@@ -9,18 +10,21 @@ window.Z2D_CURRICULUM = {
      "id": "start/01-how-programs-run",
      "title": "How programs run",
      "summary": "What a program actually is, and what happens between typing code and seeing a result.",
+     "quiz": 0,
      "exercises": []
     },
     {
      "id": "start/02-install",
      "title": "Install your tools",
      "summary": "Get a Linux terminal, a compiler, Git and Python, with one script.",
+     "quiz": 0,
      "exercises": []
     },
     {
      "id": "start/03-terminal",
      "title": "The terminal",
      "summary": "Type commands instead of clicking. Move around, look at files, and make folders.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "start/01-folders",
@@ -32,6 +36,7 @@ window.Z2D_CURRICULUM = {
      "id": "start/04-files-and-paths",
      "title": "Files and paths",
      "summary": "How to name any file on the machine, read it, match many files at once, and make a script runnable.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "start/02-tidy-up",
@@ -43,6 +48,7 @@ window.Z2D_CURRICULUM = {
      "id": "start/05-pipes-and-redirection",
      "title": "Pipes and redirection",
      "summary": "Send output into files, and chain small commands together to answer real questions about data.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "start/03-log-pipes",
@@ -54,6 +60,7 @@ window.Z2D_CURRICULUM = {
      "id": "start/06-shell-scripts",
      "title": "Shell scripts",
      "summary": "Put commands in a file and you have a program. Variables, arguments, decisions and loops in Bash.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "start/04-greet",
@@ -69,6 +76,7 @@ window.Z2D_CURRICULUM = {
      "id": "start/07-editor",
      "title": "Your editor and the work loop",
      "summary": "Set up VS Code, and learn the edit, run, check loop you will repeat for every exercise.",
+     "quiz": 0,
      "exercises": []
     }
    ]
@@ -82,6 +90,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/01-first-commit",
      "title": "Your first commit",
      "summary": "Git takes snapshots of your project so you can always go back. Make a repository and save your first snapshot.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/01-first-commit",
@@ -93,6 +102,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/02-history-and-diff",
      "title": "History and diff",
      "summary": "Read the history, see exactly what changed, and keep junk files out of the repository.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/02-ignore-and-commit",
@@ -104,6 +114,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/03-branches",
      "title": "Branches",
      "summary": "Work on something new without touching the version that works.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/03-branches",
@@ -115,6 +126,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/04-merge",
      "title": "Merging",
      "summary": "Bring the work from one branch into another.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/04-merge",
@@ -126,6 +138,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/05-conflicts",
      "title": "Merge conflicts",
      "summary": "When two branches change the same lines, Git asks you to decide. It looks alarming and is routine.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/05-conflict",
@@ -137,6 +150,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/06-remotes",
      "title": "Remotes and GitHub",
      "summary": "A remote is another copy of the repository. Clone it, push your commits to it, pull other people's commits from it.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/06-remotes",
@@ -148,6 +162,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/07-undoing",
      "title": "Undoing things",
      "summary": "Throw away an edit, unstage a file, fix the last commit, or reverse an old one. Pick the right tool for where the mistake is.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/07-undo",
@@ -159,6 +174,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/08-rebase",
      "title": "Rebase",
      "summary": "Replay your commits on top of the latest work to keep history in a straight line.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/08-rebase",
@@ -170,6 +186,7 @@ window.Z2D_CURRICULUM = {
      "id": "git/09-pull-requests",
      "title": "The pull request workflow",
      "summary": "How teams actually use Git. A branch per change, a review, then a merge.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "git/09-feature-flow",
@@ -188,6 +205,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/01-variables-and-quoting",
      "title": "Variables and quoting",
      "summary": "The rules that decide what your script really runs. Most Bash bugs come from getting these wrong.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/01-quoting",
@@ -199,6 +217,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/02-tests-and-conditionals",
      "title": "Tests and conditionals",
      "summary": "Decide with if, test files and strings with [[ ]], and choose between many cases.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/02-kind",
@@ -210,6 +229,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/03-loops",
      "title": "Loops",
      "summary": "Repeat over arguments, files, numbers and lines of input, without the classic traps.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/03-stats",
@@ -221,6 +241,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/04-functions-and-exit-codes",
      "title": "Functions and exit codes",
      "summary": "Split a script into named pieces, pass values in and get results out.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/04-functions",
@@ -232,6 +253,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/05-text-processing",
      "title": "Text processing",
      "summary": "grep, sed, awk and friends. Small tools that turn a file of text into the answer you need.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/05-report",
@@ -243,6 +265,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/06-arrays-and-strings",
      "title": "Arrays and string operations",
      "summary": "Hold lists safely, and cut, replace and change text without calling another program.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/06-rename",
@@ -254,6 +277,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/07-robust-scripts",
      "title": "Robust scripts",
      "summary": "Options, strict mode, clean-up on exit, and the checker that finds bugs before you run anything.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/07-backup",
@@ -265,6 +289,7 @@ window.Z2D_CURRICULUM = {
      "id": "bash/08-automation",
      "title": "Automation",
      "summary": "Find files, act on many at once, schedule jobs, and combine everything into a useful report.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "bash/08-logsum",
@@ -283,6 +308,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/01-hello",
      "title": "Hello, C",
      "summary": "Write, compile and run your first C program, and learn to read what the compiler tells you.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/01-hello",
@@ -294,6 +320,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/02-types-and-variables",
      "title": "Types and variables",
      "summary": "Store numbers and characters, do arithmetic, and read input and print output with the right format.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/02-rectangle",
@@ -309,6 +336,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/03-control-flow",
      "title": "Control flow",
      "summary": "Make decisions with if and switch, and repeat work with while and for.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/04-fizzbuzz",
@@ -324,6 +352,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/04-functions",
      "title": "Functions",
      "summary": "Give a piece of code a name, inputs and a result, so you can use it again and test it on its own.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/06-functions",
@@ -335,6 +364,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/05-arrays",
      "title": "Arrays",
      "summary": "Hold many values of the same type side by side, and pass them to functions.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/07-arrays",
@@ -346,6 +376,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/06-strings",
      "title": "Strings",
      "summary": "In C a string is an array of characters with a zero at the end. Everything about strings follows from that.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/08-strings",
@@ -357,6 +388,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/07-pointers",
      "title": "Pointers",
      "summary": "A pointer holds the address of another variable. It is how C shares and changes data across functions.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/09-pointers",
@@ -368,6 +400,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/08-memory",
      "title": "Memory, malloc and free",
      "summary": "Ask for memory while the program runs, and give it back. This is where C asks the most of you.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/10-heap",
@@ -379,6 +412,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/09-structs",
      "title": "Structs",
      "summary": "Group related values into one type of your own.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/11-structs",
@@ -390,6 +424,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/10-files",
      "title": "Files and command-line arguments",
      "summary": "Read and write files, take arguments from the command line, and report errors properly.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/12-wc",
@@ -401,6 +436,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/11-make-and-headers",
      "title": "Headers and Makefiles",
      "summary": "Split a program across several files, and let make rebuild only what changed.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/13-makefile",
@@ -412,6 +448,7 @@ window.Z2D_CURRICULUM = {
      "id": "c/12-debugging",
      "title": "Debugging",
      "summary": "Find bugs on purpose, with a method and with tools, in place of staring at the code and hoping.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "c/14-fix-the-bugs",
@@ -430,6 +467,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/01-basics",
      "title": "Python basics",
      "summary": "Values, variables, text, decisions, and your first functions.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/01-first-functions",
@@ -445,6 +483,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/02-loops-and-collections",
      "title": "Loops and collections",
      "summary": "Lists, tuples, dictionaries and sets, and the loops that walk through them.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/03-list-tools",
@@ -460,6 +499,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/03-functions",
      "title": "Functions in depth",
      "summary": "Default values, keyword arguments, several return values, scope, and passing functions around.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/05-functions",
@@ -471,6 +511,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/04-files",
      "title": "Files",
      "summary": "Read and write text files safely, and work with paths, CSV and JSON.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/06-files",
@@ -482,6 +523,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/05-errors",
      "title": "Errors and exceptions",
      "summary": "Read a traceback, catch the errors you can handle, and raise your own when input is wrong.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/07-errors",
@@ -493,6 +535,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/06-modules-and-venv",
      "title": "Modules, packages and virtual environments",
      "summary": "Use the standard library, split your code into files, and install other people's code without making a mess.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/08-stdlib",
@@ -504,6 +547,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/07-classes",
      "title": "Classes",
      "summary": "Bundle data with the functions that work on it, and make your own types behave like built-in ones.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/09-classes",
@@ -515,6 +559,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/08-iterators-and-generators",
      "title": "Iterators and generators",
      "summary": "Produce values one at a time, only when they are asked for.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/10-generators",
@@ -526,6 +571,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/09-testing",
      "title": "Testing",
      "summary": "Write code that checks your code, so you can change things without fear.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/11-testing",
@@ -537,6 +583,7 @@ window.Z2D_CURRICULUM = {
      "id": "python/10-typing",
      "title": "Type hints",
      "summary": "Say what types your functions expect and return, so that tools catch mistakes before the program runs.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "python/12-typing",
@@ -555,6 +602,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/01-big-o",
      "title": "Big-O and how to measure code",
      "summary": "A way to say how the running time of code grows as its input grows, without a stopwatch.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/01-max-of-list",
@@ -566,6 +614,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/02-arrays-and-two-pointers",
      "title": "Arrays and two pointers",
      "summary": "How arrays work underneath, and a technique that turns many O(n²) searches into O(n).",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/02-pair-with-sum",
@@ -577,6 +626,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/03-linked-lists",
      "title": "Linked lists",
      "summary": "A chain of nodes, each pointing to the next. Cheap to insert into, slow to index.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/03-linked-list",
@@ -588,6 +638,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/04-stacks-and-queues",
      "title": "Stacks and queues",
      "summary": "Two restricted lists that turn up everywhere. One serves the newest item first, the other the oldest.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/04-balanced-brackets",
@@ -603,6 +654,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/05-hashing",
      "title": "Hash tables",
      "summary": "The structure behind dictionaries and sets. Lookup, insert and delete in constant time on average.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/06-two-sum",
@@ -618,6 +670,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/06-recursion-and-backtracking",
      "title": "Recursion and backtracking",
      "summary": "Solve a problem by solving smaller copies of it, and explore every possibility in an organised way.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/08-permutations",
@@ -633,6 +686,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/07-sorting",
      "title": "Sorting",
      "summary": "Simple sorts that are easy to write, fast sorts that scale, and how to choose.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/10-sort-by-score",
@@ -648,6 +702,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/08-binary-search",
      "title": "Binary search",
      "summary": "Halve the search space at every step. Simple in idea, famously easy to get subtly wrong.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/12-lower-bound",
@@ -663,6 +718,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/09-trees-and-bst",
      "title": "Trees and binary search trees",
      "summary": "Data arranged in levels, and a tree that keeps its values in order for fast search.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/14-bst",
@@ -674,6 +730,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/10-heaps",
      "title": "Heaps and priority queues",
      "summary": "Always know the smallest item, with cheap inserts and removals.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/15-priority-queue",
@@ -685,6 +742,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/11-graphs-bfs-dfs",
      "title": "Graphs, BFS and DFS",
      "summary": "Model anything that has connections, and explore it systematically in two ways.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/16-grid-path",
@@ -700,6 +758,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/12-shortest-paths",
      "title": "Shortest paths with weights",
      "summary": "When edges have different costs, BFS is not enough. Dijkstra's algorithm, and what to use when it does not apply.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/18-dijkstra",
@@ -711,6 +770,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/13-dynamic-programming",
      "title": "Dynamic programming",
      "summary": "When a recursive solution keeps solving the same subproblems, solve each one once and remember the answer.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/19-coin-change",
@@ -726,6 +786,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/14-greedy",
      "title": "Greedy algorithms",
      "summary": "Take the choice that looks best right now and never look back. Fast and simple, when it is correct.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/21-meetings",
@@ -737,6 +798,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/15-tries",
      "title": "Tries",
      "summary": "A tree of characters that makes prefix questions fast. The structure behind autocomplete.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/22-prefix-count",
@@ -748,6 +810,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/16-union-find",
      "title": "Union-find",
      "summary": "Keep track of which items belong to the same group while groups keep merging.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/23-union-find",
@@ -759,6 +822,7 @@ window.Z2D_CURRICULUM = {
      "id": "dsa/17-segment-trees",
      "title": "Segment trees",
      "summary": "Answer range questions and change single values, both in O(log n).",
+     "quiz": 0,
      "exercises": [
       {
        "id": "dsa/24-range-sum",
@@ -777,6 +841,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/01-select",
      "title": "Tables and SELECT",
      "summary": "What a relational database is, and how to ask it for exactly the rows and columns you want.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/01-select-where",
@@ -788,6 +853,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/02-sort-and-limit",
      "title": "Sorting, limiting and computed columns",
      "summary": "Put rows in order, take the first few, remove duplicates, and calculate new columns.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/02-top-three",
@@ -799,6 +865,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/03-aggregates",
      "title": "Aggregates and GROUP BY",
      "summary": "Count, sum and average, for the whole table or for each group of rows.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/03-genre-stats",
@@ -810,6 +877,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/04-joins",
      "title": "Joins",
      "summary": "Combine rows from several tables. The feature that makes a relational database relational.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/04-books-with-authors",
@@ -825,6 +893,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/05-subqueries-and-ctes",
      "title": "Subqueries and CTEs",
      "summary": "Use the result of one query inside another, and name the steps of a long query.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/06-above-average",
@@ -844,6 +913,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/06-changing-data",
      "title": "Changing data",
      "summary": "Add rows, change them and remove them, without wrecking the table by accident.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/09-change-data",
@@ -855,6 +925,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/07-schema-and-constraints",
      "title": "Designing tables",
      "summary": "Create tables with types and constraints, so that the database itself rejects bad data.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/10-create-tables",
@@ -866,6 +937,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/08-indexes-and-explain",
      "title": "Indexes and EXPLAIN",
      "summary": "Why a query is slow, how an index fixes it, and how to see what the database is really doing.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/11-indexes",
@@ -877,6 +949,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/09-transactions",
      "title": "Transactions",
      "summary": "Group several changes so that they all happen or none of them do.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/12-transactions",
@@ -888,6 +961,7 @@ window.Z2D_CURRICULUM = {
      "id": "sql/10-window-functions-and-json",
      "title": "Window functions and JSON",
      "summary": "Rank and compare rows without collapsing them, and query flexible JSON data in PostgreSQL.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "sql/13-rank-in-genre",
@@ -902,6 +976,152 @@ window.Z2D_CURRICULUM = {
    ]
   },
   {
+   "id": "html",
+   "title": "HTML",
+   "blurb": "The structure of every web page: text, links, images, tables, forms, and markup that works for everyone.",
+   "lessons": [
+    {
+     "id": "html/01-page-structure",
+     "title": "The structure of a page",
+     "summary": "Elements, attributes, and the skeleton that every HTML page shares.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "html/01-first-page",
+       "title": "Your first page"
+      }
+     ]
+    },
+    {
+     "id": "html/02-text-links-images",
+     "title": "Text, links, images and lists",
+     "summary": "The elements that make up most of every page.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "html/02-profile",
+       "title": "A profile with links and a list"
+      }
+     ]
+    },
+    {
+     "id": "html/03-tables",
+     "title": "Tables",
+     "summary": "Rows and columns for data, with headers that say what each cell means.",
+     "quiz": 3,
+     "exercises": [
+      {
+       "id": "html/03-price-table",
+       "title": "A price table"
+      }
+     ]
+    },
+    {
+     "id": "html/04-forms",
+     "title": "Forms",
+     "summary": "Collect input: fields, labels, choices, buttons, and the checks the browser does for you.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "html/04-signup-form",
+       "title": "A sign-up form"
+      }
+     ]
+    },
+    {
+     "id": "html/05-semantic-html",
+     "title": "Semantic HTML and accessibility",
+     "summary": "Mark up the parts of a page by what they are, so every visitor and every tool can use it.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "html/05-landmarks",
+       "title": "From divs to landmarks"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "css",
+   "title": "CSS",
+   "blurb": "Make pages look right: selectors, the box model, flexbox, grid, and layouts that adapt to any screen.",
+   "lessons": [
+    {
+     "id": "css/01-selectors-and-cascade",
+     "title": "Selectors and the cascade",
+     "summary": "How a rule finds its elements, and which rule wins when two disagree.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/01-selectors",
+       "title": "Style a page with selectors"
+      }
+     ]
+    },
+    {
+     "id": "css/02-box-model",
+     "title": "The box model",
+     "summary": "Every element is a box: content, padding, border, margin.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/02-cards",
+       "title": "Boxes: a column of cards"
+      }
+     ]
+    },
+    {
+     "id": "css/03-colours-fonts-units",
+     "title": "Colours, fonts, units and variables",
+     "summary": "Readable text, sizes that scale, and values you name once and reuse.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/03-theme",
+       "title": "A theme with variables"
+      }
+     ]
+    },
+    {
+     "id": "css/04-flexbox",
+     "title": "Flexbox",
+     "summary": "Lay out items in a row or a column: spacing, alignment and wrapping.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/04-flex-layout",
+       "title": "A header, a hero and a sidebar with flexbox"
+      }
+     ]
+    },
+    {
+     "id": "css/05-grid",
+     "title": "Grid",
+     "summary": "Rows and columns at the same time: page layouts and card grids.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/05-grid-page",
+       "title": "A page layout and a card grid"
+      }
+     ]
+    },
+    {
+     "id": "css/06-responsive",
+     "title": "Responsive design",
+     "summary": "One page that works on a phone, a laptop and everything between.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "css/06-responsive-layout",
+       "title": "Mobile first"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "java",
    "title": "Java",
    "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",
@@ -910,6 +1130,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/01-hello-jvm",
      "title": "Hello, Java",
      "summary": "How Java code becomes a running program, and the shape every Java program has.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/01-hello",
@@ -921,6 +1142,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/02-types-and-control-flow",
      "title": "Types and control flow",
      "summary": "Variables with fixed types, text, input, and the statements that decide and repeat.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/02-number-stats",
@@ -932,6 +1154,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/03-methods",
      "title": "Methods",
      "summary": "Name a piece of work, give it typed inputs and a typed result, and call it from anywhere.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/03-methods",
@@ -943,6 +1166,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/04-arrays-and-strings",
      "title": "Arrays and strings",
      "summary": "Fixed-size arrays, the loops that go with them, and efficient work with text.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/04-arrays-strings",
@@ -954,6 +1178,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/05-classes-and-objects",
      "title": "Classes and objects",
      "summary": "Define your own types that keep data together with the methods that work on it, and protect their own rules.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/05-bank-account",
@@ -965,6 +1190,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/06-interfaces-and-inheritance",
      "title": "Interfaces and inheritance",
      "summary": "Write code that works with many kinds of object through what they have in common.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/06-shapes",
@@ -976,6 +1202,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/07-collections",
      "title": "Collections",
      "summary": "Lists that grow, maps from keys to values, and sets of unique items.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/07-word-count",
@@ -987,6 +1214,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/08-generics",
      "title": "Generics",
      "summary": "Write a class or method once and use it safely with any type.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/08-generics",
@@ -998,6 +1226,7 @@ window.Z2D_CURRICULUM = {
      "id": "java/09-exceptions",
      "title": "Exceptions",
      "summary": "Signal that something went wrong, handle what you can, and never lose a resource.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/09-exceptions",
@@ -1009,10 +1238,193 @@ window.Z2D_CURRICULUM = {
      "id": "java/10-files-and-streams",
      "title": "Files, lambdas and streams",
      "summary": "Read and write files in a few lines, and process collections by describing what you want.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "java/10-streams",
        "title": "Streams, Optional and a file"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "go",
+   "title": "Go",
+   "blurb": "A small, fast, compiled language made for servers and tools: slices, structs, interfaces, goroutines and an HTTP API.",
+   "lessons": [
+    {
+     "id": "go/01-basics",
+     "title": "Go basics",
+     "summary": "Programs, variables, types and printing, and how Go is built and run.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/01-rectangle",
+       "title": "Rectangle"
+      }
+     ]
+    },
+    {
+     "id": "go/02-control-flow-and-functions",
+     "title": "Control flow and functions",
+     "summary": "if, for, switch, and functions that return more than one value.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/02-functions",
+       "title": "Functions and loops"
+      }
+     ]
+    },
+    {
+     "id": "go/03-slices-and-maps",
+     "title": "Slices, maps and strings",
+     "summary": "The collections you will use in every Go program.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/03-word-count",
+       "title": "Word count"
+      }
+     ]
+    },
+    {
+     "id": "go/04-structs-and-methods",
+     "title": "Structs, methods and pointers",
+     "summary": "Your own types, behaviour attached to them, and when a function may change its argument.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/04-bank-account",
+       "title": "A bank account type"
+      }
+     ]
+    },
+    {
+     "id": "go/05-interfaces-and-errors",
+     "title": "Interfaces and errors",
+     "summary": "Write code against behaviour, and handle failure as an ordinary value.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/05-shapes",
+       "title": "Shapes and a parser with errors"
+      }
+     ]
+    },
+    {
+     "id": "go/06-goroutines-and-channels",
+     "title": "Goroutines and channels",
+     "summary": "Do many things at once, safely: the feature Go is known for.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/06-concurrency",
+       "title": "Parallel work with goroutines"
+      }
+     ]
+    },
+    {
+     "id": "go/07-modules-testing-http",
+     "title": "Modules, testing and an HTTP API",
+     "summary": "Real projects: packages, dependencies, tests, and a web server from the standard library.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "go/07-notes-api",
+       "title": "A notes API with net/http"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rust",
+   "title": "Rust",
+   "blurb": "Speed of C with memory safety checked by the compiler: ownership, enums, traits and iterators.",
+   "lessons": [
+    {
+     "id": "rust/01-basics",
+     "title": "Rust basics",
+     "summary": "Variables that do not change unless you say so, types, functions, and the tools.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/01-stats",
+       "title": "Number statistics"
+      }
+     ]
+    },
+    {
+     "id": "rust/02-ownership-and-borrowing",
+     "title": "Ownership and borrowing",
+     "summary": "The one idea that makes Rust different, and safe.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/02-borrowing",
+       "title": "Borrow, do not take"
+      }
+     ]
+    },
+    {
+     "id": "rust/03-structs-enums-match",
+     "title": "Structs, enums and match",
+     "summary": "Model your data so that wrong states cannot even be written.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/03-shapes",
+       "title": "Shapes with an enum"
+      }
+     ]
+    },
+    {
+     "id": "rust/04-option-result",
+     "title": "Option, Result and error handling",
+     "summary": "No null, no exceptions: absence and failure are ordinary values the compiler makes you handle.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/04-parsing",
+       "title": "Parsing with Option and Result"
+      }
+     ]
+    },
+    {
+     "id": "rust/05-collections-and-strings",
+     "title": "Vectors, hash maps and strings",
+     "summary": "The collections of the standard library, and why Rust has two string types.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/05-top-words",
+       "title": "Top words"
+      }
+     ]
+    },
+    {
+     "id": "rust/06-traits-and-generics",
+     "title": "Traits and generics",
+     "summary": "Shared behaviour, and code that works for many types with no cost at run time.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/06-traits",
+       "title": "A trait and a generic function"
+      }
+     ]
+    },
+    {
+     "id": "rust/07-iterators-closures-testing",
+     "title": "Iterators, closures and tests",
+     "summary": "Process data in pipelines, and test your code with the tools built into cargo.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "rust/07-iterators",
+       "title": "Pipelines with iterators"
       }
      ]
     }
@@ -1027,6 +1439,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/01-basics",
      "title": "Elixir basics",
      "summary": "A functional language where data never changes. Values, the interactive shell, and your first module.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/01-hello",
@@ -1038,6 +1451,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/02-pattern-matching",
      "title": "Pattern matching",
      "summary": "The equals sign does not assign. It matches shapes, and takes values apart as it does so.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/02-matching",
@@ -1049,6 +1463,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/03-functions-and-modules",
      "title": "Functions and modules",
      "summary": "Several clauses per function, guards, private helpers, anonymous functions and the pipe operator.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/03-functions",
@@ -1060,6 +1475,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/04-lists-and-recursion",
      "title": "Lists and recursion",
      "summary": "There are no loops. Repetition is a function that calls itself, and lists are built for exactly that.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/04-recursion",
@@ -1071,6 +1487,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/05-enum-and-pipes",
      "title": "Enum, pipes and comprehensions",
      "summary": "The standard tools for collections. Map, filter, reduce, and pipelines that read like a description.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/05-pipelines",
@@ -1082,6 +1499,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/06-maps-and-structs",
      "title": "Maps, keyword lists and structs",
      "summary": "Key-value data in three forms, how to \"update\" what cannot change, and your own named data types.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/06-structs",
@@ -1093,6 +1511,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/07-processes",
      "title": "Processes and messages",
      "summary": "Elixir's model of concurrency. Lightweight processes that share nothing and talk by sending messages.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/07-processes",
@@ -1104,6 +1523,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/08-genserver",
      "title": "GenServer",
      "summary": "The standard way to write a process that holds state and answers requests.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/08-genserver",
@@ -1115,6 +1535,7 @@ window.Z2D_CURRICULUM = {
      "id": "elixir/09-mix-and-exunit",
      "title": "Mix and ExUnit",
      "summary": "Create a real project, add dependencies, and test your code the way Elixir developers do.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "elixir/09-roman",
@@ -1133,6 +1554,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/01-values-and-functions",
      "title": "Values and functions",
      "summary": "The language of the web, run from your terminal with Node. Variables, types, text and functions.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/01-functions",
@@ -1144,6 +1566,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/02-arrays-and-objects",
      "title": "Arrays and objects",
      "summary": "The two structures all JavaScript data is built from, and the methods that transform them.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/02-collections",
@@ -1155,6 +1578,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/03-modules",
      "title": "Modules",
      "summary": "Split a program into files that share exactly what they choose to.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/03-modules",
@@ -1166,6 +1590,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/04-async",
      "title": "Asynchronous code",
      "summary": "Waiting for files, timers and the network without freezing everything. Promises and async/await.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/04-async",
@@ -1177,6 +1602,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/05-classes-and-closures",
      "title": "Classes, closures and errors",
      "summary": "Two ways to keep state together with behaviour, and how to signal and handle failure.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/05-classes",
@@ -1188,6 +1614,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/06-node-and-npm",
      "title": "Node and npm",
      "summary": "Files, arguments and exit codes in Node, and the package manager that the whole JavaScript world shares.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/06-cli",
@@ -1199,6 +1626,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/07-http-and-servers",
      "title": "HTTP and a server from scratch",
      "summary": "How browsers and servers talk, and a working server with nothing but Node.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/07-http-server",
@@ -1210,6 +1638,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/08-express-api",
      "title": "A REST API with Express",
      "summary": "Routes, parameters, JSON bodies and proper status codes, in the most widely used Node framework.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/08-todo-api",
@@ -1221,6 +1650,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/09-typescript-basics",
      "title": "TypeScript basics",
      "summary": "JavaScript with types. Mistakes that used to appear when the program ran are caught while you type.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/09-typescript",
@@ -1232,6 +1662,7 @@ window.Z2D_CURRICULUM = {
      "id": "js/10-the-browser-and-dom",
      "title": "The browser and the DOM",
      "summary": "How JavaScript changes a web page and reacts to the user. The foundation under React.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "js/10-dom",
@@ -1243,7 +1674,87 @@ window.Z2D_CURRICULUM = {
      "id": "js/11-tooling",
      "title": "Tooling and what comes next",
      "summary": "The tools around the language. Formatters, linters, bundlers and debugging.",
+     "quiz": 0,
      "exercises": []
+    }
+   ]
+  },
+  {
+   "id": "php",
+   "title": "PHP",
+   "blurb": "The language behind a large part of the web: arrays, functions, classes, forms, JSON APIs and a database with PDO.",
+   "lessons": [
+    {
+     "id": "php/01-basics",
+     "title": "PHP basics",
+     "summary": "Running PHP, variables, types, strings and decisions.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/01-receipt",
+       "title": "A receipt"
+      }
+     ]
+    },
+    {
+     "id": "php/02-arrays",
+     "title": "Arrays",
+     "summary": "One type for lists and for key-value data, and the functions that work on it.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/02-arrays",
+       "title": "Working with arrays"
+      }
+     ]
+    },
+    {
+     "id": "php/03-functions",
+     "title": "Functions and types",
+     "summary": "Typed parameters, default values, closures and match.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/03-functions",
+       "title": "Functions with types"
+      }
+     ]
+    },
+    {
+     "id": "php/04-classes",
+     "title": "Classes and objects",
+     "summary": "Objects with private state, interfaces, exceptions of your own, and how projects are organised.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/04-cart",
+       "title": "A shopping cart"
+      }
+     ]
+    },
+    {
+     "id": "php/05-web",
+     "title": "Requests, forms and JSON",
+     "summary": "How PHP answers a browser: input, output, escaping, and why nothing is remembered between requests.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/05-notes-api",
+       "title": "A notes API"
+      }
+     ]
+    },
+    {
+     "id": "php/06-databases",
+     "title": "Databases with PDO",
+     "summary": "Talk to a SQL database safely: prepared statements, transactions and password hashing.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "php/06-todo-repository",
+       "title": "A repository with PDO"
+      }
+     ]
     }
    ]
   },
@@ -1256,6 +1767,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/01-components-and-jsx",
      "title": "Components and JSX",
      "summary": "Build a user interface out of small functions that return markup.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/01-greeting",
@@ -1267,6 +1779,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/02-props",
      "title": "Props",
      "summary": "Pass data into components, show things conditionally, and wrap other content.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/02-user-card",
@@ -1278,6 +1791,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/03-state",
      "title": "State",
      "summary": "Data that a component remembers and that makes the screen update when it changes.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/03-counter",
@@ -1289,6 +1803,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/04-lists-and-keys",
      "title": "Lists and keys",
      "summary": "Turn an array into elements, and tell React which item is which.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/04-todo-list",
@@ -1300,6 +1815,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/05-forms",
      "title": "Forms",
      "summary": "Keep the value of every input in state, validate it, and handle the submit yourself.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/05-signup-form",
@@ -1311,6 +1827,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/06-effects",
      "title": "Effects",
      "summary": "Synchronise a component with something outside React, and clean up after it.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/06-effects",
@@ -1322,6 +1839,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/07-fetching-data",
      "title": "Fetching data",
      "summary": "Load data from a server, and handle the three states every request has.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/07-user-list",
@@ -1333,6 +1851,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/08-custom-hooks",
      "title": "Custom hooks",
      "summary": "Move stateful logic out of components into functions you can reuse and test.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/08-hooks",
@@ -1344,6 +1863,7 @@ window.Z2D_CURRICULUM = {
      "id": "react/09-sharing-state",
      "title": "Sharing state",
      "summary": "Lift state up to a common parent, and use context for data that many components need.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "react/09-theme",
@@ -1362,6 +1882,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/01-app-router",
      "title": "Next.js and the app router",
      "summary": "A framework on top of React where folders become pages, and pages are rendered on the server.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/01-pages",
@@ -1373,6 +1894,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/02-layouts-and-links",
      "title": "Layouts and navigation",
      "summary": "Share a frame between pages, nest frames inside each other, and move between pages without a full reload.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/02-layouts",
@@ -1384,6 +1906,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/03-server-and-client-components",
      "title": "Server and client components",
      "summary": "Where each component runs, what each kind can do, and how to combine them.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/03-server-client",
@@ -1395,6 +1918,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/04-dynamic-routes",
      "title": "Dynamic routes",
      "summary": "One page file for thousands of URLs, with the changing part passed in as a parameter.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/04-dynamic-routes",
@@ -1406,6 +1930,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/05-route-handlers",
      "title": "Route handlers",
      "summary": "API endpoints inside your Next.js project, written with the web's own Request and Response.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/05-notes-api",
@@ -1417,6 +1942,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/06-data-fetching",
      "title": "Loading data",
      "summary": "Fetch in server components, show progress and errors, and decide how fresh the data must be.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/06-users-page",
@@ -1428,6 +1954,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/07-forms-and-server-actions",
      "title": "Forms and server actions",
      "summary": "Change data with a function that runs on the server and is called straight from a form.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "next/07-server-actions",
@@ -1439,6 +1966,7 @@ window.Z2D_CURRICULUM = {
      "id": "next/08-building-and-deploying",
      "title": "Building and deploying",
      "summary": "Turn the project into something that runs in production, and put it online.",
+     "quiz": 0,
      "exercises": []
     }
    ]
@@ -1452,6 +1980,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/01-images-and-containers",
      "title": "Images and containers",
      "summary": "Run any program in an isolated box that carries everything it needs, and throw the box away afterwards.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "docker/01-run",
@@ -1463,6 +1992,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/02-dockerfile",
      "title": "Writing a Dockerfile",
      "summary": "Describe how to build an image of your own program, one instruction per line.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "docker/02-dockerfile",
@@ -1474,6 +2004,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/03-volumes-and-environment",
      "title": "Data, configuration and ports",
      "summary": "Keep data after a container is gone, configure a container from outside, and reach it over the network.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "docker/03-volumes",
@@ -1485,6 +2016,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/04-compose",
      "title": "Docker Compose",
      "summary": "Describe every container of a project in one file, and start them all with one command.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "docker/04-compose",
@@ -1496,6 +2028,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/05-app-with-a-database",
      "title": "An app with a data store",
      "summary": "Build your own image, run it next to a database, and make the two find each other.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "docker/05-app-with-redis",
@@ -1507,6 +2040,7 @@ window.Z2D_CURRICULUM = {
      "id": "docker/06-good-practice",
      "title": "Good practice",
      "summary": "Smaller, safer, faster images, and how to keep Docker from filling your disk.",
+     "quiz": 0,
      "exercises": []
     }
    ]
@@ -1520,12 +2054,14 @@ window.Z2D_CURRICULUM = {
      "id": "microservices/01-what-and-why",
      "title": "What microservices are, and when to use them",
      "summary": "One program or many small ones. What you gain, what it costs, and how to decide.",
+     "quiz": 0,
      "exercises": []
     },
     {
      "id": "microservices/02-services-talking",
      "title": "Services that call each other",
      "summary": "One service needs data that another one owns. Make the call, and handle everything that can go wrong with it.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "microservices/01-order-details",
@@ -1537,6 +2073,7 @@ window.Z2D_CURRICULUM = {
      "id": "microservices/03-api-gateway",
      "title": "The API gateway",
      "summary": "One front door for all the services, so that clients do not need to know how the system is split.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "microservices/02-gateway",
@@ -1548,6 +2085,7 @@ window.Z2D_CURRICULUM = {
      "id": "microservices/04-queues-and-workers",
      "title": "Queues and workers",
      "summary": "Not everything has to happen while the user waits. Hand slow work to a queue and let a worker do it.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "microservices/03-queue-worker",
@@ -1559,12 +2097,14 @@ window.Z2D_CURRICULUM = {
      "id": "microservices/05-data-and-consistency",
      "title": "Data and consistency",
      "summary": "Each service owns its data. That removes the single transaction, and this is how systems cope.",
+     "quiz": 0,
      "exercises": []
     },
     {
      "id": "microservices/06-resilience-and-observability",
      "title": "Resilience and observability",
      "summary": "Services will fail. Make the system survive it, and make it possible to see what happened.",
+     "quiz": 0,
      "exercises": [
       {
        "id": "microservices/04-resilience",

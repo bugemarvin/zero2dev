@@ -6,13 +6,17 @@
 <title>A REST API with Express · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="js/08-express-api">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -106,6 +110,7 @@ app.use((error, req, res, next) =&gt; {
 <p>Everything in <code>req.body</code>, <code>req.params</code> and <code>req.query</code> comes from outside. Check the type and the range of each value before you use it. An API that crashes, or stores nonsense, when given odd input has a bug.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Forgetting <code>express.json()</code>.</strong> <code>req.body</code> is then <code>undefined</code>.</li><li><strong>Forgetting <code>return</code></strong> after sending an error response.</li><li><strong>Comparing <code>req.params.id</code> with a number</strong> without converting it.</li><li><strong>200 for everything.</strong> Use 201, 204, 400 and 404 where they apply.</li><li><strong>Verbs in paths.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="js/08-todo-api">
@@ -122,7 +127,9 @@ app.use((error, req, res, next) =&gt; {
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

@@ -6,13 +6,17 @@
 <title>Processes and messages · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="elixir/07-processes">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -109,6 +113,7 @@ result = Task.await(task)</code></pre>
 <p><code>spawn_link</code> ties two processes together, so that if one dies the other is told. Supervisors are built on that, and you will meet them with GenServer in the next lesson. This is how systems written for the BEAM stay up for years.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Calling <code>self()</code> inside the spawned function</strong> when you meant the parent.</li><li><strong>A <code>receive</code> with no matching message and no <code>after</code>.</strong> The process waits for ever.</li><li><strong>Forgetting the recursive call</strong> in a loop. The process handles one message and exits.</li><li><strong>Expecting an immediate reply.</strong> <code>send</code> never waits. You must <code>receive</code> the answer.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="elixir/07-processes">
@@ -131,7 +136,9 @@ Counter.value(pid)      # 11</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

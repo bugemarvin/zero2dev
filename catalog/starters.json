@@ -62,6 +62,24 @@
  "c/14-fix-the-bugs": {
   "main.c": "#include <stdio.h>\n#include <stdlib.h>\n\n/* Returns a new array holding the n values of a in reverse order.\n   The caller frees it. */\nint *reversed(const int *a, int n) {\n    int *out = malloc((n + 1) * sizeof(int));\n    for (int i = 0; i <= n; i++) {\n        out[i] = a[n - i];\n    }\n    return out;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n < 0) {\n        return 1;\n    }\n    int *a = malloc((n > 0 ? n : 1) * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &a[i]) != 1) {\n            return 1;\n        }\n    }\n\n    int *r = reversed(a, n);\n    long sum;\n    for (int i = 0; i < n; i++) {\n        printf(i == 0 ? \"%d\" : \" %d\", r[i]);\n        sum += r[i];\n    }\n    printf(\"\\nsum: %ld\\n\", sum);\n\n    free(a);\n    return 0;\n}\n"
  },
+ "css/01-selectors": {
+  "style.css": "/* Write your rules here. */\n"
+ },
+ "css/02-cards": {
+  "style.css": "/* Write your rules here. */\n"
+ },
+ "css/03-theme": {
+  "style.css": ":root {\n  /* define --brand, --text and --page here */\n}\n"
+ },
+ "css/04-flex-layout": {
+  "style.css": "/* Write your rules here. */\n"
+ },
+ "css/05-grid-page": {
+  "style.css": "/* Write your rules here. */\n"
+ },
+ "css/06-responsive-layout": {
+  "style.css": "/* Base rules first. The media query goes at the end. */\n"
+ },
  "docker/04-compose": {
   "compose.yaml": "# Describe the web service here.\nservices: {}\n"
  },
@@ -167,6 +185,42 @@
  },
  "elixir/09-roman": {
   "solution.ex": "defmodule Roman do\n  def to_roman(_n) do\n    nil\n  end\n\n  def from_roman(_text) do\n    nil\n  end\nend\n"
+ },
+ "go/01-rectangle": {
+  "main.go": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar width, height int\n\tfmt.Scan(&width, &height)\n\t// print the area, the perimeter and the ratio\n\tfmt.Println(width, height)\n}\n"
+ },
+ "go/02-functions": {
+  "solution.go": "package main\n\nfunc Grade(score int) string {\n\treturn \"\"\n}\n\nfunc SumTo(n int) int {\n\treturn 0\n}\n\nfunc IsPrime(n int) bool {\n\treturn false\n}\n\nfunc Divide(a, b int) (int, error) {\n\treturn 0, nil\n}\n"
+ },
+ "go/03-word-count": {
+  "main.go": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tscanner := bufio.NewScanner(os.Stdin)\n\tscanner.Split(bufio.ScanWords)\n\tfor scanner.Scan() {\n\t\tword := scanner.Text()\n\t\tfmt.Println(word)\n\t}\n}\n"
+ },
+ "go/04-bank-account": {
+  "solution.go": "package main\n\ntype Account struct {\n\towner   string\n\tbalance int\n}\n\nfunc NewAccount(owner string) *Account {\n\treturn &Account{}\n}\n\nfunc (a *Account) Owner() string {\n\treturn \"\"\n}\n\nfunc (a *Account) Balance() int {\n\treturn 0\n}\n\nfunc (a *Account) Deposit(amount int) error {\n\treturn nil\n}\n\nfunc (a *Account) Withdraw(amount int) error {\n\treturn nil\n}\n\nfunc (a *Account) Transfer(to *Account, amount int) error {\n\treturn nil\n}\n"
+ },
+ "go/05-shapes": {
+  "solution.go": "package main\n\nimport \"errors\"\n\nvar ErrNoShapes = errors.New(\"no shapes\")\nvar ErrBadShape = errors.New(\"bad shape\")\n\ntype Shape interface {\n\tArea() float64\n\tName() string\n}\n\ntype Rect struct {\n\tW, H float64\n}\n\ntype Circle struct {\n\tR float64\n}\n\n// Give Rect and Circle the two methods of Shape.\n\nfunc Largest(shapes []Shape) (Shape, error) {\n\treturn nil, nil\n}\n\nfunc ParseShape(text string) (Shape, error) {\n\treturn nil, nil\n}\n"
+ },
+ "go/06-concurrency": {
+  "solution.go": "package main\n\ntype SafeCounter struct {\n\tcount int\n}\n\nfunc (c *SafeCounter) Inc() {\n\tc.count++\n}\n\nfunc (c *SafeCounter) Value() int {\n\treturn c.count\n}\n\nfunc Squares(n int) <-chan int {\n\tout := make(chan int)\n\tclose(out)\n\treturn out\n}\n\nfunc ParallelMap(inputs []int, workers int, f func(int) int) []int {\n\tresults := make([]int, len(inputs))\n\tfor i, value := range inputs {\n\t\tresults[i] = f(value)\n\t}\n\treturn results\n}\n"
+ },
+ "go/07-notes-api": {
+  "main.go": "package main\n\nimport (\n\t\"encoding/json\"\n\t\"net/http\"\n\t\"os\"\n\t\"sync\"\n)\n\ntype Note struct {\n\tID   int    `json:\"id\"`\n\tText string `json:\"text\"`\n}\n\nvar (\n\tmu     sync.Mutex\n\tnotes  = []Note{}\n\tnextID = 1\n)\n\nfunc writeJSON(w http.ResponseWriter, status int, data any) {\n\tw.Header().Set(\"Content-Type\", \"application/json\")\n\tw.WriteHeader(status)\n\tjson.NewEncoder(w).Encode(data)\n}\n\nfunc main() {\n\tmux := http.NewServeMux()\n\n\tmux.HandleFunc(\"GET /health\", func(w http.ResponseWriter, r *http.Request) {\n\t\twriteJSON(w, http.StatusOK, map[string]string{\"status\": \"ok\"})\n\t})\n\n\t// Add the four routes here:\n\t//   GET /notes, POST /notes, GET /notes/{id}, DELETE /notes/{id}\n\n\thttp.ListenAndServe(os.Getenv(\"HOST\")+\":\"+os.Getenv(\"PORT\"), mux)\n}\n"
+ },
+ "html/01-first-page": {
+  "index.html": "<!-- Write your page here. Start with the doctype. -->\n"
+ },
+ "html/02-profile": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Sam Doe</title>\n</head>\n<body>\n\n</body>\n</html>\n"
+ },
+ "html/03-price-table": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Plans</title>\n</head>\n<body>\n  <h1>Plans</h1>\n\n</body>\n</html>\n"
+ },
+ "html/04-signup-form": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Sign up</title>\n</head>\n<body>\n  <h1>Sign up</h1>\n\n</body>\n</html>\n"
+ },
+ "html/05-landmarks": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Sam's blog</title>\n</head>\n<body>\n  <div class=\"top\">\n    <div class=\"big\">Sam's blog</div>\n    <div class=\"menu\">\n      <a href=\"index.html\">Home</a>\n      <a href=\"about.html\">About</a>\n      <a href=\"contact.html\">Contact</a>\n    </div>\n  </div>\n\n  <div class=\"content\">\n    <div class=\"post\">\n      <div class=\"title\">Why I like HTML</div>\n      <p>Because it never crashes.</p>\n      <div class=\"more\">Read more</div>\n    </div>\n    <div class=\"post\">\n      <div class=\"title\">My first table</div>\n      <p>Rows, columns and a caption.</p>\n      <div class=\"more\">Read more</div>\n    </div>\n  </div>\n\n  <div class=\"bottom\">\n    <p>Written by Sam.</p>\n  </div>\n</body>\n</html>\n"
  },
  "java/01-hello": {
   "Main.java": "public class Main {\n    public static void main(String[] args) {\n        // print the greeting here\n    }\n}\n"
@@ -274,6 +328,24 @@
   "app/actions.js": "import { revalidatePath } from \"next/cache\";\nimport { addTodo, deleteTodo } from \"../lib/todos.js\";\n\nexport async function createTodo(formData) {\n  return { error: \"not written yet\" };\n}\n\nexport async function removeTodo(id) {\n  return { error: \"not written yet\" };\n}\n",
   "app/todos/page.jsx": "import { createTodo } from \"../actions.js\";\nimport { listTodos } from \"../../lib/todos.js\";\n\nexport default function TodosPage() {\n  return <ul></ul>;\n}\n"
  },
+ "php/01-receipt": {
+  "solution.php": "<?php\ndeclare(strict_types=1);\n\n$tokens = preg_split('/\\s+/', trim(stream_get_contents(STDIN)));\n$name = $tokens[0];\n$price = (float) $tokens[1];\n$quantity = (int) $tokens[2];\n\necho \"Item: $name\\n\";\n"
+ },
+ "php/02-arrays": {
+  "solution.php": "<?php\ndeclare(strict_types=1);\n\nfunction word_counts(string $text): array\n{\n    return [];\n}\n\nfunction average(array $numbers): float\n{\n    return 0.0;\n}\n\nfunction top_scorers(array $scores, int $limit): array\n{\n    return [];\n}\n\nfunction only_adults(array $people): array\n{\n    return [];\n}\n"
+ },
+ "php/03-functions": {
+  "solution.php": "<?php\ndeclare(strict_types=1);\n\nfunction grade(int $score): string\n{\n    return '';\n}\n\nfunction initials(string $fullName): string\n{\n    return '';\n}\n\nfunction apply_discount(float $price, float $percent = 10.0): float\n{\n    return $price;\n}\n\nfunction make_counter(int $start = 0): callable\n{\n    return fn() => $start;\n}\n\nfunction sum_all(int ...$numbers): int\n{\n    return 0;\n}\n"
+ },
+ "php/04-cart": {
+  "solution.php": "<?php\ndeclare(strict_types=1);\n\nclass OutOfStock extends RuntimeException\n{\n}\n\nclass Item\n{\n    public function __construct(string $name, float $price, int $stock)\n    {\n    }\n}\n\nclass Cart\n{\n}\n"
+ },
+ "php/05-notes-api": {
+  "index.php": "<?php\ndeclare(strict_types=1);\n\n// The folder for data comes from the environment. Each run of the tests gets an empty one.\n$file = (getenv('DATA_DIR') ?: sys_get_temp_dir()) . '/notes.json';\n\nfunction send(int $status, mixed $data = null): never\n{\n    http_response_code($status);\n    if ($data !== null) {\n        header('Content-Type: application/json');\n        echo json_encode($data);\n    }\n    exit;\n}\n\n/** The stored state: ['next' => the next id, 'notes' => a list of notes]. */\nfunction load(string $file): array\n{\n    if (!is_file($file)) {\n        return ['next' => 1, 'notes' => []];\n    }\n    return json_decode(file_get_contents($file), true);\n}\n\nfunction save(string $file, array $state): void\n{\n    file_put_contents($file, json_encode($state), LOCK_EX);\n}\n\n$method = $_SERVER['REQUEST_METHOD'];\n$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);\n$state = load($file);\n\nif ($method === 'GET' && $path === '/notes') {\n    send(200, $state['notes']);\n}\n\n// Add: POST /notes, GET /notes/{id}, DELETE /notes/{id}\n\nsend(404, ['error' => 'not found']);\n"
+ },
+ "php/06-todo-repository": {
+  "solution.php": "<?php\ndeclare(strict_types=1);\n\nclass TodoRepository\n{\n    public function __construct(private PDO $pdo)\n    {\n    }\n\n    public function createTable(): void\n    {\n    }\n}\n"
+ },
  "python/01-first-functions": {
   "solution.py": "def greeting(name):\n    pass\n\n\ndef to_fahrenheit(celsius):\n    pass\n\n\ndef is_even(n):\n    pass\n"
  },
@@ -336,6 +408,27 @@
  },
  "react/09-theme": {
   "theme.jsx": "import { createContext, useContext, useState } from \"react\";\n\nconst ThemeContext = createContext(null);\n\nexport function ThemeProvider({ children }) {\n  return children;\n}\n\nexport function useTheme() {\n  return { theme: \"light\", toggleTheme() {} };\n}\n\nexport function ThemeButton() {\n  return <button>Theme: light</button>;\n}\n\nexport function ThemedBox({ children }) {\n  return <div className=\"box light\">{children}</div>;\n}\n"
+ },
+ "rust/01-stats": {
+  "main.rs": "use std::io::Read;\n\nfn main() {\n    let mut input = String::new();\n    std::io::stdin().read_to_string(&mut input).unwrap();\n    let numbers: Vec<i64> = input.split_whitespace().map(|t| t.parse().unwrap()).collect();\n    // numbers is a Vec<i64>: use numbers.len() and a for loop\n    println!(\"count: {}\", numbers.len());\n}\n"
+ },
+ "rust/02-borrowing": {
+  "solution.rs": "pub fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {\n    \"\"\n}\n\npub fn total(numbers: &[i32]) -> i32 {\n    0\n}\n\npub fn double_all(numbers: &mut Vec<i32>) {\n}\n\npub fn append_exclamation(text: &mut String) {\n}\n"
+ },
+ "rust/03-shapes": {
+  "solution.rs": "#[derive(Debug, Clone, PartialEq)]\npub enum Shape {\n    // add the three variants\n    Placeholder,\n}\n\npub struct Counter {\n    count: u32,\n}\n"
+ },
+ "rust/04-parsing": {
+  "solution.rs": "#[derive(Debug, PartialEq)]\npub enum ParseError {\n    Empty,\n    NotANumber(String),\n    OutOfRange(i64),\n}\n\npub fn find_user(names: &[&str], wanted: &str) -> Option<usize> {\n    None\n}\n\npub fn parse_percent(text: &str) -> Result<u8, ParseError> {\n    Err(ParseError::Empty)\n}\n\npub fn average_percent(texts: &[&str]) -> Result<f64, ParseError> {\n    Err(ParseError::Empty)\n}\n"
+ },
+ "rust/05-top-words": {
+  "main.rs": "use std::collections::HashMap;\nuse std::io::Read;\n\nfn main() {\n    let mut input = String::new();\n    std::io::stdin().read_to_string(&mut input).unwrap();\n    let mut counts: HashMap<String, u32> = HashMap::new();\n    for word in input.split_whitespace() {\n        // count the word, in lower case\n    }\n    println!(\"{}\", counts.len());\n}\n"
+ },
+ "rust/06-traits": {
+  "solution.rs": "pub trait Priced {\n    fn price(&self) -> f64;\n    fn label(&self) -> String;\n    // add the default method receipt_line\n}\n\npub struct Product {\n    pub name: String,\n    pub unit_price: f64,\n    pub quantity: u32,\n}\n\npub struct Service {\n    pub name: String,\n    pub hours: f64,\n    pub rate: f64,\n}\n\npub fn largest<T: PartialOrd + Copy>(items: &[T]) -> Option<T> {\n    None\n}\n"
+ },
+ "rust/07-iterators": {
+  "solution.rs": "pub fn sum_of_even_squares(numbers: &[i64]) -> i64 {\n    0\n}\n\npub fn initials(names: &[&str]) -> String {\n    String::new()\n}\n\npub fn long_words(text: &str, min: usize) -> Vec<String> {\n    Vec::new()\n}\n\npub fn apply_n<F: Fn(i64) -> i64>(f: F, times: u32, start: i64) -> i64 {\n    start\n}\n\npub fn running_total(numbers: &[i64]) -> Vec<i64> {\n    Vec::new()\n}\n"
  },
  "sql/01-select-where": {
   "query.sql": "-- Write your query here.\n"

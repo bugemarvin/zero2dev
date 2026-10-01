@@ -1,0 +1,34 @@
+{
+  "title": "A receipt",
+  "lesson": "php/01-basics",
+  "kind": "program",
+  "lang": "php",
+  "cases": [
+    {
+      "name": "a big order",
+      "stdin": "coffee 3.5 3\n",
+      "stdout": "Item: coffee\nQuantity: 3\nTotal: 10.50\nBig order\n"
+    },
+    {
+      "name": "a small order",
+      "stdin": "tea 2.25 2\n",
+      "stdout": "Item: tea\nQuantity: 2\nTotal: 4.50\nSmall order\n"
+    },
+    {
+      "name": "exactly 10 is big",
+      "stdin": "cake\n5\n2\n",
+      "stdout": "Item: cake\nQuantity: 2\nTotal: 10.00\nBig order\n"
+    },
+    {
+      "name": "a large total has no thousands separator",
+      "stdin": "laptop 999.99 2\n",
+      "stdout": "Item: laptop\nQuantity: 2\nTotal: 1999.98\nBig order\n"
+    }
+  ],
+  "timeout": 20,
+  "hints": [
+    "The total: $total = $price * $quantity;",
+    "Two decimals: number_format($total, 2, '.', '') or sprintf('%.2f', $total).",
+    "The last line: echo $total >= 10 ? \"Big order\\n\" : \"Small order\\n\";"
+  ]
+}

@@ -6,13 +6,17 @@
 <title>Services that call each other · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="microservices/02-services-talking">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -96,6 +100,7 @@ $ docker compose down</code></pre>
 <p>The last but one line tests the connection from <strong>inside</strong> the orders container, which is the quickest way to tell a networking problem from a bug in your code.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A hard-coded address</strong>, or <code>localhost</code>, for another service.</li><li><strong>Treating a 404 as a crash.</strong> It is an answer.</li><li><strong>No error handling around the call</strong>, so one failing service returns a 500 with a stack trace from another.</li><li><strong>Publishing every service's port.</strong></li><li><strong>A health check that calls other services.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="microservices/01-order-details">
@@ -115,7 +120,9 @@ $ docker compose down</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

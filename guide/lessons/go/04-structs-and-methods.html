@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structs, methods and pointers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/04-structs-and-methods">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 4 of 7</p>
+<h1>Structs, methods and pointers</h1>
+<p class="lede">Your own types, behaviour attached to them, and when a function may change its argument.</p>
+<h2 id="structs">Structs</h2>
+<p>A <strong>struct</strong> groups related values into one type:</p>
+<pre><code class="lang-go">type Point struct {
+	X int
+	Y int
+}
+
+p := Point{X: 3, Y: 4}
+fmt.Println(p.X)
+p.Y = 10
+
+var origin Point            // every field has its zero value: {0 0}</code></pre>
+<p>Always write the field names when creating a struct. <code>Point{3, 4}</code> works, and breaks when someone adds a field.</p>
+<p>Structs nest:</p>
+<pre><code class="lang-go">type Line struct {
+	Start Point
+	End   Point
+}</code></pre>
+<h2 id="methods">Methods</h2>
+<p>A method is a function with a <strong>receiver</strong>: the value it belongs to.</p>
+<pre><code class="lang-go">func (p Point) DistanceFromOrigin() float64 {
+	return math.Sqrt(float64(p.X*p.X + p.Y*p.Y))
+}
+
+p := Point{X: 3, Y: 4}
+fmt.Println(p.DistanceFromOrigin())     // 5</code></pre>
+<p>Go has no classes. A type plus its methods does the same job.</p>
+<h2 id="pointers">Pointers</h2>
+<p>Go passes <strong>copies</strong>. A function that receives a struct gets its own copy, and changes to it are lost:</p>
+<pre><code class="lang-go">func moveWrong(p Point) {
+	p.X += 1            // changes the copy only
+}</code></pre>
+<p>A <strong>pointer</strong> holds the address of a value. Through it, a function changes the original:</p>
+<pre><code class="lang-go">func move(p *Point) {
+	p.X += 1            // Go follows the pointer for you
+}
+
+p := Point{X: 1, Y: 1}
+move(&amp;p)                // &amp;p is the address of p
+fmt.Println(p.X)        // 2</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Syntax</th><th>Meaning</th></tr></thead><tbody><tr><td><code>*Point</code></td><td>the type "pointer to a Point"</td></tr><tr><td><code>&amp;p</code></td><td>the address of <code>p</code></td></tr><tr><td><code>*ptr</code></td><td>the value the pointer points at</td></tr><tr><td><code>nil</code></td><td>a pointer that points at nothing</td></tr></tbody></table></div>
+<p>Go has pointers and no pointer arithmetic, and memory is freed for you by the garbage collector. There is no <code>free</code>.</p>
+<h2 id="pointer-receivers">Pointer receivers</h2>
+<p>A method that changes its receiver must take a pointer:</p>
+<pre><code class="lang-go">type Counter struct {
+	count int
+}
+
+func (c *Counter) Increment() {
+	c.count++
+}
+
+func (c Counter) Value() int {      // reads only: a value receiver is enough
+	return c.count
+}</code></pre>
+<p>The rule most Go code follows: if <strong>any</strong> method needs a pointer receiver, give <strong>all</strong> methods of that type a pointer receiver.</p>
+<h2 id="constructors">Constructors</h2>
+<p>Go has no constructors. By convention, a function named <code>New...</code> creates and returns a ready-to-use value:</p>
+<pre><code class="lang-go">func NewCounter(start int) *Counter {
+	return &amp;Counter{count: start}
+}</code></pre>
+<p>Returning the address of a local value is safe in Go. The value lives as long as something points at it.</p>
+<p>Lower-case fields such as <code>count</code> are private to the package. Other packages must go through the methods.</p>
+<h2 id="embedding">Embedding</h2>
+<p>Go has no inheritance. A struct can <strong>embed</strong> another and gets its fields and methods:</p>
+<pre><code class="lang-go">type Animal struct {
+	Name string
+}
+
+func (a Animal) Describe() string { return "I am " + a.Name }
+
+type Dog struct {
+	Animal              // embedded: no field name
+	Breed string
+}
+
+d := Dog{Animal: Animal{Name: "Rex"}, Breed: "collie"}
+fmt.Println(d.Name, d.Describe())</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A value receiver on a method that should change the struct.</strong> The change is made to a copy and disappears.</li><li><strong>Calling a method on a nil pointer</strong> and reading a field: a panic.</li><li><strong>Comparing with <code>==</code> structs that contain slices or maps.</strong> It does not compile. Compare the fields.</li><li><strong>Creating structs without field names.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/04-bank-account">
+<h3>A bank account type <span class="ex-id">go/04-bank-account</span></h3>
+<p>In <code>solution.go</code>, write a type <code>Account</code> and its functions.</p>
+<ul><li><code>NewAccount(owner string) *Account</code> returns an account with a balance of 0.</li><li><code>Owner() string</code> and <code>Balance() int</code> return the owner and the balance. The fields themselves are private (lower case).</li><li><code>Deposit(amount int) error</code> adds to the balance. An amount of 0 or less is refused with the error <code>amount must be positive</code>, and the balance does not change.</li><li><code>Withdraw(amount int) error</code> subtracts from the balance. An amount of 0 or less is refused the same way. An amount larger than the balance is refused with the error <code>insufficient funds</code>.</li><li><code>Transfer(to *Account, amount int) error</code> withdraws from this account and deposits into <code>to</code>. If the withdrawal fails, nothing changes and its error is returned.</li></ul>
+<p>A method that changes the balance needs a pointer receiver.</p>
+<p class="ex-files">Files: <code>exercises/go/04-bank-account/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/04-bank-account</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/03-slices-and-maps.html"><span>Previous</span>Slices, maps and strings</a><a class="next" href="../go/05-interfaces-and-errors.html"><span>Next</span>Interfaces and errors</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "title": "A shopping cart",
+  "lesson": "php/04-classes",
+  "kind": "harness",
+  "lang": "php",
+  "edit": [
+    "solution.php"
+  ],
+  "run": [
+    "php",
+    "tests.php"
+  ],
+  "timeout": 30,
+  "hints": [
+    "Item: use constructor promotion (private string $name, ...) and check the values in the constructor body.",
+    "Cart: keep a private array keyed by item name, each entry holding the item and its quantity.",
+    "add: work out the new quantity first, compare it with $item->stock(), and only then store it.",
+    "class Cart implements Countable needs a public function count(): int."
+  ]
+}

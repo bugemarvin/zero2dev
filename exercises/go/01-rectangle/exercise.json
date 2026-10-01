@@ -1,0 +1,29 @@
+{
+  "title": "Rectangle",
+  "lesson": "go/01-basics",
+  "kind": "program",
+  "lang": "go",
+  "cases": [
+    {
+      "name": "3 by 4",
+      "stdin": "3 4\n",
+      "stdout": "area: 12\nperimeter: 14\nratio: 0.75\n"
+    },
+    {
+      "name": "10 by 4",
+      "stdin": "10 4\n",
+      "stdout": "area: 40\nperimeter: 28\nratio: 2.50\n"
+    },
+    {
+      "name": "1 by 3",
+      "stdin": "1\n3\n",
+      "stdout": "area: 3\nperimeter: 8\nratio: 0.33\n"
+    }
+  ],
+  "timeout": 20,
+  "hints": [
+    "fmt.Printf(\"area: %d\\n\", width*height) prints one line.",
+    "width / height with two ints gives a whole number. Convert first: float64(width) / float64(height).",
+    "%.2f prints a float with two decimals."
+  ]
+}

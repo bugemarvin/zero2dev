@@ -6,13 +6,17 @@
 <title>Your editor and the work loop · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="start/07-editor">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -62,12 +66,15 @@ start/04-greet  Greet by name
 <h2 id="when-you-are-stuck">When you are stuck</h2>
 <ol><li>Read the error message again, slowly. Find the line number.</li><li>Make the problem smaller. Test one small piece on its own.</li><li>Print values to see what the program is really doing.</li><li>Ask for the hint.</li><li>Take a break. A surprising number of bugs solve themselves on a walk.</li></ol>
 <p>Next up: <a href="../git/01-first-commit.html">Git</a>, so that none of your work is ever lost.</p>
+<section class="quiz-box" id="quiz" hidden></section>
 
 <nav class="pager"><a class="prev" href="../start/06-shell-scripts.html"><span>Previous</span>Shell scripts</a><a class="next" href="../git/01-first-commit.html"><span>Next</span>Your first commit</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

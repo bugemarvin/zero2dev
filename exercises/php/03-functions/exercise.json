@@ -1,0 +1,19 @@
+{
+  "title": "Functions with types",
+  "lesson": "php/03-functions",
+  "kind": "harness",
+  "lang": "php",
+  "edit": [
+    "solution.php"
+  ],
+  "run": [
+    "php",
+    "tests.php"
+  ],
+  "timeout": 30,
+  "hints": [
+    "grade: check the range first and throw new InvalidArgumentException('score out of range'). Then match (true) { $score >= 90 => 'A', ... }.",
+    "make_counter: keep a variable and capture it by reference: function () use (&$next) { return $next++; }",
+    "apply_discount: round($price * (1 - $percent / 100), 2)."
+  ]
+}

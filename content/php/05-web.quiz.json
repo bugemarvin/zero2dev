@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What happens to a PHP script's variables when the request is finished?",
+  "options": [
+   "They are kept for the next request",
+   "They are gone: every request starts from zero",
+   "They are saved to disk",
+   "They move to the session automatically"
+  ],
+  "answer": 1,
+  "why": "One request, one run. Lasting data goes into a database, file, cache or session."
+ },
+ {
+  "q": "Which function must user input pass through before it is printed into HTML?",
+  "options": [
+   "trim",
+   "htmlspecialchars",
+   "json_encode",
+   "strtolower"
+  ],
+  "answer": 1,
+  "why": "It escapes < > & and quotes, which prevents cross-site scripting."
+ },
+ {
+  "q": "Where is the body of a JSON request read from?",
+  "options": [
+   "$_POST",
+   "$_GET",
+   "php://input",
+   "$_JSON"
+  ],
+  "answer": 2,
+  "why": "$_POST only holds HTML form fields. The raw body is read from php://input."
+ },
+ {
+  "q": "What does json_decode return for text that is not valid JSON?",
+  "options": [
+   "false",
+   "null",
+   "An empty array",
+   "It throws by default"
+  ],
+  "answer": 1,
+  "why": "By default it returns null, so check the result."
+ }
+]

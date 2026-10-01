@@ -1,0 +1,26 @@
+{
+  "title": "A trait and a generic function",
+  "lesson": "rust/06-traits-and-generics",
+  "kind": "harness",
+  "lang": "rust",
+  "edit": [
+    "solution.rs"
+  ],
+  "build": [
+    "rustc",
+    "--edition",
+    "2021",
+    "-o",
+    "{build}/tests",
+    "tests.rs"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "The default method has a body inside the trait: fn receipt_line(&self) -> String { format!(\"{}: {:.2}\", self.label(), self.price()) }",
+    "impl Priced for Product { fn price(&self) -> f64 { self.unit_price * self.quantity as f64 } ... }",
+    "largest: let mut best = *items.first()?; then loop with for &item in items and keep the bigger one."
+  ]
+}

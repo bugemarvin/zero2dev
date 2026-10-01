@@ -1,0 +1,45 @@
+[
+ {
+  "q": "What does 'mobile first' mean?",
+  "options": [
+   "Design only for phones",
+   "Base rules for small screens, min-width queries for larger ones",
+   "Load the mobile site first",
+   "Use max-width queries only"
+  ],
+  "answer": 1,
+  "why": "The small layout is the base, and larger screens add to it."
+ },
+ {
+  "q": "Which rule stops a wide image from overflowing its container?",
+  "options": [
+   "width: 100vw",
+   "max-width: 100%",
+   "overflow: visible",
+   "display: block"
+  ],
+  "answer": 1,
+  "why": "max-width: 100% lets the image shrink and never grow past its own size."
+ },
+ {
+  "q": "Where should a media query go, relative to the rule it overrides?",
+  "options": [
+   "Before it",
+   "After it",
+   "It does not matter"
+  ],
+  "answer": 1,
+  "why": "A media query adds no specificity, so order decides: later wins."
+ },
+ {
+  "q": "How do you choose a breakpoint?",
+  "options": [
+   "From a list of phone models",
+   "Where the layout starts to look wrong",
+   "Always 768px",
+   "At half the screen"
+  ],
+  "answer": 1,
+  "why": "Let the content decide: resize the window until it breaks."
+ }
+]

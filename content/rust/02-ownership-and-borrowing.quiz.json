@@ -1,0 +1,42 @@
+[
+ {
+  "q": "After `let b = a;` where a is a String, what is true?",
+  "options": [
+   "a and b share the text",
+   "a can no longer be used",
+   "b is a copy and a is unchanged",
+   "Both are dropped"
+  ],
+  "answer": 1,
+  "why": "A String moves. The compiler rejects any later use of a."
+ },
+ {
+  "q": "How many mutable references to one value may exist at the same time?",
+  "accept": [
+   "1"
+  ],
+  "why": "One writer, or any number of readers, never both."
+ },
+ {
+  "q": "Which parameter type means 'I only look at your value'?",
+  "options": [
+   "x: T",
+   "x: &T",
+   "x: &mut T",
+   "x: Box<T>"
+  ],
+  "answer": 1,
+  "why": "& borrows without taking ownership and without permission to change."
+ },
+ {
+  "q": "Why can an i32 still be used after `let y = x;`?",
+  "options": [
+   "It was moved back",
+   "Integers implement Copy, so they are copied",
+   "The compiler ignores numbers",
+   "It cannot"
+  ],
+  "answer": 1,
+  "why": "Small stack-only types are Copy: assignment duplicates them."
+ }
+]

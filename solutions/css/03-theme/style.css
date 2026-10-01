@@ -1,0 +1,30 @@
+:root {
+  --brand: #1a73e8;
+  --text: #222222;
+  --page: #ffffff;
+}
+
+body {
+  color: var(--text);
+  background-color: var(--page);
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 2rem;
+  color: var(--brand);
+}
+
+.lead {
+  font-size: 1.25rem;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+.button {
+  background-color: var(--brand);
+  color: var(--page);
+}

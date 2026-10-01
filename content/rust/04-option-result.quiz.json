@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does Rust use where other languages use null?",
+  "options": [
+   "nil",
+   "Option<T>",
+   "undefined",
+   "0"
+  ],
+  "answer": 1,
+  "why": "Option<T> is Some(value) or None, and the compiler makes you handle both."
+ },
+ {
+  "q": "What does the ? operator do on an Err?",
+  "options": [
+   "Panics",
+   "Ignores it",
+   "Returns the error from the current function",
+   "Converts it to None"
+  ],
+  "answer": 2,
+  "why": "? unwraps Ok, and returns early with the Err."
+ },
+ {
+  "q": "What does .unwrap() do on None?",
+  "options": [
+   "Returns 0",
+   "Returns a default",
+   "Panics",
+   "Does not compile"
+  ],
+  "answer": 2,
+  "why": "unwrap panics when there is no value. Use it only where that is acceptable."
+ },
+ {
+  "q": "A file may be missing. Which type should the function return?",
+  "options": [
+   "Option",
+   "Result",
+   "bool",
+   "It should panic"
+  ],
+  "answer": 1,
+  "why": "An operation that can fail returns Result, so the caller learns why it failed."
+ }
+]

@@ -129,8 +129,9 @@ class DockerEnv:
     """One container per check run. Commands go in with `docker exec`."""
     kind = "docker"
 
-    def __init__(self, image, exdir, outdir, network=False, writable=False):
+    def __init__(self, image, exdir, outdir, network=False, writable=False, cache=None):
         ensure_image(image)
+        self.cache = cache          # (host folder, path in the container): build caches that survive between runs
         self.image = image
         self.exdir = exdir
         self.outdir = outdir
@@ -147,6 +148,8 @@ class DockerEnv:
                "--cap-add", "SYS_PTRACE",     # LeakSanitizer needs it
                "-v", f"{self.exdir}:{EX_MOUNT}" + ("" if self.writable else ":ro"),
                "-v", f"{self.outdir}:{OUT_MOUNT}", "-w", EX_MOUNT]
+        if self.cache:
+            cmd += ["-v", f"{self.cache[0]}:{self.cache[1]}"]
         if not self.network:
             cmd += ["--network", "none"]
         cmd += [self.image, "sleep", "3600"]
@@ -177,7 +180,16 @@ class DockerEnv:
             self.name = None
 
 
-def open_env(name, needs, image, stack, exdir, outdir, network=False, writable=False):
+def cache_mount(lang, path):
+    """A folder under the work root that holds a language's build cache for its containers, or None."""
+    if not path:
+        return None
+    host = core.WORK_ROOT / ".cache" / lang
+    host.mkdir(parents=True, exist_ok=True)
+    return (str(host), path)
+
+
+def open_env(name, needs, image, stack, exdir, outdir, network=False, writable=False, cache=None):
     if choose(name, needs, image, stack) == "native":
         return NativeEnv(exdir, outdir)
-    return DockerEnv(image, exdir, outdir, network=network, writable=writable)
+    return DockerEnv(image, exdir, outdir, network=network, writable=writable, cache=cache)

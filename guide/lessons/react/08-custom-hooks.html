@@ -6,13 +6,17 @@
 <title>Custom hooks · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="react/08-custom-hooks">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -120,6 +124,7 @@ export function useWindowWidth() {
 <p>Do not extract one just to make a component shorter. A hook used once, with a vague name, only moves the complexity to another file.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A name that does not start with <code>use</code>.</strong> The linter cannot check the rules of hooks.</li><li><strong>Expecting two components to share state</strong> through a hook. Each call has its own.</li><li><strong>Calling a hook inside a condition or loop.</strong></li><li><strong>Returning new functions that callers put in dependency arrays</strong>, causing effects to re-run every render.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="react/08-hooks">
@@ -136,7 +141,9 @@ export function useWindowWidth() {
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

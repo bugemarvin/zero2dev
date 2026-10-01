@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does 'match must be exhaustive' mean?",
+  "options": [
+   "It must be fast",
+   "Every possible case must be handled",
+   "It needs a default arm",
+   "It runs every arm"
+  ],
+  "answer": 1,
+  "why": "If a variant is not covered, the code does not compile."
+ },
+ {
+  "q": "Which first parameter lets a method change its struct?",
+  "options": [
+   "self",
+   "&self",
+   "&mut self",
+   "mut"
+  ],
+  "answer": 2,
+  "why": "&mut self borrows the value mutably."
+ },
+ {
+  "q": "What does #[derive(Debug)] give a type?",
+  "options": [
+   "A debugger",
+   "Printing with {:?}",
+   "Faster code",
+   "Tests"
+  ],
+  "answer": 1,
+  "why": "Debug is the trait behind the {:?} format."
+ },
+ {
+  "q": "What is special about Rust enums compared with C enums?",
+  "options": [
+   "They are faster",
+   "Each variant can carry its own data",
+   "They are strings",
+   "They cannot be matched"
+  ],
+  "answer": 1,
+  "why": "Variants can hold values, which makes enums a tool for modelling states."
+ }
+]

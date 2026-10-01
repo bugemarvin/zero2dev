@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modules, testing and an HTTP API · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/07-modules-testing-http">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 7 of 7</p>
+<h1>Modules, testing and an HTTP API</h1>
+<p class="lede">Real projects: packages, dependencies, tests, and a web server from the standard library.</p>
+<h2 id="modules">Modules</h2>
+<p>A Go project is a <strong>module</strong>: a folder with a <code>go.mod</code> file that names it and lists its dependencies.</p>
+<pre><code class="lang-console">$ mkdir todo &amp;&amp; cd todo
+$ go mod init example.com/todo
+$ go get github.com/google/uuid       # add a dependency
+$ go mod tidy                         # add what is missing, remove what is unused</code></pre>
+<p><code>go.mod</code> and <code>go.sum</code> go into Git. <code>go.sum</code> holds checksums, so everyone builds exactly the same code.</p>
+<h2 id="packages">Packages</h2>
+<p>Every folder is one package. Files in the same folder share everything, with no imports between them.</p>
+<pre><code class="lang-text">todo/
+  go.mod
+  main.go              package main
+  store/
+    store.go           package store</code></pre>
+<pre><code class="lang-go">// main.go
+import "example.com/todo/store"
+
+s := store.New()</code></pre>
+<p>Only capitalised names of <code>store</code> can be used from <code>main</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>go run .</code></td><td>builds and runs the package in this folder</td></tr><tr><td><code>go build ./...</code></td><td>builds everything</td></tr><tr><td><code>go test ./...</code></td><td>runs every test</td></tr><tr><td><code>go vet ./...</code></td><td>reports suspicious code</td></tr><tr><td><code>gofmt -l .</code></td><td>lists files that are not formatted</td></tr></tbody></table></div>
+<h2 id="testing">Testing</h2>
+<p>Tests live next to the code, in files ending in <code>_test.go</code>, and need no library:</p>
+<pre><code class="lang-go">// calc_test.go
+package calc
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+	got := Add(2, 3)
+	if got != 5 {
+		t.Errorf("Add(2, 3) = %d, want 5", got)
+	}
+}</code></pre>
+<p>The Go habit is the <strong>table-driven test</strong>: one loop over many cases.</p>
+<pre><code class="lang-go">func TestGrade(t *testing.T) {
+	cases := []struct {
+		score int
+		want  string
+	}{
+		{95, "A"},
+		{80, "B"},
+		{10, "F"},
+	}
+	for _, c := range cases {
+		if got := Grade(c.score); got != c.want {
+			t.Errorf("Grade(%d) = %q, want %q", c.score, got, c.want)
+		}
+	}
+}</code></pre>
+<pre><code class="lang-console">$ go test ./...
+$ go test -run TestGrade -v
+$ go test -race -cover ./...</code></pre>
+<h2 id="an-http-server">An HTTP server</h2>
+<p>The standard library has a production-quality web server. No framework is needed.</p>
+<pre><code class="lang-go">package main
+
+import (
+	"encoding/json"
+	"net/http"
+	"os"
+)
+
+func main() {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
+
+	mux.HandleFunc("GET /users/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		writeJSON(w, http.StatusOK, map[string]string{"id": id})
+	})
+
+	addr := os.Getenv("HOST") + ":" + os.Getenv("PORT")
+	http.ListenAndServe(addr, mux)
+}
+
+func writeJSON(w http.ResponseWriter, status int, data any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(data)
+}</code></pre>
+<ul><li>A pattern such as <code>"GET /users/{id}"</code> matches a method and a path. <code>r.PathValue("id")</code> reads the part in braces. This needs Go 1.22 or later.</li><li>Set headers first, then call <code>WriteHeader</code>, then write the body. The order matters.</li><li><strong>Every request runs in its own goroutine.</strong> Data shared between handlers needs a mutex.</li></ul>
+<h2 id="json">JSON</h2>
+<p>Struct tags say how fields are named in JSON:</p>
+<pre><code class="lang-go">type Todo struct {
+	ID    int    `json:"id"`
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
+}</code></pre>
+<p>Only capitalised fields are encoded. Reading a request body:</p>
+<pre><code class="lang-go">var input struct {
+	Title string `json:"title"`
+}
+if err := json.NewDecoder(r.Body).Decode(&amp;input); err != nil {
+	writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON"})
+	return
+}</code></pre>
+<p>An empty slice that is <code>nil</code> is encoded as <code>null</code>. To get <code>[]</code>, create it with <code>[]Todo{}</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Writing the body before the status.</strong> The first write sends 200, and a later <code>WriteHeader</code> is ignored.</li><li><strong>Forgetting <code>return</code> after sending an error response</strong>, so the handler carries on.</li><li><strong>A shared map with no mutex</strong> in handlers. Concurrent map writes crash the program.</li><li><strong>Lower-case struct fields</strong>, which are silently left out of the JSON.</li><li><strong>Listening on a fixed port.</strong> Read it from the environment.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/07-notes-api">
+<h3>A notes API with net/http <span class="ex-id">go/07-notes-api</span></h3>
+<p>Finish the server in <code>main.go</code>. It keeps notes in memory.</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Answer</th></tr></thead><tbody><tr><td><code>GET /notes</code></td><td>200 and the list of notes, <code>[]</code> when there are none</td></tr><tr><td><code>POST /notes</code> with <code>{"text": "..."}</code></td><td>201 and the new note: <code>{"id": 1, "text": "..."}</code>. Ids start at 1 and go up.</td></tr><tr><td><code>POST /notes</code> with an empty or missing text</td><td>400 and <code>{"error": "text is required"}</code></td></tr><tr><td><code>POST /notes</code> with a body that is not JSON</td><td>400 and <code>{"error": "invalid JSON"}</code></td></tr><tr><td><code>GET /notes/{id}</code></td><td>200 and the note, or 404 and <code>{"error": "not found"}</code></td></tr><tr><td><code>DELETE /notes/{id}</code></td><td>204 with no body, or 404 and <code>{"error": "not found"}</code></td></tr></tbody></table></div>
+<p>The health route and the <code>writeJSON</code> helper are given. Handlers run at the same time, so protect the notes with the mutex.</p>
+<p>The first run compiles the web server, which takes a while. Later runs are faster.</p>
+<p class="ex-files">Files: <code>exercises/go/07-notes-api/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/07-notes-api</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/06-goroutines-and-channels.html"><span>Previous</span>Goroutines and channels</a><a class="next" href="../rust/01-basics.html"><span>Next</span>Rust basics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

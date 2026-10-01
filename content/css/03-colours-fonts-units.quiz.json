@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which unit follows the reader's default text size setting?",
+  "options": [
+   "px",
+   "rem",
+   "pt",
+   "cm"
+  ],
+  "answer": 1,
+  "why": "rem is relative to the root font size, which the reader can change."
+ },
+ {
+  "q": "With default settings, how many pixels is 2rem?",
+  "accept": [
+   "32"
+  ],
+  "why": "The default root font size is 16px."
+ },
+ {
+  "q": "How do you read the custom property --brand?",
+  "options": [
+   "$brand",
+   "var(--brand)",
+   "@brand",
+   "--brand()"
+  ],
+  "answer": 1,
+  "why": "var() reads a custom property."
+ },
+ {
+  "q": "Why end font-family with sans-serif?",
+  "options": [
+   "It is required syntax",
+   "It is the fallback when the named fonts are missing",
+   "It loads faster",
+   "It makes text bold"
+  ],
+  "answer": 1,
+  "why": "The browser walks the list and uses the first font it has. The generic family always exists."
+ }
+]

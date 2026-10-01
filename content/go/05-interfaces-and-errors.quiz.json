@@ -1,0 +1,46 @@
+[
+ {
+  "q": "How does a type declare that it implements an interface?",
+  "options": [
+   "With the implements keyword",
+   "It does not: having the methods is enough",
+   "By embedding the interface",
+   "With an annotation"
+  ],
+  "answer": 1,
+  "why": "Interfaces are satisfied implicitly."
+ },
+ {
+  "q": "Which verb wraps an error so that errors.Is can still find it?",
+  "options": [
+   "%v",
+   "%s",
+   "%w",
+   "%e"
+  ],
+  "answer": 2,
+  "why": "fmt.Errorf with %w keeps the original error inside the new one."
+ },
+ {
+  "q": "How should you check whether an error is ErrNotFound?",
+  "options": [
+   "err.Error() == \"not found\"",
+   "errors.Is(err, ErrNotFound)",
+   "err == nil",
+   "strings.Contains(err.Error(), \"not\")"
+  ],
+  "answer": 1,
+  "why": "errors.Is looks through wrapped errors and does not depend on the message."
+ },
+ {
+  "q": "When is panic appropriate?",
+  "options": [
+   "A file is missing",
+   "The user typed bad input",
+   "A bug: a state that should be impossible",
+   "A network timeout"
+  ],
+  "answer": 2,
+  "why": "Expected failures are errors. panic is for programming mistakes."
+ }
+]

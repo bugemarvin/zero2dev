@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which type is text you own and can grow?",
+  "options": [
+   "&str",
+   "String",
+   "char",
+   "str"
+  ],
+  "answer": 1,
+  "why": "String owns its text. &str borrows text owned elsewhere."
+ },
+ {
+  "q": "What does v.get(10) return on a vector of 3 elements?",
+  "options": [
+   "A panic",
+   "0",
+   "None",
+   "The last element"
+  ],
+  "answer": 2,
+  "why": "get returns an Option. v[10] would panic."
+ },
+ {
+  "q": "How many characters does \"héllo\".len() report?",
+  "accept": [
+   "6"
+  ],
+  "why": "len counts bytes, and é takes two bytes in UTF-8."
+ },
+ {
+  "q": "Which map keeps its keys in sorted order?",
+  "options": [
+   "HashMap",
+   "BTreeMap",
+   "Vec",
+   "HashSet"
+  ],
+  "answer": 1,
+  "why": "BTreeMap is ordered by key. HashMap has no order."
+ }
+]

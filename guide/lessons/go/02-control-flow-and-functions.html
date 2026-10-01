@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control flow and functions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/02-control-flow-and-functions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 2 of 7</p>
+<h1>Control flow and functions</h1>
+<p class="lede">if, for, switch, and functions that return more than one value.</p>
+<h2 id="if">if</h2>
+<pre><code class="lang-go">if age &gt;= 18 {
+	fmt.Println("adult")
+} else if age &gt;= 13 {
+	fmt.Println("teenager")
+} else {
+	fmt.Println("child")
+}</code></pre>
+<p>No brackets around the condition, and the braces are always required. The condition must be a <code>bool</code>: a number is not accepted as true or false.</p>
+<p>An <code>if</code> can start with a short statement. Its variable exists only inside the <code>if</code>:</p>
+<pre><code class="lang-go">if n := len(name); n &gt; 20 {
+	fmt.Println("too long by", n-20)
+}</code></pre>
+<h2 id="for-the-only-loop">for: the only loop</h2>
+<pre><code class="lang-go">for i := 0; i &lt; 5; i++ {       // the classic form
+	fmt.Println(i)
+}
+
+for count &lt; 10 {               // like "while" in other languages
+	count *= 2
+}
+
+for {                          // forever, until break or return
+	break
+}</code></pre>
+<p><code>range</code> walks over a collection:</p>
+<pre><code class="lang-go">for index, value := range []string{"a", "b", "c"} {
+	fmt.Println(index, value)
+}
+for i := range 3 {             // 0, 1, 2 (Go 1.22 and later)
+	fmt.Println(i)
+}</code></pre>
+<p>Use <code>_</code> for a part you do not need: <code>for _, value := range items</code>.</p>
+<h2 id="switch">switch</h2>
+<pre><code class="lang-go">switch day {
+case "sat", "sun":
+	fmt.Println("weekend")
+case "fri":
+	fmt.Println("almost")
+default:
+	fmt.Println("weekday")
+}</code></pre>
+<p>Only the matching case runs: there is no fall-through and no <code>break</code> to forget. A <code>switch</code> with no value is a tidy chain of conditions:</p>
+<pre><code class="lang-go">switch {
+case score &gt;= 90:
+	grade = "A"
+case score &gt;= 80:
+	grade = "B"
+default:
+	grade = "C"
+}</code></pre>
+<h2 id="functions">Functions</h2>
+<pre><code class="lang-go">func add(a int, b int) int {
+	return a + b
+}
+
+func greet(name string) {      // returns nothing
+	fmt.Println("Hello,", name)
+}</code></pre>
+<p>The type comes <strong>after</strong> the name. Parameters of the same type can share it: <code>func add(a, b int) int</code>.</p>
+<h2 id="several-return-values">Several return values</h2>
+<p>A function can return more than one value. This is how Go reports errors:</p>
+<pre><code class="lang-go">func divide(a, b float64) (float64, error) {
+	if b == 0 {
+		return 0, errors.New("division by zero")
+	}
+	return a / b, nil
+}
+
+result, err := divide(10, 2)
+if err != nil {
+	fmt.Println("error:", err)
+	return
+}
+fmt.Println(result)</code></pre>
+<p><code>nil</code> means "no error". You will write <code>if err != nil</code> many times a day in Go. It is the language's deliberate choice: errors are ordinary values, handled where they happen.</p>
+<h2 id="functions-are-values">Functions are values</h2>
+<pre><code class="lang-go">double := func(n int) int { return n * 2 }
+fmt.Println(double(21))
+
+func apply(numbers []int, f func(int) int) []int {
+	result := []int{}
+	for _, n := range numbers {
+		result = append(result, f(n))
+	}
+	return result
+}</code></pre>
+<h2 id="defer">defer</h2>
+<p><code>defer</code> runs a call when the surrounding function returns, whatever path it takes:</p>
+<pre><code class="lang-go">file, err := os.Open("data.txt")
+if err != nil {
+	return err
+}
+defer file.Close()       // runs when this function ends</code></pre>
+<p>Put the clean-up right next to the thing it cleans up, and it cannot be forgotten.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Ignoring an error</strong>: <code>result, _ := divide(a, b)</code>. The <code>_</code> hides a failure you will debug later.</li><li><strong>Brackets around conditions</strong>, a habit from other languages. <code>gofmt</code> removes them.</li><li><strong>Expecting <code>switch</code> to fall through</strong> to the next case.</li><li><strong>Declaring <code>err</code> again with <code>:=</code></strong> in an inner block, which hides the outer one.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/02-functions">
+<h3>Functions and loops <span class="ex-id">go/02-functions</span></h3>
+<p>Write four functions in <code>solution.go</code>.</p>
+<ul><li><code>Grade(score int) string</code> returns <code>"A"</code> for 90 and above, <code>"B"</code> for 80 to 89, <code>"C"</code> for 70 to 79, and <code>"F"</code> below 70.</li><li><code>SumTo(n int) int</code> returns 1 + 2 + ... + n. For <code>n</code> of 0 or less it returns 0.</li><li><code>IsPrime(n int) bool</code> says whether <code>n</code> is a prime number. Numbers below 2 are not prime.</li><li><code>Divide(a, b int) (int, error)</code> returns <code>a / b</code>. When <code>b</code> is 0 it returns <code>0</code> and an error whose message is <code>division by zero</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/go/02-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/02-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/01-basics.html"><span>Previous</span>Go basics</a><a class="next" href="../go/03-slices-and-maps.html"><span>Next</span>Slices, maps and strings</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

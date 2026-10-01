@@ -1,0 +1,45 @@
+[
+ {
+  "q": "Iterators are lazy. What does that mean?",
+  "options": [
+   "They are slow",
+   "Nothing runs until a consumer asks for values",
+   "They skip items",
+   "They run in the background"
+  ],
+  "answer": 1,
+  "why": "Adapters such as map only describe the work. collect, sum or a for loop make it happen."
+ },
+ {
+  "q": "What does this produce?",
+  "options": [
+   "[4, 16]",
+   "[2, 4]",
+   "[1, 4, 9, 16]",
+   "20"
+  ],
+  "answer": 0,
+  "why": "filter keeps 2 and 4, map squares them.",
+  "code": "vec![1, 2, 3, 4].iter().filter(|n| *n % 2 == 0).map(|n| n * n).collect::<Vec<_>>()"
+ },
+ {
+  "q": "Which attribute marks a test function?",
+  "options": [
+   "#[check]",
+   "#[test]",
+   "#[cfg]",
+   "#[assert]"
+  ],
+  "answer": 1,
+  "why": "cargo test runs every function marked #[test]."
+ },
+ {
+  "q": "After `for x in v.into_iter()`, can v still be used?",
+  "options": [
+   "Yes",
+   "No: into_iter consumes the collection"
+  ],
+  "answer": 1,
+  "why": "into_iter takes ownership of the items. iter() only borrows."
+ }
+]

@@ -6,13 +6,17 @@
 <title>Tries · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="dsa/15-tries">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -114,6 +118,7 @@ class Trie:
 <ul><li>autocomplete and search suggestions</li><li>spell checkers</li><li>IP routing tables, matching the longest prefix of an address</li><li>word games that explore a board letter by letter, abandoning a path as soon as no word starts that way</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>No end-of-word marker.</strong> Every prefix then looks like a stored word.</li><li><strong>Confusing "is a word" with "is a prefix".</strong> They are two different questions.</li><li><strong>Double counting</strong> when the same word is inserted again.</li><li><strong>Using a trie for exact lookups only.</strong> A hash set is simpler and uses less memory.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="dsa/22-prefix-count">
@@ -135,7 +140,9 @@ car ca d x             1
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions and types · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="php/03-functions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">PHP · lesson 3 of 6</p>
+<h1>Functions and types</h1>
+<p class="lede">Typed parameters, default values, closures and match.</p>
+<h2 id="functions">Functions</h2>
+<pre><code class="lang-php">function greet(string $name, string $greeting = "Hello"): string
+{
+    return "$greeting, $name!";
+}
+
+echo greet("Sam");                  // Hello, Sam!
+echo greet("Sam", "Welcome");       // Welcome, Sam!
+echo greet(greeting: "Hi", name: "Ada");    // named arguments, in any order</code></pre>
+<ul><li>A type in front of each parameter, and a return type after the colon.</li><li>A parameter with a default value can be left out.</li><li>A function that returns nothing has the return type <code>void</code>.</li></ul>
+<p>Write the types. They document the function and, with <code>strict_types</code>, they are checked.</p>
+<h2 id="types-you-can-write">Types you can write</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Accepts</th></tr></thead><tbody><tr><td><code>int</code>, <code>float</code>, <code>string</code>, <code>bool</code>, <code>array</code></td><td>that type</td></tr><tr><td><code>?string</code></td><td>a string or <code>null</code></td></tr><tr><td><code>int|string</code></td><td>either: a union type</td></tr><tr><td><code>mixed</code></td><td>anything</td></tr><tr><td><code>callable</code></td><td>a function</td></tr><tr><td>a class name</td><td>an object of that class</td></tr></tbody></table></div>
+<h2 id="null">null</h2>
+<pre><code class="lang-php">function find_user(int $id): ?array
+{
+    return $users[$id] ?? null;
+}
+
+$name = $user["name"] ?? "guest";       // the fallback for missing or null
+$city = $user?-&gt;address?-&gt;city;         // ?-&gt; stops and gives null if the left side is null</code></pre>
+<h2 id="scope">Scope</h2>
+<p>A function sees only its parameters and its own variables. It does <strong>not</strong> see variables from outside:</p>
+<pre><code class="lang-php">$rate = 0.16;
+
+function tax(float $amount): float
+{
+    return $amount * $rate;     // error: $rate is undefined here
+}</code></pre>
+<p>Pass what the function needs as a parameter. That is a feature: a function that depends only on its arguments is easy to test.</p>
+<h2 id="closures">Closures</h2>
+<p>A function without a name, stored in a variable or passed to another function:</p>
+<pre><code class="lang-php">$double = function (int $n): int {
+    return $n * 2;
+};
+
+$rate = 0.16;
+$withTax = function (float $amount) use ($rate): float {    // use brings in an outside variable
+    return $amount * (1 + $rate);
+};</code></pre>
+<p>The short form, an <strong>arrow function</strong>, sees outside variables automatically and holds one expression:</p>
+<pre><code class="lang-php">$withTax = fn(float $amount): float =&gt; $amount * (1 + $rate);
+$squares = array_map(fn($n) =&gt; $n * $n, [1, 2, 3]);</code></pre>
+<h2 id="match">match</h2>
+<p><code>match</code> returns a value, compares with <code>===</code>, and throws an error when nothing matches:</p>
+<pre><code class="lang-php">$label = match (true) {
+    $score &gt;= 90 =&gt; "A",
+    $score &gt;= 80 =&gt; "B",
+    default =&gt; "C",
+};
+
+$days = match ($month) {
+    "feb" =&gt; 28,
+    "apr", "jun", "sep", "nov" =&gt; 30,
+    default =&gt; 31,
+};</code></pre>
+<p>Prefer it to <code>switch</code>, which compares loosely and falls through to the next case when you forget <code>break</code>.</p>
+<h2 id="any-number-of-arguments">Any number of arguments</h2>
+<pre><code class="lang-php">function total(float ...$numbers): float
+{
+    return array_sum($numbers);
+}
+
+total(1, 2, 3);
+total(...[4, 5]);       // spread an array into arguments</code></pre>
+<h2 id="exceptions">Exceptions</h2>
+<p>A function that cannot do its job throws:</p>
+<pre><code class="lang-php">function divide(int $a, int $b): float
+{
+    if ($b === 0) {
+        throw new InvalidArgumentException("division by zero");
+    }
+    return $a / $b;
+}
+
+try {
+    echo divide(1, 0);
+} catch (InvalidArgumentException $e) {
+    echo "error: ", $e-&gt;getMessage(), "\n";
+}</code></pre>
+<h2 id="several-files">Several files</h2>
+<pre><code class="lang-php">require __DIR__ . '/helpers.php';</code></pre>
+<p><code>__DIR__</code> is the folder of the current file, which makes the path work wherever the program is started from. Larger projects use Composer's autoloader and never write <code>require</code> for classes.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting a function to see an outside variable.</strong></li><li><strong>No types</strong>, and bugs that types would have caught.</li><li><strong>Returning different types</strong> from the same function: an array on success and <code>false</code> on failure. Return <code>null</code> or throw.</li><li><strong><code>switch</code> without <code>break</code>.</strong> Use <code>match</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="php/03-functions">
+<h3>Functions with types <span class="ex-id">php/03-functions</span></h3>
+<p>Write five functions in <code>solution.php</code>. Give every parameter and return value a type.</p>
+<ul><li><code>grade(int $score): string</code> returns <code>"A"</code> from 90, <code>"B"</code> from 80, <code>"C"</code> from 70 and <code>"F"</code> below. A score outside 0 to 100 throws an <code>InvalidArgumentException</code> with the message <code>score out of range</code>.</li><li><code>initials(string $fullName): string</code> returns the first letter of each word, in upper case. <code>"ada lovelace"</code> gives <code>"AL"</code>.</li><li><code>apply_discount(float $price, float $percent = 10.0): float</code> returns the price reduced by the percentage, rounded to 2 decimals.</li><li><code>make_counter(int $start = 0): callable</code> returns a closure. Each call of the closure returns the next number: <code>$start</code>, then <code>$start + 1</code>, and so on. Each counter is independent.</li><li><code>sum_all(int ...$numbers): int</code> returns the sum of all its arguments, and 0 with none.</li></ul>
+<p class="ex-files">Files: <code>exercises/php/03-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py php/03-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../php/02-arrays.html"><span>Previous</span>Arrays</a><a class="next" href="../php/04-classes.html"><span>Next</span>Classes and objects</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

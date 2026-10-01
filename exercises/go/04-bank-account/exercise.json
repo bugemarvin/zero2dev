@@ -1,0 +1,26 @@
+{
+  "title": "A bank account type",
+  "lesson": "go/04-structs-and-methods",
+  "kind": "harness",
+  "lang": "go",
+  "edit": [
+    "solution.go"
+  ],
+  "build": [
+    "go",
+    "build",
+    "-o",
+    "{build}/tests",
+    "solution.go",
+    "tests.go"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "NewAccount: return &Account{owner: owner}. The balance starts at its zero value.",
+    "Check the amount before changing anything: if amount <= 0 { return errors.New(\"amount must be positive\") }",
+    "Transfer: if err := a.Withdraw(amount); err != nil { return err } and then return to.Deposit(amount)."
+  ]
+}

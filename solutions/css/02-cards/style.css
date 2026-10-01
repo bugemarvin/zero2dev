@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: navy;
+  color: white;
+}

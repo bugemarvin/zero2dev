@@ -6,13 +6,17 @@
 <title>Designing tables · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="sql/07-schema-and-constraints">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -77,6 +81,7 @@ DROP TABLE loans;</code></pre>
 <div class="table-wrap"><table><thead><tr><th>Option</th><th>Effect when the parent row is deleted</th></tr></thead><tbody><tr><td>default</td><td>the delete is refused</td></tr><tr><td><code>ON DELETE CASCADE</code></td><td>the child rows are deleted too</td></tr><tr><td><code>ON DELETE SET NULL</code></td><td>the foreign key in the children becomes NULL</td></tr></tbody></table></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>No primary key.</strong></li><li><strong>Everything nullable.</strong> Add <code>NOT NULL</code> unless "unknown" really is a valid state.</li><li><strong>Floating point for money.</strong></li><li><strong>Lists inside a column.</strong></li><li><strong>Validating only in application code.</strong> Put the rule in the schema too.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="sql/10-create-tables">
@@ -95,7 +100,9 @@ DROP TABLE loans;</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

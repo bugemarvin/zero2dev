@@ -1,0 +1,44 @@
+[
+ {
+  "q": "Which keyword makes a property reachable only inside its class?",
+  "options": [
+   "public",
+   "protected",
+   "private",
+   "static"
+  ],
+  "answer": 2,
+  "why": "private limits access to the class itself."
+ },
+ {
+  "q": "After `$b = $a;` where $a is an object, and a change through $b, is $a affected?",
+  "options": [
+   "Yes: both name the same object",
+   "No: objects are copied"
+  ],
+  "answer": 0,
+  "why": "Objects are handles. Use clone for a copy."
+ },
+ {
+  "q": "What must a class do to `implement` an interface?",
+  "options": [
+   "Extend it",
+   "Have all the methods the interface lists",
+   "Be abstract",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "The interface is a contract: every listed method must exist."
+ },
+ {
+  "q": "Which folder created by Composer should NOT be committed to Git?",
+  "options": [
+   "src",
+   "vendor",
+   "tests",
+   "public"
+  ],
+  "answer": 1,
+  "why": "vendor/ is rebuilt from composer.lock with composer install."
+ }
+]

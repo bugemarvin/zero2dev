@@ -6,13 +6,17 @@
 <title>Tables and SELECT · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="sql/01-select">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,32 @@
 <p class="crumb">SQL and PostgreSQL · lesson 1 of 10</p>
 <h1>Tables and SELECT</h1>
 <p class="lede">What a relational database is, and how to ask it for exactly the rows and columns you want.</p>
+<details class="install" id="install" data-track="sql">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack python,postgres</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks python,postgres</code></pre>
+<h4>Python 3: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y python3 python3-pip python3-venv</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install python</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ python3 --version</code></pre>
+<h4>PostgreSQL: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y postgresql
+$ sudo service postgresql start
+$ sudo -u postgres createuser --createdb "$USER"
+$ createdb "$USER"</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install postgresql@16
+$ brew services start postgresql@16</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ psql --version &amp;&amp; pg_isready</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs PostgreSQL in the image <code>postgres:16-alpine</code> (one download).</p>
+<p><strong>PostgreSQL</strong> is started for you: the app uses a server already running on this machine, or starts the Docker image <code>postgres:16-alpine</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="tables">Tables</h2>
 <p>A relational database stores data in <strong>tables</strong>. A table has named <strong>columns</strong>, each with a type, and any number of <strong>rows</strong>. It looks like a spreadsheet, with stricter rules.</p>
 <p>The exercises in this track use a small bookshop. Here is part of its <code>books</code> table:</p>
@@ -70,6 +100,7 @@ sqlite&gt; SELECT * FROM books;</code></pre>
 <p>With PostgreSQL the shell is <code>psql</code>, and <code>\i seed.sql</code> runs a file.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Double quotes around text.</strong> Use <code>'fiction'</code>, not <code>"fiction"</code>.</li><li><strong><code>= NULL</code>.</strong> It is always <code>IS NULL</code>.</li><li><strong><code>==</code></strong> in place of <code>=</code>.</li><li><strong>Forgetting that text comparison is case-sensitive.</strong> <code>'Fiction'</code> does not match <code>'fiction'</code>.</li><li><strong>Mixing <code>AND</code> and <code>OR</code> with no brackets.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="sql/01-select-where">
@@ -87,7 +118,9 @@ sqlite&gt; SELECT * FROM books;</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

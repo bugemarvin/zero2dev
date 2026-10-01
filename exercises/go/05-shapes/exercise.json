@@ -1,0 +1,26 @@
+{
+  "title": "Shapes and a parser with errors",
+  "lesson": "go/05-interfaces-and-errors",
+  "kind": "harness",
+  "lang": "go",
+  "edit": [
+    "solution.go"
+  ],
+  "build": [
+    "go",
+    "build",
+    "-o",
+    "{build}/tests",
+    "solution.go",
+    "tests.go"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "func (r Rect) Area() float64 { return r.W * r.H } and func (r Rect) Name() string { return \"rect\" }. The same two for Circle.",
+    "Largest: return nil, ErrNoShapes for an empty slice. Otherwise keep the best one while looping.",
+    "ParseShape: parts := strings.Fields(text), convert parts[1:] with strconv.ParseFloat(part, 64), and return fmt.Errorf(\"%w: %q\", ErrBadShape, text) for anything unexpected."
+  ]
+}

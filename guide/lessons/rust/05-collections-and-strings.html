@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vectors, hash maps and strings · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/05-collections-and-strings">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 5 of 7</p>
+<h1>Vectors, hash maps and strings</h1>
+<p class="lede">The collections of the standard library, and why Rust has two string types.</p>
+<h2 id="vec">Vec</h2>
+<p>A <code>Vec&lt;T&gt;</code> is a growable list:</p>
+<pre><code class="lang-rust">let mut numbers: Vec&lt;i32&gt; = Vec::new();
+numbers.push(10);
+numbers.push(20);
+
+let primes = vec![2, 3, 5, 7];          // the vec! macro
+
+println!("{}", primes[0]);              // panics if the index does not exist
+println!("{:?}", primes.get(10));       // None: the safe way
+println!("{}", primes.len());</code></pre>
+<p>Looping:</p>
+<pre><code class="lang-rust">for n in &amp;primes {              // borrow each element
+    println!("{}", n);
+}
+for n in &amp;mut numbers {         // change each element
+    *n += 1;
+}
+for n in primes {               // takes the vector: it is gone afterwards
+}</code></pre>
+<p>Useful methods: <code>pop()</code>, <code>contains(&amp;x)</code>, <code>is_empty()</code>, <code>sort()</code>, <code>reverse()</code>, <code>iter().sum()</code>, <code>iter().max()</code>.</p>
+<h2 id="string-and-str">String and &amp;str</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>What it is</th><th>Like</th></tr></thead><tbody><tr><td><code>String</code></td><td>text you <strong>own</strong>, on the heap, growable</td><td><code>Vec&lt;u8&gt;</code></td></tr><tr><td><code>&amp;str</code></td><td>a <strong>borrowed</strong> view of text someone else owns</td><td><code>&amp;[u8]</code></td></tr></tbody></table></div>
+<p>A literal such as <code>"hello"</code> is a <code>&amp;str</code>, stored in the program itself.</p>
+<pre><code class="lang-rust">let mut s = String::from("hello");
+s.push_str(", world");
+s.push('!');
+
+let view: &amp;str = &amp;s;                    // borrow a String as &amp;str
+let owned: String = view.to_string();   // make an owned copy
+
+let joined = format!("{}-{}", "a", "b");</code></pre>
+<p>Take <code>&amp;str</code> as a parameter, return <code>String</code> when you create new text.</p>
+<p>Rust strings are UTF-8, and a character can take one to four bytes. So there is no <code>s[0]</code>:</p>
+<pre><code class="lang-rust">let word = "héllo";
+println!("{}", word.len());                 // 6 bytes
+println!("{}", word.chars().count());       // 5 characters
+let first = word.chars().next();            // Some('h')</code></pre>
+<p>Handy methods: <code>trim()</code>, <code>to_lowercase()</code>, <code>to_uppercase()</code>, <code>contains("x")</code>, <code>starts_with("x")</code>, <code>replace("a", "b")</code>, <code>split(',')</code>, <code>split_whitespace()</code>, <code>lines()</code>, <code>parse::&lt;i32&gt;()</code>.</p>
+<h2 id="hashmap">HashMap</h2>
+<pre><code class="lang-rust">use std::collections::HashMap;
+
+let mut ages: HashMap&lt;String, u32&gt; = HashMap::new();
+ages.insert(String::from("sam"), 30);
+
+match ages.get("sam") {             // get returns an Option
+    Some(age) =&gt; println!("{}", age),
+    None =&gt; println!("unknown"),
+}
+
+ages.remove("sam");</code></pre>
+<p>The <strong>entry API</strong> handles "update it, or insert it if missing" in one step:</p>
+<pre><code class="lang-rust">let mut counts: HashMap&lt;String, u32&gt; = HashMap::new();
+for word in text.split_whitespace() {
+    *counts.entry(word.to_string()).or_insert(0) += 1;
+}</code></pre>
+<p>A <code>HashMap</code> has no order. For keys in sorted order use a <code>BTreeMap</code>, which has the same methods:</p>
+<pre><code class="lang-rust">use std::collections::BTreeMap;
+
+let mut counts: BTreeMap&lt;String, u32&gt; = BTreeMap::new();
+// ... fill it the same way ...
+for (word, count) in &amp;counts {
+    println!("{} {}", word, count);     // sorted by key
+}</code></pre>
+<p>Or collect the entries into a vector and sort it:</p>
+<pre><code class="lang-rust">let mut entries: Vec&lt;(&amp;String, &amp;u32)&gt; = counts.iter().collect();
+entries.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));     // by count, highest first, then by word</code></pre>
+<h2 id="hashset">HashSet</h2>
+<p>A set of unique values: <code>insert</code>, <code>contains</code>, <code>len</code>.</p>
+<pre><code class="lang-rust">use std::collections::HashSet;
+
+let unique: HashSet&lt;&amp;str&gt; = "a b a c b".split_whitespace().collect();
+println!("{}", unique.len());       // 3</code></pre>
+<h2 id="reading-input">Reading input</h2>
+<pre><code class="lang-rust">use std::io::Read;
+
+let mut input = String::new();
+std::io::stdin().read_to_string(&amp;mut input).unwrap();
+for line in input.lines() {
+    // ...
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Indexing a string</strong>: <code>s[0]</code> does not compile. Use <code>chars()</code>.</li><li><strong><code>v[i]</code> with an index that may not exist.</strong> Use <code>v.get(i)</code>.</li><li><strong>Taking <code>String</code> parameters</strong> when <code>&amp;str</code> would do, forcing callers to clone.</li><li><strong>Expecting a <code>HashMap</code> to keep order.</strong></li><li><strong>Changing a vector while looping over it.</strong> The borrow checker stops you. Collect the changes first.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/05-top-words">
+<h3>Top words <span class="ex-id">rust/05-top-words</span></h3>
+<p>Write <code>main.rs</code>. Read all of standard input and count the words, <strong>ignoring upper and lower case</strong>. Words are separated by whitespace.</p>
+<p>Print the <strong>three</strong> most frequent words, one per line, as <code>word count</code>, in lower case. Highest count first. Words with the same count are in alphabetical order. If there are fewer than three different words, print them all.</p>
+<p>Input:</p>
+<pre><code class="lang-text">the cat and the dog and the bird</code></pre>
+<p>Output:</p>
+<pre><code class="lang-text">the 3
+and 2
+bird 1</code></pre>
+<p class="ex-files">Files: <code>exercises/rust/05-top-words/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/05-top-words</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/04-option-result.html"><span>Previous</span>Option, Result and error handling</a><a class="next" href="../rust/06-traits-and-generics.html"><span>Next</span>Traits and generics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

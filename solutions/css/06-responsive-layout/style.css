@@ -1,0 +1,25 @@
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 700px) {
+  .layout {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  .links {
+    flex-direction: row;
+  }
+}

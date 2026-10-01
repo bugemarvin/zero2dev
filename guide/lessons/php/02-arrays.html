@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="php/02-arrays">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">PHP · lesson 2 of 6</p>
+<h1>Arrays</h1>
+<p class="lede">One type for lists and for key-value data, and the functions that work on it.</p>
+<h2 id="lists">Lists</h2>
+<pre><code class="lang-php">$fruits = ["apple", "banana", "cherry"];
+echo $fruits[0];            // apple
+$fruits[] = "date";         // add to the end
+echo count($fruits);        // 4</code></pre>
+<h2 id="key-value-arrays">Key-value arrays</h2>
+<p>The same type holds values under keys of your choice. PHP calls this an <strong>associative array</strong>:</p>
+<pre><code class="lang-php">$user = [
+    "name" =&gt; "Sam",
+    "age" =&gt; 30,
+];
+echo $user["name"];
+$user["email"] = "sam@example.com";
+unset($user["age"]);</code></pre>
+<p>An array keeps the order in which its items were added.</p>
+<h2 id="looping">Looping</h2>
+<pre><code class="lang-php">foreach ($fruits as $fruit) {
+    echo $fruit, "\n";
+}
+
+foreach ($user as $key =&gt; $value) {
+    echo "$key: $value\n";
+}</code></pre>
+<h2 id="does-a-key-exist">Does a key exist?</h2>
+<pre><code class="lang-php">isset($user["email"])               // true if the key exists and is not null
+array_key_exists("email", $user)    // true even when the value is null
+$email = $user["email"] ?? "none";  // ?? gives the right side when the left is missing or null</code></pre>
+<p>Reading a key that does not exist produces a warning and gives <code>null</code>. Use <code>??</code> when a key may be missing.</p>
+<h2 id="counting-with-an-array">Counting with an array</h2>
+<pre><code class="lang-php">$counts = [];
+foreach ($words as $word) {
+    $counts[$word] = ($counts[$word] ?? 0) + 1;
+}</code></pre>
+<h2 id="the-array-functions">The array functions</h2>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Does</th></tr></thead><tbody><tr><td><code>count($a)</code></td><td>number of items</td></tr><tr><td><code>in_array($x, $a, true)</code></td><td>is the value in it? Pass <code>true</code> for a strict comparison.</td></tr><tr><td><code>array_keys($a)</code>, <code>array_values($a)</code></td><td>the keys, or the values as a fresh list</td></tr><tr><td><code>array_sum($a)</code>, <code>max($a)</code>, <code>min($a)</code></td><td>totals and extremes</td></tr><tr><td><code>array_merge($a, $b)</code></td><td>both together</td></tr><tr><td><code>array_slice($a, 1, 2)</code></td><td>a part</td></tr><tr><td><code>array_reverse($a)</code>, <code>array_unique($a)</code></td><td>reversed, or without duplicates</td></tr><tr><td><code>array_map($f, $a)</code></td><td>a new array with <code>$f</code> applied to each item</td></tr><tr><td><code>array_filter($a, $f)</code></td><td>the items for which <code>$f</code> is true. The keys are kept.</td></tr><tr><td><code>array_reduce($a, $f, $start)</code></td><td>one value built from all items</td></tr></tbody></table></div>
+<pre><code class="lang-php">$squares = array_map(fn($n) =&gt; $n * $n, [1, 2, 3]);                 // [1, 4, 9]
+$even = array_values(array_filter([1, 2, 3, 4], fn($n) =&gt; $n % 2 === 0));   // [2, 4]</code></pre>
+<p><code>array_filter</code> keeps the original keys, so the result above would be <code>[1 =&gt; 2, 3 =&gt; 4]</code> without <code>array_values</code>. That matters when you turn it into JSON: a list with gaps becomes an object.</p>
+<h2 id="sorting">Sorting</h2>
+<p>Sorting changes the array <strong>in place</strong> and returns nothing useful:</p>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Sorts by</th><th>Keeps keys</th></tr></thead><tbody><tr><td><code>sort($a)</code>, <code>rsort($a)</code></td><td>value</td><td>no</td></tr><tr><td><code>asort($a)</code>, <code>arsort($a)</code></td><td>value</td><td>yes</td></tr><tr><td><code>ksort($a)</code>, <code>krsort($a)</code></td><td>key</td><td>yes</td></tr><tr><td><code>usort($a, $compare)</code></td><td>your own rule</td><td>no</td></tr></tbody></table></div>
+<pre><code class="lang-php">usort($people, fn($a, $b) =&gt; $a["age"] &lt;=&gt; $b["age"]);</code></pre>
+<p><code>&lt;=&gt;</code> is the "spaceship" operator: it gives -1, 0 or 1.</p>
+<h2 id="arrays-are-copied">Arrays are copied</h2>
+<p>Assigning an array, or passing it to a function, gives a <strong>copy</strong>:</p>
+<pre><code class="lang-php">$a = [1, 2];
+$b = $a;
+$b[] = 3;
+echo count($a);     // 2</code></pre>
+<h2 id="nested-arrays">Nested arrays</h2>
+<pre><code class="lang-php">$orders = [
+    ["id" =&gt; 1, "total" =&gt; 9.5],
+    ["id" =&gt; 2, "total" =&gt; 20.0],
+];
+echo $orders[1]["total"];
+$totals = array_column($orders, "total");   // [9.5, 20.0]</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>in_array</code> without <code>true</code></strong>, which compares with <code>==</code>.</li><li><strong>Forgetting <code>array_values</code></strong> after <code>array_filter</code>.</li><li><strong><code>$sorted = sort($a)</code></strong>: <code>sort</code> returns <code>true</code> and changes <code>$a</code> itself.</li><li><strong>Reading a missing key</strong> and ignoring the warning.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="php/02-arrays">
+<h3>Working with arrays <span class="ex-id">php/02-arrays</span></h3>
+<p>Write four functions in <code>solution.php</code>.</p>
+<ul><li><code>word_counts(string $text): array</code> returns how often each word occurs, as an array with the words (in lower case) as keys, sorted <strong>by key</strong>. Words are separated by whitespace. An empty text gives an empty array.</li><li><code>average(array $numbers): float</code> returns the average, and <code>0.0</code> for an empty array.</li><li><code>top_scorers(array $scores, int $limit): array</code> receives an array such as <code>["ada" =&gt; 91, "sam" =&gt; 78]</code> and returns the <strong>names</strong> of the <code>$limit</code> highest scores, highest first, as a plain list. Equal scores are in alphabetical order of name.</li><li><code>only_adults(array $people): array</code> receives a list of arrays with the keys <code>name</code> and <code>age</code>, and returns the names of those aged 18 or more, as a plain list with the keys 0, 1, 2, ...</li></ul>
+<p class="ex-files">Files: <code>exercises/php/02-arrays/</code></p>
+<pre><code class="lang-console">$ python3 check.py php/02-arrays</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../php/01-basics.html"><span>Previous</span>PHP basics</a><a class="next" href="../php/03-functions.html"><span>Next</span>Functions and types</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

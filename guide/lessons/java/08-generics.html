@@ -6,13 +6,17 @@
 <title>Generics · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="java/08-generics">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -112,6 +116,7 @@ sum(List.of(1.5, 2.5));       // List&lt;Double&gt;</code></pre>
 <ul><li>no primitives: <code>Box&lt;int&gt;</code> is not allowed. Use <code>Box&lt;Integer&gt;</code>;</li><li>no <code>new T()</code> and no <code>new T[10]</code>;</li><li>no <code>instanceof Box&lt;String&gt;</code>.</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Raw types.</strong> <code>List names = new ArrayList();</code> switches type checking off. Always give the type argument.</li><li><strong>Forgetting the bound</strong> and then finding that <code>compareTo</code> does not exist on <code>T</code>.</li><li><strong>Expecting <code>List&lt;Integer&gt;</code> to be accepted where <code>List&lt;Number&gt;</code> is required.</strong></li><li><strong><code>&lt;T&gt;</code> in the wrong place</strong> on a generic method. It goes before the return type.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="java/08-generics">
@@ -136,7 +141,9 @@ Util.max(List.of("pear", "apple"));    // "pear"</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

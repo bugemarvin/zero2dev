@@ -6,13 +6,17 @@
 <title>Files, lambdas and streams · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="java/10-files-and-streams">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -103,6 +107,7 @@ longest.ifPresent(System.out::println);</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Reusing a stream.</strong> It can be consumed once. Create a new one from the collection.</li><li><strong>Forgetting the terminal step.</strong> <code>names.stream().filter(...)</code> alone does nothing.</li><li><strong>Changing outside variables from inside a lambda.</strong> Local variables used in a lambda must not be reassigned.</li><li><strong>Calling <code>get()</code> on an <code>Optional</code></strong> without checking. On an empty one it throws.</li><li><strong>Not closing <code>Files.lines</code>.</strong> Put it in try-with-resources.</li></ul>
 <p>That completes the Java track. For practice, solve the <a href="../dsa/01-big-o.html">data structures and algorithms</a> exercises in Java: <code>python3 check.py start dsa/01-max-of-list --lang java</code>.</p>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="java/10-streams">
@@ -116,11 +121,13 @@ Stats.longest(List.of("a", "ccc", "bb"));               // Optional[ccc]</code><
 <pre><code class="lang-console">$ python3 check.py java/10-streams</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../java/09-exceptions.html"><span>Previous</span>Exceptions</a><a class="next" href="../elixir/01-basics.html"><span>Next</span>Elixir basics</a></nav>
+<nav class="pager"><a class="prev" href="../java/09-exceptions.html"><span>Previous</span>Exceptions</a><a class="next" href="../go/01-basics.html"><span>Next</span>Go basics</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust basics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/01-basics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 1 of 7</p>
+<h1>Rust basics</h1>
+<p class="lede">Variables that do not change unless you say so, types, functions, and the tools.</p>
+<details class="install" id="install" data-track="rust">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack rust</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks rust</code></pre>
+<h4>Rust (rustc and cargo): by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+$ source "$HOME/.cargo/env"</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ rustc --version &amp;&amp; cargo --version</code></pre>
+<p>rustup is the official installer. It puts everything in your home folder and needs no administrator rights.</p>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs Rust in the image <code>rust:1-slim</code> (one download).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="why-rust">Why Rust</h2>
+<p>C gives you full control of memory and lets you corrupt it. Languages with a garbage collector keep you safe and pause your program to clean up. <strong>Rust</strong> gives you the speed and control of C, and its compiler <strong>proves</strong> that your program has no dangling pointers, no double frees and no data races. The price is a compiler that rejects programs other languages would accept. This track teaches you to work with it.</p>
+<h2 id="the-first-program">The first program</h2>
+<pre><code class="lang-rust">fn main() {
+    println!("Hello, Rust");
+}</code></pre>
+<pre><code class="lang-console">$ rustc main.rs
+$ ./main
+Hello, Rust</code></pre>
+<p><code>println!</code> ends in <code>!</code> because it is a <strong>macro</strong>, not a function. You will meet a few: <code>println!</code>, <code>format!</code>, <code>vec!</code>, <code>panic!</code>.</p>
+<h2 id="cargo">cargo</h2>
+<p>Real projects use <strong>cargo</strong>, Rust's build tool and package manager:</p>
+<pre><code class="lang-console">$ cargo new hello       # creates hello/Cargo.toml and hello/src/main.rs
+$ cd hello
+$ cargo run             # build and run
+$ cargo build --release # optimised build, in target/release/
+$ cargo test
+$ cargo fmt             # the one official code style
+$ cargo clippy          # advice on better ways to write it</code></pre>
+<p>The exercises of this track are single files, built with <code>rustc</code>, so you see exactly what happens.</p>
+<h2 id="variables-are-immutable-by-default">Variables are immutable by default</h2>
+<pre><code class="lang-rust">let x = 5;
+x = 6;              // error: cannot assign twice to immutable variable
+
+let mut y = 5;      // mut makes it changeable
+y = 6;</code></pre>
+<p>You decide which values may change, and the compiler holds you to it. Most variables never need <code>mut</code>.</p>
+<p><strong>Shadowing</strong> declares a new variable with the same name. It is common when converting a value:</p>
+<pre><code class="lang-rust">let input = "42";
+let input: i32 = input.parse().unwrap();     // a new variable, of another type</code></pre>
+<h2 id="types">Types</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Holds</th></tr></thead><tbody><tr><td><code>i32</code>, <code>i64</code></td><td>signed whole numbers of 32 and 64 bits</td></tr><tr><td><code>u8</code>, <code>u32</code>, <code>u64</code>, <code>usize</code></td><td>unsigned ones. <code>usize</code> is the type of indexes and lengths.</td></tr><tr><td><code>f64</code></td><td>a number with a fraction</td></tr><tr><td><code>bool</code></td><td><code>true</code> or <code>false</code></td></tr><tr><td><code>char</code></td><td>one Unicode character, in single quotes: <code>'a'</code></td></tr><tr><td><code>&amp;str</code></td><td>a borrowed piece of text: <code>"hello"</code></td></tr><tr><td><code>String</code></td><td>text you own and can grow</td></tr></tbody></table></div>
+<p>The compiler works out most types. Rust never converts between number types by itself:</p>
+<pre><code class="lang-rust">let n: i32 = 7;
+let half = n as f64 / 2.0;      // 3.5
+let whole = n / 2;              // 3</code></pre>
+<p>In a debug build, arithmetic that overflows stops the program, where C would silently wrap around.</p>
+<h2 id="functions">Functions</h2>
+<pre><code class="lang-rust">fn add(a: i32, b: i32) -&gt; i32 {
+    a + b           // no semicolon: this expression is the return value
+}</code></pre>
+<ul><li>Parameter and return types are always written.</li><li>The <strong>last expression</strong> of a function, without a semicolon, is its result. <code>return</code> is for leaving early.</li></ul>
+<p>Add a semicolon to <code>a + b</code> and the function returns nothing. The compiler tells you exactly that.</p>
+<h2 id="if-is-an-expression">if is an expression</h2>
+<pre><code class="lang-rust">let size = if n &gt; 100 { "big" } else { "small" };</code></pre>
+<p>Both branches must have the same type. There is no separate <code>? :</code> operator.</p>
+<h2 id="loops">Loops</h2>
+<pre><code class="lang-rust">for i in 0..5 {             // 0, 1, 2, 3, 4
+    println!("{}", i);
+}
+for i in 1..=5 { }          // 1 to 5, including 5
+
+while n &gt; 0 {
+    n -= 1;
+}
+
+loop {                      // forever, until break
+    break;
+}</code></pre>
+<h2 id="printing">Printing</h2>
+<pre><code class="lang-rust">println!("{} is {} years old", name, age);
+println!("{name} is {age} years old");      // variables straight in the braces
+println!("{:.2}", 3.14159);                 // 3.14
+println!("{:?}", vec![1, 2, 3]);            // debug form: [1, 2, 3]</code></pre>
+<h2 id="read-the-error-messages">Read the error messages</h2>
+<p>Rust's compiler messages are the best in any language. They show the line, explain the rule, and usually suggest the fix. Read them from the top, slowly. Run <code>rustc --explain E0382</code> for a longer explanation of any error code.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>mut</code></strong> on a variable you change.</li><li><strong>A semicolon after the last expression</strong> of a function that should return it.</li><li><strong>Mixing number types</strong> without <code>as</code>.</li><li><strong>Fighting the compiler</strong> by trying random changes. Read the message: it says what to do.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/01-stats">
+<h3>Number statistics <span class="ex-id">rust/01-stats</span></h3>
+<p>Write <code>main.rs</code>. The input is a list of whole numbers separated by spaces and newlines. The starter already reads them into <code>numbers</code>.</p>
+<p>Print four lines:</p>
+<pre><code class="lang-text">count: 4
+sum: 20
+max: 9
+average: 5.00</code></pre>
+<p>The average has two decimals. That output is for the input <code>2 9 4 5</code>.</p>
+<p>With no numbers, print only <code>count: 0</code>.</p>
+<p class="ex-files">Files: <code>exercises/rust/01-stats/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/01-stats</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/07-modules-testing-http.html"><span>Previous</span>Modules, testing and an HTTP API</a><a class="next" href="../rust/02-ownership-and-borrowing.html"><span>Next</span>Ownership and borrowing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

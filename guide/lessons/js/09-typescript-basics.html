@@ -6,13 +6,17 @@
 <title>TypeScript basics · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="js/09-typescript-basics">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -108,6 +112,7 @@ const s = first(["a", "b"]);       // string | undefined</code></pre>
 <p>Types disappear before the program runs. They cannot check data that arrives from outside: a request body, a file, an API response. Declaring that <code>req.body</code> is a <code>User</code> does not make it one. Validate such data with real code.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>any</code> to make an error go away.</strong></li><li><strong>Annotating everything.</strong> Let inference work.</li><li><strong>Trusting a type for outside data.</strong></li><li><strong>Ignoring the <code>undefined</code> half</strong> of an optional value with <code>!</code>.</li><li><strong>Expecting Node to report type errors</strong> when it runs a <code>.ts</code> file. Only <code>tsc</code> checks.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="js/09-typescript">
@@ -124,7 +129,9 @@ const s = first(["a", "b"]);       // string | undefined</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traits and generics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/06-traits-and-generics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 6 of 7</p>
+<h1>Traits and generics</h1>
+<p class="lede">Shared behaviour, and code that works for many types with no cost at run time.</p>
+<h2 id="traits">Traits</h2>
+<p>A <strong>trait</strong> is a set of methods a type can implement. It is Rust's version of an interface:</p>
+<pre><code class="lang-rust">trait Describe {
+    fn describe(&amp;self) -&gt; String;
+}
+
+struct Dog {
+    name: String,
+}
+
+struct Robot {
+    id: u32,
+}
+
+impl Describe for Dog {
+    fn describe(&amp;self) -&gt; String {
+        format!("a dog named {}", self.name)
+    }
+}
+
+impl Describe for Robot {
+    fn describe(&amp;self) -&gt; String {
+        format!("robot #{}", self.id)
+    }
+}</code></pre>
+<p>Unlike Go, the implementation is written out: <code>impl Trait for Type</code>.</p>
+<p>A trait can supply a <strong>default method</strong>, which types may keep or replace:</p>
+<pre><code class="lang-rust">trait Describe {
+    fn describe(&amp;self) -&gt; String;
+
+    fn shout(&amp;self) -&gt; String {
+        self.describe().to_uppercase()
+    }
+}</code></pre>
+<h2 id="generics">Generics</h2>
+<p>A generic function works for any type that meets its requirements, the <strong>trait bounds</strong>:</p>
+<pre><code class="lang-rust">fn largest&lt;T: PartialOrd + Copy&gt;(items: &amp;[T]) -&gt; Option&lt;T&gt; {
+    let mut best = *items.first()?;
+    for &amp;item in items {
+        if item &gt; best {
+            best = item;
+        }
+    }
+    Some(best)
+}
+
+largest(&amp;[3, 9, 2]);            // T is i32
+largest(&amp;[1.5, 0.2]);           // T is f64</code></pre>
+<p><code>T: PartialOrd + Copy</code> reads: "any type <code>T</code> that can be compared and copied". Without the bound, the compiler refuses <code>item &gt; best</code>, because it would not hold for every type.</p>
+<p>The compiler generates a separate, specialised version of the function for each type used. Generic code runs as fast as code written by hand for one type. This is called a <strong>zero-cost abstraction</strong>.</p>
+<p>Structs can be generic too:</p>
+<pre><code class="lang-rust">struct Pair&lt;T&gt; {
+    first: T,
+    second: T,
+}
+
+impl&lt;T: PartialOrd&gt; Pair&lt;T&gt; {
+    fn larger(&amp;self) -&gt; &amp;T {
+        if self.first &gt; self.second { &amp;self.first } else { &amp;self.second }
+    }
+}</code></pre>
+<p><code>Option&lt;T&gt;</code>, <code>Vec&lt;T&gt;</code> and <code>Result&lt;T, E&gt;</code> are ordinary generic types.</p>
+<h2 id="taking-anything-that-implements">Taking "anything that implements"</h2>
+<p>Two ways to accept any type with a trait:</p>
+<pre><code class="lang-rust">fn print_it(item: &amp;impl Describe) {         // decided at compile time: fastest
+    println!("{}", item.describe());
+}
+
+fn print_all(items: &amp;[Box&lt;dyn Describe&gt;]) { // decided at run time: allows a mixed list
+    for item in items {
+        println!("{}", item.describe());
+    }
+}
+
+let zoo: Vec&lt;Box&lt;dyn Describe&gt;&gt; = vec![
+    Box::new(Dog { name: String::from("Rex") }),
+    Box::new(Robot { id: 7 }),
+];</code></pre>
+<p><code>dyn Describe</code> is a <strong>trait object</strong>. A <code>Box</code> puts the value on the heap, which is needed because a dog and a robot have different sizes. Use <code>impl Trait</code> by default, and <code>dyn Trait</code> when one collection must hold different types.</p>
+<h2 id="traits-you-meet-every-day">Traits you meet every day</h2>
+<div class="table-wrap"><table><thead><tr><th>Trait</th><th>Gives</th><th>Usually</th></tr></thead><tbody><tr><td><code>Debug</code></td><td><code>{:?}</code></td><td>derived</td></tr><tr><td><code>Clone</code>, <code>Copy</code></td><td>copies</td><td>derived</td></tr><tr><td><code>PartialEq</code>, <code>Eq</code></td><td><code>==</code></td><td>derived</td></tr><tr><td><code>PartialOrd</code>, <code>Ord</code></td><td><code>&lt;</code>, sorting</td><td>derived</td></tr><tr><td><code>Default</code></td><td><code>Type::default()</code></td><td>derived</td></tr><tr><td><code>Display</code></td><td><code>{}</code></td><td>written by hand</td></tr><tr><td><code>From</code>, <code>Into</code></td><td>conversions</td><td>written by hand</td></tr><tr><td><code>Iterator</code></td><td><code>for</code> loops</td><td>written by hand</td></tr></tbody></table></div>
+<p>Implementing <code>Display</code> decides how your type prints with <code>{}</code>:</p>
+<pre><code class="lang-rust">use std::fmt;
+
+impl fmt::Display for Robot {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, "Robot({})", self.id)
+    }
+}
+
+println!("{}", Robot { id: 7 });        // Robot(7)</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A generic function with no bounds</strong> that then tries to compare or print its values.</li><li><strong><code>dyn</code> everywhere</strong> out of habit from object-oriented languages. Generics are usually simpler and faster.</li><li><strong>Forgetting to bring a trait into scope</strong> with <code>use</code>. A trait's methods are available only where the trait is imported.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/06-traits">
+<h3>A trait and a generic function <span class="ex-id">rust/06-traits</span></h3>
+<p>Write the following in <code>solution.rs</code>. Everything is <code>pub</code>.</p>
+<h4><code>Priced</code></h4>
+<p>A trait with:</p>
+<ul><li>a required method <code>price(&amp;self) -&gt; f64</code></li><li>a required method <code>label(&amp;self) -&gt; String</code></li><li>a <strong>default</strong> method <code>receipt_line(&amp;self) -&gt; String</code> that returns the label, a colon, a space and the price with two decimals, for example <code>Coffee: 3.50</code></li></ul>
+<h4>Two types that implement it</h4>
+<ul><li><code>Product { name: String, unit_price: f64, quantity: u32 }</code>. Its price is the unit price times the quantity. Its label is <code>name xQUANTITY</code>, for example <code>Coffee x2</code>.</li><li><code>Service { name: String, hours: f64, rate: f64 }</code>. Its price is hours times rate. Its label is the name.</li></ul>
+<h4>Generic functions</h4>
+<ul><li><code>total&lt;T: Priced&gt;(items: &amp;[T]) -&gt; f64</code> adds up the prices.</li><li><code>most_expensive(items: &amp;[Box&lt;dyn Priced&gt;]) -&gt; Option&lt;String&gt;</code> returns the label of the item with the highest price, or <code>None</code> for an empty list. This list can mix products and services.</li><li><code>largest&lt;T: PartialOrd + Copy&gt;(items: &amp;[T]) -&gt; Option&lt;T&gt;</code> returns the largest value of any comparable type, or <code>None</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/rust/06-traits/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/06-traits</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/05-collections-and-strings.html"><span>Previous</span>Vectors, hash maps and strings</a><a class="next" href="../rust/07-iterators-closures-testing.html"><span>Next</span>Iterators, closures and tests</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

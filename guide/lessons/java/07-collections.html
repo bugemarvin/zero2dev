@@ -6,13 +6,17 @@
 <title>Collections · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="java/07-collections">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -113,6 +117,7 @@ queue.pollFirst();</code></pre>
 <div class="table-wrap"><table><thead><tr><th>Operation</th><th><code>ArrayList</code></th><th><code>HashMap</code>, <code>HashSet</code></th></tr></thead><tbody><tr><td>get by index</td><td>O(1)</td><td>not applicable</td></tr><tr><td>add at the end</td><td>O(1)</td><td>O(1)</td></tr><tr><td>contains</td><td>O(n)</td><td>O(1)</td></tr><tr><td>remove from the middle</td><td>O(n)</td><td>O(1)</td></tr></tbody></table></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>List&lt;int&gt;</code>.</strong> Use <code>List&lt;Integer&gt;</code>.</li><li><strong><code>==</code> on <code>Integer</code> objects.</strong> It works for small numbers by accident and fails for large ones. Use <code>.equals</code>.</li><li><strong>Removing from a list while looping over it</strong> with for-each, which throws <code>ConcurrentModificationException</code>. Use <code>removeIf</code>.</li><li><strong>Relying on <code>HashMap</code> order.</strong></li><li><strong><code>list.remove(1)</code> on a <code>List&lt;Integer&gt;</code>.</strong> It removes the element at <strong>index</strong> 1, not the value 1.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="java/07-word-count">
@@ -133,7 +138,9 @@ hat 1</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

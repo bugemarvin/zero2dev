@@ -6,13 +6,17 @@
 <title>Data, configuration and ports · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="docker/03-volumes-and-environment">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -71,6 +75,7 @@ $ docker run --rm \
 <p>A backslash at the end of a line continues the command on the next one.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Data stored only inside a container</strong>, and lost with it.</li><li><strong>A relative host path</strong> in <code>-v</code>. Use <code>"$PWD/..."</code>.</li><li><strong>Root-owned files</strong> in your project folder. Use <code>--user</code>.</li><li><strong>A server bound to <code>127.0.0.1</code> inside the container.</strong></li><li><strong>Publishing a database port to the whole network</strong> with a weak password.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="docker/03-volumes">
@@ -87,7 +92,9 @@ $ docker run --rm \
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

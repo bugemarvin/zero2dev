@@ -1,0 +1,19 @@
+{
+  "title": "Working with arrays",
+  "lesson": "php/02-arrays",
+  "kind": "harness",
+  "lang": "php",
+  "edit": [
+    "solution.php"
+  ],
+  "run": [
+    "php",
+    "tests.php"
+  ],
+  "timeout": 30,
+  "hints": [
+    "word_counts: split with preg_split('/\\s+/', strtolower(trim($text)), -1, PREG_SPLIT_NO_EMPTY), count with ??, then ksort($counts).",
+    "top_scorers: take array_keys($scores), sort the names with usort comparing the scores, then array_slice($names, 0, $limit).",
+    "only_adults: array_filter keeps the original keys. Wrap the result in array_values to get keys 0, 1, 2."
+  ]
+}

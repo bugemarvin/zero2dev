@@ -6,13 +6,17 @@
 <title>Images and containers · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="docker/01-images-and-containers">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,24 @@
 <p class="crumb">Docker · lesson 1 of 6</p>
 <h1>Images and containers</h1>
 <p class="lede">Run any program in an isolated box that carries everything it needs, and throw the box away afterwards.</p>
+<details class="install" id="install" data-track="docker">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack docker</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks docker</code></pre>
+<h4>Docker: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://get.docker.com | sh
+$ sudo usermod -aG docker "$USER"   # then log out and in</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install --cask docker   # then open Docker Desktop once</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ docker run --rm hello-world</code></pre>
+<p>On Windows install Docker Desktop and switch on its WSL integration (install.ps1 -Docker does the first part).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="the-problem-docker-solves">The problem Docker solves</h2>
 <p>"It works on my machine" is the oldest complaint in software. A program depends on a particular language version, libraries, system packages and settings. Reproducing all of that on another computer is slow and error-prone.</p>
 <p>A <strong>container</strong> packages a program together with everything it needs to run, down to the system libraries. The same container runs the same way on your laptop, on a colleague's, and on a server.</p>
@@ -64,6 +86,7 @@ $ docker rm web</code></pre>
 <ul><li>Prefer <strong>official images</strong> such as <code>python</code>, <code>node</code>, <code>postgres</code>.</li><li>Give a <strong>version tag</strong>: <code>python:3.12</code>, not <code>python</code>. With no tag you get <code>latest</code>, which changes over time.</li><li>Variants ending in <code>-slim</code> or <code>-alpine</code> are much smaller.</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Forgetting <code>--rm</code></strong>, and collecting hundreds of stopped containers. <code>docker container prune</code> removes them.</li><li><strong>Expecting files to survive.</strong> A container's own file system is thrown away with the container. Lesson 3 shows how to keep data.</li><li><strong><code>permission denied</code> on the Docker socket</strong> on Linux. Add your user to the <code>docker</code> group, then log out and in.</li><li><strong>Confusing image and container.</strong> You build and pull images. You run, stop and remove containers.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="docker/01-run">
@@ -80,7 +103,9 @@ $ docker rm web</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

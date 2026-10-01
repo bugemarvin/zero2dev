@@ -6,13 +6,17 @@
 <title>Hello, Java · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="java/01-hello-jvm">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,23 @@
 <p class="crumb">Java · lesson 1 of 10</p>
 <h1>Hello, Java</h1>
 <p class="lede">How Java code becomes a running program, and the shape every Java program has.</p>
+<details class="install" id="install" data-track="java">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack java</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks java</code></pre>
+<h4>Java (JDK): by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y default-jdk</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install openjdk</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ javac -version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs Java in the image <code>eclipse-temurin:21-jdk</code> (one download).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="compile-once-run-anywhere">Compile once, run anywhere</h2>
 <p>Java sits between C and Python. The compiler, <code>javac</code>, translates your source into <strong>bytecode</strong>: instructions for an imaginary machine. A program called the <strong>Java Virtual Machine</strong> (JVM) then runs that bytecode.</p>
 <pre><code class="lang-text">Main.java  --javac--&gt;  Main.class  --java--&gt;  runs on the JVM
@@ -69,6 +90,7 @@ System.out.printf("%d apples cost %.2f%n", apples, apples * 0.5);</code></pre>
 <pre><code class="lang-console">$ python3 check.py java/01-hello</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>File name and class name differ.</strong> <code>public class Main</code> must be in <code>Main.java</code>.</li><li><strong>Running <code>java Main.class</code>.</strong> Give the class name only.</li><li><strong>Forgetting to recompile</strong> after an edit.</li><li><strong><code>string</code> with a small s.</strong> The type is <code>String</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="java/01-hello">
@@ -82,11 +104,13 @@ $ java Main</code></pre>
 <pre><code class="lang-console">$ python3 check.py java/01-hello</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../sql/10-window-functions-and-json.html"><span>Previous</span>Window functions and JSON</a><a class="next" href="../java/02-types-and-control-flow.html"><span>Next</span>Types and control flow</a></nav>
+<nav class="pager"><a class="prev" href="../css/06-responsive.html"><span>Previous</span>Responsive design</a><a class="next" href="../java/02-types-and-control-flow.html"><span>Next</span>Types and control flow</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

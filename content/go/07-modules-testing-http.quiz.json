@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which file names a Go module and lists its dependencies?",
+  "options": [
+   "package.json",
+   "go.mod",
+   "main.go",
+   "Gofile"
+  ],
+  "answer": 1,
+  "why": "go.mod is created by go mod init."
+ },
+ {
+  "q": "How must a test file be named?",
+  "options": [
+   "test_calc.go",
+   "calc_test.go",
+   "calc.test.go",
+   "CalcTest.go"
+  ],
+  "answer": 1,
+  "why": "go test picks up files ending in _test.go."
+ },
+ {
+  "q": "Each HTTP request in Go runs in ...",
+  "options": [
+   "the main goroutine",
+   "its own goroutine",
+   "a new process",
+   "a thread pool of size 1"
+  ],
+  "answer": 1,
+  "why": "So data shared between handlers needs a mutex."
+ },
+ {
+  "q": "A struct field is named `title` (lower case). What does encoding/json do with it?",
+  "options": [
+   "Encodes it as title",
+   "Leaves it out",
+   "Fails to compile",
+   "Encodes it as Title"
+  ],
+  "answer": 1,
+  "why": "Only exported (capitalised) fields are encoded. Use a json tag to choose the name."
+ }
+]

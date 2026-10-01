@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which address is relative?",
+  "options": [
+   "https://example.com/about.html",
+   "about.html",
+   "mailto:me@example.com",
+   "//example.com"
+  ],
+  "answer": 1,
+  "why": "A relative address has no scheme and no domain: it is found from the current page."
+ },
+ {
+  "q": "What is the alt attribute of an image for?",
+  "options": [
+   "A tooltip",
+   "The text used when the image cannot be seen",
+   "The file name",
+   "The image title in search results only"
+  ],
+  "answer": 1,
+  "why": "Screen readers read it, and browsers show it when the image fails to load."
+ },
+ {
+  "q": "An image is pure decoration. What do you write?",
+  "options": [
+   "No alt attribute",
+   "alt=\"image\"",
+   "alt=\"\"",
+   "alt=\"decoration\""
+  ],
+  "answer": 2,
+  "why": "An empty alt tells assistive technology to skip the image. A missing alt makes it read the file name."
+ },
+ {
+  "q": "Which element marks text as important?",
+  "options": [
+   "<b>",
+   "<i>",
+   "<strong>",
+   "<big>"
+  ],
+  "answer": 2,
+  "why": "strong carries meaning (importance). b only changes the look."
+ }
+]

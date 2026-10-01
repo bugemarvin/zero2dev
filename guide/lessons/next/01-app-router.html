@@ -6,13 +6,17 @@
 <title>Next.js and the app router · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="next/01-app-router">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,25 @@
 <p class="crumb">Next.js · lesson 1 of 8</p>
 <h1>Next.js and the app router</h1>
 <p class="lede">A framework on top of React where folders become pages, and pages are rendered on the server.</p>
+<details class="install" id="install" data-track="next">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre>
+<h4>Node.js and npm: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>The <strong>next</strong> packages come from npm, once: press <strong>Download packages</strong> on the Setup page, or run <code>python3 check.py prefetch next</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="what-next-js-adds">What Next.js adds</h2>
 <p>React builds user interfaces. It leaves open how pages are routed, where data is loaded, and how the result reaches the browser. <strong>Next.js</strong> is a framework that answers those questions:</p>
 <ul><li><strong>Routing from the file system.</strong> A folder is a URL.</li><li><strong>Rendering on the server.</strong> The browser receives finished HTML, which loads fast and is readable by search engines.</li><li><strong>Data loading on the server</strong>, next to the component that needs it.</li><li><strong>API endpoints</strong> in the same project.</li></ul>
@@ -80,6 +103,7 @@ export default function RootLayout({ children }) {
 <p><strong>Start app</strong> runs the same server for you and gives you a link.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Naming the file after the route</strong>, such as <code>app/about.js</code>. It must be <code>app/about/page.js</code>.</li><li><strong>No default export</strong> in a page.</li><li><strong>Removing <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code></strong> from the root layout.</li><li><strong>Expecting browser APIs to work</strong> in a page. Server code has no <code>window</code> and no <code>document</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="next/01-pages">
@@ -97,7 +121,9 @@ export default function RootLayout({ children }) {
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>
