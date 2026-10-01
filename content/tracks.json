@@ -41,6 +41,14 @@
     ]
   },
   {
+    "id": "llm",
+    "title": "Building with LLMs",
+    "blurb": "Use large language models in software: prompts, structured output, tools and agents, retrieval, and testing what you built.",
+    "needs": [
+      "toolchain:python"
+    ]
+  },
+  {
     "id": "dsa",
     "title": "Data structures and algorithms",
     "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language.",
@@ -55,6 +63,23 @@
     "needs": [
       "toolchain:python",
       "service:postgres"
+    ]
+  },
+  {
+    "id": "mongodb",
+    "title": "MongoDB",
+    "blurb": "A document database: store JSON-like documents, query and update them, summarise with pipelines, and design a schema.",
+    "needs": [
+      "service:mongodb"
+    ]
+  },
+  {
+    "id": "redis",
+    "title": "Redis",
+    "blurb": "An in-memory data store: caching, counters, queues, leaderboards, rate limits and messaging.",
+    "needs": [
+      "service:redis",
+      "toolchain:python"
     ]
   },
   {
@@ -116,6 +141,15 @@
     ]
   },
   {
+    "id": "node",
+    "title": "Node.js backend",
+    "blurb": "Server-side JavaScript in depth: files, streams, a well-built REST API, authentication, and code that is easy to test.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:node"
+    ]
+  },
+  {
     "id": "php",
     "title": "PHP",
     "blurb": "The language behind a large part of the web: arrays, functions, classes, forms, JSON APIs and a database with PDO.",
@@ -142,6 +176,15 @@
     ]
   },
   {
+    "id": "gamedev",
+    "title": "Game development",
+    "blurb": "Build 2D games in the browser: the game loop, input, collisions, game state, and a complete playable game.",
+    "needs": [
+      "toolchain:javascript",
+      "tool:browser"
+    ]
+  },
+  {
     "id": "docker",
     "title": "Docker",
     "blurb": "Package any program with everything it needs, and run several containers together with Compose.",
@@ -155,6 +198,16 @@
     "blurb": "Several small services in containers: calls between them, a gateway, a queue with a worker, and surviving failure.",
     "needs": [
       "tool:docker"
+    ]
+  },
+  {
+    "id": "devops",
+    "title": "DevOps",
+    "blurb": "From a commit to a running service: configuration, CI pipelines, releases, deployments, and knowing what production is doing.",
+    "needs": [
+      "tool:bash",
+      "tool:git",
+      "toolchain:python"
     ]
   }
 ]

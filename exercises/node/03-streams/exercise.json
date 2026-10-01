@@ -1,0 +1,21 @@
+{
+  "title": "Events and a stream of lines",
+  "lesson": "node/03-events-and-streams",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "Stock: keep a Map of quantities in a private field. this.emit(\"changed\", { name, quantity: total }) announces a change.",
+    "splitLines: keep the unfinished tail: const parts = (rest + chunk).split(\"\\n\"); rest = parts.pop(); yield* parts; and yield rest at the end when it is not empty.",
+    "summarize: for await (const line of splitLines(source)), skip blank lines, split on whitespace, and compare Number(ms) with the longest so far."
+  ]
+}

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Authentication and security · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/05-authentication">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 5 of 6</p>
+<h1>Authentication and security</h1>
+<p class="lede">Store passwords so that a leak does not expose them, issue tokens that cannot be forged, and close the common holes.</p>
+<h2 id="authentication-and-authorization">Authentication and authorization</h2>
+<ul><li><strong>Authentication</strong>: who are you? Proving an identity.</li><li><strong>Authorization</strong>: what may you do? Checked on every request, after authentication.</li></ul>
+<p>A bug in either is a security incident, so this is the part of a backend to write most carefully. For real products, use a maintained library or an identity service. You still need to understand what they do.</p>
+<h2 id="passwords">Passwords</h2>
+<p><strong>Never store a password.</strong> Store a <strong>hash</strong>: the output of a one-way function. At login, hash what was typed and compare.</p>
+<p>A plain hash such as SHA-256 is not enough, for two reasons:</p>
+<ul><li>It is <strong>fast</strong>. An attacker with your leaked database tries billions of guesses per second.</li><li>The same password always gives the same hash. A precomputed table breaks every common password at once.</li></ul>
+<p>A <strong>password hashing function</strong> fixes both. It is deliberately slow, and it mixes in a random <strong>salt</strong>, different for every user. Node has <code>scrypt</code> built in:</p>
+<pre><code class="lang-javascript">import { scryptSync, randomBytes, timingSafeEqual } from "node:crypto";
+
+function hashPassword(password) {
+  const salt = randomBytes(16);
+  const hash = scryptSync(password, salt, 64);
+  return `${salt.toString("hex")}:${hash.toString("hex")}`;      // store salt and hash together
+}
+
+function verifyPassword(password, stored) {
+  const [saltHex, hashHex] = stored.split(":");
+  const expected = Buffer.from(hashHex, "hex");
+  const actual = scryptSync(password, Buffer.from(saltHex, "hex"), expected.length);
+  return timingSafeEqual(actual, expected);
+}</code></pre>
+<ul><li>The salt is not secret. It is stored next to the hash.</li><li><code>timingSafeEqual</code> compares without revealing, through timing, how many bytes matched. <code>===</code> on secrets leaks that.</li><li>In a server use the asynchronous <code>scrypt</code>. The <code>Sync</code> version blocks the event loop for tens of milliseconds, on purpose.</li></ul>
+<p>Popular alternatives are <code>bcrypt</code> and <code>argon2</code>, available as npm packages.</p>
+<h2 id="tokens">Tokens</h2>
+<p>After login the client must prove, on every request, that it logged in. One way is a <strong>signed token</strong>: a piece of data plus a signature that only the server can produce.</p>
+<p>An <strong>HMAC</strong> combines a message with a secret key:</p>
+<pre><code class="lang-javascript">import { createHmac } from "node:crypto";
+
+function sign(text, secret) {
+  return createHmac("sha256", secret).update(text).digest("base64url");
+}</code></pre>
+<p>A token is then <code>payload.signature</code>:</p>
+<pre><code class="lang-javascript">function createToken(payload, secret) {
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  return `${body}.${sign(body, secret)}`;
+}</code></pre>
+<p>To verify: compute the signature of the received body again and compare. If anyone changed one character of the payload, the signature no longer matches, and they cannot make a new one without the secret.</p>
+<p>Three things to remember:</p>
+<ul><li>The payload is <strong>encoded, not encrypted</strong>. Anyone can read it. Never put secrets in it.</li><li>Give every token an <strong>expiry</strong>, and check it.</li><li>The secret lives in an environment variable, is long and random, and is never in Git.</li></ul>
+<p>This is the idea behind <strong>JWT</strong> (JSON Web Tokens), the widely used standard. In production use a JWT library and do not write your own format. The exercise builds one so that you see there is no magic.</p>
+<h2 id="sessions-or-tokens">Sessions or tokens</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Session</th><th>Token</th></tr></thead><tbody><tr><td>The client holds</td><td>a random id, in a cookie</td><td>the signed data itself</td></tr><tr><td>The server holds</td><td>the session data, in Redis or a database</td><td>nothing</td></tr><tr><td>Logging out everywhere</td><td>delete the session</td><td>hard: the token is valid until it expires</td></tr><tr><td>Fits</td><td>web applications</td><td>APIs called by other services and mobile apps</td></tr></tbody></table></div>
+<p>Sessions are simpler and safer for an ordinary web application. Tokens suit APIs. With tokens, keep the lifetime short.</p>
+<h2 id="middleware">Middleware</h2>
+<pre><code class="lang-javascript">function requireAuth(req, res, next) {
+  const header = req.get("Authorization") ?? "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const payload = verifyToken(token, process.env.TOKEN_SECRET);
+  if (!payload) {
+    return res.status(401).json({ error: "not authenticated" });
+  }
+  req.user = payload;
+  next();
+}
+
+app.get("/me", requireAuth, (req, res) =&gt; res.json({ id: req.user.sub }));</code></pre>
+<p>Authorization comes after it, in every handler that touches somebody's data:</p>
+<pre><code class="lang-javascript">if (note.ownerId !== req.user.sub) {
+  return res.status(404).json({ error: "not found" });
+}</code></pre>
+<p>Forgetting that check is the most common serious bug in APIs: user 7 asks for <code>/notes/12</code>, which belongs to user 3, and gets it.</p>
+<h2 id="a-short-security-checklist">A short security checklist</h2>
+<div class="table-wrap"><table><thead><tr><th>Risk</th><th>Defence</th></tr></thead><tbody><tr><td>password guessing</td><td>rate-limit the login route, <a href="../redis/05-transactions-pubsub-limits.html">per address and per account</a></td></tr><tr><td>injection (SQL, shell)</td><td>parameters and prepared statements, never string building</td></tr><tr><td>cross-site scripting</td><td>escape output; <code>HttpOnly</code> cookies</td></tr><tr><td>leaked secrets</td><td>environment variables, never Git, rotate when in doubt</td></tr><tr><td>vulnerable packages</td><td><code>npm audit</code>, few dependencies, a lock file</td></tr><tr><td>eavesdropping</td><td>HTTPS everywhere</td></tr><tr><td>verbose errors</td><td>generic messages to clients, details in logs</td></tr><tr><td>user enumeration</td><td>the same answer for "unknown user" and "wrong password"</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Storing passwords in plain text, or with MD5 or SHA-256.</strong></li><li><strong>Comparing secrets with <code>===</code>.</strong></li><li><strong>Tokens that never expire.</strong></li><li><strong>A secret with a default value in the code</strong>, such as <code>process.env.SECRET || "secret"</code>. Production then silently runs with "secret".</li><li><strong>Checking that a user is logged in, and not that the data is theirs.</strong></li><li><strong>Inventing your own cryptography.</strong> Combine the standard building blocks, as this lesson does, and prefer a library.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/05-auth">
+<h3>Password hashing and signed tokens <span class="ex-id">node/05-auth</span></h3>
+<p>Write four functions in <code>solution.mjs</code>, using only <code>node:crypto</code>.</p>
+<h4>Passwords</h4>
+<ul><li><code>hashPassword(password)</code> returns a string <code>SALT:HASH</code>, both in hex. The salt is 16 random bytes, and the hash is <code>scryptSync(password, salt, 64)</code>. Two calls with the same password give different results.</li><li><code>verifyPassword(password, stored)</code> returns <code>true</code> when the password matches the stored string. Compare with <code>timingSafeEqual</code>. A stored string that is not in the right form gives <code>false</code>, not an exception.</li></ul>
+<h4>Tokens</h4>
+<p>A token is <code>BODY.SIGNATURE</code>:</p>
+<ul><li><code>BODY</code> is the JSON of the payload, encoded as <code>base64url</code>.</li><li><code>SIGNATURE</code> is the HMAC-SHA256 of <code>BODY</code> with the secret, as <code>base64url</code>.</li></ul>
+<p>Write:</p>
+<ul><li><code>createToken(payload, secret, now, lifetime)</code> adds the field <code>exp</code> to a copy of the payload: <code>now + lifetime</code> (both in seconds), and returns the token.</li><li><code>verifyToken(token, secret, now)</code> returns the payload when the signature is right and <code>exp</code> is later than <code>now</code>. In every other case it returns <code>null</code>: a wrong signature, a changed body, an expired token, or text that is not a token at all. It never throws.</li></ul>
+<p class="ex-files">Files: <code>exercises/node/05-auth/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/05-auth</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../node/04-building-an-api.html"><span>Previous</span>Building a solid API</a><a class="next" href="../node/06-structure-and-testing.html"><span>Next</span>Structure and testing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+[
+ {
+  "q": "What decides the order of a sorted set?",
+  "options": [
+   "Insertion order",
+   "The score of each member",
+   "The length of the member",
+   "Nothing: it is unordered"
+  ],
+  "answer": 1,
+  "why": "Members are kept ordered by score."
+ },
+ {
+  "q": "ZADD board 100 ada is followed by ZADD board 250 ada. What happens?",
+  "options": [
+   "ada is in the set twice",
+   "ada's score becomes 250",
+   "An error",
+   "The score becomes 350"
+  ],
+  "answer": 1,
+  "why": "Members are unique. Adding again updates the score. ZINCRBY would add."
+ },
+ {
+  "q": "Which command gives the top three scores, highest first?",
+  "options": [
+   "ZRANGE board 0 2",
+   "ZREVRANGE board 0 2",
+   "ZSCORE board 3",
+   "ZCARD board"
+  ],
+  "answer": 1,
+  "why": "ZRANGE goes from the lowest score. ZREVRANGE goes from the highest."
+ },
+ {
+  "q": "The best player has which ZREVRANK?",
+  "accept": [
+   "0"
+  ],
+  "why": "Ranks count from 0."
+ }
+]

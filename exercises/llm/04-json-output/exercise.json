@@ -1,0 +1,11 @@
+{
+  "title": "Extract and validate JSON",
+  "lesson": "llm/04-structured-output",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "extract_json: start, end = text.find(\"{\"), text.rfind(\"}\"). Taking that slice also handles a code fence and surrounding sentences. Turn json.JSONDecodeError into ValueError.",
+    "validate: types = expected if isinstance(expected, tuple) else (expected,). When float is among them, add int. Test for bool first, because True is an int in Python.",
+    "ask_json: loop `attempts` times. In the except ValueError branch, extend messages with the assistant's text and the user's correction request."
+  ]
+}

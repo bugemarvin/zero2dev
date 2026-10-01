@@ -1,0 +1,45 @@
+[
+ {
+  "q": "How many threads run your JavaScript in a Node server?",
+  "options": [
+   "One per request",
+   "One",
+   "One per CPU core",
+   "It depends on the load"
+  ],
+  "answer": 1,
+  "why": "Your code runs on one thread. I/O is handed to the system and comes back through the event loop."
+ },
+ {
+  "q": "In what order do these print?",
+  "options": [
+   "A B C D",
+   "A D C B",
+   "A C D B",
+   "A D B C"
+  ],
+  "answer": 1,
+  "why": "Synchronous code first, then promise callbacks, then timers.",
+  "code": "console.log(\"A\");\nsetTimeout(() => console.log(\"B\"), 0);\nPromise.resolve().then(() => console.log(\"C\"));\nconsole.log(\"D\");"
+ },
+ {
+  "q": "process.env.DEBUG is the string \"false\". What is `if (process.env.DEBUG)`?",
+  "options": [
+   "false",
+   "true"
+  ],
+  "answer": 1,
+  "why": "Environment variables are strings, and a non-empty string is truthy."
+ },
+ {
+  "q": "Why avoid readFileSync in a request handler?",
+  "options": [
+   "It is deprecated",
+   "It blocks the single thread, so all other requests wait",
+   "It cannot read large files",
+   "It returns a promise"
+  ],
+  "answer": 1,
+  "why": "Synchronous I/O stops the event loop for everyone."
+ }
+]

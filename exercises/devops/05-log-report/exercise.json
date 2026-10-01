@@ -1,0 +1,48 @@
+{
+  "title": "A latency report",
+  "lesson": "devops/05-observability",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the lesson's ten values",
+      "stdin": "GET /a 200 30\nGET /b 200 12\nGET /c 500 400\nGET /d 200 15\nGET /e 200 90\nGET /f 200 20\nPOST /g 503 22\nGET /h 200 31\nGET /i 404 40\nGET /j 200 45\n",
+      "stdout": "requests: 10\nerrors: 2\nerror rate: 20.0%\np50: 30\np95: 400\n"
+    },
+    {
+      "name": "one request",
+      "stdin": "GET /home 200 120\n",
+      "stdout": "requests: 1\nerrors: 0\nerror rate: 0.0%\np50: 120\np95: 120\n"
+    },
+    {
+      "name": "no requests",
+      "stdin": "",
+      "stdout": "requests: 0\n"
+    },
+    {
+      "name": "blank lines are ignored",
+      "stdin": "\nGET /a 200 10\n\n\nGET /b 500 30\n\n",
+      "stdout": "requests: 2\nerrors: 1\nerror rate: 50.0%\np50: 10\np95: 30\n"
+    },
+    {
+      "name": "a 4xx status is not a server error",
+      "stdin": "GET /a 404 5\nGET /b 499 6\nGET /c 500 7\n",
+      "stdout": "requests: 3\nerrors: 1\nerror rate: 33.3%\np50: 6\np95: 7\n"
+    },
+    {
+      "name": "twenty values: p95 is the 19th",
+      "stdin": "GET /p20 200 200\nGET /p19 200 190\nGET /p18 200 180\nGET /p17 200 170\nGET /p16 200 160\nGET /p15 200 150\nGET /p14 200 140\nGET /p13 200 130\nGET /p12 200 120\nGET /p11 200 110\nGET /p10 200 100\nGET /p9 200 90\nGET /p8 200 80\nGET /p7 200 70\nGET /p6 200 60\nGET /p5 200 50\nGET /p4 200 40\nGET /p3 200 30\nGET /p2 200 20\nGET /p1 200 10\n",
+      "stdout": "requests: 20\nerrors: 0\nerror rate: 0.0%\np50: 100\np95: 190\n"
+    },
+    {
+      "name": "a large log",
+      "stdin_py": "''.join(f'GET /r{i} {500 if i % 50 == 0 else 200} {(i * 7919) % 1000}\\n' for i in range(1, 50001))",
+      "stdout": "requests: 50000\nerrors: 1000\nerror rate: 2.0%\np50: 499\np95: 949\n"
+    }
+  ],
+  "hints": [
+    "Collect the response times in a list, and count the lines whose status is 500 or more.",
+    "The error rate: f\"{100 * errors / n:.1f}%\". Check for n == 0 first.",
+    "Sort the times. The percentile p is at index math.ceil(p / 100 * n) - 1."
+  ]
+}

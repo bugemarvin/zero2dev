@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Why one `mode` variable instead of several booleans?",
+  "options": [
+   "It uses less memory",
+   "Booleans allow combinations that make no sense",
+   "It is faster",
+   "JavaScript requires it"
+  ],
+  "answer": 1,
+  "why": "One variable with a fixed set of values cannot be in an impossible combination."
+ },
+ {
+  "q": "In a state machine, what happens to an event with no rule in the current state?",
+  "options": [
+   "An error",
+   "Nothing",
+   "The game restarts",
+   "It is queued"
+  ],
+  "answer": 1,
+  "why": "Only the arrows that exist can be followed."
+ },
+ {
+  "q": "With level = 1 + floor(score / 100), which level is a score of 250?",
+  "accept": [
+   "3"
+  ],
+  "why": "floor(250 / 100) is 2, plus 1."
+ },
+ {
+  "q": "Why pass the random function into update as a parameter?",
+  "options": [
+   "It is faster",
+   "So tests can supply a predictable one",
+   "Math.random is deprecated",
+   "To seed the game"
+  ],
+  "answer": 1,
+  "why": "Logic that depends on hidden randomness cannot be tested."
+ }
+]

@@ -1,0 +1,11 @@
+{
+  "title": "A rate limiter",
+  "lesson": "redis/05-transactions-pubsub-limits",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "allow: count = redis.incr(key). When count is 1, call redis.expire(key, window). Return count <= limit.",
+    "The key is f\"rate:{client}\".",
+    "remaining: count = int(redis.get(key) or 0), then max(limit - count, 0)."
+  ]
+}

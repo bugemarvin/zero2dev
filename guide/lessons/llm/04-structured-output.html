@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structured output · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="llm/04-structured-output">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Building with LLMs · lesson 4 of 6</p>
+<h1>Structured output</h1>
+<p class="lede">Get data your program can use, and never trust it before checking.</p>
+<h2 id="programs-need-data-not-prose">Programs need data, not prose</h2>
+<p>A person can read "The invoice is from Acme, for 420 euros, due on the 3rd of March." A program needs:</p>
+<pre><code class="lang-json">{"vendor": "Acme", "amount": 420.0, "currency": "EUR", "due": "2025-03-03"}</code></pre>
+<p>Turning messy text into clean data is one of the most valuable things LLMs do. It only works if the output is checked like any other untrusted input.</p>
+<h2 id="ask-precisely">Ask precisely</h2>
+<pre><code class="lang-text">Extract the invoice details from the text in &lt;invoice&gt; tags.
+
+Reply with a single JSON object and nothing else, with exactly these fields:
+- "vendor": string
+- "amount": number, without a currency symbol
+- "currency": a three-letter code such as "EUR"
+- "due": the due date as YYYY-MM-DD, or null if none is given
+
+&lt;invoice&gt;
+...
+&lt;/invoice&gt;</code></pre>
+<p>Name every field, its type, its format and what to do when the value is missing. An example of the expected object helps further.</p>
+<h2 id="the-output-is-still-text">The output is still text</h2>
+<p>Even with a good prompt, you will sometimes get:</p>
+<pre><code class="lang-text">Here is the JSON you asked for:
+
+    ```json
+    {"vendor": "Acme", "amount": 420.0}
+    ```
+
+Let me know if you need anything else!</code></pre>
+<p>So the parsing code must be forgiving about the wrapping and strict about the content:</p>
+<pre><code class="lang-python">import json
+import re
+
+def extract_json(text):
+    fenced = re.search(r"```(?:json)?\s*(.*?)```", text, re.S)
+    if fenced:
+        text = fenced.group(1)
+    start, end = text.find("{"), text.rfind("}")
+    if start &lt; 0 or end &lt; start:
+        raise ValueError("no JSON object found")
+    return json.loads(text[start:end + 1])</code></pre>
+<h2 id="validate-everything">Validate everything</h2>
+<p>Valid JSON is not correct data. Check, with ordinary code:</p>
+<ul><li><strong>presence</strong>: are all required fields there?</li><li><strong>types</strong>: is <code>amount</code> a number, not the string <code>"420"</code>?</li><li><strong>values</strong>: is <code>currency</code> one of the codes you accept? Is the date a real date?</li><li><strong>plausibility</strong>: an invoice of 4 billion euros is probably a mistake.</li></ul>
+<p>In real projects a schema library does this. With Pydantic:</p>
+<pre><code class="lang-python">from pydantic import BaseModel
+
+class Invoice(BaseModel):
+    vendor: str
+    amount: float
+    currency: str
+    due: str | None
+
+invoice = Invoice.model_validate(data)      # raises on anything wrong</code></pre>
+<h2 id="retry-with-the-error">Retry with the error</h2>
+<p>When validation fails, send the problem back. Models are good at correcting a specific mistake:</p>
+<pre><code class="lang-python">def ask_json(client, prompt, validate, attempts=3):
+    messages = [{"role": "user", "content": prompt}]
+    for _ in range(attempts):
+        text = send(client, messages)
+        try:
+            data = extract_json(text)
+            validate(data)
+            return data
+        except ValueError as error:
+            messages.append({"role": "assistant", "content": text})
+            messages.append({"role": "user", "content": f"That was not valid: {error}. Reply with corrected JSON only."})
+    raise ValueError("no valid answer")</code></pre>
+<p>Limit the attempts. If three tries fail, the fourth will too, and something is wrong with the prompt or the input.</p>
+<h2 id="features-that-guarantee-the-shape">Features that guarantee the shape</h2>
+<p>Providers offer ways to get JSON that always matches a schema: <strong>structured outputs</strong>, or defining a <strong>tool</strong> whose input schema is the shape you want (<a href="../llm/05-tools-and-agents.html">next lesson</a>). Use them when available. They guarantee the <strong>shape</strong>. They cannot guarantee that the <strong>values</strong> are true, so validation of content stays.</p>
+<h2 id="design-the-schema-for-the-model">Design the schema for the model</h2>
+<ul><li>Use clear field names: <code>due_date</code>, not <code>dd</code>.</li><li>Prefer a fixed list of choices (<code>"status": "paid" | "open" | "overdue"</code>) to free text.</li><li>Allow <code>null</code> for "not in the document". A model that must fill every field will invent values.</li><li>For classification, ask for the <strong>reason first</strong> and the label after it, in separate fields. The label is then based on the reasoning.</li><li>Keep it flat. Deeply nested structures cause more mistakes.</li></ul>
+<h2 id="never-execute-model-output">Never execute model output</h2>
+<p>Output that becomes SQL, a shell command or code is a path for injection, exactly as with user input. Use parameters, allow-lists and review. "The model wrote it" is not a reason to trust it.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>json.loads(response)</code> with no handling</strong> for wrapping text or a cut-off answer.</li><li><strong>Trusting types</strong>: <code>"42"</code> is not <code>42</code>.</li><li><strong>Required fields with no way to say "unknown"</strong>, which produces invented values.</li><li><strong>Unlimited retries.</strong></li><li><strong>Checking the shape and not the meaning.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="llm/04-json-output">
+<h3>Extract and validate JSON <span class="ex-id">llm/04-json-output</span></h3>
+<p>Write three functions in <code>solution.py</code>.</p>
+<h4><code>extract_json(text)</code></h4>
+<p>Finds the JSON object in a model's answer and returns it as a dictionary.</p>
+<ul><li>The answer may be plain JSON, JSON inside a code fence (three backticks, with or without <code>json</code> after them), or JSON with sentences before and after.</li><li>Take the text from the first <code>{</code> to the last <code>}</code> and parse it.</li><li>When there is no object, or it does not parse, raise <code>ValueError</code>.</li></ul>
+<h4><code>validate(data, schema)</code></h4>
+<p><code>schema</code> maps field names to types, for example <code>{"vendor": str, "amount": float, "due": (str, type(None))}</code>. A tuple means "any of these".</p>
+<ul><li>Every field of the schema must be present, otherwise raise <code>ValueError("missing field: NAME")</code>.</li><li>Each value must have the right type, otherwise raise <code>ValueError("wrong type for NAME")</code>.</li><li>Where the schema says <code>float</code>, an <code>int</code> is accepted too. A <code>bool</code> is <strong>never</strong> accepted as a number.</li><li>Fields that are not in the schema raise <code>ValueError("unexpected field: NAME")</code>.</li><li>Check the fields in the order of the schema, then the unexpected ones in alphabetical order. Returns <code>data</code> when everything is right.</li></ul>
+<h4><code>ask_json(client, prompt, schema, attempts=3)</code></h4>
+<ul><li>Sends <code>messages</code> to <code>client.create(model="demo-model", max_tokens=500, messages=messages)</code>, starting with one user message holding the prompt.</li><li>The answer text is <code>response["content"][0]["text"]</code>.</li><li>If <code>extract_json</code> and <code>validate</code> both succeed, return the data.</li><li>Otherwise append two messages and try again: the model's answer as an <code>assistant</code> message, and a <code>user</code> message with the content <code>That was not valid: ERROR. Reply with corrected JSON only.</code>, where <code>ERROR</code> is the text of the <code>ValueError</code>.</li><li>After <code>attempts</code> failed tries, raise <code>ValueError("no valid answer after N attempts")</code>.</li></ul>
+<p>The tests use a <strong>fake client</strong>, so nothing here needs an API key, an account or the internet. The fake has the same shape as a real one: you call <code>client.create(...)</code> and get a response dictionary back.</p>
+<p class="ex-files">Files: <code>exercises/llm/04-json-output/</code></p>
+<pre><code class="lang-console">$ python3 check.py llm/04-json-output</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../llm/03-prompting.html"><span>Previous</span>Writing prompts</a><a class="next" href="../llm/05-tools-and-agents.html"><span>Next</span>Tools and agents</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

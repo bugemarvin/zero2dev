@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The game loop · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="gamedev/01-the-game-loop">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Game development · lesson 1 of 5</p>
+<h1>The game loop</h1>
+<p class="lede">Every game is one loop: read input, update the world, draw it. Sixty times a second.</p>
+<details class="install" id="install" data-track="gamedev">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre>
+<h4>Node.js and npm: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>A <strong>web browser</strong>: you are using one now. Nothing to install.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track uses <a href="../js/01-values-and-functions.html">JavaScript</a> and the browser's canvas. No game engine and no libraries: you will see how games work underneath, and the ideas carry over to Unity, Godot, Unreal or any other engine.</p>
+<h2 id="a-game-is-a-loop">A game is a loop</h2>
+<p>A web page reacts when something happens. A game keeps running even when the player does nothing: enemies move, timers count, clouds drift. So at its heart is a loop that never stops:</p>
+<pre><code class="lang-text">forever:
+    read the input
+    update the world a little
+    draw the world</code></pre>
+<p>One pass through the loop is a <strong>frame</strong>. At 60 frames per second, each frame has about 16 milliseconds.</p>
+<h2 id="the-canvas">The canvas</h2>
+<p>A <code>&lt;canvas&gt;</code> is a rectangle you draw on with JavaScript:</p>
+<pre><code class="lang-html">&lt;canvas id="game" width="480" height="320"&gt;&lt;/canvas&gt;</code></pre>
+<pre><code class="lang-javascript">const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+ctx.fillStyle = "#1b2230";
+ctx.fillRect(0, 0, canvas.width, canvas.height);     // a filled rectangle: x, y, width, height
+
+ctx.fillStyle = "gold";
+ctx.beginPath();
+ctx.arc(100, 80, 12, 0, Math.PI * 2);                // a circle: centre x, centre y, radius
+ctx.fill();
+
+ctx.fillStyle = "white";
+ctx.font = "16px sans-serif";
+ctx.fillText("Score: 0", 10, 20);</code></pre>
+<p>The origin <code>(0, 0)</code> is the <strong>top left</strong> corner. <code>x</code> grows to the right and <strong><code>y</code> grows downwards</strong>. That is the opposite of school mathematics, and you will trip over it at least once.</p>
+<p>The canvas keeps no list of objects. It is paint on a wall. To move something, you repaint the whole picture: clear it, then draw everything in its new position.</p>
+<h2 id="requestanimationframe">requestAnimationFrame</h2>
+<p>The browser offers a function that calls you back right before it paints the next frame:</p>
+<pre><code class="lang-javascript">function frame(time) {
+  update();
+  draw();
+  requestAnimationFrame(frame);       // ask for the next frame
+}
+
+requestAnimationFrame(frame);</code></pre>
+<p>It matches the screen's refresh rate and pauses when the tab is hidden. Never use <code>setInterval</code> for a game loop.</p>
+<h2 id="delta-time">Delta time</h2>
+<p>Screens differ: 60 frames per second on one machine, 144 on another, 30 on a busy phone. If you move a ball 5 pixels per frame, the game runs more than twice as fast on the gaming monitor.</p>
+<p>The fix is to measure how much <strong>time</strong> passed since the last frame, the <strong>delta time</strong>, and to move by speed times time:</p>
+<pre><code class="lang-javascript">let last = 0;
+
+function frame(time) {
+  const dt = (time - last) / 1000;        // seconds since the last frame
+  last = time;
+
+  ball.x += ball.vx * dt;                 // vx is in pixels per SECOND
+  // ...
+  requestAnimationFrame(frame);
+}</code></pre>
+<p>Now speeds are in pixels per second, and the game runs equally fast everywhere.</p>
+<p>One guard is needed. When the player switches to another tab, the next <code>dt</code> can be several seconds, and everything jumps through the walls. Cap it:</p>
+<pre><code class="lang-javascript">const dt = Math.min((time - last) / 1000, 0.05);</code></pre>
+<h2 id="separate-update-from-draw">Separate update from draw</h2>
+<p>Keep two functions with strictly different jobs:</p>
+<ul><li><strong><code>update(state, dt)</code></strong> changes the world: positions, scores, timers. It never draws.</li><li><strong><code>draw(state)</code></strong> paints the world. It never changes it.</li></ul>
+<p>The whole game is then data (the <strong>state</strong>) and functions that work on it:</p>
+<pre><code class="lang-javascript">const state = { ball: { x: 50, y: 50, vx: 120, vy: 90, r: 10 } };</code></pre>
+<p>This split is what makes a game <strong>testable</strong>: <code>update</code> is ordinary code that takes numbers and returns numbers. You can check it without a screen, which is exactly how the exercises of this track are tested.</p>
+<h2 id="bouncing">Bouncing</h2>
+<pre><code class="lang-javascript">if (ball.x - ball.r &lt; 0) {
+  ball.x = ball.r;                // put it back inside
+  ball.vx = Math.abs(ball.vx);    // and send it to the right
+}</code></pre>
+<p>Two details matter:</p>
+<ul><li><strong>Move the ball back inside.</strong> If you only flip the velocity, a ball that went far past the wall can flip again on the next frame and get stuck shaking in the wall.</li><li>Use <code>Math.abs</code> to set the direction, not <code>vx = -vx</code>, for the same reason.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Moving by pixels per frame</strong>, so the speed depends on the screen.</li><li><strong>Forgetting to clear the canvas</strong>, which leaves trails.</li><li><strong>Mixing update and draw</strong>, so nothing can be tested.</li><li><strong>Not capping <code>dt</code>.</strong></li><li><strong>Expecting <code>y</code> to grow upwards.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="gamedev/01-bouncing-ball">
+<h3>A bouncing ball <span class="ex-id">gamedev/01-bouncing-ball</span></h3>
+<p>Write two functions in <code>game.mjs</code>.</p>
+<h4><code>clampDt(dt)</code></h4>
+<p>Returns <code>dt</code>, but never more than <code>0.05</code> and never less than <code>0</code>.</p>
+<h4><code>update(ball, dt, width, height)</code></h4>
+<p>A ball is <code>{ x, y, vx, vy, r }</code>: its centre, its velocity in pixels per second, and its radius. Returns a <strong>new</strong> ball object, moved by <code>dt</code> seconds. The ball it was given is not changed.</p>
+<ul><li>Move: <code>x</code> grows by <code>vx * dt</code>, and <code>y</code> by <code>vy * dt</code>.</li><li>If the left edge of the ball (<code>x - r</code>) is past <code>0</code>, put the ball at <code>x = r</code> and make <code>vx</code> positive.</li><li>If the right edge (<code>x + r</code>) is past <code>width</code>, put it at <code>x = width - r</code> and make <code>vx</code> negative.</li><li>The same for the top (<code>0</code>) and the bottom (<code>height</code>), with <code>y</code> and <code>vy</code>.</li></ul>
+<p><strong>Start app</strong> opens the game in a browser tab. It runs your <code>game.mjs</code>, so you see your work move. Reload the tab after each change.</p>
+<p class="ex-files">Files: <code>exercises/gamedev/01-bouncing-ball/</code></p>
+<pre><code class="lang-console">$ python3 check.py gamedev/01-bouncing-ball</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/08-building-and-deploying.html"><span>Previous</span>Building and deploying</a><a class="next" href="../gamedev/02-input-and-movement.html"><span>Next</span>Input and movement</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game state and entities · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="gamedev/04-game-state">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Game development · lesson 4 of 5</p>
+<h1>Game state and entities</h1>
+<p class="lede">Menus, pausing, lives and scores: a game as a small state machine, plus lists of things that come and go.</p>
+<h2 id="a-game-is-more-than-playing">A game is more than playing</h2>
+<p>There is a title screen, the game itself, a pause, a game-over screen. In each of them the same key does something different, and different things are drawn. Tracking this with a handful of booleans ends badly:</p>
+<pre><code class="lang-javascript">let started = false, paused = false, gameOver = false;      // what does started &amp;&amp; gameOver &amp;&amp; paused mean?</code></pre>
+<p>Three booleans make eight combinations, and most of them are nonsense.</p>
+<h2 id="a-state-machine">A state machine</h2>
+<p>Give the game <strong>one</strong> variable that says which mode it is in:</p>
+<pre><code class="lang-javascript">state.mode = "menu";        // "menu", "playing", "paused" or "over"</code></pre>
+<p>Then write down which <strong>events</strong> move it from one mode to another:</p>
+<pre><code class="lang-text">menu     --start--&gt;    playing
+playing  --pause--&gt;    paused
+paused   --resume--&gt;   playing
+playing  --hit, last life--&gt;  over
+over     --restart--&gt;  playing</code></pre>
+<p>This is a <strong>state machine</strong>: a fixed set of states, and rules for moving between them. An event that has no rule in the current state does nothing. You cannot pause the menu or resume a game that is over, because there is no arrow for it.</p>
+<h2 id="a-reducer">A reducer</h2>
+<p>A clean way to write it is one function that takes the current state and an event, and returns the next state:</p>
+<pre><code class="lang-javascript">function next(state, event) {
+  switch (state.mode) {
+    case "menu":
+      if (event.type === "start") {
+        return { ...state, mode: "playing" };
+      }
+      return state;
+    case "playing":
+      if (event.type === "pause") {
+        return { ...state, mode: "paused" };
+      }
+      // ...
+      return state;
+    default:
+      return state;
+  }
+}</code></pre>
+<p>The function never changes the state it was given. It returns a new object, or the same object when nothing happened. That makes every rule testable in one line, and it is how large applications manage their state too.</p>
+<p>The update and draw functions then branch on the mode:</p>
+<pre><code class="lang-javascript">function update(state, input, dt) {
+  if (state.mode !== "playing") {
+    return state;           // nothing moves on the menu, or while paused
+  }
+  // ...
+}</code></pre>
+<h2 id="entities">Entities</h2>
+<p>Most things in a game come in lists: enemies, bullets, coins, particles. Each one is an <strong>entity</strong>, an object with the data it needs:</p>
+<pre><code class="lang-javascript">state.enemies = [
+  { x: 40, y: 0, vy: 60, alive: true },
+  { x: 200, y: -30, vy: 80, alive: true },
+];</code></pre>
+<p>Each frame:</p>
+<pre><code class="lang-javascript">state.enemies = state.enemies
+  .map((enemy) =&gt; ({ ...enemy, y: enemy.y + enemy.vy * dt }))       // move
+  .filter((enemy) =&gt; enemy.y &lt; height);                            // drop those that left the screen</code></pre>
+<p>Entities that are never removed pile up off-screen until the game crawls. Always decide how each kind of entity dies.</p>
+<h2 id="spawning-with-a-timer">Spawning with a timer</h2>
+<pre><code class="lang-javascript">state.spawnIn -= dt;
+if (state.spawnIn &lt;= 0) {
+  state.enemies.push(makeEnemy());
+  state.spawnIn += 1.5;         // the next one in 1.5 seconds
+}</code></pre>
+<p>Adding the interval to the leftover time, in place of setting the timer to 1.5, keeps the rhythm exact.</p>
+<h2 id="score-lives-and-levels">Score, lives and levels</h2>
+<p>Derive what you can from other values. A level that depends on the score needs no variable of its own that could fall out of step:</p>
+<pre><code class="lang-javascript">const level = 1 + Math.floor(state.score / 100);</code></pre>
+<p>Difficulty usually follows the level: enemies move faster, spawn more often.</p>
+<h2 id="randomness-you-can-test">Randomness you can test</h2>
+<p><code>Math.random()</code> in the middle of the logic makes a function give a different result on every call, which cannot be tested. Pass the random source in:</p>
+<pre><code class="lang-javascript">function update(state, input, dt, random = Math.random) {
+  const x = random() * width;
+}</code></pre>
+<p>The game uses the real one. A test passes <code>() =&gt; 0.5</code> and knows exactly what happens.</p>
+<h2 id="saving">Saving</h2>
+<p>A high score survives a reload with <code>localStorage</code>:</p>
+<pre><code class="lang-javascript">localStorage.setItem("best", String(score));
+const best = Number(localStorage.getItem("best") ?? 0);</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Several booleans</strong> in place of one mode.</li><li><strong>Updating the world while paused</strong>, or on the menu.</li><li><strong>Entities that are never removed.</strong></li><li><strong>A level stored separately</strong> from the score it is computed from.</li><li><strong><code>Math.random()</code> buried in the logic.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="gamedev/04-state-machine">
+<h3>A game state machine <span class="ex-id">gamedev/04-state-machine</span></h3>
+<p>Write two functions in <code>game.mjs</code>.</p>
+<h4><code>initialState()</code></h4>
+<p>Returns <code>{ mode: "menu", score: 0, lives: 3, level: 1 }</code>.</p>
+<h4><code>next(state, event)</code></h4>
+<p>Returns the state after an event. An event is an object with a <code>type</code>. When the event does not apply in the current mode, return <strong>the same state object</strong>, unchanged. Never modify the state you were given.</p>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Event</th><th>Result</th></tr></thead><tbody><tr><td><code>menu</code></td><td><code>{ type: "start" }</code></td><td>mode becomes <code>playing</code></td></tr><tr><td><code>playing</code></td><td><code>{ type: "pause" }</code></td><td>mode becomes <code>paused</code></td></tr><tr><td><code>paused</code></td><td><code>{ type: "resume" }</code></td><td>mode becomes <code>playing</code></td></tr><tr><td><code>playing</code></td><td><code>{ type: "score", points: N }</code></td><td><code>score</code> grows by <code>N</code>, and <code>level</code> becomes <code>1 + Math.floor(score / 100)</code></td></tr><tr><td><code>playing</code></td><td><code>{ type: "hit" }</code></td><td><code>lives</code> goes down by 1. When it reaches 0, mode becomes <code>over</code>.</td></tr><tr><td><code>over</code></td><td><code>{ type: "restart" }</code></td><td>a fresh game in mode <code>playing</code>: score 0, lives 3, level 1</td></tr></tbody></table></div>
+<p>Everything else changes nothing: you cannot score while paused, pause the menu, or be hit after the game is over.</p>
+<p><strong>Start app</strong> opens the game in a browser tab. It runs your <code>game.mjs</code>, so you see your work move. Reload the tab after each change.</p>
+<p class="ex-files">Files: <code>exercises/gamedev/04-state-machine/</code></p>
+<pre><code class="lang-console">$ python3 check.py gamedev/04-state-machine</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../gamedev/03-collisions.html"><span>Previous</span>Collisions</a><a class="next" href="../gamedev/05-a-complete-game.html"><span>Next</span>A complete game</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

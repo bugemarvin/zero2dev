@@ -1,0 +1,43 @@
+[
+ {
+  "q": "In explain output, which stage means the whole collection was read?",
+  "options": [
+   "IXSCAN",
+   "COLLSCAN",
+   "FETCH",
+   "SORT"
+  ],
+  "answer": 1,
+  "why": "COLLSCAN is a collection scan: no index was used."
+ },
+ {
+  "q": "An index on { customer: 1, date: -1 } exists. Which query can NOT use it well?",
+  "options": [
+   "find({customer: 'ada'})",
+   "find({customer: 'ada'}).sort({date: -1})",
+   "find({date: '2025-01-04'})"
+  ],
+  "answer": 2,
+  "why": "A compound index is used from its first field. date alone is not a prefix."
+ },
+ {
+  "q": "Order lines belong to exactly one order and are always read with it. Embed or reference?",
+  "options": [
+   "Embed",
+   "Reference"
+  ],
+  "answer": 0,
+  "why": "Data used together, with one parent and a small bounded size, is embedded."
+ },
+ {
+  "q": "What guarantees that no two users share an email, even with simultaneous sign-ups?",
+  "options": [
+   "Checking with find first",
+   "A unique index",
+   "A longer password",
+   "A transaction log"
+  ],
+  "answer": 1,
+  "why": "Only the database can enforce it atomically."
+ }
+]

@@ -1,0 +1,22 @@
+{
+  "title": "Password hashing and signed tokens",
+  "lesson": "node/05-authentication",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "hashPassword: const salt = randomBytes(16); const hash = scryptSync(password, salt, 64); return `${salt.toString(\"hex\")}:${hash.toString(\"hex\")}`;",
+    "verifyPassword: split at the colon, recompute scryptSync with the stored salt, and compare the two Buffers with timingSafeEqual. They must have the same length.",
+    "createToken: const body = Buffer.from(JSON.stringify({ ...payload, exp: now + lifetime })).toString(\"base64url\"); then body + \".\" + the HMAC of body.",
+    "verifyToken: check that there are exactly two parts, compare the signature first, and only then parse the body inside try/catch and check exp > now."
+  ]
+}

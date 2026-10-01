@@ -1,0 +1,12 @@
+{
+  "title": "Retrieval from scratch",
+  "lesson": "llm/06-rag-and-evaluation",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "cosine: the dot product divided by the product of the two lengths. Return 0.0 when a length is 0.",
+    "chunk: a while loop over start positions, moving by size - overlap. Append words[start:start + size], and stop when start + size reaches the end.",
+    "top_k: sorted(documents, key=lambda doc: cosine(query, doc[\"vector\"]), reverse=True)[:k]. Python's sort keeps ties in their original order.",
+    "build_prompt: a list of parts (the first line, one passage block each, the question line), joined with \"\\n\\n\"."
+  ]
+}

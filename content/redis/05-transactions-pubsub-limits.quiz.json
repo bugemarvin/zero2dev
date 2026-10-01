@@ -1,0 +1,46 @@
+[
+ {
+  "q": "A command inside MULTI ... EXEC fails while running. What happens to the others?",
+  "options": [
+   "They are rolled back",
+   "They still take effect",
+   "The server stops",
+   "They are retried"
+  ],
+  "answer": 1,
+  "why": "Redis has no rollback. MULTI guarantees only that nothing else runs in between."
+ },
+ {
+  "q": "A message is published on a pub/sub channel while no one is subscribed. What happens to it?",
+  "options": [
+   "It is stored",
+   "It is lost",
+   "It is retried",
+   "It goes to a queue"
+  ],
+  "answer": 1,
+  "why": "Pub/sub is fire and forget. Use a stream or a list for work that must not be lost."
+ },
+ {
+  "q": "In the fixed-window rate limiter, when is EXPIRE called?",
+  "options": [
+   "On every request",
+   "Only when the counter was just created",
+   "Never",
+   "When the limit is reached"
+  ],
+  "answer": 1,
+  "why": "The window starts with the first request. Resetting the expiry each time would keep the window open for ever."
+ },
+ {
+  "q": "Which structure gives a durable queue with several workers and acknowledgements?",
+  "options": [
+   "A string",
+   "Pub/sub",
+   "A stream",
+   "A set"
+  ],
+  "answer": 2,
+  "why": "Streams keep messages, and consumer groups track what each worker has finished."
+ }
+]

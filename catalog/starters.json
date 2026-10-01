@@ -80,6 +80,18 @@
  "css/06-responsive-layout": {
   "style.css": "/* Base rules first. The media query goes at the end. */\n"
  },
+ "devops/01-check-config": {
+  "solution.sh": "#!/usr/bin/env bash\nset -euo pipefail\n\necho \"ok\"\n"
+ },
+ "devops/03-versions": {
+  "solution.py": "def parse(version):\n    return (0, 0, 0)\n\n\ndef bump(version, part):\n    return version\n\n\ndef next_version(version, commits):\n    return version\n\n\ndef newest(versions):\n    return max(versions)\n"
+ },
+ "devops/04-rolling-deploy": {
+  "solution.py": "def rolling_deploy(servers, new_version, healthy, batch_size):\n    for server in servers:\n        server[\"version\"] = new_version\n    return {\"status\": \"done\", \"failed\": None, \"updated\": [s[\"name\"] for s in servers]}\n"
+ },
+ "devops/05-log-report": {
+  "solution.py": "import sys\n\nfor line in sys.stdin:\n    fields = line.split()\n    # fields is [method, path, status, milliseconds], or empty for a blank line\n"
+ },
  "docker/04-compose": {
   "compose.yaml": "# Describe the web service here.\nservices: {}\n"
  },
@@ -186,6 +198,21 @@
  "elixir/09-roman": {
   "solution.ex": "defmodule Roman do\n  def to_roman(_n) do\n    nil\n  end\n\n  def from_roman(_text) do\n    nil\n  end\nend\n"
  },
+ "gamedev/01-bouncing-ball": {
+  "game.mjs": "export function clampDt(dt) {\n  return dt;\n}\n\nexport function update(ball, dt, width, height) {\n  return ball;\n}\n"
+ },
+ "gamedev/02-movement": {
+  "game.mjs": "export function direction(keys) {\n  return { x: 0, y: 0 };\n}\n\nexport function movePlayer(player, keys, dt, bounds) {\n  return player;\n}\n\nexport function jump(body, pressed, dt, groundY) {\n  return body;\n}\n"
+ },
+ "gamedev/03-collisions": {
+  "game.mjs": "export function rectsOverlap(a, b) {\n  return false;\n}\n\nexport function circlesOverlap(a, b) {\n  return false;\n}\n\nexport function circleRect(circle, rect) {\n  return false;\n}\n\nexport function collect(player, coins) {\n  return { coins, collected: 0 };\n}\n"
+ },
+ "gamedev/04-state-machine": {
+  "game.mjs": "export function initialState() {\n  return { mode: \"menu\", score: 0, lives: 3, level: 1 };\n}\n\nexport function next(state, event) {\n  return state;\n}\n"
+ },
+ "gamedev/05-catch-the-stars": {
+  "game.mjs": "export function createGame(width, height) {\n  return {\n    mode: \"playing\", width, height,\n    paddle: { x: width / 2 - 40, y: height - 20, w: 80, h: 10, speed: 300 },\n    stars: [], score: 0, lives: 3, spawnIn: 1,\n  };\n}\n\nexport function update(game, input, dt, random = Math.random) {\n  return game;\n}\n"
+ },
  "go/01-rectangle": {
   "main.go": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar width, height int\n\tfmt.Scan(&width, &height)\n\t// print the area, the perimeter and the ratio\n\tfmt.Println(width, height)\n}\n"
  },
@@ -287,6 +314,24 @@
  "js/10-dom": {
   "dom.js": "export function renderList(container, items) {\n}\n\nexport function setupCounter(button, output) {\n}\n\nexport function setupFilter(input, list) {\n}\n"
  },
+ "llm/01-context-window": {
+  "solution.py": "def estimate_tokens(text):\n    return 0\n\n\ndef count_tokens(messages):\n    return 0\n\n\ndef trim_history(messages, limit):\n    return list(messages)\n"
+ },
+ "llm/02-client": {
+  "solution.py": "import time\n\n\nclass RateLimited(Exception):\n    \"\"\"The provider asked us to slow down. Trying again later can work.\"\"\"\n\n\nclass BadRequest(Exception):\n    \"\"\"The request itself is wrong. Trying again cannot work.\"\"\"\n\n\ndef ask(client, question, system=None, history=None, max_tokens=500):\n    return \"\"\n\n\ndef ask_with_retry(client, question, attempts=3, sleep=time.sleep):\n    return ask(client, question)\n"
+ },
+ "llm/03-prompt-templates": {
+  "solution.py": "def render(template, **values):\n    return template\n\n\ndef wrap(tag, text):\n    return text\n\n\ndef few_shot(instruction, examples, query):\n    return instruction\n"
+ },
+ "llm/04-json-output": {
+  "solution.py": "import json\n\n\ndef extract_json(text):\n    return json.loads(text)\n\n\ndef validate(data, schema):\n    return data\n\n\ndef ask_json(client, prompt, schema, attempts=3):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    response = client.create(model=\"demo-model\", max_tokens=500, messages=messages)\n    return extract_json(response[\"content\"][0][\"text\"])\n"
+ },
+ "llm/05-agent-loop": {
+  "solution.py": "def run_agent(client, functions, question, max_steps=5):\n    messages = [{\"role\": \"user\", \"content\": question}]\n    response = client.create(model=\"demo-model\", max_tokens=500, messages=messages)\n    return \"\"\n"
+ },
+ "llm/06-retrieval": {
+  "solution.py": "import math\n\n\ndef cosine(a, b):\n    return 0.0\n\n\ndef chunk(words, size, overlap):\n    return []\n\n\ndef top_k(query, documents, k):\n    return []\n\n\ndef build_prompt(question, passages):\n    return \"\"\n\n\ndef recall_at_k(retrieved_ids, relevant_ids, k):\n    return 0.0\n"
+ },
  "microservices/01-order-details": {
   "orders/server.mjs": "import { createServer } from \"node:http\";\nimport { orders } from \"./data.mjs\";\n\nconst USERS_URL = process.env.USERS_URL ?? \"http://localhost:3001\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\ncreateServer(async (req, res) => {\n  if (req.method === \"GET\" && req.url === \"/health\") {\n    return sendJson(res, 200, { status: \"ok\" });\n  }\n  // GET /orders/:id goes here\n  sendJson(res, 404, { error: \"not found\" });\n}).listen(3000, () => console.log(\"orders listening on 3000\"));\n"
  },
@@ -298,6 +343,24 @@
  },
  "microservices/04-resilience": {
   "shop/server.mjs": "import { createServer } from \"node:http\";\n\nconst INVENTORY_URL = process.env.INVENTORY_URL ?? \"http://localhost:3001\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\ncreateServer(async (req, res) => {\n  if (req.method === \"GET\" && req.url === \"/health\") {\n    return sendJson(res, 200, { status: \"ok\" });\n  }\n  // GET /product/:item and GET /slow-product/:item go here\n  sendJson(res, 404, { error: \"not found\" });\n}).listen(3000, () => console.log(\"shop listening on 3000\"));\n"
+ },
+ "mongodb/01-first-documents": {
+  "query.js": "// 1. insert the three tasks into db.tasks\n\n// 2. mark task 3 as done\n\n// 3. delete task 2\n\n// 4. the remaining tasks: title and done only, sorted by title\n// const result = db.tasks.find(...)\n"
+ },
+ "mongodb/02-find-books": {
+  "query.js": "// const result = db.books.find(...)\n"
+ },
+ "mongodb/03-or-and-in": {
+  "query.js": "const result = {\n  cheapOrNew: 0,\n  austenTitles: [],\n  tags: [],\n};\n"
+ },
+ "mongodb/04-update-stock": {
+  "query.js": "// 1. one copy of book 1 sold in the shop\n\n// 2. classics cost 2 more\n\n// 3. book 8 is a bestseller (run it twice)\n\n// 4. nobody says cyberpunk any more\n\n// 5. three views of book 8\n\n// 6. delete books with no stock anywhere\n"
+ },
+ "mongodb/05-sales-report": {
+  "query.js": "const result = db.orders.aggregate([\n  // { $match: ... },\n  // { $unwind: ... },\n  // { $group: ... },\n  // { $sort: ... },\n]);\n"
+ },
+ "mongodb/06-indexes": {
+  "query.js": "// 1. a unique index on users.email\n\n// 2. a compound index on orders: customer, then date descending\n\n// 3. ada's orders, newest first\n// const result = db.orders.find(...)\n"
  },
  "next/01-pages": {
   "app/about/page.jsx": "export default function About() {\n  return null;\n}\n",
@@ -327,6 +390,24 @@
  "next/07-server-actions": {
   "app/actions.js": "import { revalidatePath } from \"next/cache\";\nimport { addTodo, deleteTodo } from \"../lib/todos.js\";\n\nexport async function createTodo(formData) {\n  return { error: \"not written yet\" };\n}\n\nexport async function removeTodo(id) {\n  return { error: \"not written yet\" };\n}\n",
   "app/todos/page.jsx": "import { createTodo } from \"../actions.js\";\nimport { listTodos } from \"../../lib/todos.js\";\n\nexport default function TodosPage() {\n  return <ul></ul>;\n}\n"
+ },
+ "node/01-config": {
+  "solution.mjs": "export function parseArgs(argv) {\n  return { command: null, options: {}, rest: [] };\n}\n\nexport function loadConfig(env) {\n  return { port: 3000, databaseUrl: \"\", debug: false };\n}\n"
+ },
+ "node/02-files": {
+  "solution.mjs": "import { readFile, writeFile, mkdir, readdir, rename } from \"node:fs/promises\";\nimport path from \"node:path\";\n\nexport async function readJsonOr(file, fallback) {\n  return fallback;\n}\n\nexport async function saveJson(file, data) {\n}\n\nexport async function countLines(file) {\n  return 0;\n}\n\nexport async function findFiles(dir, extension) {\n  return [];\n}\n"
+ },
+ "node/03-streams": {
+  "solution.mjs": "import { EventEmitter } from \"node:events\";\n\nexport class Stock extends EventEmitter {\n  quantity(name) {\n    return 0;\n  }\n}\n\nexport async function* splitLines(source) {\n  for await (const chunk of source) {\n    yield chunk;\n  }\n}\n\nexport async function summarize(source) {\n  return { requests: 0, errors: 0, slowest: null };\n}\n"
+ },
+ "node/04-books-api": {
+  "server.mjs": "import express from \"express\";\n\nclass HttpError extends Error {\n  constructor(status, message) {\n    super(message);\n    this.status = status;\n  }\n}\n\nlet nextId = 4;\nlet books = [\n  { id: 1, title: \"Dune\", author: \"Frank Herbert\", year: 1965 },\n  { id: 2, title: \"Emma\", author: \"Jane Austen\", year: 1815 },\n  { id: 3, title: \"Persuasion\", author: \"Jane Austen\", year: 1817 },\n];\n\nconst app = express();\napp.use(express.json());\n\napp.get(\"/books\", (req, res) => {\n  // filter, sort and page here\n  res.json({ items: books, total: books.length, limit: 20, offset: 0 });\n});\n\n// Add GET /books/:id, POST /books and DELETE /books/:id\n\n// Add the handler for unknown paths, and the error handler, last\n\napp.listen(process.env.PORT || 3000);\n"
+ },
+ "node/05-auth": {
+  "solution.mjs": "import { createHmac, randomBytes, scryptSync, timingSafeEqual } from \"node:crypto\";\n\nexport function hashPassword(password) {\n  return \"\";\n}\n\nexport function verifyPassword(password, stored) {\n  return false;\n}\n\nexport function createToken(payload, secret, now, lifetime) {\n  return \"\";\n}\n\nexport function verifyToken(token, secret, now) {\n  return null;\n}\n"
+ },
+ "node/06-service": {
+  "solution.mjs": "const DAY = 24 * 60 * 60 * 1000;\n\nexport function createLibrary({ books, clock, notify }) {\n  return {\n    async borrow(bookId, memberId) {\n    },\n\n    async giveBack(bookId, memberId) {\n    },\n\n    async isAvailable(bookId) {\n      return false;\n    },\n  };\n}\n"
  },
  "php/01-receipt": {
   "solution.php": "<?php\ndeclare(strict_types=1);\n\n$tokens = preg_split('/\\s+/', trim(stream_get_contents(STDIN)));\n$name = $tokens[0];\n$price = (float) $tokens[1];\n$quantity = (int) $tokens[2];\n\necho \"Item: $name\\n\";\n"
@@ -408,6 +489,21 @@
  },
  "react/09-theme": {
   "theme.jsx": "import { createContext, useContext, useState } from \"react\";\n\nconst ThemeContext = createContext(null);\n\nexport function ThemeProvider({ children }) {\n  return children;\n}\n\nexport function useTheme() {\n  return { theme: \"light\", toggleTheme() {} };\n}\n\nexport function ThemeButton() {\n  return <button>Theme: light</button>;\n}\n\nexport function ThemedBox({ children }) {\n  return <div className=\"box light\">{children}</div>;\n}\n"
+ },
+ "redis/01-strings": {
+  "commands.redis": "# 1. site:name\n\n# 2. page:home:views, counted up to 5\n\n# 3. session:abc with a time limit\n\n# 4. temp, set and deleted\n\n# 5. lock:report, taken by worker-1\n"
+ },
+ "redis/02-structures": {
+  "commands.redis": "# a user as a hash\n\n# a queue as a list\n\n# tags as sets\n"
+ },
+ "redis/03-leaderboard": {
+  "commands.redis": "# 1. five players\n\n# 2. sam wins 500\n\n# 3. lee leaves\n\n# 4. the top three, as a list\n"
+ },
+ "redis/04-cache-aside": {
+  "solution.py": "import json\n\n\ndef get_user(cache, db, user_id):\n    return db.load_user(user_id)\n\n\ndef update_user(cache, db, user_id, fields):\n    db.save_user(user_id, fields)\n"
+ },
+ "redis/05-rate-limit": {
+  "solution.py": "def allow(redis, client, limit, window):\n    return True\n\n\ndef remaining(redis, client, limit):\n    return limit\n"
  },
  "rust/01-stats": {
   "main.rs": "use std::io::Read;\n\nfn main() {\n    let mut input = String::new();\n    std::io::stdin().read_to_string(&mut input).unwrap();\n    let numbers: Vec<i64> = input.split_whitespace().map(|t| t.parse().unwrap()).collect();\n    // numbers is a Vec<i64>: use numbers.len() and a for loop\n    println!(\"count: {}\", numbers.len());\n}\n"

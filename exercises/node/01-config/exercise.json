@@ -1,0 +1,21 @@
+{
+  "title": "Arguments and configuration",
+  "lesson": "node/01-runtime-and-processes",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "parseArgs: loop with an index, so that an option can consume the next argument: if the next one does not start with --, it is the value, and you skip it with i++.",
+    "For --name=value, split at the first = only: body.indexOf(\"=\") and two slices.",
+    "loadConfig: Number.isInteger(port) && port >= 1 && port <= 65535, else throw new Error(\"PORT must be a number from 1 to 65535\")."
+  ]
+}

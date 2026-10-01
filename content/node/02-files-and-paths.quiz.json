@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which error code means 'no such file or directory'?",
+  "options": [
+   "EEXIST",
+   "ENOENT",
+   "EACCES",
+   "EISDIR"
+  ],
+  "answer": 1,
+  "why": "ENOENT: error, no entry."
+ },
+ {
+  "q": "A relative path such as \"data.json\" is resolved from ...",
+  "options": [
+   "the folder of the source file",
+   "the folder the program was started in",
+   "the home folder",
+   "the root"
+  ],
+  "answer": 1,
+  "why": "process.cwd() decides. Use import.meta.dirname for files next to your code."
+ },
+ {
+  "q": "Why write to a temporary file and then rename it?",
+  "options": [
+   "It is faster",
+   "A rename is atomic, so readers never see a half-written file",
+   "It compresses the data",
+   "It is required on Linux"
+  ],
+  "answer": 1,
+  "why": "A crash in the middle of a write leaves the original intact."
+ },
+ {
+  "q": "A user supplies the file name ../../etc/passwd. What is this attack called?",
+  "options": [
+   "SQL injection",
+   "Path traversal",
+   "Cross-site scripting",
+   "A stampede"
+  ],
+  "answer": 1,
+  "why": "Resolve the path and check that it stays inside the intended folder."
+ }
+]

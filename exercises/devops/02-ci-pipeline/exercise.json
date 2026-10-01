@@ -1,0 +1,87 @@
+{
+  "title": "A CI script and a workflow",
+  "lesson": "devops/02-continuous-integration",
+  "kind": "sandbox",
+  "timeout": 60,
+  "setup": [
+    "git init -q -b main .",
+    "cp \"$Z2D_EX\"/files/*.py .",
+    "git add -A",
+    "git commit -q -m 'A small calculator with tests'"
+  ],
+  "checks": [
+    {
+      "name": "ci.sh exists and is executable",
+      "cmd": "test -x ci.sh",
+      "fail": "Create ci.sh and run: chmod +x ci.sh"
+    },
+    {
+      "name": "ci.sh succeeds on the healthy project",
+      "cmd": "./ci.sh",
+      "fail": "./ci.sh must exit with code 0 when everything is fine"
+    },
+    {
+      "name": "ci.sh prints the three stage lines in order",
+      "cmd": "./ci.sh 2>&1 | grep -E '^== (lint|test|all checks passed)$' | tr '\\n' ' '",
+      "stdout": "== lint == test == all checks passed",
+      "fail": "The output must contain the lines '== lint', '== test' and '== all checks passed', in that order"
+    },
+    {
+      "name": "ci.sh fails when a test fails",
+      "cmd": "tmp=$(mktemp -d); cp -r . \"$tmp\"; cd \"$tmp\"; printf 'def add(a, b):\\n    return a - b\\n\\n\\ndef average(numbers):\\n    return 0\\n' > calc.py; ./ci.sh >/dev/null 2>&1; rc=$?; cd /; rm -rf \"$tmp\"; test \"$rc\" -ne 0",
+      "fail": "With a bug in calc.py, ./ci.sh must exit with a code other than 0"
+    },
+    {
+      "name": "ci.sh fails on a syntax error and does not claim success",
+      "cmd": "tmp=$(mktemp -d); cp -r . \"$tmp\"; cd \"$tmp\"; printf 'def broken(:\\n' > extra.py; ./ci.sh > out.txt 2>&1; rc=$?; grep -q 'all checks passed' out.txt && rc=0; cd /; rm -rf \"$tmp\"; test \"$rc\" -ne 0",
+      "fail": "With a file that has a syntax error, ./ci.sh must fail in the lint stage and not print 'all checks passed'"
+    },
+    {
+      "name": "the workflow file exists",
+      "cmd": "test -f .github/workflows/ci.yml",
+      "fail": "Create .github/workflows/ci.yml"
+    },
+    {
+      "name": "the workflow runs on pushes and on pull requests",
+      "cmd": "grep -q '^on:' .github/workflows/ci.yml && grep -Eq '^ +push:' .github/workflows/ci.yml && grep -Eq '^ +pull_request:' .github/workflows/ci.yml",
+      "fail": "Under 'on:' list both push: and pull_request:"
+    },
+    {
+      "name": "the workflow has a job that runs on ubuntu-latest",
+      "cmd": "grep -q '^jobs:' .github/workflows/ci.yml && grep -Eq '^ +runs-on: +ubuntu-latest' .github/workflows/ci.yml",
+      "fail": "Add jobs: with a job that has runs-on: ubuntu-latest"
+    },
+    {
+      "name": "the workflow checks out the code",
+      "cmd": "grep -Eq 'uses: +actions/checkout@v[0-9]+' .github/workflows/ci.yml",
+      "fail": "The first step must be: - uses: actions/checkout@v4"
+    },
+    {
+      "name": "the workflow runs ./ci.sh",
+      "cmd": "grep -Eq 'run: +\\./ci\\.sh' .github/workflows/ci.yml",
+      "fail": "Add a step with: run: ./ci.sh"
+    },
+    {
+      "name": "the files use spaces, not tabs",
+      "cmd": "! grep -q \"$(printf '\\t')\" .github/workflows/ci.yml",
+      "fail": "YAML does not allow tabs for indentation"
+    },
+    {
+      "name": "both files are committed",
+      "cmd": "git ls-files --error-unmatch ci.sh .github/workflows/ci.yml >/dev/null 2>&1 && test -z \"$(git status --porcelain --untracked-files=no)\"",
+      "fail": "git add ci.sh .github and commit. The working tree must be clean."
+    },
+    {
+      "name": "ci.sh is executable in Git too",
+      "cmd": "git ls-files -s ci.sh | cut -c1-6",
+      "stdout": "100755",
+      "fail": "Git must record the executable bit: chmod +x ci.sh, then commit again"
+    }
+  ],
+  "hints": [
+    "ci.sh starts with #!/usr/bin/env bash and set -euo pipefail. Then: echo \"== lint\", python3 -m py_compile *.py, echo \"== test\", python3 -m unittest -q, echo \"== all checks passed\".",
+    "Make it executable before committing: chmod +x ci.sh",
+    "The workflow: name, then on: with push: and pull_request: indented under it, then jobs: > test: > runs-on: ubuntu-latest and steps:.",
+    "The steps are a list: '- uses: actions/checkout@v4' and '- run: ./ci.sh'. Indent with spaces only."
+  ]
+}

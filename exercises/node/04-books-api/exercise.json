@@ -1,0 +1,255 @@
+{
+  "title": "A books API with validation and paging",
+  "lesson": "node/04-building-an-api",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "node",
+  "edit": [
+    "server.mjs"
+  ],
+  "start": [
+    "node",
+    "server.mjs"
+  ],
+  "start_timeout": 30,
+  "requests": [
+    {
+      "name": "GET /books returns a page object",
+      "path": "/books",
+      "status": 200,
+      "json": {
+        "items": [
+          {
+            "id": 1,
+            "title": "Dune",
+            "author": "Frank Herbert",
+            "year": 1965
+          },
+          {
+            "id": 2,
+            "title": "Emma",
+            "author": "Jane Austen",
+            "year": 1815
+          },
+          {
+            "id": 3,
+            "title": "Persuasion",
+            "author": "Jane Austen",
+            "year": 1817
+          }
+        ],
+        "total": 3,
+        "limit": 20,
+        "offset": 0
+      }
+    },
+    {
+      "name": "POST /books with valid data answers 201 and a Location header",
+      "method": "POST",
+      "path": "/books",
+      "body": {
+        "title": "  Foundation ",
+        "author": "Isaac Asimov",
+        "year": 1951
+      },
+      "status": 201,
+      "json": {
+        "id": 4,
+        "title": "Foundation",
+        "author": "Isaac Asimov",
+        "year": 1951
+      },
+      "header": {
+        "Location": "/books/4"
+      }
+    },
+    {
+      "name": "extra fields in the body are ignored",
+      "method": "POST",
+      "path": "/books",
+      "body": {
+        "id": 999,
+        "title": "Neuromancer",
+        "author": "William Gibson",
+        "year": 1984,
+        "admin": true
+      },
+      "status": 201,
+      "json": {
+        "id": 5,
+        "title": "Neuromancer",
+        "author": "William Gibson",
+        "year": 1984
+      }
+    },
+    {
+      "name": "POST with several problems reports each field",
+      "method": "POST",
+      "path": "/books",
+      "body": {
+        "title": "   ",
+        "year": "old"
+      },
+      "status": 400,
+      "json": {
+        "error": "validation failed",
+        "fields": {
+          "title": "title is required",
+          "author": "author is required",
+          "year": "year must be a whole number"
+        }
+      }
+    },
+    {
+      "name": "POST with one problem reports only that field",
+      "method": "POST",
+      "path": "/books",
+      "body": {
+        "title": "X",
+        "author": "Y",
+        "year": 12.5
+      },
+      "status": 400,
+      "json": {
+        "error": "validation failed",
+        "fields": {
+          "year": "year must be a whole number"
+        }
+      }
+    },
+    {
+      "name": "POST with invalid JSON answers 400",
+      "method": "POST",
+      "path": "/books",
+      "raw": "{oops",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "status": 400,
+      "json": {
+        "error": "invalid JSON"
+      }
+    },
+    {
+      "name": "?author= filters, ignoring case",
+      "path": "/books?author=jane%20austen",
+      "status": 200,
+      "json_contains": {
+        "total": 2,
+        "items": [
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "?limit= and ?offset= page through the list",
+      "path": "/books?limit=2&offset=1",
+      "status": 200,
+      "json_contains": {
+        "total": 5,
+        "limit": 2,
+        "offset": 1,
+        "items": [
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "the limit is capped at 100 and bad values fall back",
+      "path": "/books?limit=5000&offset=-3",
+      "status": 200,
+      "json_contains": {
+        "limit": 100,
+        "offset": 0
+      }
+    },
+    {
+      "name": "?sort=year orders by year",
+      "path": "/books?sort=year&limit=2",
+      "status": 200,
+      "json_contains": {
+        "items": [
+          {
+            "id": 2
+          },
+          {
+            "id": 3
+          }
+        ]
+      }
+    },
+    {
+      "name": "?sort=-year orders by year, newest first",
+      "path": "/books?sort=-year&limit=2",
+      "status": 200,
+      "json_contains": {
+        "items": [
+          {
+            "id": 5
+          },
+          {
+            "id": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "GET /books/4 returns the created book",
+      "path": "/books/4",
+      "status": 200,
+      "json": {
+        "id": 4,
+        "title": "Foundation",
+        "author": "Isaac Asimov",
+        "year": 1951
+      }
+    },
+    {
+      "name": "GET /books/99 answers 404 in the error shape",
+      "path": "/books/99",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "an unknown path answers 404 as JSON",
+      "path": "/nothing",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "DELETE /books/1 answers 204",
+      "method": "DELETE",
+      "path": "/books/1",
+      "status": 204
+    },
+    {
+      "name": "DELETE /books/1 again answers 404",
+      "method": "DELETE",
+      "path": "/books/1",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    }
+  ],
+  "hints": [
+    "validate(body) builds a fields object: add fields.title, fields.author and fields.year as needed, and answer 400 when it is not empty.",
+    "Create the book from the fields you expect only: { id: nextId++, title: body.title.trim(), author: body.author.trim(), year: body.year }.",
+    "Paging: const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100); const offset = Math.max(parseInt(req.query.offset) || 0, 0);",
+    "The last two app.use calls: one with (req, res) for unknown paths, one with (error, req, res, next) that checks error.type === \"entity.parse.failed\" and error instanceof HttpError."
+  ]
+}

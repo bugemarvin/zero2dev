@@ -1,0 +1,21 @@
+{
+  "title": "A small file store",
+  "lesson": "node/02-files-and-paths",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "readJsonOr: catch the error of readFile only, and return the fallback when error.code === \"ENOENT\". Parse outside the try, so a JSON error is thrown on.",
+    "saveJson: await mkdir(path.dirname(file), { recursive: true }); then writeFile to file + \".tmp\", then rename.",
+    "findFiles: a recursive helper that receives the folder and the relative prefix, and uses readdir(folder, { withFileTypes: true })."
+  ]
+}

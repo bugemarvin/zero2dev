@@ -1,0 +1,44 @@
+[
+ {
+  "q": "In update, what comes first: moving things or checking collisions?",
+  "options": [
+   "Checking collisions",
+   "Moving things"
+  ],
+  "answer": 1,
+  "why": "Move first, so the collision test uses this frame's positions."
+ },
+ {
+  "q": "What is a sprite sheet?",
+  "options": [
+   "A list of high scores",
+   "One image holding many pictures in a grid",
+   "A CSS file",
+   "A sound format"
+  ],
+  "answer": 1,
+  "why": "drawImage cuts one cell out of the sheet."
+ },
+ {
+  "q": "Why do browsers stay silent until the player presses something?",
+  "options": [
+   "A bug",
+   "They block sound before a user interaction",
+   "Audio needs a server",
+   "The canvas has no speakers"
+  ],
+  "answer": 1,
+  "why": "Start the game from a 'press any key' screen."
+ },
+ {
+  "q": "What is the best first game to make?",
+  "options": [
+   "An open-world role-playing game",
+   "A small one you can finish",
+   "A multiplayer shooter",
+   "A game engine"
+  ],
+  "answer": 1,
+  "why": "Finished small games teach more than unfinished big ones."
+ }
+]

@@ -1,0 +1,45 @@
+[
+ {
+  "q": "What does RAG add to a prompt?",
+  "options": [
+   "More instructions",
+   "The few passages relevant to the question, found by search",
+   "A bigger model",
+   "The model's training data"
+  ],
+  "answer": 1,
+  "why": "Retrieve first, then generate from what was retrieved."
+ },
+ {
+  "q": "Two texts with similar meaning have embeddings whose cosine similarity is close to ...",
+  "options": [
+   "1",
+   "0",
+   "-1"
+  ],
+  "answer": 0,
+  "why": "Similar meaning, similar direction: a cosine near 1."
+ },
+ {
+  "q": "Why do chunks overlap?",
+  "options": [
+   "To use more storage",
+   "So that a sentence cut at a border is complete in one of them",
+   "To confuse the model",
+   "It is required by vector databases"
+  ],
+  "answer": 1,
+  "why": "Overlap protects content that sits on a boundary."
+ },
+ {
+  "q": "An answer is wrong because the right passage was never retrieved. What needs fixing first?",
+  "options": [
+   "The model",
+   "The retrieval step",
+   "The temperature",
+   "The max_tokens"
+  ],
+  "answer": 1,
+  "why": "Look at what was retrieved before changing the prompt or the model."
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Where does Redis keep its data?",
+  "options": [
+   "On disk only",
+   "In memory",
+   "In the browser",
+   "In a SQL table"
+  ],
+  "answer": 1,
+  "why": "Redis is an in-memory store, which is why it is so fast."
+ },
+ {
+  "q": "TTL returns -1. What does that mean?",
+  "options": [
+   "The key does not exist",
+   "The key exists and never expires",
+   "One second is left",
+   "An error"
+  ],
+  "answer": 1,
+  "why": "-1 means no expiry. -2 means the key does not exist."
+ },
+ {
+  "q": "What does INCR do on a key that does not exist?",
+  "options": [
+   "An error",
+   "Sets it to 1",
+   "Sets it to 0",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "It starts from 0 and adds 1."
+ },
+ {
+  "q": "Why is KEYS * dangerous on a busy server?",
+  "options": [
+   "It deletes keys",
+   "It blocks every other command while it scans all keys",
+   "It uses the network",
+   "It changes TTLs"
+  ],
+  "answer": 1,
+  "why": "Redis runs one command at a time, so a slow command stalls everything. Use SCAN."
+ }
+]

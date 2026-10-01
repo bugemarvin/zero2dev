@@ -594,6 +594,85 @@ window.Z2D_CURRICULUM = {
    ]
   },
   {
+   "id": "llm",
+   "title": "Building with LLMs",
+   "blurb": "Use large language models in software: prompts, structured output, tools and agents, retrieval, and testing what you built.",
+   "lessons": [
+    {
+     "id": "llm/01-how-llms-work",
+     "title": "How language models work",
+     "summary": "Tokens, context windows and sampling: enough of the inside to use a model well.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/01-context-window",
+       "title": "Fit a conversation into the context window"
+      }
+     ]
+    },
+    {
+     "id": "llm/02-calling-an-api",
+     "title": "Calling a model",
+     "summary": "Requests, roles, system prompts, limits and errors, with a real client and with any provider.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/02-client",
+       "title": "A client wrapper with retries"
+      }
+     ]
+    },
+    {
+     "id": "llm/03-prompting",
+     "title": "Writing prompts",
+     "summary": "Say what you want the way you would brief a capable colleague: context, structure, examples.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/03-prompt-templates",
+       "title": "Prompt templates"
+      }
+     ]
+    },
+    {
+     "id": "llm/04-structured-output",
+     "title": "Structured output",
+     "summary": "Get data your program can use, and never trust it before checking.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/04-json-output",
+       "title": "Extract and validate JSON"
+      }
+     ]
+    },
+    {
+     "id": "llm/05-tools-and-agents",
+     "title": "Tools and agents",
+     "summary": "Let a model call your functions, and run the loop that turns a chatbot into something that gets work done.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/05-agent-loop",
+       "title": "The agent loop"
+      }
+     ]
+    },
+    {
+     "id": "llm/06-rag-and-evaluation",
+     "title": "Retrieval and evaluation",
+     "summary": "Answer from your own documents, and measure whether the system is any good.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "llm/06-retrieval",
+       "title": "Retrieval from scratch"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "dsa",
    "title": "Data structures and algorithms",
    "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language.",
@@ -970,6 +1049,144 @@ window.Z2D_CURRICULUM = {
       {
        "id": "sql/14-jsonb-logins",
        "title": "Count logins from JSON events"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "mongodb",
+   "title": "MongoDB",
+   "blurb": "A document database: store JSON-like documents, query and update them, summarise with pipelines, and design a schema.",
+   "lessons": [
+    {
+     "id": "mongodb/01-documents-and-crud",
+     "title": "Documents and CRUD",
+     "summary": "What a document database is, and the four basic operations.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "mongodb/01-first-documents",
+       "title": "Your first documents"
+      }
+     ]
+    },
+    {
+     "id": "mongodb/02-queries",
+     "title": "Queries",
+     "summary": "Find exactly the documents you want: comparisons, lists, nested fields and logic.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "mongodb/02-find-books",
+       "title": "Find books"
+      },
+      {
+       "id": "mongodb/03-or-and-in",
+       "title": "Or, in and distinct"
+      }
+     ]
+    },
+    {
+     "id": "mongodb/03-updates",
+     "title": "Updates",
+     "summary": "Change part of a document: numbers, lists, nested fields, and insert-or-update.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "mongodb/04-update-stock",
+       "title": "Update the stock"
+      }
+     ]
+    },
+    {
+     "id": "mongodb/04-aggregation",
+     "title": "The aggregation pipeline",
+     "summary": "Group, summarise and reshape documents, one stage at a time.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "mongodb/05-sales-report",
+       "title": "A sales report"
+      }
+     ]
+    },
+    {
+     "id": "mongodb/05-indexes-and-schema",
+     "title": "Indexes and schema design",
+     "summary": "Keep queries fast, enforce rules, and decide what to store together.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "mongodb/06-indexes",
+       "title": "Indexes that enforce and speed up"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "redis",
+   "title": "Redis",
+   "blurb": "An in-memory data store: caching, counters, queues, leaderboards, rate limits and messaging.",
+   "lessons": [
+    {
+     "id": "redis/01-keys-and-strings",
+     "title": "Keys, strings and expiry",
+     "summary": "What Redis is, the basic commands, and keys that delete themselves.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "redis/01-strings",
+       "title": "Strings, counters and expiry"
+      }
+     ]
+    },
+    {
+     "id": "redis/02-hashes-lists-sets",
+     "title": "Hashes, lists and sets",
+     "summary": "Three data structures, and the problems each one solves.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "redis/02-structures",
+       "title": "A user, a queue and tags"
+      }
+     ]
+    },
+    {
+     "id": "redis/03-sorted-sets",
+     "title": "Sorted sets",
+     "summary": "Rankings, leaderboards and time-ordered data, always kept in order.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "redis/03-leaderboard",
+       "title": "A leaderboard"
+      }
+     ]
+    },
+    {
+     "id": "redis/04-caching",
+     "title": "Caching",
+     "summary": "Make slow things fast, and the two hard parts: keeping the cache fresh and surviving a miss.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "redis/04-cache-aside",
+       "title": "Cache-aside"
+      }
+     ]
+    },
+    {
+     "id": "redis/05-transactions-pubsub-limits",
+     "title": "Transactions, rate limits and messaging",
+     "summary": "Several commands as one, limiting how often something may happen, and sending messages between programs.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "redis/05-rate-limit",
+       "title": "A rate limiter"
       }
      ]
     }
@@ -1680,6 +1897,85 @@ window.Z2D_CURRICULUM = {
    ]
   },
   {
+   "id": "node",
+   "title": "Node.js backend",
+   "blurb": "Server-side JavaScript in depth: files, streams, a well-built REST API, authentication, and code that is easy to test.",
+   "lessons": [
+    {
+     "id": "node/01-runtime-and-processes",
+     "title": "The runtime: event loop, modules and processes",
+     "summary": "What Node really is, why it handles many connections with one thread, and how a program talks to its environment.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/01-config",
+       "title": "Arguments and configuration"
+      }
+     ]
+    },
+    {
+     "id": "node/02-files-and-paths",
+     "title": "Files and paths",
+     "summary": "Read, write and walk the file system with promises, and handle the errors that will happen.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/02-files",
+       "title": "A small file store"
+      }
+     ]
+    },
+    {
+     "id": "node/03-events-and-streams",
+     "title": "Events and streams",
+     "summary": "The two patterns behind most of Node's library: things that announce, and data that flows.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/03-streams",
+       "title": "Events and a stream of lines"
+      }
+     ]
+    },
+    {
+     "id": "node/04-building-an-api",
+     "title": "Building a solid API",
+     "summary": "Middleware, validation, consistent errors, filtering and paging: what separates a demo from a service.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/04-books-api",
+       "title": "A books API with validation and paging"
+      }
+     ]
+    },
+    {
+     "id": "node/05-authentication",
+     "title": "Authentication and security",
+     "summary": "Store passwords so that a leak does not expose them, issue tokens that cannot be forged, and close the common holes.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/05-auth",
+       "title": "Password hashing and signed tokens"
+      }
+     ]
+    },
+    {
+     "id": "node/06-structure-and-testing",
+     "title": "Structure and testing",
+     "summary": "Arrange a backend in layers, pass dependencies in, and test each part without a server or a database.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "node/06-service",
+       "title": "A service with injected dependencies"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "php",
    "title": "PHP",
    "blurb": "The language behind a large part of the web: arrays, functions, classes, forms, JSON APIs and a database with PDO.",
@@ -1972,6 +2268,73 @@ window.Z2D_CURRICULUM = {
    ]
   },
   {
+   "id": "gamedev",
+   "title": "Game development",
+   "blurb": "Build 2D games in the browser: the game loop, input, collisions, game state, and a complete playable game.",
+   "lessons": [
+    {
+     "id": "gamedev/01-the-game-loop",
+     "title": "The game loop",
+     "summary": "Every game is one loop: read input, update the world, draw it. Sixty times a second.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "gamedev/01-bouncing-ball",
+       "title": "A bouncing ball"
+      }
+     ]
+    },
+    {
+     "id": "gamedev/02-input-and-movement",
+     "title": "Input and movement",
+     "summary": "Keyboard state, velocity, acceleration, gravity and jumping.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "gamedev/02-movement",
+       "title": "Move and jump"
+      }
+     ]
+    },
+    {
+     "id": "gamedev/03-collisions",
+     "title": "Collisions",
+     "summary": "Does this touch that? Rectangles, circles, and what to do when they meet.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "gamedev/03-collisions",
+       "title": "Collisions and coins"
+      }
+     ]
+    },
+    {
+     "id": "gamedev/04-game-state",
+     "title": "Game state and entities",
+     "summary": "Menus, pausing, lives and scores: a game as a small state machine, plus lists of things that come and go.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "gamedev/04-state-machine",
+       "title": "A game state machine"
+      }
+     ]
+    },
+    {
+     "id": "gamedev/05-a-complete-game",
+     "title": "A complete game",
+     "summary": "Put the pieces together, add sprites, sound and polish, and learn where to go next.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "gamedev/05-catch-the-stars",
+       "title": "Catch the stars"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "docker",
    "title": "Docker",
    "blurb": "Package any program with everything it needs, and run several containers together with Compose.",
@@ -2109,6 +2472,73 @@ window.Z2D_CURRICULUM = {
       {
        "id": "microservices/04-resilience",
        "title": "Survive a flaky service"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "devops",
+   "title": "DevOps",
+   "blurb": "From a commit to a running service: configuration, CI pipelines, releases, deployments, and knowing what production is doing.",
+   "lessons": [
+    {
+     "id": "devops/01-environments-and-config",
+     "title": "Environments and configuration",
+     "summary": "What DevOps means, the road from a laptop to production, and configuration done right.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "devops/01-check-config",
+       "title": "A configuration check"
+      }
+     ]
+    },
+    {
+     "id": "devops/02-continuous-integration",
+     "title": "Continuous integration",
+     "summary": "Every change is built and tested automatically, before it reaches the main branch.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "devops/02-ci-pipeline",
+       "title": "A CI script and a workflow"
+      }
+     ]
+    },
+    {
+     "id": "devops/03-releases-and-versions",
+     "title": "Releases and versions",
+     "summary": "Numbers that mean something, artifacts built once, and a history people can read.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "devops/03-versions",
+       "title": "Semantic versions"
+      }
+     ]
+    },
+    {
+     "id": "devops/04-deployments",
+     "title": "Deployments",
+     "summary": "Replace a running version with a new one without anyone noticing, and get back fast when it goes wrong.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "devops/04-rolling-deploy",
+       "title": "A rolling deployment"
+      }
+     ]
+    },
+    {
+     "id": "devops/05-observability",
+     "title": "Observability",
+     "summary": "Logs, metrics and traces: knowing what a system is doing, and being told before the users tell you.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "devops/05-log-report",
+       "title": "A latency report"
       }
      ]
     }

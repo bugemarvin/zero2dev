@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The runtime: event loop, modules and processes · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="node/01-runtime-and-processes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Node.js backend · lesson 1 of 6</p>
+<h1>The runtime: event loop, modules and processes</h1>
+<p class="lede">What Node really is, why it handles many connections with one thread, and how a program talks to its environment.</p>
+<details class="install" id="install" data-track="node">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre>
+<h4>Node.js and npm: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>The <strong>node</strong> packages come from npm, once: press <strong>Download packages</strong> on the Setup page, or run <code>python3 check.py prefetch node</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track builds on <a href="../js/01-values-and-functions.html">JavaScript and TypeScript</a>. You should be comfortable with functions, modules and <code>async</code>/<code>await</code> before you start.</p>
+<h2 id="what-node-is">What Node is</h2>
+<p>Node.js is the V8 JavaScript engine from Chrome, plus a library for the things a browser does not let JavaScript do: files, network sockets, processes. It turns JavaScript into a language for servers and command-line tools.</p>
+<h2 id="one-thread-many-connections">One thread, many connections</h2>
+<p>Most server platforms give each request its own thread. Node runs your JavaScript on <strong>one thread</strong> and never waits:</p>
+<pre><code class="lang-javascript">import { readFile } from "node:fs/promises";
+
+console.log("1 start");
+readFile("big.txt", "utf8").then(() =&gt; console.log("3 file is here"));
+console.log("2 carry on");</code></pre>
+<p><code>readFile</code> hands the work to the operating system and returns at once. Node goes on with other things. When the data arrives, the callback is put in a queue, and the <strong>event loop</strong> runs it as soon as your code is idle.</p>
+<p>While one request waits for the database, the same thread serves a hundred others. That is why Node is good at <strong>I/O-heavy</strong> work: APIs, proxies, chat.</p>
+<p>The same design is its weakness. <strong>Anything slow on the main thread blocks everyone:</strong></p>
+<pre><code class="lang-javascript">app.get("/report", (req, res) =&gt; {
+  const data = fs.readFileSync("huge.csv");     // every other request waits
+  let total = 0;
+  for (let i = 0; i &lt; 5e9; i++) total += i;     // and waits
+  res.send(String(total));
+});</code></pre>
+<p>Rules that follow:</p>
+<ul><li>Use the asynchronous functions (<code>fs/promises</code>), never the <code>...Sync</code> ones, in a server.</li><li>Move heavy computation to a <strong>worker thread</strong>, a separate service or a queue.</li></ul>
+<h2 id="order-of-execution">Order of execution</h2>
+<pre><code class="lang-javascript">console.log("A");
+setTimeout(() =&gt; console.log("B"), 0);
+Promise.resolve().then(() =&gt; console.log("C"));
+console.log("D");
+// A D C B</code></pre>
+<p>Synchronous code runs to the end first. Then promise callbacks (microtasks). Then timers and I/O callbacks.</p>
+<h2 id="modules">Modules</h2>
+<p>Modern Node uses ES modules: files named <code>.mjs</code>, or <code>.js</code> in a project whose <code>package.json</code> has <code>"type": "module"</code>.</p>
+<pre><code class="lang-javascript">import { readFile } from "node:fs/promises";     // built in: the node: prefix
+import express from "express";                   // from node_modules
+import { add } from "./math.mjs";                 // your own file: path and extension</code></pre>
+<p>Top-level <code>await</code> works in ES modules.</p>
+<h2 id="the-process-object">The process object</h2>
+<p><code>process</code> is the running program:</p>
+<div class="table-wrap"><table><thead><tr><th>Member</th><th>Holds</th></tr></thead><tbody><tr><td><code>process.argv</code></td><td>the command line: <code>[node, script, ...your arguments]</code></td></tr><tr><td><code>process.env</code></td><td>environment variables, all strings</td></tr><tr><td><code>process.cwd()</code></td><td>the folder the program was started from</td></tr><tr><td><code>process.exitCode</code></td><td>the exit code to finish with</td></tr><tr><td><code>process.stdin</code>, <code>stdout</code>, <code>stderr</code></td><td>the standard streams</td></tr><tr><td><code>process.on("SIGTERM", ...)</code></td><td>react to a stop signal</td></tr></tbody></table></div>
+<pre><code class="lang-javascript">const [, , command, ...rest] = process.argv;
+const port = Number(process.env.PORT ?? 3000);</code></pre>
+<h2 id="configuration-comes-from-the-environment">Configuration comes from the environment</h2>
+<p>A program must run on your laptop, in a test and in production <strong>without changing its code</strong>. So everything that differs goes into environment variables: ports, database addresses, secrets.</p>
+<pre><code class="lang-javascript">function requireEnv(name) {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`missing environment variable ${name}`);
+  }
+  return value;
+}</code></pre>
+<p>Read and check configuration <strong>once, at start-up</strong>. A server that refuses to start is better than one that fails on the first request at night.</p>
+<p>Node can load a <code>.env</code> file during development: <code>node --env-file=.env server.mjs</code>. That file holds secrets and never goes into Git.</p>
+<h2 id="exit-codes">Exit codes</h2>
+<p><code>0</code> means success, anything else failure. Scripts, CI pipelines and containers depend on it:</p>
+<pre><code class="lang-javascript">process.exitCode = 1;       // set it and let the program finish</code></pre>
+<p>Prefer setting <code>exitCode</code> to calling <code>process.exit()</code>, which can cut off output that is still being written.</p>
+<h2 id="errors-nobody-caught">Errors nobody caught</h2>
+<pre><code class="lang-javascript">process.on("unhandledRejection", (error) =&gt; {
+  console.error(error);
+  process.exit(1);
+});</code></pre>
+<p>A promise that rejects with no handler crashes current versions of Node. That is correct: the program is in an unknown state. Log, exit, and let the supervisor start a fresh process.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>...Sync</code> functions in request handlers.</strong></li><li><strong>CPU-heavy loops on the main thread.</strong></li><li><strong>Reading <code>process.env</code> all over the code</strong>, with different defaults in different files.</li><li><strong>Forgetting that environment variables are strings.</strong> <code>process.env.DEBUG === "false"</code> is a non-empty string, which is truthy.</li><li><strong>Forgetting <code>await</code></strong>, so an error becomes an unhandled rejection far from its cause.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="node/01-config">
+<h3>Arguments and configuration <span class="ex-id">node/01-config</span></h3>
+<p>Write two functions in <code>solution.mjs</code>. Both are pure: they receive their input as arguments and do not read <code>process</code> themselves, which is what makes them testable.</p>
+<h4><code>parseArgs(argv)</code></h4>
+<p>Receives the arguments after the script name, for example <code>["serve", "site", "--port", "8080", "--verbose"]</code>, and returns:</p>
+<pre><code class="lang-javascript">{ command: "serve", options: { port: "8080", verbose: true }, rest: ["site"] }</code></pre>
+<ul><li>The first argument that does not start with <code>--</code> is the <code>command</code>. With none, <code>command</code> is <code>null</code>.</li><li><code>--name value</code> sets <code>options.name</code> to the text <code>value</code>.</li><li><code>--name</code> followed by another option, or by nothing, sets <code>options.name</code> to <code>true</code>.</li><li><code>--name=value</code> works too.</li><li>Later arguments that do not start with <code>--</code> and are not the value of an option go into <code>rest</code>.</li></ul>
+<h4><code>loadConfig(env)</code></h4>
+<p>Receives an object such as <code>process.env</code> and returns <code>{ port, databaseUrl, debug }</code>.</p>
+<ul><li><code>port</code> is a number: <code>env.PORT</code> converted, or <code>3000</code> when it is missing. If it is not a whole number from 1 to 65535, throw an <code>Error</code> whose message is <code>PORT must be a number from 1 to 65535</code>.</li><li><code>databaseUrl</code> is <code>env.DATABASE_URL</code>. When it is missing or empty, throw an <code>Error</code> whose message is <code>DATABASE_URL is required</code>.</li><li><code>debug</code> is <code>true</code> only when <code>env.DEBUG</code> is exactly <code>"1"</code> or <code>"true"</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/node/01-config/</code></p>
+<pre><code class="lang-console">$ python3 check.py node/01-config</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/11-tooling.html"><span>Previous</span>Tooling and what comes next</a><a class="next" href="../node/02-files-and-paths.html"><span>Next</span>Files and paths</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

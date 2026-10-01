@@ -1,0 +1,11 @@
+{
+  "title": "The agent loop",
+  "lesson": "llm/05-tools-and-agents",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "The skeleton: for _ in range(max_steps): call the model, append the assistant turn, return if stop_reason is not \"tool_use\", otherwise run the tools and append one user message. After the loop: raise RuntimeError(\"too many steps\").",
+    "Running one block: function = functions.get(block[\"name\"]), then str(function(**block[\"input\"])).",
+    "Wrap the call in try/except Exception as error, and build {\"type\": \"tool_result\", \"tool_use_id\": block[\"id\"], \"content\": f\"error: {error}\", \"is_error\": True}."
+  ]
+}

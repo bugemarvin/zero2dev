@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observability · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="devops/05-observability">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">DevOps · lesson 5 of 5</p>
+<h1>Observability</h1>
+<p class="lede">Logs, metrics and traces: knowing what a system is doing, and being told before the users tell you.</p>
+<h2 id="you-cannot-fix-what-you-cannot-see">You cannot fix what you cannot see</h2>
+<p>On your laptop you see everything: the terminal, the debugger, the screen. In production the program runs on machines you never look at, serving people you never meet. <strong>Observability</strong> is how much you can learn about the inside of a system from what it sends out.</p>
+<p>There are three kinds of signal.</p>
+<h2 id="logs">Logs</h2>
+<p>A <strong>log</strong> is a record of something that happened, with a time:</p>
+<pre><code class="lang-text">2025-05-03T10:21:07Z ERROR payment failed order=1042 reason="card declined"</code></pre>
+<p>Guidelines:</p>
+<ul><li>Write logs to <strong>standard output</strong>. The platform collects them. A program should not manage log files.</li><li>Use <strong>levels</strong>: <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>. Production usually runs at <code>info</code>.</li><li>Use <strong>structured logs</strong>: one JSON object per line. Then a tool can search and count them:</li></ul>
+<pre><code class="lang-json">{"time": "2025-05-03T10:21:07Z", "level": "error", "msg": "payment failed", "order": 1042, "request_id": "a1f3"}</code></pre>
+<ul><li>Give every request a <strong>request id</strong>, and put it in every log line that belongs to it. One search then shows the whole story of that request.</li><li><strong>Never log secrets or personal data</strong>: passwords, tokens, card numbers.</li><li>Log what you will need at 3 a.m.: what was attempted, with which ids, and why it failed.</li></ul>
+<h2 id="metrics">Metrics</h2>
+<p>A <strong>metric</strong> is a number measured over time: requests per second, memory in use, orders placed. Metrics are cheap to store and quick to graph, so they are what dashboards and alerts are built from.</p>
+<p>For a service that answers requests, watch four things, known as the <strong>golden signals</strong>:</p>
+<div class="table-wrap"><table><thead><tr><th>Signal</th><th>Question</th></tr></thead><tbody><tr><td><strong>traffic</strong></td><td>how many requests are coming in?</td></tr><tr><td><strong>errors</strong></td><td>how many of them fail?</td></tr><tr><td><strong>latency</strong></td><td>how long do they take?</td></tr><tr><td><strong>saturation</strong></td><td>how full is it: CPU, memory, connections?</td></tr></tbody></table></div>
+<h2 id="averages-hide-the-pain">Averages hide the pain</h2>
+<p>Nine requests take 100 ms and one takes 5 seconds. The average is 590 ms, a number that describes none of them.</p>
+<p>Use <strong>percentiles</strong>:</p>
+<ul><li><strong>p50</strong> (the median): half of the requests are faster than this.</li><li><strong>p95</strong>: 95% of the requests are faster. One in twenty is slower.</li><li><strong>p99</strong>: one in a hundred is slower.</li></ul>
+<p>A simple way to compute a percentile, the <strong>nearest-rank</strong> method: sort the values, and take the one at position <code>ceil(p / 100 * n)</code>, counting from 1.</p>
+<pre><code class="lang-text">values: 12 15 20 22 30 31 40 45 90 400     n = 10
+p50: ceil(0.50 * 10) = 5th   -&gt;  30
+p95: ceil(0.95 * 10) = 10th  -&gt;  400</code></pre>
+<p>The slow requests are not rare for a real user: one page loads dozens of resources, so most visits contain at least one of them. Performance work aims at p95 and p99.</p>
+<h2 id="traces">Traces</h2>
+<p>In a system of several services, one click passes through many of them. A <strong>trace</strong> follows a single request across all of them, and shows where the time went:</p>
+<pre><code class="lang-text">GET /checkout                      820 ms
+  auth service                      15 ms
+  cart service                      40 ms
+  payment service                  750 ms
+    external card processor        730 ms     &lt;- here</code></pre>
+<p>Each step is a <strong>span</strong>. The request id is passed along in a header, so every service adds its spans to the same trace. <strong>OpenTelemetry</strong> is the common standard for producing all three kinds of signal.</p>
+<h2 id="service-level-objectives">Service level objectives</h2>
+<p>"The site should be fast and reliable" cannot be checked. A <strong>service level objective (SLO)</strong> can:</p>
+<pre><code class="lang-text">99.9% of requests succeed, measured over 30 days.
+95% of requests are answered within 300 ms.</code></pre>
+<p>99.9% allows about 43 minutes of failure a month. That allowance is the <strong>error budget</strong>. While budget is left, the team ships features. When it is used up, the team works on reliability. The number turns an argument into a decision.</p>
+<p>100% is the wrong target. It is impossibly expensive, and users cannot tell 99.99% from 100% through their own network.</p>
+<h2 id="alerts">Alerts</h2>
+<p>An <strong>alert</strong> wakes a person. So every alert must be:</p>
+<ul><li>about something <strong>users feel</strong>: errors up, latency up. Not "CPU at 80%", which may be perfectly fine;</li><li><strong>actionable</strong>: there is something to do right now;</li><li><strong>rare</strong>. A team that gets fifty alerts a day ignores all of them, including the one that mattered.</li></ul>
+<p>Symptoms page a person. Causes go on a dashboard.</p>
+<h2 id="when-things-break">When things break</h2>
+<p>Every system has incidents. Good teams handle them the same way each time:</p>
+<ol><li><strong>Restore service first.</strong> Roll back, switch off the feature, add capacity.</li><li>Keep a written timeline while it happens.</li><li>Afterwards, write a <strong>postmortem</strong>: what happened, why, and what will change so that it cannot happen the same way again.</li><li>Make it <strong>blameless</strong>. The question is "what in our system let this mistake reach production?", never "who did it?". People who fear blame hide problems, and hidden problems come back.</li></ol>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No logs for the failure you are trying to understand</strong>, and a new deployment needed just to add them.</li><li><strong>Logging everything</strong>, so the one useful line is buried.</li><li><strong>Watching averages.</strong></li><li><strong>Alerts on causes</strong>, and so many that nobody reads them.</li><li><strong>Secrets and personal data in logs.</strong></li><li><strong>Postmortems that end with "be more careful".</strong> That changes nothing. Change the system.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="devops/05-log-report">
+<h3>A latency report <span class="ex-id">devops/05-log-report</span></h3>
+<p>Read an access log from standard input. Each line has four fields separated by spaces:</p>
+<pre><code class="lang-text">GET /home 200 120
+POST /login 500 950</code></pre>
+<p>They are the method, the path, the status code and the response time in milliseconds. Blank lines are ignored.</p>
+<p>Print a report of five lines:</p>
+<pre><code class="lang-text">requests: 10
+errors: 2
+error rate: 20.0%
+p50: 30
+p95: 400</code></pre>
+<ul><li><code>errors</code> counts the lines whose status is 500 or more.</li><li><code>error rate</code> is the errors as a percentage of the requests, with one decimal.</li><li><code>p50</code> and <code>p95</code> are percentiles of the response times by the <strong>nearest-rank</strong> method: sort the times, and take the value at position <code>ceil(p / 100 * n)</code>, counting from 1.</li></ul>
+<p>With no requests, print <code>requests: 0</code> and nothing else.</p>
+<p class="ex-files">Files: <code>exercises/devops/05-log-report/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start devops/05-log-report --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py devops/05-log-report</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../devops/04-deployments.html"><span>Previous</span>Deployments</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

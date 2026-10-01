@@ -1,0 +1,22 @@
+{
+  "title": "A game state machine",
+  "lesson": "gamedev/04-game-state",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "game.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "preview": "static",
+  "hints": [
+    "switch (state.mode) with one case per mode. Each case looks at event.type and returns a new object, or the same state.",
+    "Scoring: const score = state.score + event.points; return { ...state, score, level: 1 + Math.floor(score / 100) };",
+    "A hit: const lives = state.lives - 1; return { ...state, lives, mode: lives <= 0 ? \"over\" : \"playing\" };"
+  ]
+}

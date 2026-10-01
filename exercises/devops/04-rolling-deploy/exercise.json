@@ -1,0 +1,12 @@
+{
+  "title": "A rolling deployment",
+  "lesson": "devops/04-deployments",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "Remember the old version of every server before you change it: a dictionary from name to version.",
+    "Walk the servers in batches: for start in range(0, len(servers), batch_size): batch = servers[start:start + batch_size].",
+    "First update every server of the batch, then check each with healthy(server). At the first unhealthy one, restore all updated servers and return the rolled_back result.",
+    "Servers that already run the new version are skipped: not updated, not checked, not listed."
+  ]
+}

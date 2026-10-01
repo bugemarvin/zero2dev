@@ -1,0 +1,40 @@
+[
+ {
+  "q": "Version 2.4.1 gets a new, compatible feature. What is the next version?",
+  "accept": [
+   "2.5.0"
+  ],
+  "why": "A minor bump, and the patch number goes back to 0."
+ },
+ {
+  "q": "Which is newer?",
+  "options": [
+   "1.9.0",
+   "1.10.0"
+  ],
+  "answer": 1,
+  "why": "Compare the parts as numbers: 10 is greater than 9."
+ },
+ {
+  "q": "What does `feat!: ...` in a commit message signal?",
+  "options": [
+   "An urgent feature",
+   "A breaking change: a major release",
+   "A failed build",
+   "A draft"
+  ],
+  "answer": 1,
+  "why": "The exclamation mark marks a change that is not backwards compatible."
+ },
+ {
+  "q": "Why not deploy the image tag `latest`?",
+  "options": [
+   "It is slower",
+   "Nobody can tell which build it is, or roll back to the previous one",
+   "It costs more",
+   "Docker forbids it"
+  ],
+  "answer": 1,
+  "why": "Deploy exact, immutable versions."
+ }
+]

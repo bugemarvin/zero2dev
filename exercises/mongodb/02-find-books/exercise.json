@@ -1,0 +1,29 @@
+{
+  "title": "Find books",
+  "lesson": "mongodb/02-queries",
+  "kind": "mongo",
+  "timeout": 60,
+  "seed": "seed.js",
+  "expect": {
+    "ordered": true,
+    "docs": [
+      {
+        "title": "Dune",
+        "price": 12.5
+      },
+      {
+        "title": "Foundation",
+        "price": 8.5
+      }
+    ]
+  },
+  "require": [
+    "$lt",
+    "$gt"
+  ],
+  "hints": [
+    "A value in an array is matched directly: { tags: \"sf\" }.",
+    "A nested field needs quotes: \"stock.shop\": { $gt: 0 }.",
+    "The second argument of find is the projection: { title: 1, price: 1, _id: 0 }. Then .sort({ price: -1 })."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "title": "Semantic versions",
+  "lesson": "devops/03-releases-and-versions",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "parse: split at the dots, check there are exactly three parts and each is made of digits (part.isdigit()), and return a tuple of ints.",
+    "bump: major gives (major + 1, 0, 0), minor gives (major, minor + 1, 0), patch gives (major, minor, patch + 1).",
+    "next_version: work out a level for each commit (2 for breaking, 1 for feat, 0 for fix), take the highest, and bump accordingly. A breaking change has ! before the colon, or the text BREAKING CHANGE anywhere.",
+    "newest: max(versions, key=parse) compares the versions as tuples of numbers."
+  ]
+}

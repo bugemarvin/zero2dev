@@ -1,0 +1,22 @@
+{
+  "title": "A bouncing ball",
+  "lesson": "gamedev/01-the-game-loop",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "game.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "preview": "static",
+  "hints": [
+    "Start with a copy: const next = { ...ball, x: ball.x + ball.vx * dt, y: ball.y + ball.vy * dt };",
+    "Left wall: if (next.x - next.r < 0) { next.x = next.r; next.vx = Math.abs(next.vx); }",
+    "Right wall: next.x = width - next.r and next.vx = -Math.abs(next.vx). Then the same two checks for y."
+  ]
+}

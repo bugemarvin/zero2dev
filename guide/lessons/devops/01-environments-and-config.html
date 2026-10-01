@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Environments and configuration · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="devops/01-environments-and-config">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">DevOps · lesson 1 of 5</p>
+<h1>Environments and configuration</h1>
+<p class="lede">What DevOps means, the road from a laptop to production, and configuration done right.</p>
+<details class="install" id="install" data-track="devops">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack core,python</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core,python</code></pre>
+<h4>C compiler, Make, Git and shell tools: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
+$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ gcc --version &amp;&amp; git --version</code></pre>
+<h4>Python 3: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y python3 python3-pip python3-venv</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install python</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ python3 --version</code></pre>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track builds on <a href="../start/03-terminal.html">the terminal</a>, <a href="../git/01-first-commit.html">Git</a>, <a href="../bash/01-variables-and-quoting.html">Bash</a> and <a href="../docker/01-images-and-containers.html">Docker</a>.</p>
+<h2 id="what-devops-is">What DevOps is</h2>
+<p>For a long time, developers wrote software and a separate operations team ran it. Developers wanted to change things, operations wanted things stable, and software was released a few times a year, with dread.</p>
+<p><strong>DevOps</strong> is the practice of treating building and running as <strong>one job</strong>, done by the same team, with automation in place of hand-work. Its ideas:</p>
+<ul><li><strong>Small, frequent changes.</strong> A release of ten lines is easy to understand and easy to undo. A release of ten thousand is neither.</li><li><strong>Automate everything that is repeated.</strong> Tests, builds, deployments, server set-up. A script does the same thing every time. A tired person at midnight does not.</li><li><strong>Everything in version control.</strong> Code, configuration, infrastructure. If it is not in Git, it does not exist.</li><li><strong>You build it, you run it.</strong> The people who write the code see how it behaves in production, and are woken when it breaks. That improves the code remarkably fast.</li><li><strong>Measure.</strong> You cannot improve what you cannot see.</li></ul>
+<h2 id="environments">Environments</h2>
+<p>The same application runs in several places:</p>
+<div class="table-wrap"><table><thead><tr><th>Environment</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>development</strong></td><td>your machine. Break things freely.</td></tr><tr><td><strong>test / CI</strong></td><td>a clean machine that runs the automated checks on every change</td></tr><tr><td><strong>staging</strong></td><td>a copy of production, for a last look with realistic data</td></tr><tr><td><strong>production</strong></td><td>the real thing, with real users</td></tr></tbody></table></div>
+<p>The single most valuable rule: <strong>the same build runs everywhere.</strong> You build the application once, as one artifact such as a Docker image, and that exact artifact moves from test to staging to production. What changes between environments is only the <strong>configuration</strong>.</p>
+<p>"It works on my machine" is the sentence this rule exists to end.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Configuration is everything that differs between environments: database addresses, API keys, feature switches, log levels.</p>
+<p><strong>Configuration does not belong in the code.</strong></p>
+<pre><code class="lang-python">DATABASE = "postgres://admin:hunter2@10.0.3.7/prod"     # wrong, in three ways</code></pre>
+<p>It is wrong because the code now works in one environment only, because changing it needs a new release, and because a password is in Git for ever.</p>
+<p>Read it from <strong>environment variables</strong>:</p>
+<pre><code class="lang-python">import os
+
+DATABASE_URL = os.environ["DATABASE_URL"]            # required: fails at once if missing
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "info")      # optional, with a default</code></pre>
+<p>Every language, every container platform and every CI system supports environment variables. This is one of the <strong>twelve-factor app</strong> principles, a short list of habits for services that are easy to deploy. Others you have already met: one codebase in version control, dependencies declared explicitly, logs written to standard output, processes that hold no state of their own.</p>
+<h2 id="fail-at-start-up">Fail at start-up</h2>
+<p>Check the configuration <strong>once, when the program starts</strong>, and stop with a clear message if something is missing:</p>
+<pre><code class="lang-text">error: missing configuration: DATABASE_URL, STRIPE_KEY</code></pre>
+<p>A service that refuses to start is noticed in seconds, by the deployment. A service that starts and crashes on the first payment at 3 a.m. is noticed by a customer.</p>
+<h2 id="env-files">.env files</h2>
+<p>During development, variables are kept in a file named <code>.env</code>:</p>
+<pre><code class="lang-text"># local settings
+DATABASE_URL=postgres://localhost/shop_dev
+LOG_LEVEL=debug</code></pre>
+<ul><li><strong><code>.env</code> goes in <code>.gitignore</code>.</strong> It holds secrets and is different for every developer.</li><li>A file <code>.env.example</code> with the names and harmless values <strong>is</strong> committed. It documents what the application needs.</li></ul>
+<h2 id="secrets">Secrets</h2>
+<p>A <strong>secret</strong> is configuration that gives access: passwords, API keys, tokens, private keys.</p>
+<ul><li>Never in Git. Not in a private repository, not "just for now". Git remembers everything, and removing a secret from history is painful and unreliable.</li><li>Never in a Docker image, a log line or an error message.</li><li>Stored in the secret store of your platform (GitHub Actions secrets, a cloud secret manager, Vault), and handed to the program as environment variables or files at run time.</li><li>Each environment has its own. A leaked staging key must not open production.</li><li>If a secret leaks, <strong>rotate it</strong>: create a new one and disable the old. Deleting the commit is not enough.</li></ul>
+<h2 id="infrastructure-as-code">Infrastructure as code</h2>
+<p>Servers, networks and databases set up by clicking in a web console cannot be reviewed, repeated or rolled back. <strong>Infrastructure as code</strong> describes them in files:</p>
+<pre><code class="lang-yaml"># docker-compose.yml: a small example of the idea
+services:
+  web:
+    image: shop:1.4.2
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "8080:8080"</code></pre>
+<p>Tools such as Terraform, Pulumi and Kubernetes manifests do this for whole cloud environments. The files live in Git, changes are reviewed like code, and a destroyed environment can be rebuilt with one command.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Secrets in the repository.</strong></li><li><strong>A different build for each environment.</strong></li><li><strong>Configuration read in many places</strong>, with different defaults.</li><li><strong>A default for something that must be set</strong>, such as <code>SECRET_KEY = os.environ.get("SECRET_KEY", "dev")</code>. Production then runs happily with "dev".</li><li><strong>Changes made by hand on a server</strong>, which nobody can reproduce.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="devops/01-check-config">
+<h3>A configuration check <span class="ex-id">devops/01-check-config</span></h3>
+<p>Write <code>solution.sh</code>: a script that a deployment runs before starting a service, to check that its configuration is complete.</p>
+<pre><code class="lang-console">$ bash solution.sh app.env DATABASE_URL PORT SECRET_KEY
+missing: SECRET_KEY</code></pre>
+<ul><li>The first argument is an env file with lines such as <code>PORT=8080</code>. The other arguments are the keys that must be set.</li><li>For every required key that is not in the file, or whose value is empty, print <code>missing: KEY</code>, in the order the keys were given. Then exit with code <strong>1</strong>.</li><li>When nothing is missing, print <code>ok</code> and exit with code <strong>0</strong>.</li><li>Lines starting with <code>#</code> and blank lines are not settings.</li><li>A key must match a whole name at the start of a line: <code>PORT</code> is not set by a line <code>SUPPORT=yes</code>.</li><li>With no arguments, or when the file does not exist, print a message to <strong>standard error</strong> and exit with code <strong>2</strong>. Nothing goes to standard output.</li></ul>
+<p class="ex-files">Files: <code>exercises/devops/01-check-config/</code></p>
+<pre><code class="lang-console">$ python3 check.py devops/01-check-config</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../microservices/06-resilience-and-observability.html"><span>Previous</span>Resilience and observability</a><a class="next" href="../devops/02-continuous-integration.html"><span>Next</span>Continuous integration</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

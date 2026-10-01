@@ -1,0 +1,52 @@
+{
+  "title": "Strings, counters and expiry",
+  "lesson": "redis/01-keys-and-strings",
+  "kind": "redis",
+  "timeout": 30,
+  "require": [
+    "DEL"
+  ],
+  "checks": [
+    {
+      "name": "site:name is zero2dev",
+      "cmd": "GET site:name",
+      "expect": "zero2dev"
+    },
+    {
+      "name": "page:home:views is 5",
+      "cmd": "GET page:home:views",
+      "expect": "5"
+    },
+    {
+      "name": "session:abc is user:42",
+      "cmd": "GET session:abc",
+      "expect": "user:42"
+    },
+    {
+      "name": "session:abc expires within 300 seconds",
+      "cmd": "TTL session:abc",
+      "min": 250,
+      "max": 300
+    },
+    {
+      "name": "site:name never expires",
+      "cmd": "TTL site:name",
+      "expect": "-1"
+    },
+    {
+      "name": "temp does not exist",
+      "cmd": "EXISTS temp",
+      "expect": "0"
+    },
+    {
+      "name": "the lock belongs to worker-1",
+      "cmd": "GET lock:report",
+      "expect": "worker-1"
+    }
+  ],
+  "hints": [
+    "A counter: INCR page:home:views adds 1, INCRBY page:home:views 4 adds 4.",
+    "A value with a time limit: SET session:abc user:42 EX 300",
+    "SET lock:report worker-1 NX sets the key only when it does not exist yet."
+  ]
+}

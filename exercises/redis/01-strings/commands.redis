@@ -1,0 +1,9 @@
+# 1. site:name
+
+# 2. page:home:views, counted up to 5
+
+# 3. session:abc with a time limit
+
+# 4. temp, set and deleted
+
+# 5. lock:report, taken by worker-1

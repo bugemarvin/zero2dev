@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caching · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="redis/04-caching">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Redis · lesson 4 of 5</p>
+<h1>Caching</h1>
+<p class="lede">Make slow things fast, and the two hard parts: keeping the cache fresh and surviving a miss.</p>
+<h2 id="the-idea">The idea</h2>
+<p>A database query takes 80 milliseconds. Its result changes once an hour and is asked for a thousand times a minute. Keep the result in Redis, and all but one of those requests take under a millisecond.</p>
+<p>A <strong>cache</strong> is a fast copy of data whose real home is somewhere slower.</p>
+<h2 id="cache-aside">Cache-aside</h2>
+<p>The most common pattern. The application looks in the cache first and falls back to the source:</p>
+<pre><code class="lang-python">import json
+
+def get_product(cache, db, product_id):
+    key = f"product:{product_id}"
+
+    cached = cache.get(key)
+    if cached is not None:                       # hit
+        return json.loads(cached)
+
+    product = db.load_product(product_id)        # miss: go to the source
+    if product is not None:
+        cache.setex(key, 300, json.dumps(product))    # keep it for 300 seconds
+    return product</code></pre>
+<ul><li>A <strong>hit</strong>: the value is in the cache.</li><li>A <strong>miss</strong>: it is not, so the source is asked and the answer is stored for next time.</li><li><code>setex(key, seconds, value)</code> stores with a time limit. In <code>redis-cli</code> that is <code>SET key value EX 300</code>.</li></ul>
+<p>Values in Redis are strings, so objects are stored as JSON.</p>
+<p>With the <code>redis</code> package for Python, <code>cache</code> is created like this:</p>
+<pre><code class="lang-python">import redis
+
+cache = redis.Redis(host="127.0.0.1", port=6379, decode_responses=True)</code></pre>
+<h2 id="time-to-live">Time to live</h2>
+<p>Every cached value needs an expiry. The TTL is your answer to "how stale may this be?":</p>
+<div class="table-wrap"><table><thead><tr><th>Data</th><th>A sensible TTL</th></tr></thead><tbody><tr><td>a stock price</td><td>seconds</td></tr><tr><td>a product page</td><td>minutes</td></tr><tr><td>a list of countries</td><td>a day</td></tr></tbody></table></div>
+<p>A cache with no expiry fills memory, and serves data that was true last year.</p>
+<h2 id="invalidation">Invalidation</h2>
+<p>When the data changes, the cached copy is wrong. The simple, robust fix: <strong>delete the key when you write.</strong></p>
+<pre><code class="lang-python">def update_product(cache, db, product_id, fields):
+    db.save_product(product_id, fields)
+    cache.delete(f"product:{product_id}")       # the next read is a miss and reloads</code></pre>
+<p>Delete, do not update. Rewriting the cached value from the writer invites races between two writers. Deleting is always safe, and the TTL is the safety net for anything you forget.</p>
+<p>There is a well-known joke that there are two hard problems in computer science: cache invalidation, naming things, and off-by-one errors. The first one is not a joke.</p>
+<h2 id="caching-not-found">Caching "not found"</h2>
+<p>If a product does not exist, every request for it is a miss and goes to the database. An attacker asking for a million made-up ids can bring the database down. This is <strong>cache penetration</strong>.</p>
+<p>Cache the absence too, with a short TTL:</p>
+<pre><code class="lang-python">if product is None:
+    cache.setex(key, 30, "null")</code></pre>
+<h2 id="the-stampede">The stampede</h2>
+<p>A popular key expires. In the same instant, five hundred requests miss and all run the slow query together. This is a <strong>cache stampede</strong>.</p>
+<p>Ways to soften it:</p>
+<ul><li>add a little <strong>randomness</strong> to each TTL, so keys do not all expire at once;</li><li>let only one request rebuild, using a short lock: <code>SET lock:product:17 1 NX EX 10</code>, while the others wait briefly or serve the old value;</li><li>refresh popular keys <strong>before</strong> they expire.</li></ul>
+<h2 id="what-to-cache">What to cache</h2>
+<p>Good candidates are read often, change rarely, and are expensive to produce. Bad candidates change on every request, are different for every user and request, or must never be stale, such as an account balance during a payment.</p>
+<p>Measure first. A cache adds a moving part and a new class of bugs: "it works for me but the user sees old data".</p>
+<h2 id="when-memory-is-full">When memory is full</h2>
+<p>Configure Redis as a cache with a memory limit and an <strong>eviction policy</strong>. <code>allkeys-lru</code> removes the keys that were used least recently to make room.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No TTL.</strong></li><li><strong>Updating the database and forgetting the cache.</strong></li><li><strong>Caching per-user data under a shared key</strong>, and showing one user another's data. Put everything that changes the answer into the key.</li><li><strong>Not caching misses.</strong></li><li><strong>Treating the cache as the source of truth.</strong> It can be emptied at any moment, and the application must still work.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="redis/04-cache-aside">
+<h3>Cache-aside <span class="ex-id">redis/04-cache-aside</span></h3>
+<p>Write two functions in <code>solution.py</code>. They receive a <code>cache</code> and a <code>db</code> object. The tests pass fake ones that count how often they are called.</p>
+<p>The cache has three methods, like the Redis client for Python:</p>
+<ul><li><code>cache.get(key)</code> returns a string, or <code>None</code> when the key is missing or expired</li><li><code>cache.setex(key, seconds, value)</code> stores a string with a time limit</li><li><code>cache.delete(key)</code> removes a key</li></ul>
+<p>The database has <code>db.load_user(user_id)</code>, which returns a dictionary or <code>None</code>, and <code>db.save_user(user_id, fields)</code>.</p>
+<h4><code>get_user(cache, db, user_id)</code></h4>
+<ul><li>The cache key is <code>user:</code> followed by the id, for example <code>user:7</code>.</li><li>On a hit, return the cached user, decoded from JSON. Do not touch the database.</li><li>On a miss, load the user from the database, store it in the cache as JSON for <strong>300</strong> seconds, and return it.</li><li>When the user does not exist, cache that too: store the text <code>null</code> for <strong>30</strong> seconds, and return <code>None</code>. The next request for that id must not reach the database.</li></ul>
+<h4><code>update_user(cache, db, user_id, fields)</code></h4>
+<p>Save to the database, then <strong>delete</strong> the user's key from the cache.</p>
+<p class="ex-files">Files: <code>exercises/redis/04-cache-aside/</code></p>
+<pre><code class="lang-console">$ python3 check.py redis/04-cache-aside</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../redis/03-sorted-sets.html"><span>Previous</span>Sorted sets</a><a class="next" href="../redis/05-transactions-pubsub-limits.html"><span>Next</span>Transactions, rate limits and messaging</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

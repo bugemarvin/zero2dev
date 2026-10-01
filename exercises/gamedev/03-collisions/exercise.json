@@ -1,0 +1,22 @@
+{
+  "title": "Collisions and coins",
+  "lesson": "gamedev/03-collisions",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "game.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "preview": "static",
+  "hints": [
+    "rectsOverlap: a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y",
+    "circleRect: the nearest point is Math.max(rect.x, Math.min(circle.x, rect.x + rect.w)) and the same for y. Compare the squared distance with circle.r * circle.r.",
+    "collect: const remaining = coins.filter((coin) => !circleRect(coin, player)); the number collected is the difference in length."
+  ]
+}

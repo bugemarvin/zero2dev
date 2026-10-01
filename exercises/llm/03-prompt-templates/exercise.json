@@ -1,0 +1,11 @@
+{
+  "title": "Prompt templates",
+  "lesson": "llm/03-prompting",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "render: template.format(**values) already raises KeyError for a missing name and handles {{ and }}.",
+    "To find the names a template uses: {name for _, name, _, _ in string.Formatter().parse(template) if name}. Compare with set(values).",
+    "few_shot: collect the parts in a list (the instruction, one wrap(\"example\", ...) per example, then the query part) and join them with \"\\n\\n\"."
+  ]
+}

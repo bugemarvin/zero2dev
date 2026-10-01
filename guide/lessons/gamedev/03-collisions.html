@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collisions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="gamedev/03-collisions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Game development · lesson 3 of 5</p>
+<h1>Collisions</h1>
+<p class="lede">Does this touch that? Rectangles, circles, and what to do when they meet.</p>
+<h2 id="hitboxes">Hitboxes</h2>
+<p>Checking whether the exact pixels of two sprites overlap is slow and rarely needed. Games give each object a simple invisible shape, a <strong>hitbox</strong>: a rectangle or a circle. The player never sees it, and the game feels right as long as it roughly matches the picture.</p>
+<p>A slightly <strong>smaller</strong> hitbox than the sprite feels fair. Players forgive a near miss that counted as a miss. They do not forgive being hit by something that visibly did not touch them.</p>
+<h2 id="rectangle-against-rectangle">Rectangle against rectangle</h2>
+<p>An axis-aligned rectangle (one that is not rotated) is <code>{ x, y, w, h }</code>, with <code>x, y</code> the top left corner. The test is called <strong>AABB</strong>, for axis-aligned bounding box.</p>
+<p>Two rectangles overlap when they overlap on the x axis <strong>and</strong> on the y axis:</p>
+<pre><code class="lang-javascript">function rectsOverlap(a, b) {
+  return a.x &lt; b.x + b.w &amp;&amp;
+         a.x + a.w &gt; b.x &amp;&amp;
+         a.y &lt; b.y + b.h &amp;&amp;
+         a.y + a.h &gt; b.y;
+}</code></pre>
+<p>Read the first line as "a's left edge is left of b's right edge". It is easier to see the opposite: they do <strong>not</strong> overlap if one is entirely to the left of, right of, above or below the other.</p>
+<p>With <code>&lt;</code> and <code>&gt;</code>, rectangles that only share an edge do not count as overlapping.</p>
+<h2 id="circle-against-circle">Circle against circle</h2>
+<p>Two circles overlap when the distance between their centres is less than the sum of their radii:</p>
+<pre><code class="lang-javascript">function circlesOverlap(a, b) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  const reach = a.r + b.r;
+  return dx * dx + dy * dy &lt; reach * reach;
+}</code></pre>
+<p>The comparison uses <strong>squared</strong> distances. A square root is slow, and unnecessary: if <code>d &lt; r</code> then <code>d * d &lt; r * r</code>.</p>
+<h2 id="circle-against-rectangle">Circle against rectangle</h2>
+<p>Find the point of the rectangle that is closest to the circle's centre, by clamping the centre into the rectangle. Then check whether that point is inside the circle:</p>
+<pre><code class="lang-javascript">function circleRect(circle, rect) {
+  const nearestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.w));
+  const nearestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.h));
+  const dx = circle.x - nearestX;
+  const dy = circle.y - nearestY;
+  return dx * dx + dy * dy &lt; circle.r * circle.r;
+}</code></pre>
+<p>This is the test for a ball and a paddle, or a ball and a brick.</p>
+<h2 id="a-point-in-a-rectangle">A point in a rectangle</h2>
+<p>For clicks and taps on buttons:</p>
+<pre><code class="lang-javascript">function pointInRect(px, py, rect) {
+  return px &gt;= rect.x &amp;&amp; px &lt; rect.x + rect.w &amp;&amp; py &gt;= rect.y &amp;&amp; py &lt; rect.y + rect.h;
+}</code></pre>
+<h2 id="detection-and-response">Detection and response</h2>
+<p>Finding a collision is half the work. What happens next is the <strong>response</strong>:</p>
+<div class="table-wrap"><table><thead><tr><th>Collision</th><th>Response</th></tr></thead><tbody><tr><td>player and coin</td><td>remove the coin, add to the score</td></tr><tr><td>bullet and enemy</td><td>remove both, play a sound</td></tr><tr><td>player and wall</td><td>push the player back out</td></tr><tr><td>ball and paddle</td><td>reverse the ball's direction</td></tr></tbody></table></div>
+<p>Pushing out of a wall is simplest one axis at a time: move in x, check, undo if blocked. Then move in y, check, undo if blocked. The player then slides along a wall in place of sticking to it.</p>
+<h2 id="removing-things-safely">Removing things safely</h2>
+<p>Do not delete from an array while looping over it: you skip the element after each removal. Build a new array of what survives:</p>
+<pre><code class="lang-javascript">const remaining = coins.filter((coin) =&gt; !circleRect(coin, player));
+const collected = coins.length - remaining.length;</code></pre>
+<h2 id="tunnelling">Tunnelling</h2>
+<p>A fast bullet can be on one side of a thin wall in one frame and on the other side in the next. It was never <strong>inside</strong> the wall, so no collision is found. This is <strong>tunnelling</strong>.</p>
+<p>Remedies: cap <code>dt</code>, limit top speeds, make walls thicker than the fastest movement per frame, or move in several small steps within a frame.</p>
+<h2 id="many-objects">Many objects</h2>
+<p>Checking every object against every other costs the square of their number: 1000 objects need half a million checks per frame. Games cut this down by only comparing objects that are near each other, using a <strong>grid</strong> or a tree that sorts objects by region. For a few dozen objects, checking all pairs is fine.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using the centre of a rectangle as its <code>x, y</code></strong> in one place and the corner in another.</li><li><strong>Deleting from an array inside a <code>for</code> loop over it.</strong></li><li><strong>A square root where squared distances compare just as well.</strong></li><li><strong>Hitboxes as large as the sprite</strong>, which feels unfair.</li><li><strong>Fast objects passing through thin ones.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="gamedev/03-collisions">
+<h3>Collisions and coins <span class="ex-id">gamedev/03-collisions</span></h3>
+<p>Write four functions in <code>game.mjs</code>. A rectangle is <code>{ x, y, w, h }</code> with <code>x, y</code> the top left corner. A circle is <code>{ x, y, r }</code> with <code>x, y</code> the centre.</p>
+<ul><li><code>rectsOverlap(a, b)</code> returns whether two rectangles overlap. Rectangles that only touch at an edge or a corner do <strong>not</strong> overlap.</li><li><code>circlesOverlap(a, b)</code> returns whether two circles overlap: the distance between the centres is <strong>less than</strong> the sum of the radii. Do not use a square root.</li><li><code>circleRect(circle, rect)</code> returns whether a circle overlaps a rectangle: the distance from the circle's centre to the nearest point of the rectangle is less than the radius.</li><li><code>collect(player, coins)</code> receives a rectangle and an array of circles. It returns <code>{ coins, collected }</code>: a <strong>new</strong> array with the coins the player does not touch, in their original order, and the number of coins that were picked up. The array it was given is not changed.</li></ul>
+<p><strong>Start app</strong> opens the game in a browser tab. It runs your <code>game.mjs</code>, so you see your work move. Reload the tab after each change.</p>
+<p class="ex-files">Files: <code>exercises/gamedev/03-collisions/</code></p>
+<pre><code class="lang-console">$ python3 check.py gamedev/03-collisions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../gamedev/02-input-and-movement.html"><span>Previous</span>Input and movement</a><a class="next" href="../gamedev/04-game-state.html"><span>Next</span>Game state and entities</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

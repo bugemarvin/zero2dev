@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Releases and versions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="devops/03-releases-and-versions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">DevOps · lesson 3 of 5</p>
+<h1>Releases and versions</h1>
+<p class="lede">Numbers that mean something, artifacts built once, and a history people can read.</p>
+<h2 id="why-versions">Why versions</h2>
+<p>"The latest one" is not something you can deploy, roll back to, or name in a bug report. A <strong>version</strong> is a name for one exact state of the software.</p>
+<h2 id="semantic-versioning">Semantic versioning</h2>
+<p>The most common scheme has three numbers: <strong>MAJOR.MINOR.PATCH</strong>, for example <code>2.4.1</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Increase it when</th><th>Effect on users</th></tr></thead><tbody><tr><td><strong>MAJOR</strong></td><td>you make a change that is <strong>not backwards compatible</strong></td><td>they may need to change their code</td></tr><tr><td><strong>MINOR</strong></td><td>you add something, in a compatible way</td><td>safe to upgrade</td></tr><tr><td><strong>PATCH</strong></td><td>you fix a bug, in a compatible way</td><td>safe to upgrade</td></tr></tbody></table></div>
+<p>When a part increases, the parts to its right go back to zero:</p>
+<pre><code class="lang-text">2.4.1  --patch--&gt;  2.4.2
+2.4.1  --minor--&gt;  2.5.0
+2.4.1  --major--&gt;  3.0.0</code></pre>
+<p>The numbers are compared <strong>as numbers</strong>, part by part: <code>1.10.0</code> is newer than <code>1.9.0</code>. Sorting versions as text gets that wrong, and it is a classic bug.</p>
+<p>A version below <code>1.0.0</code> means "anything may still change".</p>
+<h2 id="tags">Tags</h2>
+<p>In Git, a release is a <strong>tag</strong>: a permanent name for a commit.</p>
+<pre><code class="lang-console">$ git tag -a v2.5.0 -m "Release 2.5.0"
+$ git push origin v2.5.0
+$ git describe --tags          # the nearest tag, plus how far you are past it
+v2.5.0-3-g1a2b3c4</code></pre>
+<p>A tag never moves. <code>v2.5.0</code> means the same commit today and in five years.</p>
+<h2 id="commit-messages-that-drive-releases">Commit messages that drive releases</h2>
+<p>The <strong>Conventional Commits</strong> format puts the kind of change at the start of the message:</p>
+<pre><code class="lang-text">fix: handle an empty cart
+feat: add gift cards
+feat!: remove the v1 checkout API
+docs: explain the refund flow</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Prefix</th><th>Meaning</th><th>Version bump</th></tr></thead><tbody><tr><td><code>fix:</code></td><td>a bug fix</td><td>patch</td></tr><tr><td><code>feat:</code></td><td>a new feature</td><td>minor</td></tr><tr><td><code>feat!:</code> or <code>fix!:</code>, or <code>BREAKING CHANGE</code> in the message</td><td>not backwards compatible</td><td>major</td></tr><tr><td><code>docs:</code>, <code>test:</code>, <code>chore:</code>, <code>refactor:</code></td><td>nothing a user notices</td><td>none</td></tr></tbody></table></div>
+<p>With this convention, a tool can read the commits since the last release, work out the next version, and write the changelog. The largest bump wins: one breaking change among twenty fixes makes it a major release.</p>
+<h2 id="the-changelog">The changelog</h2>
+<p>A changelog tells users what changed, in their terms:</p>
+<pre><code class="lang-text">## 2.5.0
+
+### Added
+- Gift cards can be bought and redeemed.
+
+### Fixed
+- An empty cart no longer shows an error.</code></pre>
+<p>Write it for the reader who must decide whether to upgrade.</p>
+<h2 id="artifacts-build-once">Artifacts: build once</h2>
+<p>A release produces an <strong>artifact</strong>: the thing that is actually deployed. A Docker image, a compiled binary, a package.</p>
+<pre><code class="lang-console">$ docker build -t registry.example.com/shop:2.5.0 .
+$ docker push registry.example.com/shop:2.5.0</code></pre>
+<p>The rules:</p>
+<ul><li><strong>Build once.</strong> The image tested in CI is the image that runs in production. Rebuilding "the same code" for production can pull a newer dependency and produce something nobody tested.</li><li><strong>Tags are never reused.</strong> <code>shop:2.5.0</code> is one image for ever. Do not deploy <code>latest</code>: nobody can say what it is, or what it was yesterday.</li><li><strong>Keep old artifacts.</strong> Rolling back means deploying the previous one, and it must still exist.</li></ul>
+<h2 id="pin-your-dependencies">Pin your dependencies</h2>
+<p>A <strong>lock file</strong> (<code>package-lock.json</code>, <code>go.sum</code>, <code>Cargo.lock</code>, <code>poetry.lock</code>) records the exact version of every dependency. Commit it. Without it, the same commit builds differently on different days.</p>
+<p>Dependencies also need <strong>updates</strong>, for security fixes. Tools such as Dependabot and Renovate open pull requests for them, and your CI tells you whether the update is safe.</p>
+<h2 id="releasing-is-not-deploying">Releasing is not deploying</h2>
+<ul><li>A <strong>release</strong> is a version that exists and could be used.</li><li>A <strong>deployment</strong> puts a version on servers.</li><li><strong>Feature flags</strong> separate deploying code from turning a feature on. The code is in production, switched off, and is switched on for 1% of users, then 10%, then everyone, with no new deployment. If it misbehaves, switch it off.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Comparing versions as text.</strong></li><li><strong>Moving or reusing a tag.</strong></li><li><strong>Deploying <code>latest</code>.</strong></li><li><strong>Rebuilding for each environment.</strong></li><li><strong>A breaking change in a minor release</strong>, which breaks everyone who trusted the numbers.</li><li><strong>No lock file.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="devops/03-versions">
+<h3>Semantic versions <span class="ex-id">devops/03-versions</span></h3>
+<p>Write four functions in <code>solution.py</code>.</p>
+<h4><code>parse(version)</code></h4>
+<p>Turns <code>"2.4.1"</code> into the tuple <code>(2, 4, 1)</code>. A leading <code>v</code> is allowed: <code>"v2.4.1"</code>. Anything that is not three whole numbers separated by dots raises <code>ValueError</code>.</p>
+<h4><code>bump(version, part)</code></h4>
+<p>Returns the next version as a string without a <code>v</code>. <code>part</code> is <code>"major"</code>, <code>"minor"</code> or <code>"patch"</code>. The parts to the right of the one that increases become 0. Another <code>part</code> raises <code>ValueError</code>.</p>
+<h4><code>next_version(version, commits)</code></h4>
+<p><code>commits</code> is a list of commit messages in the Conventional Commits format. Returns the version the next release should have:</p>
+<ul><li>any breaking change gives a <strong>major</strong> bump: a <code>!</code> right before the colon, as in <code>feat!: ...</code> or <code>fix(api)!: ...</code>, or the text <code>BREAKING CHANGE</code> anywhere in the message;</li><li>otherwise any <code>feat</code> gives a <strong>minor</strong> bump;</li><li>otherwise any <code>fix</code> gives a <strong>patch</strong> bump;</li><li>otherwise the version is unchanged.</li></ul>
+<p>A type may have a scope in brackets: <code>feat(cart): ...</code>. Only the <strong>first line</strong> of a message decides its type.</p>
+<h4><code>newest(versions)</code></h4>
+<p>Returns the highest version of a list, as it was written. Compare as numbers: <code>"1.10.0"</code> is newer than <code>"1.9.0"</code>. An empty list raises <code>ValueError</code>.</p>
+<p class="ex-files">Files: <code>exercises/devops/03-versions/</code></p>
+<pre><code class="lang-console">$ python3 check.py devops/03-versions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../devops/02-continuous-integration.html"><span>Previous</span>Continuous integration</a><a class="next" href="../devops/04-deployments.html"><span>Next</span>Deployments</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

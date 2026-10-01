@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deployments · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="devops/04-deployments">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">DevOps · lesson 4 of 5</p>
+<h1>Deployments</h1>
+<p class="lede">Replace a running version with a new one without anyone noticing, and get back fast when it goes wrong.</p>
+<h2 id="continuous-delivery">Continuous delivery</h2>
+<p>With CI in place, the main branch always works. <strong>Continuous delivery</strong> takes the next step: every change that passes is <strong>ready to deploy</strong>, and deploying is one command or one button. <strong>Continuous deployment</strong> goes further: every passing change <strong>is</strong> deployed, automatically.</p>
+<p>Both need the same thing: a deployment that is boring. Boring means automated, repeatable and reversible.</p>
+<h2 id="the-naive-deployment">The naive deployment</h2>
+<pre><code class="lang-text">stop the old version  -&gt;  start the new version</code></pre>
+<p>Between the two steps the service is down. If the new version does not start, it stays down. For anything with users, that is not acceptable.</p>
+<h2 id="health-checks">Health checks</h2>
+<p>To replace a version safely, something must be able to tell whether an instance works. A <strong>health check</strong> is an endpoint that answers quickly:</p>
+<pre><code class="lang-text">GET /health   -&gt;   200 {"status": "ok"}</code></pre>
+<p>Two kinds are worth separating:</p>
+<div class="table-wrap"><table><thead><tr><th>Check</th><th>Question</th><th>When it fails</th></tr></thead><tbody><tr><td><strong>liveness</strong></td><td>is the process alive, or stuck?</td><td>restart it</td></tr><tr><td><strong>readiness</strong></td><td>can it serve requests right now?</td><td>stop sending it traffic, and wait</td></tr></tbody></table></div>
+<p>An instance that is starting, or has lost its database, is alive and not ready. A load balancer sends requests only to instances that are ready.</p>
+<h2 id="rolling-deployment">Rolling deployment</h2>
+<p>Replace instances <strong>a few at a time</strong>:</p>
+<pre><code class="lang-text">v1 v1 v1 v1      start
+v2 v1 v1 v1      replace one, wait until it is healthy
+v2 v2 v1 v1
+v2 v2 v2 v1
+v2 v2 v2 v2      done</code></pre>
+<p>There is always capacity, and no downtime. If a new instance fails its health check, the rollout <strong>stops</strong>, and the instances already replaced are put back. For a while both versions run side by side, so they must be able to coexist.</p>
+<p>This is the default in Kubernetes and most platforms.</p>
+<h2 id="blue-green-deployment">Blue-green deployment</h2>
+<p>Run two complete environments. <strong>Blue</strong> serves the users. Deploy the new version to <strong>green</strong>, test it there, then switch all traffic at once:</p>
+<pre><code class="lang-text">users -&gt; [ blue: v1 ]        [ green: v2 ]  (tested, idle)
+users -&gt;   [ blue: v1 ]  (idle)        [ green: v2 ]</code></pre>
+<p>Rolling back is switching back, in seconds. The cost is double the infrastructure during the switch.</p>
+<h2 id="canary-release">Canary release</h2>
+<p>Send a <strong>small share</strong> of real traffic to the new version, and watch:</p>
+<pre><code class="lang-text"> 5% of users -&gt; v2      95% -&gt; v1
+25% of users -&gt; v2      75% -&gt; v1
+100% -&gt; v2</code></pre>
+<p>If error rates or response times get worse for the canary, stop: only 5% of users were affected. This catches problems that no test environment shows, because the test is production itself. It needs good monitoring (<a href="../devops/05-observability.html">next lesson</a>).</p>
+<h2 id="rollback">Rollback</h2>
+<p>Things will go wrong. What matters is how fast you recover.</p>
+<ul><li><strong>Rolling back means deploying the previous version</strong>, with the same automation. This is why artifacts are kept and tags never reused.</li><li>Decide the rule in advance: "if the error rate doubles within ten minutes, roll back", and automate it if you can.</li><li><strong>Roll back first, investigate afterwards.</strong> Do not debug in production while users are suffering.</li><li>Practise it. A rollback that has never been tried will not work when needed.</li></ul>
+<h2 id="databases-the-hard-part">Databases: the hard part</h2>
+<p>Code can be rolled back. Data cannot. During a rolling deployment the old and the new code run <strong>at the same time, against the same database</strong>. A migration that renames a column breaks the old version instantly.</p>
+<p>The technique is <strong>expand and contract</strong>: split a breaking change into steps that are each compatible.</p>
+<p>To rename the column <code>name</code> to <code>full_name</code>:</p>
+<ol><li><strong>Expand</strong>: add <code>full_name</code>. Deploy code that writes <strong>both</strong> and reads the old one.</li><li>Copy the existing data into the new column.</li><li>Deploy code that reads the new column.</li><li><strong>Contract</strong>: when no running version uses <code>name</code>, drop it.</li></ol>
+<p>Each step is safe to deploy and safe to roll back. It is slower than one migration, and it never takes the site down.</p>
+<h2 id="graceful-shutdown">Graceful shutdown</h2>
+<p>When an instance is replaced, it receives a signal (<code>SIGTERM</code>). It should stop accepting new requests, finish the ones in progress, close its connections and exit. An instance that just dies drops requests on every deployment.</p>
+<h2 id="deploy-small-deploy-often">Deploy small, deploy often</h2>
+<p>Teams that deploy many times a day have <strong>fewer</strong> outages than teams that deploy monthly. Each change is small, so problems are easy to find and quick to undo. A deployment becomes a non-event.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Deployments done by hand</strong>, from a checklist, by the one person who knows how.</li><li><strong>No health check</strong>, or one that returns 200 while the database is unreachable.</li><li><strong>A migration that breaks the running version.</strong></li><li><strong>No tested way back.</strong></li><li><strong>Big releases on Friday afternoon.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="devops/04-rolling-deploy">
+<h3>A rolling deployment <span class="ex-id">devops/04-rolling-deploy</span></h3>
+<p>Write <code>rolling_deploy(servers, new_version, healthy, batch_size)</code> in <code>solution.py</code>.</p>
+<ul><li><code>servers</code> is a list of dictionaries such as <code>{"name": "web-1", "version": "1.4.0"}</code>. The function <strong>changes</strong> the <code>version</code> of these dictionaries, as a deployment changes real servers.</li><li><code>healthy(server)</code> is a function that returns <code>True</code> or <code>False</code> for a server.</li><li>Servers are updated in batches of <code>batch_size</code>, in the order of the list.</li></ul>
+<p>For each batch:</p>
+<ol><li>Set the <code>version</code> of every server in the batch to <code>new_version</code>. A server that already has the new version is skipped: it is not updated and not checked.</li><li>Then check each updated server of the batch with <code>healthy</code>, in order.</li><li>If one is not healthy, <strong>roll back</strong>: every server updated so far, in this batch and earlier ones, gets its old version back. Stop, and return:</li></ol>
+<pre><code class="lang-python">{"status": "rolled_back", "failed": "web-3", "updated": []}</code></pre>
+<p><code>failed</code> is the name of the first unhealthy server.</p>
+<p>When all batches succeed, return:</p>
+<pre><code class="lang-python">{"status": "done", "failed": None, "updated": ["web-1", "web-2", "web-3"]}</code></pre>
+<p><code>updated</code> lists the names of the servers that were changed, in order. A <code>batch_size</code> below 1 raises <code>ValueError</code>.</p>
+<p class="ex-files">Files: <code>exercises/devops/04-rolling-deploy/</code></p>
+<pre><code class="lang-console">$ python3 check.py devops/04-rolling-deploy</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../devops/03-releases-and-versions.html"><span>Previous</span>Releases and versions</a><a class="next" href="../devops/05-observability.html"><span>Next</span>Observability</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

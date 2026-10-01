@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which stage is like WHERE in SQL?",
+  "options": [
+   "$group",
+   "$match",
+   "$project",
+   "$unwind"
+  ],
+  "answer": 1,
+  "why": "$match keeps the documents that fit a filter."
+ },
+ {
+  "q": "What does $unwind do to a document with an array of 3 elements?",
+  "options": [
+   "Deletes the array",
+   "Produces 3 documents, one per element",
+   "Sorts the array",
+   "Counts the elements"
+  ],
+  "answer": 1,
+  "why": "Each element gets its own copy of the document."
+ },
+ {
+  "q": "In { $group: { _id: \"$customer\" } }, what does the $ mean?",
+  "options": [
+   "A variable",
+   "The value of the field customer",
+   "A regular expression",
+   "An operator"
+  ],
+  "answer": 1,
+  "why": "A string starting with $ is a field reference."
+ },
+ {
+  "q": "Where should $match usually go in a pipeline?",
+  "options": [
+   "Last",
+   "First",
+   "After $group",
+   "It does not matter"
+  ],
+  "answer": 1,
+  "why": "Filtering early lets MongoDB use an index and gives later stages less work."
+ }
+]
