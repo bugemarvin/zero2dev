@@ -2,6 +2,8 @@
 
 Learn to program on your own computer, from the first terminal command to shipping services. Read a lesson, take a quick quiz, write the code in the browser or in your own editor, and run tests that tell you at once whether it works.
 
+**Read it online:** https://zero2dev-olive.vercel.app (lessons and quizzes; the **Install** button there puts the app on your computer, where the exercises run).
+
 Two things live in this repository:
 
 - **the learning app**: 196 lessons, 673 quiz questions and 204 exercises in 25 tracks, with a checker that runs your code using the tools on your machine;
@@ -87,7 +89,7 @@ $ python3 app.py trusted
 $ python3 app.py untrust https://your-site.vercel.app
 ```
 
-Some browsers ask whether the site may reach apps on your device: that is this connection. Safari does not allow it at all: there, use **Open my app**.
+Chrome and Edge ask whether the site may reach apps on your device: that is this connection, and without your "Allow" the site cannot even see that the app is there. Safari does not allow it at all. In both cases nothing is lost: use **Open my app**, or go to `http://127.0.0.1:4750` yourself.
 
 ## Paths
 
