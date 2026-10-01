@@ -8,7 +8,10 @@
     python3 app.py start            run it in the background, always on the same port
     python3 app.py stop             stop the background app
     python3 app.py status           is it running, and where?
-    python3 app.py autostart on     start it automatically when you log in (off, status)
+    python3 app.py autostart off    do not start it automatically when you log in (on, status)
+    python3 app.py --no-autostart   start it this once, and leave start-at-login alone
+
+The first ordinary start switches start-at-login on, and says so. `autostart off` undoes it for good.
 
     python3 app.py prefetch react   download packages or images in advance (for offline use)
 
@@ -61,6 +64,13 @@ def main(argv):
         if browser:
             platforminfo.open_url(address)
         return 0
+    if "--exact-port" not in argv and "--no-autostart" not in argv:
+        notice = background.first_run_enable(port)
+        if notice:
+            print(notice)
+            if browser:
+                platforminfo.open_url(background.url(port))
+            return 0
     return server.serve(port=port, open_browser=browser, exact="--exact-port" in argv)
 
 

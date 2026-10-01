@@ -13,6 +13,11 @@ How "start at login" is done depends on the system:
     Ubuntu in WSL           a script in the Windows Startup folder that runs the app inside WSL
 
 Nothing here needs administrator rights, and `autostart off` removes what `on` created.
+
+Start at login is switched on by the first ordinary `python3 app.py`, with a notice, so that a
+learner finds the app at the same address every day. The choice is remembered: after
+`autostart off` it is never switched on again by itself. `--no-autostart`, or the environment
+variable Z2D_AUTOSTART=0, starts the app without touching this.
 """
 import json
 import os
@@ -31,6 +36,7 @@ DEFAULT_PORT = 4750
 STATE_DIR = core.WORK_ROOT / ".app"
 STATE_FILE = STATE_DIR / "app.json"
 LOG_FILE = STATE_DIR / "app.log"
+CHOICE_FILE = STATE_DIR / "autostart.json"
 APP = core.ROOT / "app.py"
 
 SYSTEMD_UNIT = Path.home() / ".config" / "systemd" / "user" / "zero2dev.service"
@@ -165,6 +171,50 @@ def stop(quiet=False):
 
 # ---------------------------------------------------------------- start at login
 
+def choice():
+    """What was decided about starting at login: 'on', 'off', 'unavailable', or None if nothing yet."""
+    try:
+        return json.loads(CHOICE_FILE.read_text(encoding="utf-8")).get("choice")
+    except (OSError, ValueError):
+        return None
+
+
+def record_choice(value):
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    CHOICE_FILE.write_text(json.dumps({"choice": value, "at": int(time.time())}), encoding="utf-8")
+
+
+def first_run_enable(port):
+    """Switch start-at-login on, once, the first time the app is started in the ordinary way.
+
+    Returns a message when the app is now running in the background, otherwise None
+    (already decided, not available here, or it did not work: the caller then runs it as before).
+    """
+    if choice() is not None or os.environ.get("Z2D_AUTOSTART", "1") == "0" or port != DEFAULT_PORT:
+        return None
+    if method() is None:
+        record_choice("unavailable")
+        return None
+    try:
+        ok, _message = autostart_on(port)
+    except (OSError, subprocess.SubprocessError):
+        ok = False
+    for _ in range(40):
+        if not ok or answers(port, 0.5):
+            break
+        time.sleep(0.25)
+    if not ok or not answers(port):
+        try:
+            autostart_off()
+        except (OSError, subprocess.SubprocessError):
+            pass
+        record_choice("unavailable")
+        return None
+    record_choice("on")
+    return ("zero2dev now starts by itself when you log in, and stays at " + url(port) + "\n"
+            "It uses " + DESCRIPTION[method()] + ". No administrator rights were needed.\n"
+            "To switch that off: python3 app.py autostart off     To stop it now: python3 app.py stop")
+
 def _systemd_user():
     if shutil.which("systemctl") is None:
         return False
@@ -210,7 +260,11 @@ def method():
     if kind == "wsl":
         return "windows-startup" if _windows_startup_folder() else ("systemd" if _systemd_user() else None)
     if kind == "linux":
-        return "systemd" if _systemd_user() else "xdg"
+        if _systemd_user():
+            return "systemd"
+        # a desktop autostart entry only means something when there is a desktop session
+        desktop = any(os.environ.get(name) for name in ("XDG_CURRENT_DESKTOP", "DISPLAY", "WAYLAND_DISPLAY"))
+        return "xdg" if desktop else None
     return None
 
 
@@ -327,8 +381,11 @@ def command(argv):
     action = argv[0] if argv else "status"
     if action == "on":
         ok, message = autostart_on()
+        if ok:
+            record_choice("on")
     elif action == "off":
         ok, message = autostart_off()
+        record_choice("off")            # remembered: it is never switched on again by itself
     elif action == "status":
         info = autostart_status()
         if not info["supported"]:
