@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/07-sorting">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 7 of 17</p>
+<h1>Sorting</h1>
+<p class="lede">Simple sorts that are easy to write, fast sorts that scale, and how to choose.</p>
+<h2 id="why-sorting-matters">Why sorting matters</h2>
+<p>Sorted data can be searched in O(log n), duplicates end up next to each other, and many problems become easy once the input is in order. Sorting is also the classic place to see how much the choice of algorithm matters.</p>
+<h2 id="insertion-sort-o-n">Insertion sort: O(n²)</h2>
+<p>Grow a sorted section at the front. Take the next element and slide it left until it is in place, the way you sort a hand of cards.</p>
+<pre><code class="lang-python">def insertion_sort(a):
+    for i in range(1, len(a)):
+        value = a[i]
+        j = i - 1
+        while j &gt;= 0 and a[j] &gt; value:
+            a[j + 1] = a[j]         # shift right
+            j -= 1
+        a[j + 1] = value</code></pre>
+<p>It is O(n²) in general, and O(n) when the input is already nearly sorted. For small arrays it is faster than the clever algorithms, which is why real libraries use it for short runs.</p>
+<h2 id="merge-sort-o-n-log-n">Merge sort: O(n log n)</h2>
+<p>Divide and conquer:</p>
+<ol><li>Split the array in half.</li><li>Sort each half, recursively.</li><li><strong>Merge</strong> the two sorted halves into one.</li></ol>
+<p>Merging two sorted lists takes one pass: keep taking the smaller of the two front elements.</p>
+<pre><code class="lang-python">def merge_sort(a):
+    if len(a) &lt;= 1:
+        return a
+    mid = len(a) // 2
+    left = merge_sort(a[:mid])
+    right = merge_sort(a[mid:])
+
+    merged = []
+    i = j = 0
+    while i &lt; len(left) and j &lt; len(right):
+        if left[i] &lt;= right[j]:
+            merged.append(left[i])
+            i += 1
+        else:
+            merged.append(right[j])
+            j += 1
+    merged.extend(left[i:])
+    merged.extend(right[j:])
+    return merged</code></pre>
+<p>The array is halved about log n times, and each level does O(n) work in merging: <strong>O(n log n)</strong> in every case. The cost is O(n) extra memory for the merged lists.</p>
+<p>Using <code>&lt;=</code> when the two front elements are equal keeps equal elements in their original order. A sort with that property is called <strong>stable</strong>.</p>
+<h2 id="counting-inversions">Counting inversions</h2>
+<p>An <strong>inversion</strong> is a pair of positions <code>i &lt; j</code> with <code>a[i] &gt; a[j]</code>: two elements that are out of order. Counting them by checking every pair is O(n²). Merge sort can count them for free.</p>
+<p>During a merge, whenever an element is taken from the <strong>right</strong> half, it jumps ahead of every element still waiting in the left half. Each of those is one inversion:</p>
+<pre><code class="lang-python">        else:
+            merged.append(right[j])
+            j += 1
+            inversions += len(left) - i</code></pre>
+<p>Total: the inversions inside the left half, plus those inside the right half, plus those counted while merging.</p>
+<h2 id="quicksort-o-n-log-n-on-average">Quicksort: O(n log n) on average</h2>
+<ol><li>Pick a <strong>pivot</strong> element.</li><li><strong>Partition</strong>: move everything smaller to its left, everything larger to its right.</li><li>Sort the two sides, recursively.</li></ol>
+<pre><code class="lang-python">def quicksort(a, lo=0, hi=None):
+    if hi is None:
+        hi = len(a) - 1
+    if lo &gt;= hi:
+        return
+    pivot = a[(lo + hi) // 2]
+    i, j = lo, hi
+    while i &lt;= j:
+        while a[i] &lt; pivot:
+            i += 1
+        while a[j] &gt; pivot:
+            j -= 1
+        if i &lt;= j:
+            a[i], a[j] = a[j], a[i]
+            i += 1
+            j -= 1
+    quicksort(a, lo, j)
+    quicksort(a, i, hi)</code></pre>
+<p>It sorts in place and is very fast in practice. Its weakness is the worst case: if the pivot is always the smallest or largest element, the split is lopsided and the time becomes O(n²). Choosing the middle element, or a random one, makes that unlikely.</p>
+<h2 id="comparison">Comparison</h2>
+<div class="table-wrap"><table><thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Extra memory</th><th>Stable</th></tr></thead><tbody><tr><td>Insertion sort</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>yes</td></tr><tr><td>Merge sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>yes</td></tr><tr><td>Quicksort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>no</td></tr><tr><td>Heap sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>no</td></tr></tbody></table></div>
+<p>No sort that works by comparing elements can beat O(n log n) in general.</p>
+<h2 id="counting-sort-o-n-k">Counting sort: O(n + k)</h2>
+<p>When the values are small whole numbers in a known range <code>0..k</code>, you do not need to compare at all. Count how many times each value occurs, then write them out in order.</p>
+<pre><code class="lang-python">def counting_sort(a, k):
+    counts = [0] * (k + 1)
+    for x in a:
+        counts[x] += 1
+    result = []
+    for value, count in enumerate(counts):
+        result.extend([value] * count)
+    return result</code></pre>
+<h2 id="in-real-code">In real code</h2>
+<p>Use the sort your language provides. It is fast, well tested and stable in most languages.</p>
+<pre><code class="lang-python">people.sort(key=lambda p: p.age)                     # in place
+by_name = sorted(people, key=lambda p: p.name)       # new list
+ranked = sorted(scores, reverse=True)</code></pre>
+<p>Sort by several fields with a tuple key: <code>key=lambda p: (-p.score, p.name)</code> orders by score from high to low, then by name.</p>
+<p>You write sorting algorithms yourself in order to understand them, and because their ideas, like merging and partitioning, solve other problems too.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Writing your own sort in production code.</strong></li><li><strong>Losing stability by accident</strong>, with <code>&lt;</code> where <code>&lt;=</code> belongs in a merge.</li><li><strong>Quicksort on sorted input with the first element as pivot</strong>: the O(n²) case.</li><li><strong>Sorting when you only need the minimum, maximum, or the top few.</strong> One pass or a <a href="../dsa/10-heaps.html">heap</a> is cheaper.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/10-sort-by-score">
+<h3>Rank the students <span class="ex-id">dsa/10-sort-by-score</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code>. Each of the next <code>n</code> lines holds a name and a score.</p>
+<p><strong>Output:</strong> the names, one per line, ordered by score from highest to lowest. Students with the same score are ordered by name, alphabetically.</p>
+<pre><code class="lang-text">input        output
+4            grace
+ada 91       ada
+linus 78     bob
+grace 95     linus
+bob 91</code></pre>
+<p><code>ada</code> and <code>bob</code> both have 91, so they are ordered by name.</p>
+<p>Use your language's sort with a key made of two parts.</p>
+<p class="ex-files">Files: <code>exercises/dsa/10-sort-by-score/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/10-sort-by-score --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/10-sort-by-score</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/11-count-inversions">
+<h3>Count inversions <span class="ex-id">dsa/11-count-inversions</span></h3>
+<p>An <strong>inversion</strong> is a pair of positions <code>i &lt; j</code> where the earlier number is larger: <code>a[i] &gt; a[j]</code>. The count measures how far a list is from being sorted. A sorted list has 0.</p>
+<p><strong>Input:</strong> the first line holds <code>n</code>. The second line holds <code>n</code> whole numbers.</p>
+<p><strong>Output:</strong> the number of inversions.</p>
+<pre><code class="lang-text">input        output
+5            4
+3 1 4 5 2</code></pre>
+<p>The four pairs are (3, 1), (3, 2), (4, 2) and (5, 2).</p>
+<p><code>n</code> can be 100,000, where checking every pair takes far too long. Count the inversions during the merge step of merge sort, as the lesson describes.</p>
+<p class="ex-files">Files: <code>exercises/dsa/11-count-inversions/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/11-count-inversions --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/11-count-inversions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/06-recursion-and-backtracking.html"><span>Previous</span>Recursion and backtracking</a><a class="next" href="../dsa/08-binary-search.html"><span>Next</span>Binary search</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

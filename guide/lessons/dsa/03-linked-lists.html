@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linked lists · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/03-linked-lists">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 3 of 17</p>
+<h1>Linked lists</h1>
+<p class="lede">A chain of nodes, each pointing to the next. Cheap to insert into, slow to index.</p>
+<h2 id="the-idea">The idea</h2>
+<p>An array keeps its elements side by side. A <strong>linked list</strong> keeps each element in its own small object, a <strong>node</strong>, which also stores where the next node is.</p>
+<pre><code class="lang-text">head
+ |
+ v
+[ 3 | *-]--&gt; [ 7 | *-]--&gt; [ 1 | None ]</code></pre>
+<p>The list itself only needs to remember the first node, called the <strong>head</strong>. The last node's <code>next</code> is empty.</p>
+<pre><code class="lang-python">class Node:
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next</code></pre>
+<p>In C the same node is a struct holding a value and a pointer, allocated with <code>malloc</code>:</p>
+<pre><code class="lang-c">typedef struct Node {
+    int value;
+    struct Node *next;
+} Node;</code></pre>
+<h2 id="walking-the-list">Walking the list</h2>
+<p>There is no <code>list[i]</code>. To reach a node you follow the links from the head:</p>
+<pre><code class="lang-python">def to_list(head):
+    values = []
+    node = head
+    while node is not None:
+        values.append(node.value)
+        node = node.next
+    return values</code></pre>
+<p>So reaching the i-th element is O(n).</p>
+<h2 id="inserting">Inserting</h2>
+<p>At the <strong>front</strong>: make a node that points at the old head. No other node is touched. O(1).</p>
+<pre><code class="lang-python">def push_front(head, value):
+    return Node(value, head)       # the new node is the new head</code></pre>
+<p>At the <strong>back</strong>: walk to the last node, then attach. O(n), unless the list also keeps a pointer to its last node, the <strong>tail</strong>, which makes it O(1).</p>
+<p><strong>After a node you already hold</strong>: two assignments. O(1).</p>
+<pre><code class="lang-python">def insert_after(node, value):
+    node.next = Node(value, node.next)</code></pre>
+<h2 id="removing">Removing</h2>
+<p>Removing the head is O(1): the head becomes the second node.</p>
+<p>Removing from the middle means making the node <strong>before</strong> it skip over it:</p>
+<pre><code class="lang-python">def remove_after(node):
+    if node.next is not None:
+        node.next = node.next.next</code></pre>
+<p>In C you must also <code>free</code> the removed node. Save the pointer first, re-link, then free.</p>
+<h2 id="reversing">Reversing</h2>
+<p>A classic. Walk the list and turn each arrow around, keeping track of the node behind you:</p>
+<pre><code class="lang-python">def reverse(head):
+    prev = None
+    node = head
+    while node is not None:
+        following = node.next     # remember where to go next
+        node.next = prev          # turn the arrow around
+        prev = node
+        node = following
+    return prev                   # the old last node is the new head</code></pre>
+<p>Trace it on paper with three nodes. Once you can draw this, you understand pointers.</p>
+<h2 id="arrays-against-linked-lists">Arrays against linked lists</h2>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Array</th><th>Linked list</th></tr></thead><tbody><tr><td>read the i-th element</td><td>O(1)</td><td>O(n)</td></tr><tr><td>insert or remove at the front</td><td>O(n)</td><td>O(1)</td></tr><tr><td>insert or remove at the end</td><td>O(1)</td><td>O(1) with a tail pointer</td></tr><tr><td>insert or remove in the middle</td><td>O(n)</td><td>O(1) once you are there, O(n) to get there</td></tr><tr><td>memory per element</td><td>just the value</td><td>the value plus a pointer</td></tr></tbody></table></div>
+<p>In practice arrays win most of the time. Their elements sit together in memory, which processors handle much faster than nodes scattered around. Linked lists earn their place when you insert and remove at the ends constantly, and as a building block inside other structures: <a href="../dsa/04-stacks-and-queues.html">stacks, queues</a> and hash tables.</p>
+<h2 id="doubly-linked">Doubly linked</h2>
+<p>A <strong>doubly linked list</strong> gives each node a <code>prev</code> pointer as well. You can then walk backwards and remove a node knowing only the node itself, at the cost of an extra pointer per node and more links to keep correct.</p>
+<h2 id="the-fast-and-slow-trick">The fast and slow trick</h2>
+<p>Two pointers, one moving one step at a time and the other two. When the fast one reaches the end, the slow one is in the middle. If the list has a cycle, the fast one eventually catches the slow one. Both run in O(n) with no extra memory.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Losing the rest of the list.</strong> Overwriting <code>node.next</code> before saving it cuts off everything after. Save first.</li><li><strong>Forgetting the empty list.</strong> <code>head</code> may be <code>None</code>. Check before reading <code>head.next</code>.</li><li><strong>Forgetting to update the head</strong> when the first node changes.</li><li><strong>In C: leaking removed nodes</strong>, or reading <code>node-&gt;next</code> after <code>free(node)</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/03-linked-list">
+<h3>Build a linked list <span class="ex-id">dsa/03-linked-list</span></h3>
+<p>Implement a singly linked list of whole numbers that supports these commands.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Effect</th><th>Prints</th></tr></thead><tbody><tr><td><code>push_front x</code></td><td>add <code>x</code> at the front</td><td>nothing</td></tr><tr><td><code>push_back x</code></td><td>add <code>x</code> at the back</td><td>nothing</td></tr><tr><td><code>pop_front</code></td><td>remove the first element</td><td>its value, or <code>empty</code></td></tr><tr><td><code>reverse</code></td><td>reverse the list</td><td>nothing</td></tr><tr><td><code>print</code></td><td></td><td>all values, front to back, separated by spaces, or <code>empty</code></td></tr></tbody></table></div>
+<p><strong>Input:</strong> the first line holds <code>q</code>, the number of commands. Then one command per line.</p>
+<pre><code class="lang-text">input            output
+7                2 1 3
+push_front 1     2
+push_front 2     3 1
+push_back 3
+print
+pop_front
+reverse
+print</code></pre>
+<p>Build it from nodes that point to the next node. Do not use the language's built-in list as the storage: the point is to handle the links yourself. In C, free every node you remove and everything that is left at the end.</p>
+<p>The Python starter reads the commands. Fill in the methods of the class.</p>
+<p class="ex-files">Files: <code>exercises/dsa/03-linked-list/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/03-linked-list --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/03-linked-list</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/02-arrays-and-two-pointers.html"><span>Previous</span>Arrays and two pointers</a><a class="next" href="../dsa/04-stacks-and-queues.html"><span>Next</span>Stacks and queues</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

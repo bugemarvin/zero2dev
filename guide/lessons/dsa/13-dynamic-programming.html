@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic programming · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/13-dynamic-programming">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 13 of 17</p>
+<h1>Dynamic programming</h1>
+<p class="lede">When a recursive solution keeps solving the same subproblems, solve each one once and remember the answer.</p>
+<h2 id="the-problem-with-plain-recursion">The problem with plain recursion</h2>
+<pre><code class="lang-python">def fib(n):
+    if n &lt; 2:
+        return n
+    return fib(n - 1) + fib(n - 2)</code></pre>
+<p><code>fib(40)</code> takes many seconds. To compute <code>fib(40)</code> it computes <code>fib(39)</code> and <code>fib(38)</code>. But <code>fib(39)</code> computes <code>fib(38)</code> again, and so on down. The same values are recomputed an astronomical number of times: the running time is exponential.</p>
+<p>Yet there are only 41 different subproblems, <code>fib(0)</code> to <code>fib(40)</code>.</p>
+<p><strong>Dynamic programming</strong> (DP) applies when a problem has:</p>
+<ul><li><strong>overlapping subproblems</strong>: the same smaller problems come up repeatedly;</li><li><strong>optimal substructure</strong>: the best answer to the whole is built from the best answers to its parts.</li></ul>
+<h2 id="top-down-memoisation">Top-down: memoisation</h2>
+<p>Keep the recursion, and store each answer the first time it is computed.</p>
+<pre><code class="lang-python">def fib(n, memo={}):
+    if n &lt; 2:
+        return n
+    if n not in memo:
+        memo[n] = fib(n - 1, memo) + fib(n - 2, memo)
+    return memo[n]</code></pre>
+<p>Now each subproblem is solved once: O(n). In Python, <code>functools.lru_cache</code> does the storing for you:</p>
+<pre><code class="lang-python">from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)</code></pre>
+<h2 id="bottom-up-tabulation">Bottom-up: tabulation</h2>
+<p>Fill a table from the smallest subproblem upwards, with a loop and no recursion.</p>
+<pre><code class="lang-python">def fib(n):
+    if n &lt; 2:
+        return n
+    table = [0] * (n + 1)
+    table[1] = 1
+    for i in range(2, n + 1):
+        table[i] = table[i - 1] + table[i - 2]
+    return table[n]</code></pre>
+<p>Bottom-up avoids the recursion depth limit and is usually faster. Top-down is often easier to write first.</p>
+<h2 id="a-recipe">A recipe</h2>
+<ol><li><strong>Define the state.</strong> What does <code>dp[i]</code> mean, in one sentence? This is the hard step.</li><li><strong>Find the recurrence.</strong> How does <code>dp[i]</code> follow from smaller states?</li><li><strong>Set the base cases.</strong></li><li><strong>Choose the order</strong> so that everything a state needs is computed before it.</li><li><strong>Read off the answer.</strong></li></ol>
+<h2 id="example-fewest-coins">Example: fewest coins</h2>
+<p>Given coin values and an amount, what is the smallest number of coins that adds up to it?</p>
+<p>Taking the largest coin first fails: with coins 1, 3, 4 and amount 6, that gives 4 + 1 + 1, three coins, while 3 + 3 needs two.</p>
+<ul><li><strong>State:</strong> <code>dp[a]</code> is the fewest coins needed to make amount <code>a</code>.</li><li><strong>Recurrence:</strong> the last coin used is some coin <code>c</code>. Before it, the amount was <code>a - c</code>. Try every coin: <code>dp[a] = 1 + min(dp[a - c])</code>.</li><li><strong>Base case:</strong> <code>dp[0] = 0</code>.</li><li><strong>Order:</strong> increasing <code>a</code>.</li></ul>
+<pre><code class="lang-python">def min_coins(coins, amount):
+    INF = float("inf")
+    dp = [0] + [INF] * amount
+    for a in range(1, amount + 1):
+        for c in coins:
+            if c &lt;= a and dp[a - c] + 1 &lt; dp[a]:
+                dp[a] = dp[a - c] + 1
+    return dp[amount] if dp[amount] != INF else -1</code></pre>
+<p>Time O(amount × number of coins).</p>
+<h2 id="example-longest-common-subsequence">Example: longest common subsequence</h2>
+<p>A <strong>subsequence</strong> keeps some characters of a string, in their original order, not necessarily next to each other. The longest common subsequence (LCS) of <code>ABCBDAB</code> and <code>BDCABA</code> has length 4, for example <code>BCBA</code>. This is the core of <code>diff</code> tools.</p>
+<ul><li><strong>State:</strong> <code>dp[i][j]</code> is the LCS length of the first <code>i</code> characters of <code>a</code> and the first <code>j</code> characters of <code>b</code>.</li><li><strong>Recurrence:</strong> if the last characters match, <code>a[i-1] == b[j-1]</code>, they extend the LCS of the two shorter prefixes: <code>dp[i-1][j-1] + 1</code>. Otherwise drop one character from either string and take the better: <code>max(dp[i-1][j], dp[i][j-1])</code>.</li><li><strong>Base case:</strong> an empty prefix gives 0, so row 0 and column 0 are zero.</li></ul>
+<pre><code class="lang-python">def lcs(a, b):
+    dp = [[0] * (len(b) + 1) for _ in range(len(a) + 1)]
+    for i in range(1, len(a) + 1):
+        for j in range(1, len(b) + 1):
+            if a[i - 1] == b[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp[len(a)][len(b)]</code></pre>
+<p>Time and space O(len(a) × len(b)).</p>
+<h2 id="example-0-1-knapsack">Example: 0/1 knapsack</h2>
+<p>Items have a weight and a value. Each can be taken at most once. Maximise the total value within a weight limit.</p>
+<p><code>dp[w]</code> is the best value achievable with capacity <code>w</code>. Process the items one at a time, and go through the capacities <strong>downwards</strong>, so that each item is counted at most once:</p>
+<pre><code class="lang-python">def knapsack(items, capacity):
+    dp = [0] * (capacity + 1)
+    for weight, value in items:
+        for w in range(capacity, weight - 1, -1):
+            dp[w] = max(dp[w], dp[w - weight] + value)
+    return dp[capacity]</code></pre>
+<h2 id="recognising-a-dp-problem">Recognising a DP problem</h2>
+<ul><li>It asks for a <strong>count</strong> of ways, or a <strong>minimum</strong> or <strong>maximum</strong>, not for the list of all solutions.</li><li>A decision now changes what is possible later.</li><li>A brute-force recursion would call itself with the same arguments many times.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A vague state.</strong> If you cannot say in one sentence what <code>dp[i]</code> means, the recurrence will not work out.</li><li><strong>Wrong order</strong>, reading a cell before it has been filled.</li><li><strong>Off-by-one between string indexes and table indexes.</strong> <code>dp[i]</code> covers the first <code>i</code> characters, the last of which is <code>a[i - 1]</code>.</li><li><strong>Greedy where DP is needed</strong>, as with the coins above.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/19-coin-change">
+<h3>Fewest coins <span class="ex-id">dsa/19-coin-change</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>amount</code>. The second line holds <code>n</code> different coin values. You may use each coin value as many times as you like.</p>
+<p><strong>Output:</strong> the smallest number of coins that add up to exactly <code>amount</code>, or <code>-1</code> if it cannot be done. An amount of 0 needs 0 coins.</p>
+<pre><code class="lang-text">input      output
+3 6        2
+1 3 4</code></pre>
+<p>Two coins: 3 + 3. Always taking the largest coin first would give 4 + 1 + 1, which is three.</p>
+<p>The amount can be 100,000, so trying every combination is hopeless. Build a table of the answer for every amount from 0 upwards.</p>
+<p class="ex-files">Files: <code>exercises/dsa/19-coin-change/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/19-coin-change --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/19-coin-change</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/20-lcs">
+<h3>Longest common subsequence <span class="ex-id">dsa/20-lcs</span></h3>
+<p>A subsequence of a string keeps some of its characters in their original order. They do not have to be next to each other. <code>ACE</code> is a subsequence of <code>ABCDE</code>.</p>
+<p><strong>Input:</strong> two lines, each holding one string of upper-case letters. A line may be empty.</p>
+<p><strong>Output:</strong> the length of the longest subsequence that the two strings have in common.</p>
+<pre><code class="lang-text">input       output
+ABCBDAB     4
+BDCABA</code></pre>
+<p>One common subsequence of length 4 is <code>BCBA</code>.</p>
+<p>The strings can be 1,500 characters long. Fill a table where the cell for <code>(i, j)</code> is the answer for the first <code>i</code> characters of one string and the first <code>j</code> characters of the other.</p>
+<p class="ex-files">Files: <code>exercises/dsa/20-lcs/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/20-lcs --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/20-lcs</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/12-shortest-paths.html"><span>Previous</span>Shortest paths with weights</a><a class="next" href="../dsa/14-greedy.html"><span>Next</span>Greedy algorithms</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

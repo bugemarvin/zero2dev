@@ -1,0 +1,48 @@
+{
+  "title": "Smallest ship that is fast enough",
+  "lesson": "dsa/08-binary-search",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "10 5\n1 2 3 4 5 6 7 8 9 10\n",
+      "stdout": "15\n"
+    },
+    {
+      "name": "one day: everything at once",
+      "stdin": "4 1\n3 2 2 4\n",
+      "stdout": "11\n"
+    },
+    {
+      "name": "as many days as packages: the heaviest",
+      "stdin": "4 4\n3 2 2 4\n",
+      "stdout": "4\n"
+    },
+    {
+      "name": "more days than packages",
+      "stdin": "3 10\n5 1 9\n",
+      "stdout": "9\n"
+    },
+    {
+      "name": "three days",
+      "stdin": "6 3\n3 2 2 4 1 4\n",
+      "stdout": "6\n"
+    },
+    {
+      "name": "one package",
+      "stdin": "1 1\n7\n",
+      "stdout": "7\n"
+    },
+    {
+      "name": "100,000 packages",
+      "stdin_py": "'100000 1000\\n' + ' '.join(str((i * 37) % 500 + 1) for i in range(100000)) + '\\n'",
+      "stdout": "25185\n"
+    }
+  ],
+  "hints": [
+    "First write a function that, for a given capacity, counts how many days are needed by loading greedily.",
+    "The answer is at least the heaviest package and at most the sum of all weights.",
+    "Binary search that range for the smallest capacity whose day count is at most the limit."
+  ]
+}

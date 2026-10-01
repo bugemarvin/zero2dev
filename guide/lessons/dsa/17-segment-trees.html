@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Segment trees · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/17-segment-trees">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 17 of 17</p>
+<h1>Segment trees</h1>
+<p class="lede">Answer range questions and change single values, both in O(log n).</p>
+<h2 id="the-problem">The problem</h2>
+<p>An array of numbers receives two kinds of request, mixed together and many of each:</p>
+<ul><li><strong>query(l, r):</strong> the sum of the elements from index <code>l</code> to <code>r</code>;</li><li><strong>update(i, v):</strong> set element <code>i</code> to <code>v</code>.</li></ul>
+<div class="table-wrap"><table><thead><tr><th>Approach</th><th>Query</th><th>Update</th></tr></thead><tbody><tr><td>plain array</td><td>O(n)</td><td>O(1)</td></tr><tr><td><a href="../dsa/02-arrays-and-two-pointers.html">prefix sums</a></td><td>O(1)</td><td>O(n), every later total changes</td></tr><tr><td>segment tree</td><td>O(log n)</td><td>O(log n)</td></tr></tbody></table></div>
+<p>With 100,000 elements and 100,000 requests, an O(n) side means ten billion steps. A segment tree needs about two million.</p>
+<h2 id="the-structure">The structure</h2>
+<p>A segment tree is a binary tree in which every node stores the answer for one <strong>range</strong> of the array.</p>
+<ul><li>The root covers the whole array.</li><li>Each node's two children cover the left and right halves of its range.</li><li>The leaves are the single elements.</li></ul>
+<p>For the array <code>[2, 5, 1, 4]</code>, with sums:</p>
+<pre><code class="lang-text">             [0..3] = 12
+            /           \
+      [0..1] = 7      [2..3] = 5
+       /     \         /     \
+    [0]=2   [1]=5   [2]=1   [3]=4</code></pre>
+<p>The height is about log n. Any range <code>[l, r]</code> can be assembled from at most about <code>2 × log n</code> nodes, and changing one element touches only the nodes on one path to the root.</p>
+<h2 id="an-iterative-implementation">An iterative implementation</h2>
+<p>Store the tree in an array of size <code>2n</code>. The leaves sit at positions <code>n</code> to <code>2n - 1</code>, and the parent of node <code>i</code> is <code>i // 2</code>. This version is short and works for any <code>n</code>.</p>
+<pre><code class="lang-python">class SegmentTree:
+    def __init__(self, data):
+        self.n = len(data)
+        self.tree = [0] * (2 * self.n)
+        self.tree[self.n:] = data                     # the leaves
+        for i in range(self.n - 1, 0, -1):            # parents, from the bottom up
+            self.tree[i] = self.tree[2 * i] + self.tree[2 * i + 1]
+
+    def update(self, index, value):
+        i = index + self.n
+        self.tree[i] = value
+        i //= 2
+        while i &gt;= 1:
+            self.tree[i] = self.tree[2 * i] + self.tree[2 * i + 1]
+            i //= 2
+
+    def query(self, left, right):
+        """Sum of the elements from left to right, both included."""
+        total = 0
+        lo = left + self.n
+        hi = right + self.n + 1                       # one past the end
+        while lo &lt; hi:
+            if lo % 2 == 1:                           # lo is a right child: take it, step right
+                total += self.tree[lo]
+                lo += 1
+            if hi % 2 == 1:                           # hi is a right child: step left, take that
+                hi -= 1
+                total += self.tree[hi]
+            lo //= 2
+            hi //= 2
+        return total</code></pre>
+<p><strong>Update</strong> changes the leaf, then recomputes each ancestor from its two children.</p>
+<p><strong>Query</strong> begins with the two ends at the leaves and moves upwards. Whenever an end sits on a node that is not fully shared with its sibling, that node is added on its own and the end moves inwards. Everything else gets covered by a parent one level up.</p>
+<h2 id="the-recursive-view">The recursive view</h2>
+<p>The same structure is often written recursively, which generalises more easily. A query on a node has three cases:</p>
+<ol><li>the node's range lies entirely <strong>outside</strong> the query: contributes nothing;</li><li>the node's range lies entirely <strong>inside</strong> the query: return its stored value;</li><li>it overlaps <strong>partly</strong>: ask both children and combine.</li></ol>
+<h2 id="not-only-sums">Not only sums</h2>
+<p>Replace <code>+</code> with any operation that combines two neighbouring ranges into one, and replace 0 with that operation's neutral value.</p>
+<div class="table-wrap"><table><thead><tr><th>Question</th><th>Combine with</th><th>Neutral value</th></tr></thead><tbody><tr><td>sum of a range</td><td><code>a + b</code></td><td>0</td></tr><tr><td>minimum of a range</td><td><code>min(a, b)</code></td><td>infinity</td></tr><tr><td>maximum of a range</td><td><code>max(a, b)</code></td><td>minus infinity</td></tr><tr><td>greatest common divisor</td><td><code>gcd(a, b)</code></td><td>0</td></tr></tbody></table></div>
+<p>For operations where order matters, combine the left pieces and the right pieces separately and join them at the end.</p>
+<h2 id="related-structures">Related structures</h2>
+<p>A <strong>Fenwick tree</strong>, or binary indexed tree, does prefix sums with point updates in O(log n), in about ten lines and with less memory. It handles sums and is less general.</p>
+<p><strong>Lazy propagation</strong> extends a segment tree to update a whole <strong>range</strong> in O(log n), for example "add 5 to every element from <code>l</code> to <code>r</code>". Each node keeps a pending change and passes it to its children only when someone needs to look below.</p>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Structure</th></tr></thead><tbody><tr><td>range sums, values never change</td><td>prefix sums</td></tr><tr><td>range sums, single values change</td><td>Fenwick tree or segment tree</td></tr><tr><td>range minimum or maximum, values change</td><td>segment tree</td></tr><tr><td>range updates and range queries</td><td>segment tree with lazy propagation</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Mixing inclusive and exclusive ends.</strong> Decide once what <code>right</code> means and keep to it.</li><li><strong>Not updating the ancestors</strong> after changing a leaf.</li><li><strong>Using the wrong neutral value</strong>, such as 0 for a minimum.</li><li><strong>Building a segment tree when the data never changes.</strong> Prefix sums are simpler and faster.</li></ul>
+<h2 id="where-to-go-from-here">Where to go from here</h2>
+<p>You now have the standard toolkit: arrays, linked lists, stacks, queues, hash tables, trees, heaps, graphs, tries, union-find and segment trees, together with sorting, searching, recursion, dynamic programming and greedy methods.</p>
+<p>What turns that knowledge into skill is practice. Solve the exercises in a second language. Then take new problems and ask the same questions each time: how large is the input, which complexity can I afford, and which structure makes the expensive operation cheap?</p>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/24-range-sum">
+<h3>Range sums with updates <span class="ex-id">dsa/24-range-sum</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>q</code>. The second line holds <code>n</code> whole numbers, at positions 0 to <code>n - 1</code>. Then <code>q</code> commands, one per line.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Effect</th><th>Prints</th></tr></thead><tbody><tr><td><code>sum l r</code></td><td></td><td>the sum of the numbers at positions <code>l</code> to <code>r</code>, both included</td></tr><tr><td><code>set i v</code></td><td>replace the number at position <code>i</code> with <code>v</code></td><td>nothing</td></tr></tbody></table></div>
+<pre><code class="lang-text">input         output
+5 4           9
+1 2 3 4 5     15
+sum 1 3       16
+sum 0 4
+set 2 10
+sum 1 3</code></pre>
+<p>The three sums are 2 + 3 + 4 = 9, the whole array = 15, and 2 + 10 + 4 = 16.</p>
+<p>Implement a segment tree, or a Fenwick tree, so that both commands take O(log n). The tests check that the answers are correct, including on an array of 50,000 numbers with thousands of commands.</p>
+<p class="ex-files">Files: <code>exercises/dsa/24-range-sum/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/24-range-sum --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/24-range-sum</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/16-union-find.html"><span>Previous</span>Union-find</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

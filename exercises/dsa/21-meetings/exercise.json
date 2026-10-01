@@ -1,0 +1,53 @@
+{
+  "title": "Most meetings in one room",
+  "lesson": "dsa/14-greedy",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "4\n1 3\n2 5\n3 6\n6 8\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "one meeting",
+      "stdin": "1\n5 9\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "all overlap",
+      "stdin": "3\n1 10\n2 9\n3 8\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "none overlap",
+      "stdin": "3\n5 6\n1 2\n3 4\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "earliest start is a trap",
+      "stdin": "4\n1 100\n2 3\n4 5\n6 7\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "shortest first is a trap",
+      "stdin": "3\n1 5\n4 6\n5 9\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "touching ends are allowed",
+      "stdin": "3\n1 2\n2 3\n3 4\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "100,000 meetings",
+      "stdin_py": "'100000\\n' + ''.join(f'{(i * 7919) % 500000} {(i * 7919) % 500000 + 1 + i % 13}\\n' for i in range(100000))",
+      "stdout": "24012\n"
+    }
+  ],
+  "hints": [
+    "Sort the meetings by their END time.",
+    "Keep the end time of the last meeting you accepted. Accept the next one if its start is not earlier than that.",
+    "Sorting by start time or by length gives wrong answers. Two of the tests are built to show that."
+  ]
+}

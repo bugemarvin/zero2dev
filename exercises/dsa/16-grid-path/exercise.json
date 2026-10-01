@@ -1,0 +1,48 @@
+{
+  "title": "Shortest path in a grid",
+  "lesson": "dsa/11-graphs-bfs-dfs",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "3 4\nS.#.\n.##.\n...G\n",
+      "stdout": "5\n"
+    },
+    {
+      "name": "next to each other",
+      "stdin": "1 2\nSG\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "walled off",
+      "stdin": "3 3\nS#G\n.#.\n.#.\n",
+      "stdout": "-1\n"
+    },
+    {
+      "name": "a straight corridor",
+      "stdin": "1 6\nS....G\n",
+      "stdout": "5\n"
+    },
+    {
+      "name": "the long way round",
+      "stdin": "5 5\nS.#..\n.##.#\n....#\n.##..\n...#G\n",
+      "stdout": "8\n"
+    },
+    {
+      "name": "the short route is not the first one tried",
+      "stdin": "4 4\nS...\n.##.\n.##.\n...G\n",
+      "stdout": "6\n"
+    },
+    {
+      "name": "a 60 by 60 open grid",
+      "stdin_py": "'60 60\\n' + 'S' + '.' * 59 + '\\n' + ('.' * 60 + '\\n') * 58 + '.' * 59 + 'G\\n'",
+      "stdout": "118\n"
+    }
+  ],
+  "hints": [
+    "Find S and G first. Then run BFS from S with a queue of cells.",
+    "Store the distance of each cell when you add it to the queue. That record also tells you which cells are already visited.",
+    "Check that a neighbour is inside the grid before you look at its character."
+  ]
+}

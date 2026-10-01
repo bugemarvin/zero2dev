@@ -1,0 +1,48 @@
+{
+  "title": "Count connected components",
+  "lesson": "dsa/11-graphs-bfs-dfs",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "6 3\n1 2\n2 3\n4 5\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "no edges",
+      "stdin": "4 0\n",
+      "stdout": "4\n"
+    },
+    {
+      "name": "one node",
+      "stdin": "1 0\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "everything connected",
+      "stdin": "4 3\n1 2\n2 3\n3 4\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "a cycle and a repeated edge",
+      "stdin": "5 5\n1 2\n2 3\n3 1\n1 2\n4 5\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "a self loop",
+      "stdin": "3 2\n1 1\n2 3\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "200,000 nodes in two long chains",
+      "stdin_py": "'200000 199998\\n' + ''.join(f'{i} {i + 2}\\n' for i in range(1, 199999))",
+      "stdout": "2\n"
+    }
+  ],
+  "hints": [
+    "Build an adjacency list, adding each edge in both directions.",
+    "Loop over all nodes. Each time you meet one that is not visited yet, count one component and search from it, marking everything you reach.",
+    "For the large test, replace recursion with a list used as a stack."
+  ]
+}

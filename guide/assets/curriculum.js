@@ -450,6 +450,228 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "dsa",
+   "title": "Data structures and algorithms",
+   "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language.",
+   "lessons": [
+    {
+     "id": "dsa/01-big-o",
+     "title": "Big-O and how to measure code",
+     "summary": "A way to say how the running time of code grows as its input grows, without a stopwatch.",
+     "exercises": [
+      {
+       "id": "dsa/01-max-of-list",
+       "title": "Largest number"
+      }
+     ]
+    },
+    {
+     "id": "dsa/02-arrays-and-two-pointers",
+     "title": "Arrays and two pointers",
+     "summary": "How arrays work underneath, and a technique that turns many O(n²) searches into O(n).",
+     "exercises": [
+      {
+       "id": "dsa/02-pair-with-sum",
+       "title": "Pair with a given sum"
+      }
+     ]
+    },
+    {
+     "id": "dsa/03-linked-lists",
+     "title": "Linked lists",
+     "summary": "A chain of nodes, each pointing to the next. Cheap to insert into, slow to index.",
+     "exercises": [
+      {
+       "id": "dsa/03-linked-list",
+       "title": "Build a linked list"
+      }
+     ]
+    },
+    {
+     "id": "dsa/04-stacks-and-queues",
+     "title": "Stacks and queues",
+     "summary": "Two restricted lists that turn up everywhere. One serves the newest item first, the other the oldest.",
+     "exercises": [
+      {
+       "id": "dsa/04-balanced-brackets",
+       "title": "Balanced brackets"
+      },
+      {
+       "id": "dsa/05-rpn",
+       "title": "Evaluate postfix expressions"
+      }
+     ]
+    },
+    {
+     "id": "dsa/05-hashing",
+     "title": "Hash tables",
+     "summary": "The structure behind dictionaries and sets. Lookup, insert and delete in constant time on average.",
+     "exercises": [
+      {
+       "id": "dsa/06-two-sum",
+       "title": "Two sum"
+      },
+      {
+       "id": "dsa/07-anagram-groups",
+       "title": "Group anagrams"
+      }
+     ]
+    },
+    {
+     "id": "dsa/06-recursion-and-backtracking",
+     "title": "Recursion and backtracking",
+     "summary": "Solve a problem by solving smaller copies of it, and explore every possibility in an organised way.",
+     "exercises": [
+      {
+       "id": "dsa/08-permutations",
+       "title": "All permutations"
+      },
+      {
+       "id": "dsa/09-n-queens",
+       "title": "Count the N queens solutions"
+      }
+     ]
+    },
+    {
+     "id": "dsa/07-sorting",
+     "title": "Sorting",
+     "summary": "Simple sorts that are easy to write, fast sorts that scale, and how to choose.",
+     "exercises": [
+      {
+       "id": "dsa/10-sort-by-score",
+       "title": "Rank the students"
+      },
+      {
+       "id": "dsa/11-count-inversions",
+       "title": "Count inversions"
+      }
+     ]
+    },
+    {
+     "id": "dsa/08-binary-search",
+     "title": "Binary search",
+     "summary": "Halve the search space at every step. Simple in idea, famously easy to get subtly wrong.",
+     "exercises": [
+      {
+       "id": "dsa/12-lower-bound",
+       "title": "First position not less than x"
+      },
+      {
+       "id": "dsa/13-ship-capacity",
+       "title": "Smallest ship that is fast enough"
+      }
+     ]
+    },
+    {
+     "id": "dsa/09-trees-and-bst",
+     "title": "Trees and binary search trees",
+     "summary": "Data arranged in levels, and a tree that keeps its values in order for fast search.",
+     "exercises": [
+      {
+       "id": "dsa/14-bst",
+       "title": "Build a binary search tree"
+      }
+     ]
+    },
+    {
+     "id": "dsa/10-heaps",
+     "title": "Heaps and priority queues",
+     "summary": "Always know the smallest item, with cheap inserts and removals.",
+     "exercises": [
+      {
+       "id": "dsa/15-priority-queue",
+       "title": "Build a min-heap"
+      }
+     ]
+    },
+    {
+     "id": "dsa/11-graphs-bfs-dfs",
+     "title": "Graphs, BFS and DFS",
+     "summary": "Model anything that has connections, and explore it systematically in two ways.",
+     "exercises": [
+      {
+       "id": "dsa/16-grid-path",
+       "title": "Shortest path in a grid"
+      },
+      {
+       "id": "dsa/17-components",
+       "title": "Count connected components"
+      }
+     ]
+    },
+    {
+     "id": "dsa/12-shortest-paths",
+     "title": "Shortest paths with weights",
+     "summary": "When edges have different costs, BFS is not enough. Dijkstra's algorithm, and what to use when it does not apply.",
+     "exercises": [
+      {
+       "id": "dsa/18-dijkstra",
+       "title": "Cheapest routes from node 1"
+      }
+     ]
+    },
+    {
+     "id": "dsa/13-dynamic-programming",
+     "title": "Dynamic programming",
+     "summary": "When a recursive solution keeps solving the same subproblems, solve each one once and remember the answer.",
+     "exercises": [
+      {
+       "id": "dsa/19-coin-change",
+       "title": "Fewest coins"
+      },
+      {
+       "id": "dsa/20-lcs",
+       "title": "Longest common subsequence"
+      }
+     ]
+    },
+    {
+     "id": "dsa/14-greedy",
+     "title": "Greedy algorithms",
+     "summary": "Take the choice that looks best right now and never look back. Fast and simple, when it is correct.",
+     "exercises": [
+      {
+       "id": "dsa/21-meetings",
+       "title": "Most meetings in one room"
+      }
+     ]
+    },
+    {
+     "id": "dsa/15-tries",
+     "title": "Tries",
+     "summary": "A tree of characters that makes prefix questions fast. The structure behind autocomplete.",
+     "exercises": [
+      {
+       "id": "dsa/22-prefix-count",
+       "title": "Count words by prefix"
+      }
+     ]
+    },
+    {
+     "id": "dsa/16-union-find",
+     "title": "Union-find",
+     "summary": "Keep track of which items belong to the same group while groups keep merging.",
+     "exercises": [
+      {
+       "id": "dsa/23-union-find",
+       "title": "Merge groups"
+      }
+     ]
+    },
+    {
+     "id": "dsa/17-segment-trees",
+     "title": "Segment trees",
+     "summary": "Answer range questions and change single values, both in O(log n).",
+     "exercises": [
+      {
+       "id": "dsa/24-range-sum",
+       "title": "Range sums with updates"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

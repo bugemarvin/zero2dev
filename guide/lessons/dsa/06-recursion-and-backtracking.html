@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recursion and backtracking · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/06-recursion-and-backtracking">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 6 of 17</p>
+<h1>Recursion and backtracking</h1>
+<p class="lede">Solve a problem by solving smaller copies of it, and explore every possibility in an organised way.</p>
+<h2 id="thinking-recursively">Thinking recursively</h2>
+<p>A recursive function solves a problem by calling itself on a smaller version of the same problem. Two parts are always there:</p>
+<ul><li>a <strong>base case</strong>: an input small enough to answer directly;</li><li>a <strong>recursive case</strong>: reduce the problem, call yourself, and build the answer from the result.</li></ul>
+<pre><code class="lang-python">def total(items):
+    if not items:                        # base case
+        return 0
+    return items[0] + total(items[1:])   # first element + total of the rest</code></pre>
+<p>The skill is to <strong>trust the recursive call</strong>. Assume <code>total(items[1:])</code> already works. Then the only question is how to finish the job from there.</p>
+<h2 id="the-call-stack">The call stack</h2>
+<p>Each call gets its own frame of local variables on the call stack. <code>total([1, 2, 3])</code> waits for <code>total([2, 3])</code>, which waits for <code>total([3])</code>, which waits for <code>total([])</code>. The base case returns 0, and the answers flow back up: 3, then 5, then 6.</p>
+<p>The depth is limited. Python stops at about 1,000 nested calls with a <code>RecursionError</code>. In C a very deep recursion crashes with a stack overflow. Recursion that goes <code>n</code> levels deep is fine for a tree of a million nodes, where the depth is about 20, and risky for a list of a million items.</p>
+<h2 id="divide-and-conquer">Divide and conquer</h2>
+<p>Splitting the problem in <strong>half</strong> keeps the depth at O(log n). Fast exponentiation computes <code>x</code> to the power <code>n</code> with about log n multiplications:</p>
+<pre><code class="lang-python">def power(x, n):
+    if n == 0:
+        return 1
+    half = power(x, n // 2)
+    if n % 2 == 0:
+        return half * half
+    return half * half * x</code></pre>
+<p><a href="../dsa/07-sorting.html">Merge sort</a> and <a href="../dsa/08-binary-search.html">binary search</a> have the same shape.</p>
+<h2 id="backtracking">Backtracking</h2>
+<p>Some problems have no shortcut: you must try the possibilities. <strong>Backtracking</strong> builds a candidate one choice at a time. At each step it tries every option in turn. When a partial candidate cannot lead anywhere, it undoes the last choice and tries the next.</p>
+<p>The template:</p>
+<pre><code class="lang-python">def solve(partial):
+    if is_complete(partial):
+        record(partial)
+        return
+    for choice in options(partial):
+        make(choice)
+        solve(partial)
+        undo(choice)          # backtrack</code></pre>
+<h2 id="example-all-permutations">Example: all permutations</h2>
+<p>Every ordering of <code>1..n</code>. At each position, try every number not yet used.</p>
+<pre><code class="lang-python">def permutations(n):
+    result = []
+    current = []
+    used = [False] * (n + 1)
+
+    def build():
+        if len(current) == n:
+            result.append(current.copy())
+            return
+        for value in range(1, n + 1):
+            if not used[value]:
+                used[value] = True
+                current.append(value)
+                build()
+                current.pop()          # undo
+                used[value] = False
+
+    build()
+    return result</code></pre>
+<p>Trying the values in increasing order produces the permutations in dictionary order. <code>current.copy()</code> matters: without it every entry in <code>result</code> would be the same list, which ends up empty.</p>
+<p>There are <code>n!</code> permutations, so this is only practical for small <code>n</code>. 10! is already 3.6 million.</p>
+<h2 id="example-all-subsets">Example: all subsets</h2>
+<p>For each element there are two choices, leave it out or take it. That gives 2ⁿ subsets.</p>
+<pre><code class="lang-python">def subsets(items):
+    result = []
+    current = []
+
+    def build(i):
+        if i == len(items):
+            result.append(current.copy())
+            return
+        build(i + 1)                   # without items[i]
+        current.append(items[i])
+        build(i + 1)                   # with items[i]
+        current.pop()
+
+    build(0)
+    return result</code></pre>
+<h2 id="pruning">Pruning</h2>
+<p>The power of backtracking is in <strong>stopping early</strong>. If a partial candidate already breaks a rule, none of its extensions needs to be tried.</p>
+<p><strong>N queens:</strong> place <code>n</code> queens on an <code>n</code> by <code>n</code> board so that no two attack each other. Place one queen per row. Before placing, check the column and both diagonals. A conflict cuts off that whole branch.</p>
+<pre><code class="lang-python">def count_queens(n):
+    columns = set()
+    diag1 = set()       # row - col is the same along one diagonal direction
+    diag2 = set()       # row + col is the same along the other
+
+    def place(row):
+        if row == n:
+            return 1
+        count = 0
+        for col in range(n):
+            if col in columns or (row - col) in diag1 or (row + col) in diag2:
+                continue                      # pruned
+            columns.add(col)
+            diag1.add(row - col)
+            diag2.add(row + col)
+            count += place(row + 1)
+            columns.remove(col)
+            diag1.remove(row - col)
+            diag2.remove(row + col)
+        return count
+
+    return place(0)</code></pre>
+<p>Without pruning, 8 queens means checking 16 million arrangements. With it, a few thousand.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No base case, or one that is never reached.</strong> The recursion never ends.</li><li><strong>Forgetting to undo</strong> a choice. Later branches then see leftover state.</li><li><strong>Storing the working list without copying it.</strong></li><li><strong>Recomputing the same subproblem again and again.</strong> That is the cue for <a href="../dsa/13-dynamic-programming.html">dynamic programming</a>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/08-permutations">
+<h3>All permutations <span class="ex-id">dsa/08-permutations</span></h3>
+<p><strong>Input:</strong> one number <code>n</code>, from 1 to 7.</p>
+<p><strong>Output:</strong> every ordering of the numbers 1 to <code>n</code>, one per line, in dictionary order.</p>
+<pre><code class="lang-text">input     output
+3         1 2 3
+          1 3 2
+          2 1 3
+          2 3 1
+          3 1 2
+          3 2 1</code></pre>
+<p>Write the backtracking yourself. Build the permutation one position at a time, trying the unused numbers in increasing order.</p>
+<p class="ex-files">Files: <code>exercises/dsa/08-permutations/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/08-permutations --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/08-permutations</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/09-n-queens">
+<h3>Count the N queens solutions <span class="ex-id">dsa/09-n-queens</span></h3>
+<p>A queen attacks along its row, its column and both diagonals.</p>
+<p><strong>Input:</strong> one number <code>n</code>, from 1 to 9.</p>
+<p><strong>Output:</strong> the number of ways to place <code>n</code> queens on an <code>n</code> by <code>n</code> board so that no two attack each other.</p>
+<pre><code class="lang-text">input    output
+4        2</code></pre>
+<p>Place one queen per row. Before placing a queen in a column, check that the column and both diagonals are free. Abandon a branch as soon as there is a conflict.</p>
+<p class="ex-files">Files: <code>exercises/dsa/09-n-queens/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/09-n-queens --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/09-n-queens</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/05-hashing.html"><span>Previous</span>Hash tables</a><a class="next" href="../dsa/07-sorting.html"><span>Next</span>Sorting</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

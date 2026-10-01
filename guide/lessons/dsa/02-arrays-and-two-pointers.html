@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays and two pointers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/02-arrays-and-two-pointers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 2 of 17</p>
+<h1>Arrays and two pointers</h1>
+<p class="lede">How arrays work underneath, and a technique that turns many O(n²) searches into O(n).</p>
+<h2 id="what-an-array-gives-you">What an array gives you</h2>
+<p>An array stores its elements side by side in memory. Because every element has the same size, the address of element <code>i</code> can be computed directly, so reading or writing <code>a[i]</code> is <strong>O(1)</strong> however long the array is.</p>
+<p>The price is that the elements must stay packed together:</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Cost</th><th>Why</th></tr></thead><tbody><tr><td>read or write <code>a[i]</code></td><td>O(1)</td><td>the address is computed</td></tr><tr><td>add or remove at the end</td><td>O(1)</td><td>nothing else moves</td></tr><tr><td>insert or remove at the front or middle</td><td>O(n)</td><td>everything after it shifts</td></tr><tr><td>search an unsorted array</td><td>O(n)</td><td>must look at each element</td></tr><tr><td>search a sorted array</td><td>O(log n)</td><td><a href="../dsa/08-binary-search.html">binary search</a></td></tr></tbody></table></div>
+<p>Python's <code>list</code>, Java's <code>ArrayList</code> and C++'s <code>vector</code> are <strong>dynamic arrays</strong>. When they run out of room they allocate a bigger block, usually double the size, and copy everything across. That copy is O(n), but it happens so rarely that adding at the end still costs O(1) on average.</p>
+<h2 id="the-two-pointer-technique">The two-pointer technique</h2>
+<p>Many problems ask about pairs of elements. The obvious solution is two nested loops, which is O(n²). When the array is <strong>sorted</strong>, you can often do it in one pass with two indexes moving toward each other.</p>
+<p><strong>Problem:</strong> in a sorted array, find two numbers that add up to a target.</p>
+<pre><code class="lang-python">def pair_with_sum(a, target):
+    lo, hi = 0, len(a) - 1
+    while lo &lt; hi:
+        total = a[lo] + a[hi]
+        if total == target:
+            return a[lo], a[hi]
+        if total &lt; target:
+            lo += 1        # need a bigger sum: move the left pointer right
+        else:
+            hi -= 1        # need a smaller sum: move the right pointer left
+    return None</code></pre>
+<p>Why it is correct: if <code>a[lo] + a[hi]</code> is too small, then <code>a[lo]</code> is too small to pair with <strong>anything</strong> still in range, since <code>a[hi]</code> is the largest value left. So <code>a[lo]</code> can be discarded for good. The mirror argument applies when the sum is too large.</p>
+<p>Each round discards one element, so there are at most <code>n</code> rounds: <strong>O(n)</strong> time and O(1) extra space.</p>
+<h2 id="same-direction-slow-and-fast">Same direction: slow and fast</h2>
+<p>Two pointers can also move the same way. A <strong>fast</strong> pointer reads, and a <strong>slow</strong> pointer marks where the next kept element goes. This removes duplicates from a sorted array in place:</p>
+<pre><code class="lang-python">def dedupe(a):
+    if not a:
+        return 0
+    slow = 0
+    for fast in range(1, len(a)):
+        if a[fast] != a[slow]:
+            slow += 1
+            a[slow] = a[fast]
+    return slow + 1        # the number of unique elements</code></pre>
+<h2 id="sliding-window">Sliding window</h2>
+<p>A window is a range <code>[left, right]</code> that slides along the array. You extend the right end, and pull in the left end whenever the window breaks a rule. Each index enters once and leaves once, so the total is O(n).</p>
+<p><strong>Problem:</strong> the longest run of consecutive elements whose sum is at most <code>limit</code> (all values positive).</p>
+<pre><code class="lang-python">def longest_run(a, limit):
+    best = 0
+    total = 0
+    left = 0
+    for right in range(len(a)):
+        total += a[right]
+        while total &gt; limit:
+            total -= a[left]
+            left += 1
+        best = max(best, right - left + 1)
+    return best</code></pre>
+<p>The <code>while</code> inside the <code>for</code> looks like O(n²), but <code>left</code> only ever moves forward, at most <code>n</code> times in total.</p>
+<h2 id="prefix-sums">Prefix sums</h2>
+<p>To answer many "sum of elements from <code>i</code> to <code>j</code>" questions, precompute running totals once:</p>
+<pre><code class="lang-python">prefix = [0]
+for x in a:
+    prefix.append(prefix[-1] + x)
+
+# sum of a[i..j] inclusive
+total = prefix[j + 1] - prefix[i]</code></pre>
+<p>O(n) to build, then O(1) per question.</p>
+<h2 id="when-to-reach-for-these">When to reach for these</h2>
+<div class="table-wrap"><table><thead><tr><th>Signal in the problem</th><th>Technique</th></tr></thead><tbody><tr><td>sorted array, looking for a pair</td><td>two pointers from both ends</td></tr><tr><td>modify an array in place, keeping some elements</td><td>slow and fast pointers</td></tr><tr><td>best contiguous run under some condition</td><td>sliding window</td></tr><tr><td>many range-sum questions on fixed data</td><td>prefix sums</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using two pointers on unsorted data.</strong> The argument for discarding an element depends on the order.</li><li><strong><code>lo &lt;= hi</code> when a pair needs two different elements.</strong> Use <code>lo &lt; hi</code>.</li><li><strong>Off-by-one in window length.</strong> The window from <code>left</code> to <code>right</code> inclusive has <code>right - left + 1</code> elements.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/02-pair-with-sum">
+<h3>Pair with a given sum <span class="ex-id">dsa/02-pair-with-sum</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>target</code>. The second line holds <code>n</code> different whole numbers in <strong>increasing order</strong>.</p>
+<p><strong>Output:</strong> two of the numbers, <code>a b</code> with <code>a &lt; b</code>, that add up to <code>target</code>. If several pairs do, print the one with the smallest <code>a</code>. If there is none, print <code>none</code>.</p>
+<pre><code class="lang-text">input            output
+6 10             1 9
+1 2 4 7 9 12</code></pre>
+<p><code>n</code> can be 200,000. Comparing every pair is far too slow for that. Use two pointers, one at each end.</p>
+<p class="ex-files">Files: <code>exercises/dsa/02-pair-with-sum/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/02-pair-with-sum --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/02-pair-with-sum</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/01-big-o.html"><span>Previous</span>Big-O and how to measure code</a><a class="next" href="../dsa/03-linked-lists.html"><span>Next</span>Linked lists</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

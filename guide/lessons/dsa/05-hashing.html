@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hash tables · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/05-hashing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 5 of 17</p>
+<h1>Hash tables</h1>
+<p class="lede">The structure behind dictionaries and sets. Lookup, insert and delete in constant time on average.</p>
+<h2 id="the-problem">The problem</h2>
+<p>Finding a value in an unsorted list is O(n). In a sorted array it is O(log n). A <strong>hash table</strong> does it in O(1) on average, which is why dictionaries and sets are used everywhere.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>Start with an array of <strong>buckets</strong>. To store a key:</p>
+<ol><li>Run the key through a <strong>hash function</strong>, which turns it into a large whole number.</li><li>Take that number modulo the number of buckets. That gives an index.</li><li>Put the key and its value in that bucket.</li></ol>
+<p>To look the key up, compute the same index and go straight there. No searching.</p>
+<pre><code class="lang-text">key "cat" --hash--&gt; 9173482 --% 8--&gt; bucket 2
+
+buckets:  0      1      2          3      4      5      6      7
+          .      .   ("cat", 3)    .      .      .      .      .</code></pre>
+<p>A good hash function is fast, always gives the same number for the same key, and spreads different keys evenly across the buckets.</p>
+<h2 id="collisions">Collisions</h2>
+<p>Two different keys can land in the same bucket. That is a <strong>collision</strong>, and it is unavoidable. There are two standard ways to handle it.</p>
+<p><strong>Chaining:</strong> each bucket holds a small list of entries. A lookup goes to the bucket and scans that short list.</p>
+<pre><code class="lang-python">class HashMap:
+    def __init__(self, size=8):
+        self.buckets = [[] for _ in range(size)]
+
+    def _bucket(self, key):
+        return self.buckets[hash(key) % len(self.buckets)]
+
+    def put(self, key, value):
+        bucket = self._bucket(key)
+        for entry in bucket:
+            if entry[0] == key:
+                entry[1] = value        # the key exists: replace
+                return
+        bucket.append([key, value])
+
+    def get(self, key, default=None):
+        for k, v in self._bucket(key):
+            if k == key:
+                return v
+        return default</code></pre>
+<p><strong>Open addressing:</strong> if the bucket is taken, try the next one, and the next, until a free slot appears. Lookups follow the same path.</p>
+<h2 id="keeping-it-fast">Keeping it fast</h2>
+<p>If many keys share few buckets, the chains grow and the table slows to O(n). The <strong>load factor</strong> is the number of entries divided by the number of buckets. When it passes a threshold, often around 0.7, the table allocates a larger array and <strong>rehashes</strong> every entry into it. That resize is O(n), and rare enough that the average cost per operation stays O(1).</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Average</th><th>Worst case</th></tr></thead><tbody><tr><td>insert</td><td>O(1)</td><td>O(n)</td></tr><tr><td>lookup</td><td>O(1)</td><td>O(n)</td></tr><tr><td>delete</td><td>O(1)</td><td>O(n)</td></tr></tbody></table></div>
+<h2 id="what-can-be-a-key">What can be a key</h2>
+<p>A key must be <strong>hashable</strong>: its hash must never change. In Python that means immutable values: numbers, strings, tuples of those. A list cannot be a key, because changing it would change its hash and the entry would be lost in the wrong bucket.</p>
+<h2 id="what-you-give-up">What you give up</h2>
+<p>A hash table has <strong>no order by key</strong>. You cannot ask for "the smallest key" or "all keys between 10 and 20" without scanning everything. When you need order, use a sorted array or a <a href="../dsa/09-trees-and-bst.html">tree</a>.</p>
+<h2 id="pattern-have-i-seen-this">Pattern: have I seen this?</h2>
+<p>A set answers membership in O(1). Finding the first repeated value becomes one pass:</p>
+<pre><code class="lang-python">def first_duplicate(items):
+    seen = set()
+    for item in items:
+        if item in seen:
+            return item
+        seen.add(item)
+    return None</code></pre>
+<h2 id="pattern-look-up-the-partner">Pattern: look up the partner</h2>
+<p><strong>Two sum:</strong> find two numbers in an unsorted list that add up to a target. Checking every pair is O(n²). With a dictionary, for each number you ask whether its partner has already gone by:</p>
+<pre><code class="lang-python">def two_sum(numbers, target):
+    position = {}                    # value -&gt; index where it was seen
+    for i, x in enumerate(numbers):
+        need = target - x
+        if need in position:
+            return position[need], i
+        position[x] = i
+    return None</code></pre>
+<p>One pass, O(n) time, O(n) extra space. Trading memory for time is the usual hash table bargain.</p>
+<h2 id="pattern-group-by-a-computed-key">Pattern: group by a computed key</h2>
+<p>Words are anagrams of each other when their letters, sorted, are identical. Use that sorted form as the key:</p>
+<pre><code class="lang-python">def group_anagrams(words):
+    groups = {}
+    for word in words:
+        key = "".join(sorted(word))
+        groups.setdefault(key, []).append(word)
+    return list(groups.values())</code></pre>
+<p>The same shape handles counting, grouping records by a field, and removing duplicates.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using a list where a set would do.</strong> <code>x in some_list</code> inside a loop is O(n²) in disguise.</li><li><strong>A mutable key.</strong> Lists and dictionaries cannot be keys. Convert to a tuple or a string.</li><li><strong>Relying on order.</strong> Use a sorted structure when order matters.</li><li><strong>Forgetting the worst case.</strong> With a poor hash function, or keys chosen by an attacker, everything can land in one bucket.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/06-two-sum">
+<h3>Two sum <span class="ex-id">dsa/06-two-sum</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>target</code>. The second line holds <code>n</code> whole numbers, in no particular order.</p>
+<p><strong>Output:</strong> the positions <code>i j</code> (counting from 0, with <code>i &lt; j</code>) of the two numbers that add up to <code>target</code>. Every test has exactly one such pair.</p>
+<pre><code class="lang-text">input           output
+5 9             1 3
+8 2 11 7 15</code></pre>
+<p>Positions 1 and 3 hold 2 and 7.</p>
+<p><code>n</code> can be 100,000, so checking every pair is too slow. Use a dictionary (hash map) to find each number's partner in O(1).</p>
+<p class="ex-files">Files: <code>exercises/dsa/06-two-sum/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/06-two-sum --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/06-two-sum</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/07-anagram-groups">
+<h3>Group anagrams <span class="ex-id">dsa/07-anagram-groups</span></h3>
+<p>Two words are anagrams when one can be made by rearranging the letters of the other: <code>listen</code> and <code>silent</code>.</p>
+<p><strong>Input:</strong> the first line holds <code>n</code>. Then <code>n</code> lower-case words, separated by spaces or newlines.</p>
+<p><strong>Output:</strong> two numbers: how many groups of anagrams there are, and the size of the largest group. A word with no anagram partner is a group of one.</p>
+<pre><code class="lang-text">input                          output
+6                              3 3
+eat tea tan ate nat bat</code></pre>
+<p>The groups are {eat, tea, ate}, {tan, nat} and {bat}.</p>
+<p class="ex-files">Files: <code>exercises/dsa/07-anagram-groups/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/07-anagram-groups --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/07-anagram-groups</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/04-stacks-and-queues.html"><span>Previous</span>Stacks and queues</a><a class="next" href="../dsa/06-recursion-and-backtracking.html"><span>Next</span>Recursion and backtracking</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

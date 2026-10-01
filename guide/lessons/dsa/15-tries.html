@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tries · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/15-tries">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 15 of 17</p>
+<h1>Tries</h1>
+<p class="lede">A tree of characters that makes prefix questions fast. The structure behind autocomplete.</p>
+<h2 id="the-problem">The problem</h2>
+<p>You have a large set of words and want to answer, many times:</p>
+<ul><li>is this word in the set?</li><li>how many words start with this prefix?</li><li>which words start with this prefix?</li></ul>
+<p>A hash set answers the first in O(1) and has nothing to offer for the other two: it has no notion of a prefix. A sorted list with binary search can do it. A <strong>trie</strong> does it directly.</p>
+<h2 id="the-structure">The structure</h2>
+<p>A trie, pronounced "try", is a tree where each edge is labelled with one character. A path from the root spells a string. Words that share a prefix share the path for that prefix.</p>
+<p>Storing <code>car</code>, <code>card</code>, <code>care</code> and <code>cat</code>:</p>
+<pre><code class="lang-text">(root)
+  |
+  c
+  |
+  a
+ / \
+r*  t*
+|\
+d* e*</code></pre>
+<p>A star marks a node where a complete word ends. The marker is necessary: <code>car</code> is a word, and <code>ca</code> is only a prefix.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Each node holds a dictionary from character to child node, and an end-of-word flag.</p>
+<pre><code class="lang-python">class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_word = False
+
+
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+
+    def insert(self, word):
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+        node.is_word = True
+
+    def _find(self, text):
+        node = self.root
+        for ch in text:
+            node = node.children.get(ch)
+            if node is None:
+                return None
+        return node
+
+    def contains(self, word):
+        node = self._find(word)
+        return node is not None and node.is_word
+
+    def starts_with(self, prefix):
+        return self._find(prefix) is not None</code></pre>
+<p><code>contains</code> and <code>starts_with</code> walk the same path. The only difference is whether the final node must be marked as a word.</p>
+<h2 id="counting-words-under-a-prefix">Counting words under a prefix</h2>
+<p>Store one more number in each node: how many words pass through it. Increase it during insertion.</p>
+<pre><code class="lang-python">    def insert(self, word):
+        node = self.root
+        for ch in word:
+            if ch not in node.children:
+                node.children[ch] = TrieNode()
+            node = node.children[ch]
+            node.count += 1            # one more word passes through here
+        node.is_word = True
+
+    def count_prefix(self, prefix):
+        node = self._find(prefix)
+        return node.count if node is not None else 0</code></pre>
+<p>with <code>self.count = 0</code> added to <code>TrieNode.__init__</code>. The answer to a prefix question is then a single walk, however many words match.</p>
+<p>If the same word may be inserted twice, decide whether that counts once or twice, and make the code agree.</p>
+<h2 id="listing-completions">Listing completions</h2>
+<p>Walk to the prefix node, then collect every word below it with a depth-first search:</p>
+<pre><code class="lang-python">    def completions(self, prefix):
+        node = self._find(prefix)
+        results = []
+
+        def walk(node, text):
+            if node.is_word:
+                results.append(text)
+            for ch in sorted(node.children):
+                walk(node.children[ch], text + ch)
+
+        if node is not None:
+            walk(node, prefix)
+        return results</code></pre>
+<p>Visiting the children in sorted order gives the words alphabetically.</p>
+<h2 id="costs">Costs</h2>
+<p>With <code>L</code> the length of the word or prefix:</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Trie</th><th>Hash set</th></tr></thead><tbody><tr><td>insert a word</td><td>O(L)</td><td>O(L)</td></tr><tr><td>exact lookup</td><td>O(L)</td><td>O(L)</td></tr><tr><td>prefix exists</td><td>O(L)</td><td>not supported</td></tr><tr><td>count words with a prefix</td><td>O(L)</td><td>O(n × L)</td></tr></tbody></table></div>
+<p>None of the trie's costs depend on how many words are stored.</p>
+<p>The price is memory. Every character of every distinct prefix is its own node with its own dictionary. When the alphabet is small and fixed, such as lower-case letters, an array of 26 child slots per node is faster than a dictionary.</p>
+<h2 id="where-tries-are-used">Where tries are used</h2>
+<ul><li>autocomplete and search suggestions</li><li>spell checkers</li><li>IP routing tables, matching the longest prefix of an address</li><li>word games that explore a board letter by letter, abandoning a path as soon as no word starts that way</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No end-of-word marker.</strong> Every prefix then looks like a stored word.</li><li><strong>Confusing "is a word" with "is a prefix".</strong> They are two different questions.</li><li><strong>Double counting</strong> when the same word is inserted again.</li><li><strong>Using a trie for exact lookups only.</strong> A hash set is simpler and uses less memory.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/22-prefix-count">
+<h3>Count words by prefix <span class="ex-id">dsa/22-prefix-count</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>q</code>. Then <code>n</code> lower-case words, then <code>q</code> lower-case prefixes, all separated by spaces or newlines.</p>
+<p><strong>Output:</strong> for each prefix, on its own line, how many of the words start with it. A word counts as starting with itself. If the same word appears twice in the list, it counts twice.</p>
+<pre><code class="lang-text">input                  output
+5 4                    3
+car card care cat dog  4
+car ca d x             1
+                       0</code></pre>
+<p><code>car</code>, <code>card</code> and <code>care</code> start with <code>car</code>. Four words start with <code>ca</code>.</p>
+<p>One test has 30,000 words and 3,000 prefixes. Checking every word against every prefix is too slow. Build a trie in which every node counts the words that pass through it.</p>
+<p class="ex-files">Files: <code>exercises/dsa/22-prefix-count/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/22-prefix-count --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/22-prefix-count</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/14-greedy.html"><span>Previous</span>Greedy algorithms</a><a class="next" href="../dsa/16-union-find.html"><span>Next</span>Union-find</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

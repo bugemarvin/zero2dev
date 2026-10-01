@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Big-O and how to measure code · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/01-big-o">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 1 of 17</p>
+<h1>Big-O and how to measure code</h1>
+<p class="lede">A way to say how the running time of code grows as its input grows, without a stopwatch.</p>
+<h2 id="why-counting-seconds-does-not-work">Why counting seconds does not work</h2>
+<p>The same program is fast on a new laptop and slow on an old phone. Timing tells you about the machine. What you need is a way to describe the <strong>algorithm</strong>: how does the amount of work grow when the input gets bigger?</p>
+<p>That is what Big-O notation describes. <code>n</code> stands for the size of the input, for example the length of a list.</p>
+<h2 id="counting-steps">Counting steps</h2>
+<pre><code class="lang-python">def contains(items, target):
+    for item in items:
+        if item == target:
+            return True
+    return False</code></pre>
+<p>In the worst case, when the target is absent, the loop looks at all <code>n</code> items. Double the list and the work doubles. This is <strong>O(n)</strong>, read "order n", or <em>linear time</em>.</p>
+<pre><code class="lang-python">def has_duplicate(items):
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            if items[i] == items[j]:
+                return True
+    return False</code></pre>
+<p>Here every item is compared with every later item: about <code>n * n / 2</code> comparisons. Double the list and the work is multiplied by four. This is <strong>O(n²)</strong>, <em>quadratic time</em>.</p>
+<h2 id="the-rules">The rules</h2>
+<ol><li><strong>Keep the fastest-growing term.</strong> <code>n² + 5n + 20</code> is O(n²). For large <code>n</code> the other terms do not matter.</li><li><strong>Drop constant factors.</strong> <code>3n</code> and <code>n / 2</code> are both O(n).</li><li><strong>Think of the worst case</strong>, unless stated otherwise.</li></ol>
+<h2 id="the-common-classes">The common classes</h2>
+<p>From fastest to slowest:</p>
+<div class="table-wrap"><table><thead><tr><th>Big-O</th><th>Name</th><th>Example</th><th>Steps for n = 1,000,000</th></tr></thead><tbody><tr><td>O(1)</td><td>constant</td><td>read <code>a[i]</code>, dictionary lookup</td><td>1</td></tr><tr><td>O(log n)</td><td>logarithmic</td><td>binary search</td><td>about 20</td></tr><tr><td>O(n)</td><td>linear</td><td>one loop over the input</td><td>1,000,000</td></tr><tr><td>O(n log n)</td><td>linearithmic</td><td>good sorting algorithms</td><td>about 20,000,000</td></tr><tr><td>O(n²)</td><td>quadratic</td><td>two nested loops</td><td>1,000,000,000,000</td></tr><tr><td>O(2ⁿ)</td><td>exponential</td><td>trying every subset</td><td>more than atoms in the universe</td></tr></tbody></table></div>
+<p>A computer does very roughly 100 million simple steps per second in a fast language, and perhaps 10 million in Python. So for a million items, O(n log n) takes a moment and O(n²) takes hours.</p>
+<p>That gap is why this subject exists. A better algorithm beats a faster computer.</p>
+<h2 id="logarithms-in-one-paragraph">Logarithms in one paragraph</h2>
+<p><code>log n</code> here means: how many times can you halve <code>n</code> before reaching 1? For 1,000,000 the answer is about 20. Any algorithm that throws away half of the remaining work at each step is O(log n).</p>
+<h2 id="reading-the-complexity-off-the-code">Reading the complexity off the code</h2>
+<div class="table-wrap"><table><thead><tr><th>Shape</th><th>Complexity</th></tr></thead><tbody><tr><td>a fixed number of statements</td><td>O(1)</td></tr><tr><td>one loop over the input</td><td>O(n)</td></tr><tr><td>a loop inside a loop, both over the input</td><td>O(n²)</td></tr><tr><td>a loop that halves the range each round</td><td>O(log n)</td></tr><tr><td>a loop over the input, with a halving loop inside</td><td>O(n log n)</td></tr><tr><td>two loops one after the other</td><td>O(n + n), which is O(n)</td></tr></tbody></table></div>
+<p>Watch for hidden loops. In Python <code>x in some_list</code> and <code>some_list.index(x)</code> each scan the list, so they are O(n). The same test on a <code>set</code> or <code>dict</code> is O(1). Putting <code>in some_list</code> inside a loop quietly gives O(n²).</p>
+<h2 id="space">Space</h2>
+<p>The same notation describes <strong>memory</strong>. A function that builds a new list of <code>n</code> items uses O(n) extra space. One that only keeps a few variables uses O(1). Often you can trade one for the other: spend memory on a dictionary to save time.</p>
+<h2 id="using-it-to-choose">Using it to choose</h2>
+<p>The limits of a problem tell you which complexity you can afford. As a rule of thumb for a time limit of a few seconds:</p>
+<div class="table-wrap"><table><thead><tr><th>Input size n</th><th>What will be fast enough</th></tr></thead><tbody><tr><td>up to 20</td><td>O(2ⁿ)</td></tr><tr><td>up to 5,000</td><td>O(n²)</td></tr><tr><td>up to 1,000,000</td><td>O(n log n) or O(n)</td></tr><tr><td>larger</td><td>O(n) or O(log n)</td></tr></tbody></table></div>
+<h2 id="about-the-exercises-in-this-track">About the exercises in this track</h2>
+<p>Every exercise here is defined by <strong>input and output</strong>. Your program reads from standard input and prints to standard output, so you can write it in any language you have installed.</p>
+<p>Each exercise ships with a Python starter that already reads the input. To use another language:</p>
+<pre><code class="lang-console">$ python3 check.py start dsa/01-max-of-list --lang java
+$ python3 check.py dsa/01-max-of-list --lang java</code></pre>
+<p>Some exercises include a large test that a slow algorithm will not finish in time. When a test reports a timeout, the answer is a better algorithm, not a faster machine.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Counting lines of code.</strong> One line can hide a loop, like <code>sum(a)</code> or <code>sorted(a)</code>.</li><li><strong>Keeping constants.</strong> O(2n) is written O(n).</li><li><strong>Optimising before measuring.</strong> For 100 items, anything works. Use the simple version until the input size says otherwise.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/01-max-of-list">
+<h3>Largest number <span class="ex-id">dsa/01-max-of-list</span></h3>
+<p>This first exercise is mainly about the input and output format that every exercise in this track uses.</p>
+<p><strong>Input:</strong> the first line holds <code>n</code>, the count of numbers (at least 1). The second line holds <code>n</code> whole numbers separated by spaces.</p>
+<p><strong>Output:</strong> the largest of the numbers.</p>
+<pre><code class="lang-text">input          output
+5              9
+3 9 -2 7 4</code></pre>
+<p>Find it with one pass over the numbers. That is O(n).</p>
+<p><code>solution.py</code> already reads the input. Fill in the function. To solve it in another language, create a starter with <code>python3 check.py start dsa/01-max-of-list --lang java</code> and read standard input yourself.</p>
+<p class="ex-files">Files: <code>exercises/dsa/01-max-of-list/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/01-max-of-list --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/01-max-of-list</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/10-typing.html"><span>Previous</span>Type hints</a><a class="next" href="../dsa/02-arrays-and-two-pointers.html"><span>Next</span>Arrays and two pointers</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stacks and queues · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/04-stacks-and-queues">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 4 of 17</p>
+<h1>Stacks and queues</h1>
+<p class="lede">Two restricted lists that turn up everywhere. One serves the newest item first, the other the oldest.</p>
+<h2 id="stack-last-in-first-out">Stack: last in, first out</h2>
+<p>A stack is a pile. You add to the top and take from the top.</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Meaning</th><th>Cost</th></tr></thead><tbody><tr><td>push</td><td>put an item on top</td><td>O(1)</td></tr><tr><td>pop</td><td>remove and return the top item</td><td>O(1)</td></tr><tr><td>peek</td><td>look at the top item</td><td>O(1)</td></tr></tbody></table></div>
+<p>A Python list is already a stack, using its end as the top:</p>
+<pre><code class="lang-python">stack = []
+stack.append(1)     # push
+stack.append(2)
+stack[-1]           # peek: 2
+stack.pop()         # 2
+stack.pop()         # 1</code></pre>
+<p>Stacks appear wherever the most recent thing must be dealt with first: the undo history of an editor, the back button of a browser, and the <strong>call stack</strong> that tracks which function called which.</p>
+<h2 id="worked-example-matching-brackets">Worked example: matching brackets</h2>
+<p>Is <code>{[()]}</code> balanced? Every opening bracket must be closed by the same kind, in the reverse order. "Most recent first" means a stack.</p>
+<pre><code class="lang-python">def balanced(text):
+    pairs = {")": "(", "]": "[", "}": "{"}
+    stack = []
+    for ch in text:
+        if ch in "([{":
+            stack.append(ch)
+        elif ch in pairs:
+            if not stack or stack.pop() != pairs[ch]:
+                return False
+    return not stack</code></pre>
+<p>Three ways to fail: a closer with nothing open, a closer of the wrong kind, or something still open at the end. The final <code>not stack</code> covers the third.</p>
+<h2 id="worked-example-postfix-expressions">Worked example: postfix expressions</h2>
+<p>In postfix notation the operator comes after its operands: <code>3 4 + 2 *</code> means <code>(3 + 4) * 2</code>. No brackets are ever needed, and a stack evaluates it in one pass:</p>
+<ul><li>a number: push it;</li><li>an operator: pop two values, apply it, push the result.</li></ul>
+<pre><code class="lang-python">def evaluate(tokens):
+    stack = []
+    for token in tokens:
+        if token in "+-*":
+            b = stack.pop()       # the second operand is on top
+            a = stack.pop()
+            if token == "+":
+                stack.append(a + b)
+            elif token == "-":
+                stack.append(a - b)
+            else:
+                stack.append(a * b)
+        else:
+            stack.append(int(token))
+    return stack.pop()</code></pre>
+<p>Note the order when popping: for <code>5 3 -</code> the top of the stack is 3, and the answer is <code>5 - 3</code>.</p>
+<h2 id="queue-first-in-first-out">Queue: first in, first out</h2>
+<p>A queue is a line of people. You join at the back and leave from the front.</p>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Meaning</th><th>Cost</th></tr></thead><tbody><tr><td>enqueue</td><td>add at the back</td><td>O(1)</td></tr><tr><td>dequeue</td><td>remove from the front</td><td>O(1)</td></tr></tbody></table></div>
+<p>A plain Python list is a <strong>bad</strong> queue: <code>list.pop(0)</code> shifts every remaining element, which is O(n). Use <code>collections.deque</code>, which is O(1) at both ends:</p>
+<pre><code class="lang-python">from collections import deque
+
+queue = deque()
+queue.append("a")      # enqueue
+queue.append("b")
+queue.popleft()        # 'a'</code></pre>
+<p>Queues model anything handled in arrival order: print jobs, requests to a server, and the frontier of a <a href="../dsa/11-graphs-bfs-dfs.html">breadth-first search</a>.</p>
+<h2 id="building-them-yourself">Building them yourself</h2>
+<div class="table-wrap"><table><thead><tr><th>Structure</th><th>Built on an array</th><th>Built on a linked list</th></tr></thead><tbody><tr><td>stack</td><td>push and pop at the end</td><td>push and pop at the head</td></tr><tr><td>queue</td><td>a circular buffer with two indexes</td><td>add at the tail, remove at the head</td></tr></tbody></table></div>
+<p>A <strong>circular buffer</strong> keeps a <code>head</code> index and a count in a fixed array. Indexes wrap around with <code>% capacity</code>, so nothing ever shifts.</p>
+<p>A <strong>deque</strong> (double-ended queue) allows adding and removing at both ends, and can serve as either.</p>
+<h2 id="monotonic-stack">Monotonic stack</h2>
+<p>A stack kept in sorted order answers "what is the next greater element?" for every position in O(n). For each new value, pop everything smaller: the new value is the answer for each of those.</p>
+<pre><code class="lang-python">def next_greater(a):
+    result = [-1] * len(a)
+    stack = []                       # indexes still waiting for an answer
+    for i, x in enumerate(a):
+        while stack and a[stack[-1]] &lt; x:
+            result[stack.pop()] = x
+        stack.append(i)
+    return result</code></pre>
+<p>Each index is pushed once and popped at most once, so the total is O(n) despite the nested loop.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Popping from an empty stack.</strong> Check first, or the program crashes.</li><li><strong>Using <code>list.pop(0)</code> as a queue.</strong> It works, and it is O(n) per call.</li><li><strong>Operand order</strong> for <code>-</code> and <code>/</code> in postfix evaluation.</li><li><strong>Forgetting the final check</strong> that the stack is empty in bracket matching.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/04-balanced-brackets">
+<h3>Balanced brackets <span class="ex-id">dsa/04-balanced-brackets</span></h3>
+<p><strong>Input:</strong> the first line holds <code>t</code>. Each of the next <code>t</code> lines is a piece of text that may contain the brackets <code>( ) [ ] { }</code> and other characters.</p>
+<p><strong>Output:</strong> for each line, <code>yes</code> if the brackets are balanced and <code>no</code> otherwise.</p>
+<p>Balanced means every opening bracket is closed by a bracket of the same kind, in the right order. Characters that are not brackets are ignored.</p>
+<pre><code class="lang-text">input          output
+4              yes
+{[()]}         no
+([)]           no
+((             yes
+a[i]=(b+c)</code></pre>
+<p class="ex-files">Files: <code>exercises/dsa/04-balanced-brackets/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/04-balanced-brackets --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/04-balanced-brackets</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/05-rpn">
+<h3>Evaluate postfix expressions <span class="ex-id">dsa/05-rpn</span></h3>
+<p>In postfix notation an operator comes after its two operands. <code>3 4 + 2 *</code> means <code>(3 + 4) * 2</code>.</p>
+<p><strong>Input:</strong> the first line holds <code>t</code>. Each of the next <code>t</code> lines is a valid postfix expression: whole numbers and the operators <code>+</code>, <code>-</code> and <code>*</code>, separated by single spaces. Numbers may be negative, like <code>-5</code>.</p>
+<p><strong>Output:</strong> the value of each expression, one per line.</p>
+<pre><code class="lang-text">input            output
+3                14
+3 4 + 2 *        2
+5 3 -            -8
+2 3 4 * - 2 +</code></pre>
+<p>Mind the order for <code>-</code>: <code>5 3 -</code> is <code>5 - 3</code>.</p>
+<p class="ex-files">Files: <code>exercises/dsa/05-rpn/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/05-rpn --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/05-rpn</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/03-linked-lists.html"><span>Previous</span>Linked lists</a><a class="next" href="../dsa/05-hashing.html"><span>Next</span>Hash tables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

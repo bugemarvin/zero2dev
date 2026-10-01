@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Greedy algorithms · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/14-greedy">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 14 of 17</p>
+<h1>Greedy algorithms</h1>
+<p class="lede">Take the choice that looks best right now and never look back. Fast and simple, when it is correct.</p>
+<h2 id="the-idea">The idea</h2>
+<p>A <strong>greedy algorithm</strong> builds a solution step by step, always taking the option that is best at that moment, and never revises a choice.</p>
+<p>When it works, it is usually the simplest and fastest solution: often one sort followed by one pass. The difficulty is knowing <strong>whether</strong> it works. Many greedy ideas sound convincing and are wrong.</p>
+<h2 id="where-greedy-fails">Where greedy fails</h2>
+<p>Making change with the fewest coins. "Take the largest coin that fits" works for coins 1, 5, 10, 25. With coins 1, 3, 4 and amount 6 it gives 4 + 1 + 1, when 3 + 3 is better. The largest coin first is not always part of the best answer. That problem needs <a href="../dsa/13-dynamic-programming.html">dynamic programming</a>.</p>
+<p>So never trust a greedy rule only because it feels right. Either prove it, or try hard to break it with a small example.</p>
+<h2 id="where-greedy-works-activity-selection">Where greedy works: activity selection</h2>
+<p><strong>Problem:</strong> given meetings with start and end times, pick as many as possible so that none overlap.</p>
+<p>Some tempting rules, each of which fails:</p>
+<ul><li><em>Earliest start first.</em> One long meeting that starts first can block many short ones.</li><li><em>Shortest first.</em> A short meeting in the middle can overlap two that do not overlap each other.</li></ul>
+<p>The rule that works: <strong>always take the meeting that ends earliest</strong>, among those that do not overlap what you already took.</p>
+<pre><code class="lang-python">def max_meetings(meetings):
+    count = 0
+    free_from = float("-inf")
+    for start, end in sorted(meetings, key=lambda m: m[1]):
+        if start &gt;= free_from:
+            count += 1
+            free_from = end
+    return count</code></pre>
+<p>O(n log n) for the sort, then one pass.</p>
+<h2 id="why-it-is-correct-the-exchange-argument">Why it is correct: the exchange argument</h2>
+<p>Take any best solution. Look at its first meeting, and compare it with the meeting that ends earliest overall. Swap one for the other. The earliest-ending meeting finishes no later, so it cannot overlap anything the best solution took afterwards. The swapped solution is still valid and has the same number of meetings.</p>
+<p>So there is always a best solution that starts with the greedy choice. The same argument then applies to what remains. This way of reasoning, <strong>"I can exchange their choice for mine without making things worse"</strong>, is how most greedy algorithms are proved.</p>
+<h2 id="more-greedy-problems">More greedy problems</h2>
+<p><strong>Fractional knapsack.</strong> If items can be cut into pieces, take them in order of value per unit of weight. Greedy is optimal here. With whole items only, it is not, and you need DP.</p>
+<p><strong>Fewest platforms.</strong> Trains arrive and depart, and each needs a platform while present. Sort all arrivals and departures by time and sweep through them: +1 for an arrival, -1 for a departure. The highest count reached is the answer.</p>
+<pre><code class="lang-python">def min_platforms(arrivals, departures):
+    events = [(t, 1) for t in arrivals] + [(t, -1) for t in departures]
+    events.sort(key=lambda e: (e[0], e[1]))    # at equal times, departures first
+    current = best = 0
+    for _, change in events:
+        current += change
+        best = max(best, current)
+    return best</code></pre>
+<p><strong>Jump game.</strong> Each position says how far you may jump from it. Can you reach the end? Track the furthest index reachable so far. If the current index ever lies beyond it, you are stuck.</p>
+<p><strong>Huffman coding.</strong> To build the shortest prefix code for a text, repeatedly merge the two least frequent symbols. A <a href="../dsa/10-heaps.html">heap</a> supplies them.</p>
+<p>Several graph algorithms are greedy as well: <a href="../dsa/12-shortest-paths.html">Dijkstra</a> always settles the closest node, and Kruskal's algorithm for the cheapest spanning tree always adds the cheapest edge that does not form a cycle, using <a href="../dsa/16-union-find.html">union-find</a>.</p>
+<h2 id="greedy-or-dp">Greedy or DP?</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Greedy</th><th>Dynamic programming</th></tr></thead><tbody><tr><td>Choices</td><td>one, fixed for good</td><td>all options considered</td></tr><tr><td>Speed</td><td>usually O(n log n)</td><td>usually O(n²) or O(n × limit)</td></tr><tr><td>Correctness</td><td>needs a proof</td><td>follows from the recurrence</td></tr><tr><td>Try it when</td><td>a local rule can be shown safe</td><td>choices interact, or greedy has a counterexample</td></tr></tbody></table></div>
+<p>A practical approach: think of a greedy rule, then spend five minutes trying to break it with inputs of three or four elements. If it survives, look for an exchange argument. If it breaks, move to DP.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Not testing the rule on small cases.</strong></li><li><strong>Sorting by the wrong key.</strong> In interval problems the end time is right far more often than the start time.</li><li><strong>Unclear tie-breaking.</strong> Decide whether a meeting that ends at 10 clashes with one that starts at 10.</li><li><strong>Assuming that what works for fractions works for whole items.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/21-meetings">
+<h3>Most meetings in one room <span class="ex-id">dsa/21-meetings</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code>. Each of the next <code>n</code> lines holds the start and end time of a meeting. The end is always later than the start.</p>
+<p><strong>Output:</strong> the largest number of meetings that can be held in one room without any two overlapping. A meeting may start at the exact moment another one ends.</p>
+<pre><code class="lang-text">input    output
+4        3
+1 3
+2 5
+3 6
+6 8</code></pre>
+<p>Take 1-3, 3-6 and 6-8.</p>
+<p>Sort by end time and always take the next meeting that starts no earlier than the last one you took ended.</p>
+<p class="ex-files">Files: <code>exercises/dsa/21-meetings/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/21-meetings --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/21-meetings</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/13-dynamic-programming.html"><span>Previous</span>Dynamic programming</a><a class="next" href="../dsa/15-tries.html"><span>Next</span>Tries</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

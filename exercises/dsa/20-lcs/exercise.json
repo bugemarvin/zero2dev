@@ -1,0 +1,54 @@
+{
+  "title": "Longest common subsequence",
+  "lesson": "dsa/13-dynamic-programming",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "ABCBDAB\nBDCABA\n",
+      "stdout": "4\n"
+    },
+    {
+      "name": "identical strings",
+      "stdin": "HELLO\nHELLO\n",
+      "stdout": "5\n"
+    },
+    {
+      "name": "nothing in common",
+      "stdin": "ABC\nXYZ\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "one string is empty",
+      "stdin": "ABC\n\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "one is a subsequence of the other",
+      "stdin": "ACE\nABCDE\n",
+      "stdout": "3\n"
+    },
+    {
+      "name": "order matters",
+      "stdin": "AB\nBA\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "repeated letters",
+      "stdin": "AAAA\nAA\n",
+      "stdout": "2\n"
+    },
+    {
+      "name": "two strings of 1,500 letters",
+      "stdin_py": "''.join('ACGT'[(i * i + 3 * i) % 4] for i in range(1500)) + '\\n' + ''.join('ACGT'[(i * 7 + i // 3) % 4] for i in range(1500)) + '\\n'",
+      "stdout": "1000\n"
+    }
+  ],
+  "hints": [
+    "dp[i][j] is the answer for the first i characters of a and the first j characters of b. Row 0 and column 0 are all zero.",
+    "If a[i-1] == b[j-1], then dp[i][j] = dp[i-1][j-1] + 1. Otherwise it is the larger of dp[i-1][j] and dp[i][j-1].",
+    "The answer is in the last cell, dp[len(a)][len(b)]."
+  ],
+  "timeout": 20
+}

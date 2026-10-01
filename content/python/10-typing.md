@@ -117,4 +117,4 @@ Hints do not replace tests. Types tell you that a function returns a `float`. Te
 - **Leaving out `| None`** on a function that can return `None`.
 - **Using `list` in the signature when any iterable would do.** For a parameter you only loop over, `Iterable[int]` from `collections.abc` accepts lists, sets and generators alike.
 
-That completes the Python track. Carry on with data structures and algorithms, which you can solve in Python.
+That completes the Python track. Carry on with [data structures and algorithms](dsa/01-big-o), which you can solve in Python.

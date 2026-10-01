@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binary search · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="dsa/08-binary-search">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Data structures and algorithms · lesson 8 of 17</p>
+<h1>Binary search</h1>
+<p class="lede">Halve the search space at every step. Simple in idea, famously easy to get subtly wrong.</p>
+<h2 id="the-idea">The idea</h2>
+<p>To find a word in a dictionary you open it in the middle, see whether your word comes before or after, and discard half the book. Repeat on what remains.</p>
+<p>For a <strong>sorted</strong> array of a million elements that takes about 20 steps: O(log n).</p>
+<h2 id="the-basic-version">The basic version</h2>
+<pre><code class="lang-python">def binary_search(a, target):
+    lo, hi = 0, len(a) - 1
+    while lo &lt;= hi:
+        mid = (lo + hi) // 2
+        if a[mid] == target:
+            return mid
+        if a[mid] &lt; target:
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return -1</code></pre>
+<p><code>lo</code> and <code>hi</code> mark the range that could still contain the target, both ends included. Each round removes the middle and one half. When <code>lo</code> passes <code>hi</code> the range is empty.</p>
+<p>In C and Java write <code>mid = lo + (hi - lo) / 2</code>. The form <code>(lo + hi) / 2</code> can overflow when both are large.</p>
+<h2 id="first-position-lower-bound">First position: lower bound</h2>
+<p>With duplicates, the basic version returns <em>some</em> matching index. Usually you want the <strong>first</strong> one. More generally: the first index whose value is <strong>greater than or equal to</strong> the target. That is called the <strong>lower bound</strong>, and it is the version worth memorising.</p>
+<pre><code class="lang-python">def lower_bound(a, target):
+    lo, hi = 0, len(a)            # hi is one past the end
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if a[mid] &lt; target:
+            lo = mid + 1          # mid is too small: the answer is to the right
+        else:
+            hi = mid              # mid could be the answer: keep it
+    return lo</code></pre>
+<p>Here the range is <code>[lo, hi)</code>, with <code>hi</code> excluded. The loop ends when <code>lo == hi</code>, and that index is the answer. If every element is smaller, the result is <code>len(a)</code>.</p>
+<p>To test whether the target is present: <code>i = lower_bound(a, t)</code>, then check <code>i &lt; len(a) and a[i] == t</code>.</p>
+<p>Python has this built in as <code>bisect.bisect_left</code>.</p>
+<h2 id="getting-it-right">Getting it right</h2>
+<p>Binary search bugs are almost always off-by-one errors or infinite loops. Three checks:</p>
+<ol><li><strong>What does the range mean?</strong> Decide whether <code>hi</code> is included, and keep it consistent.</li><li><strong>Does the range shrink every round?</strong> With <code>lo &lt; hi</code> and <code>mid</code> rounded down, <code>lo = mid + 1</code> and <code>hi = mid</code> both shrink it. <code>lo = mid</code> would loop for ever when <code>hi = lo + 1</code>.</li><li><strong>Test the edges:</strong> an empty array, one element, target smaller than everything, larger than everything, and duplicates.</li></ol>
+<h2 id="binary-search-on-the-answer">Binary search on the answer</h2>
+<p>Binary search is not only for arrays. It works on any question where the answers go <strong>no, no, no, yes, yes, yes</strong> as a number increases. You search for the first yes.</p>
+<p><strong>Problem:</strong> packages with given weights must be shipped, in order, within <code>days</code> days. Each day the ship carries packages up to its capacity. What is the smallest capacity that works?</p>
+<ul><li>If a capacity works, every larger capacity works too. That is the no/yes pattern.</li><li>Checking one capacity is easy: load greedily and count the days.</li><li>The answer lies between the heaviest package and the sum of all packages.</li></ul>
+<pre><code class="lang-python">def days_needed(weights, capacity):
+    days = 1
+    load = 0
+    for w in weights:
+        if load + w &gt; capacity:
+            days += 1
+            load = 0
+        load += w
+    return days
+
+def min_capacity(weights, days):
+    lo, hi = max(weights), sum(weights)
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if days_needed(weights, mid) &lt;= days:
+            hi = mid              # works: try smaller
+        else:
+            lo = mid + 1          # too small
+    return lo</code></pre>
+<p>It is the lower bound loop again, with a function call in place of an array read. The cost is O(n log S), where S is the sum of the weights.</p>
+<p>Whenever a problem says "find the minimum value such that ..." or "the maximum value such that ...", ask whether you can cheaply <strong>check</strong> a given value. If you can, and the check is monotonic, binary search on the answer.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Searching unsorted data.</strong> The result is meaningless.</li><li><strong>Mixing the two conventions</strong>: <code>hi = len(a)</code> with <code>lo &lt;= hi</code>, or <code>hi = len(a) - 1</code> with <code>hi = mid</code>.</li><li><strong><code>lo = mid</code> with rounding down</strong>, which never ends.</li><li><strong>Returning any match</strong> when the first or last was required.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="dsa/12-lower-bound">
+<h3>First position not less than x <span class="ex-id">dsa/12-lower-bound</span></h3>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>q</code>. The second line holds <code>n</code> whole numbers in non-decreasing order (duplicates are allowed). The third line holds <code>q</code> query values.</p>
+<p><strong>Output:</strong> for each query <code>x</code>, on its own line, the first position (counting from 0) whose number is greater than or equal to <code>x</code>. If every number is smaller than <code>x</code>, print <code>n</code>.</p>
+<pre><code class="lang-text">input            output
+6 4              1
+1 3 3 5 8 8      3
+3 4 9 0          6
+                 0</code></pre>
+<p>Write the binary search yourself. <code>n</code> can be 200,000 with 2,000 queries, so scanning from the start for each query is too slow.</p>
+<p class="ex-files">Files: <code>exercises/dsa/12-lower-bound/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/12-lower-bound --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/12-lower-bound</code></pre>
+</article>
+<article class="exercise" data-ex="dsa/13-ship-capacity">
+<h3>Smallest ship that is fast enough <span class="ex-id">dsa/13-ship-capacity</span></h3>
+<p>Packages wait on a conveyor belt and must be shipped <strong>in the given order</strong>. Each day the ship is loaded with the next packages from the belt, as many as fit within its capacity, and sails.</p>
+<p><strong>Input:</strong> the first line holds <code>n</code> and <code>days</code>. The second line holds the <code>n</code> package weights.</p>
+<p><strong>Output:</strong> the smallest capacity with which all packages are shipped within <code>days</code> days.</p>
+<pre><code class="lang-text">input                     output
+10 5                      15
+1 2 3 4 5 6 7 8 9 10</code></pre>
+<p>With capacity 15 the days are: 1-5, 6-7, 8, 9, 10.</p>
+<p>A capacity either works or it does not, and once one works every larger one works too. Binary search on the capacity, between the heaviest package and the total weight.</p>
+<p class="ex-files">Files: <code>exercises/dsa/13-ship-capacity/</code></p>
+<p class="ex-note">Any language works. The starter is Python; for another one run <code>python3 check.py start dsa/13-ship-capacity --lang java</code> (or c, elixir, go, ...).</p><pre><code class="lang-console">$ python3 check.py dsa/13-ship-capacity</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/07-sorting.html"><span>Previous</span>Sorting</a><a class="next" href="../dsa/09-trees-and-bst.html"><span>Next</span>Trees and binary search trees</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

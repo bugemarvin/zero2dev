@@ -1,0 +1,48 @@
+{
+  "title": "Count inversions",
+  "lesson": "dsa/07-sorting",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "5\n3 1 4 5 2\n",
+      "stdout": "4\n"
+    },
+    {
+      "name": "already sorted",
+      "stdin": "4\n1 2 3 4\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "reversed",
+      "stdin": "4\n4 3 2 1\n",
+      "stdout": "6\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "1\n7\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "equal numbers are not inversions",
+      "stdin": "4\n2 2 2 2\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "with duplicates",
+      "stdin": "5\n2 3 2 1 2\n",
+      "stdout": "5\n"
+    },
+    {
+      "name": "100,000 numbers (needs O(n log n))",
+      "stdin_py": "'100000\\n' + ' '.join(str((i * 7919 + 13) % 100003) for i in range(100000)) + '\\n'",
+      "stdout": "2499927115\n"
+    }
+  ],
+  "hints": [
+    "Write merge sort first and make sure it sorts correctly.",
+    "In the merge step, when you take an element from the right half, it is smaller than everything still waiting in the left half. Add that many to the count.",
+    "Take from the left half when the two front elements are equal, so that equal values are not counted."
+  ]
+}

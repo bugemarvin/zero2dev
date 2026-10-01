@@ -1,0 +1,43 @@
+{
+  "title": "Two sum",
+  "lesson": "dsa/05-hashing",
+  "kind": "program",
+  "lang": "any",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "5 9\n8 2 11 7 15\n",
+      "stdout": "1 3\n"
+    },
+    {
+      "name": "the first two",
+      "stdin": "4 3\n1 2 10 20\n",
+      "stdout": "0 1\n"
+    },
+    {
+      "name": "the same value twice",
+      "stdin": "4 8\n4 1 4 9\n",
+      "stdout": "0 2\n"
+    },
+    {
+      "name": "negative numbers",
+      "stdin": "5 -3\n5 -7 2 4 9\n",
+      "stdout": "1 3\n"
+    },
+    {
+      "name": "zero and the target",
+      "stdin": "3 6\n0 5 6\n",
+      "stdout": "0 2\n"
+    },
+    {
+      "name": "100,000 numbers (needs a hash map)",
+      "stdin_py": "(lambda a: '100000 6000003\\n' + ' '.join(map(str, a)) + '\\n')([3000000 if i == 33333 else 3000003 if i == 99999 else 3 * i + 1 for i in range(100000)])",
+      "stdout": "33333 99999\n"
+    }
+  ],
+  "hints": [
+    "For each number x, the partner you need is target - x.",
+    "Keep a dictionary from value to the position where you saw it. Look the partner up before you store x.",
+    "Storing x only after the lookup is what stops a number from being paired with itself."
+  ]
+}
