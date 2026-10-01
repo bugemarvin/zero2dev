@@ -131,8 +131,8 @@
   Editor.prototype.set = function (content) { this.area.value = content; this.saved = content; this.refresh(); };
 
   // ---------------------------------------------------------------- one exercise
-  function Studio(box) {
-    this.box = box;
+  function Studio(box, mount) {
+    this.box = box;                 // the exercise's task box in the lesson
     this.id = box.dataset.ex;
     this.editors = {};
     this.info = null;
@@ -140,7 +140,7 @@
     this.hintsShown = 0;
     this.busy = false;
     this.node = el("div", { class: "studio" });
-    box.appendChild(this.node);
+    mount.appendChild(this.node);   // the editor, terminal and results live in the side panel
     this.load();
   }
 
@@ -466,6 +466,136 @@
     }).catch(function () { /* the app may have been stopped */ });
   };
 
+  // ---------------------------------------------------------------- the side panel
+  // The lesson stays on the left. Editor, terminal, Run and results sit in a panel on the right
+  // that can be resized, widened to the full page, or closed, and remembers how it was left.
+  function storeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function storeSet(key, value) { try { localStorage.setItem(key, value); } catch (e) { /* ignore */ } }
+
+  function Workspace(boxes) {
+    var self = this;
+    this.studios = [];
+    this.tabs = [];
+    this.panes = [];
+    this.current = 0;
+
+    this.tabBar = el("div", { class: "ws-tabs", role: "tablist", "aria-label": "Exercises of this lesson" });
+    this.fullBtn = el("button", { type: "button", class: "ws-icon", "aria-label": "Use the full width", title: "Full width" , text: "⤢" });
+    var closeBtn = el("button", { type: "button", class: "ws-icon", "aria-label": "Close the workspace", title: "Close", text: "✕" });
+    var grip = el("div", { class: "ws-grip", role: "separator", "aria-orientation": "vertical", "aria-label": "Resize the workspace", tabindex: "0" });
+    this.body = el("div", { class: "ws-body" });
+    this.panel = el("aside", { class: "ws", id: "workspace", "aria-label": "Workspace" }, [
+      grip,
+      el("div", { class: "ws-head" }, [this.tabBar, this.fullBtn, closeBtn]),
+      this.body
+    ]);
+    this.opener = el("button", { type: "button", class: "ws-opener", text: "Workspace" });
+    document.body.appendChild(this.panel);
+    document.body.appendChild(this.opener);
+
+    boxes.forEach(function (box, index) {
+      var heading = box.querySelector("h3");
+      var title = heading && heading.firstChild ? heading.firstChild.textContent.trim() : box.dataset.ex;
+
+      // the task, repeated in the panel so it stays in view while the lesson is scrolled elsewhere
+      var task = el("details", { class: "ws-task" }, [el("summary", { text: "Task" })]);
+      var command = box.querySelector(":scope > pre:last-of-type");
+      Array.prototype.forEach.call(box.children, function (child) {
+        if (child.tagName === "H3" || child === command || child.classList.contains("ex-files")) return;
+        var copy = child.cloneNode(true);
+        Array.prototype.forEach.call(copy.querySelectorAll(".copy-btn"), function (b) { b.remove(); });
+        task.appendChild(copy);
+      });
+      task.open = storeGet("z2d-ws-task") !== "closed";
+      task.addEventListener("toggle", function () { storeSet("z2d-ws-task", task.open ? "open" : "closed"); });
+
+      var pane = el("div", { class: "ws-pane", role: "tabpanel" }, [
+        el("h2", { class: "ws-title" }, [document.createTextNode(title + " "), el("span", { class: "ex-id", text: box.dataset.ex })]),
+        task
+      ]);
+      pane.hidden = index !== 0;
+      self.body.appendChild(pane);
+      self.panes.push(pane);
+      self.studios.push(new Studio(box, pane));
+
+      var tab = el("button", { type: "button", class: "ws-tab", role: "tab", text: title });
+      tab.addEventListener("click", function () { self.show(index); });
+      self.tabBar.appendChild(tab);
+      self.tabs.push(tab);
+
+      var open = button("Open in workspace", "st-primary", function () { self.show(index); self.open(); });
+      box.appendChild(el("p", { class: "ws-launch" }, [open]));
+    });
+    this.show(0);
+
+    closeBtn.addEventListener("click", function () { self.close(); });
+    this.opener.addEventListener("click", function () { self.open(); });
+    this.fullBtn.addEventListener("click", function () {
+      var full = document.body.classList.toggle("ws-full");
+      self.fullBtn.setAttribute("aria-pressed", full ? "true" : "false");
+      self.fullBtn.textContent = full ? "⤡" : "⤢";
+      self.refresh();
+    });
+
+    // width: drag the left edge, or use the arrow keys on it
+    function setWidth(px) {
+      var clamped = Math.round(Math.max(360, Math.min(px, window.innerWidth - 320)));
+      document.documentElement.style.setProperty("--ws-width", clamped + "px");
+      storeSet("z2d-ws-width", String(clamped));
+    }
+    var stored = Number(storeGet("z2d-ws-width"));
+    if (stored) setWidth(stored);
+    grip.addEventListener("pointerdown", function (event) {
+      event.preventDefault();
+      grip.setPointerCapture(event.pointerId);
+      document.body.classList.add("ws-resizing");
+      function move(e) { setWidth(window.innerWidth - e.clientX); }
+      function stop() {
+        grip.removeEventListener("pointermove", move);
+        grip.removeEventListener("pointerup", stop);
+        grip.removeEventListener("pointercancel", stop);
+        document.body.classList.remove("ws-resizing");
+        self.refresh();
+      }
+      grip.addEventListener("pointermove", move);
+      grip.addEventListener("pointerup", stop);
+      grip.addEventListener("pointercancel", stop);
+    });
+    grip.addEventListener("keydown", function (event) {
+      var width = self.panel.getBoundingClientRect().width;
+      if (event.key === "ArrowLeft") { setWidth(width + 40); event.preventDefault(); }
+      if (event.key === "ArrowRight") { setWidth(width - 40); event.preventDefault(); }
+    });
+
+    // open by default where there is room; afterwards, however it was left
+    var remembered = storeGet("z2d-ws-open");
+    if (remembered === "1" || (remembered === null && window.innerWidth >= 1100)) this.open(true);
+  }
+
+  Workspace.prototype.show = function (index) {
+    this.current = index;
+    this.panes.forEach(function (pane, i) { pane.hidden = i !== index; });
+    this.tabs.forEach(function (tab, i) { tab.setAttribute("aria-selected", i === index ? "true" : "false"); });
+    this.tabBar.hidden = this.tabs.length < 2;
+    this.refresh();
+  };
+
+  Workspace.prototype.refresh = function () {
+    var studio = this.studios[this.current];
+    if (studio) Object.keys(studio.editors).forEach(function (name) { studio.editors[name].refresh(); });
+  };
+
+  Workspace.prototype.open = function (quiet) {
+    document.body.classList.add("ws-open");
+    if (!quiet) storeSet("z2d-ws-open", "1");
+    this.refresh();
+  };
+
+  Workspace.prototype.close = function () {
+    document.body.classList.remove("ws-open", "ws-full");
+    storeSet("z2d-ws-open", "0");
+  };
+
   // ---------------------------------------------------------------- setup page
   var BADGE = {
     native: ["Installed", "st-ok"], running: ["Running", "st-ok"], docker: ["Via Docker", "st-ok"],
@@ -604,7 +734,8 @@
     token = session.token;
     document.body.classList.add("z2d-local");
     var studios = [];
-    document.querySelectorAll(".exercise[data-ex]").forEach(function (box) { studios.push(new Studio(box)); });
+    var boxes = Array.prototype.slice.call(document.querySelectorAll(".exercise[data-ex]"));
+    if (boxes.length) studios = new Workspace(boxes).studios;
     var mount = document.getElementById("setup");
     if (mount) renderSetup(mount);
     api("GET", "state").then(function (state) {
