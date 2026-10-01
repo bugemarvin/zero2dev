@@ -234,10 +234,26 @@ vercel.json  puts guide/ online as a static site
 tools/       build_guide.py, selftest.py, test_app.py
 ```
 
-## Contributing
+## Open source
 
-A new lesson, quiz, exercise, language, service, path or whole stack is data plus content: see [CONTRIBUTING.md](CONTRIBUTING.md).
+zero2dev is free and open source under the [MIT licence](LICENSE): you may use it, copy it, change it and share it, also commercially, as long as the licence text stays with it. It comes with no warranty.
 
-## License
+**Contributions are welcome**, from a fixed typo to a whole new stack. A new lesson, quiz, exercise, language, service or path is data plus content, and needs no change to the engine.
 
-MIT
+The short version of the rules:
+
+- What you contribute is under the MIT licence too, and must be your own work or work you are allowed to reuse, with its source named.
+- Keep pull requests small, and open an issue before starting something big such as a new stack.
+- Every exercise comes with a reference solution, and its starter must fail the tests. Every lesson comes with a quiz.
+- Write for a beginner whose first language may not be English.
+- The app stays offline-first: no trackers, no accounts, nothing loaded from other sites.
+- The security of the local server is never weakened.
+
+| File | What it covers |
+| --- | --- |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | the rules in full, how to send a change, and how lessons, quizzes, exercises and stacks are written |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | how we treat each other |
+| [SECURITY.md](SECURITY.md) | what the app promises, and how to report a vulnerability privately |
+| [LICENSE](LICENSE) | the MIT licence |
+
+To propose a stack, report a broken exercise or point out an unclear lesson, open an issue: there is a form for each.
