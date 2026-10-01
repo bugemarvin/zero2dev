@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pointers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/07-pointers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 7 of 12</p>
+<h1>Pointers</h1>
+<p class="lede">A pointer holds the address of another variable. It is how C shares and changes data across functions.</p>
+<h2 id="memory-has-addresses">Memory has addresses</h2>
+<p>Picture memory as a very long row of numbered boxes. Every variable lives in some of those boxes, and the number of its first box is its <strong>address</strong>.</p>
+<p><code>&amp;x</code> gives the address of <code>x</code>:</p>
+<pre><code class="lang-c">int x = 42;
+printf("%d\n", x);            // 42
+printf("%p\n", (void *)&amp;x);   // something like 0x7ffd3c1a5b2c</code></pre>
+<h2 id="a-pointer-stores-an-address">A pointer stores an address</h2>
+<pre><code class="lang-c">int x = 42;
+int *p = &amp;x;</code></pre>
+<p>Read <code>int *p</code> as "<code>p</code> is a pointer to an <code>int</code>". Now <code>p</code> holds the address of <code>x</code>. We say <code>p</code> <strong>points to</strong> <code>x</code>.</p>
+<pre><code class="lang-text">   x                 p
++------+         +--------+
+|  42  | &lt;------ | &amp;x     |
++------+         +--------+</code></pre>
+<h2 id="following-a-pointer">Following a pointer</h2>
+<p><code>*p</code> means "the value at the address stored in <code>p</code>". This is called <strong>dereferencing</strong>.</p>
+<pre><code class="lang-c">printf("%d\n", *p);   // 42: read x through p
+*p = 7;               // write to x through p
+printf("%d\n", x);    // 7</code></pre>
+<p>The star has two jobs, which confuses everyone at first:</p>
+<div class="table-wrap"><table><thead><tr><th>Where</th><th>Meaning</th></tr></thead><tbody><tr><td>in a declaration: <code>int *p;</code></td><td><code>p</code> is a pointer</td></tr><tr><td>in an expression: <code>*p = 7;</code></td><td>go to where <code>p</code> points</td></tr></tbody></table></div>
+<h2 id="why-pointers-exist">Why pointers exist</h2>
+<p>Functions receive <strong>copies</strong> of their arguments. So this cannot work:</p>
+<pre><code class="lang-c">void swap(int a, int b) {
+    int tmp = a;
+    a = b;
+    b = tmp;      // swaps the copies and changes nothing outside
+}</code></pre>
+<p>Pass addresses instead, and the function can reach the caller's variables:</p>
+<pre><code class="lang-c">void swap(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+int main(void) {
+    int x = 1, y = 2;
+    swap(&amp;x, &amp;y);
+    printf("%d %d\n", x, y);   // 2 1
+    return 0;
+}</code></pre>
+<p>This is also why <code>scanf</code> needs <code>&amp;</code>: it must know where to put the value it reads.</p>
+<p>A second use is returning more than one result. The function writes each result through a pointer:</p>
+<pre><code class="lang-c">void divide(int a, int b, int *quotient, int *remainder) {
+    *quotient = a / b;
+    *remainder = a % b;
+}</code></pre>
+<h2 id="null">NULL</h2>
+<p>A pointer that points nowhere should hold the special value <code>NULL</code>. Dereferencing <code>NULL</code> crashes the program at once with a segmentation fault. That is useful: the bug shows itself immediately, at the line that caused it.</p>
+<pre><code class="lang-c">int *p = NULL;
+if (p != NULL) {
+    printf("%d\n", *p);
+}</code></pre>
+<p>A pointer that was never given a value holds a garbage address. Dereferencing it is undefined behaviour. Initialise every pointer, to a real address or to <code>NULL</code>.</p>
+<h2 id="pointers-and-arrays">Pointers and arrays</h2>
+<p>The name of an array, used in an expression, becomes a pointer to its first element. That is what really happens when you pass an array to a function. These two declarations mean the same thing:</p>
+<pre><code class="lang-c">int sum(const int a[], int n);
+int sum(const int *a, int n);</code></pre>
+<p>Adding 1 to a pointer moves it forward by <strong>one element</strong>, whatever the element's size:</p>
+<pre><code class="lang-c">int a[] = {10, 20, 30};
+int *p = a;                // points at a[0]
+printf("%d\n", *p);        // 10
+printf("%d\n", *(p + 1));  // 20
+printf("%d\n", p[2]);      // 30</code></pre>
+<p><code>p[i]</code> and <code>*(p + i)</code> are the same operation. Indexing is pointer arithmetic with a nicer spelling.</p>
+<p>A function can return a pointer into an array it was given, for example to the element it found, or <code>NULL</code> when nothing was found.</p>
+<h2 id="const-with-pointers">const with pointers</h2>
+<pre><code class="lang-c">const int *p;   // cannot change the value p points to</code></pre>
+<p>Put <code>const</code> on pointer parameters that are only read. It documents the function and lets the compiler catch accidental writes.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Dereferencing an uninitialised or <code>NULL</code> pointer.</strong> Segmentation fault.</li><li><strong>Returning the address of a local variable.</strong> The variable is gone when the function returns, and the pointer is left <strong>dangling</strong>.</li><li><strong>Mixing up <code>p</code> and <code>*p</code>.</strong> <code>p = 7</code> changes where the pointer points. <code>*p = 7</code> changes the value there.</li><li><strong><code>int* a, b;</code></strong> declares one pointer and one plain <code>int</code>. Declare one variable per line.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/09-pointers">
+<h3>Pointer functions <span class="ex-id">c/09-pointers</span></h3>
+<p>Implement the functions declared in <code>ptrs.h</code>. Write your code in <code>ptrs.c</code>.</p>
+<ul><li><code>void swap(int *a, int *b)</code>: exchange the two values the pointers point to.</li><li><code>void min_max(const int *a, int n, int *min, int *max)</code>: store the smallest element of the array through <code>min</code> and the largest through <code>max</code>. <code>n</code> is at least 1.</li><li><code>int *find(int *a, int n, int target)</code>: return a pointer to the first element equal to <code>target</code>, or <code>NULL</code> if there is none.</li></ul>
+<p class="ex-files">Files: <code>exercises/c/09-pointers/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/09-pointers</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/06-strings.html"><span>Previous</span>Strings</a><a class="next" href="../c/08-memory.html"><span>Next</span>Memory, malloc and free</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

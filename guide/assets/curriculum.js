@@ -178,6 +178,153 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "c",
+   "title": "C",
+   "blurb": "How the machine really works: memory, pointers, and building programs from several files.",
+   "lessons": [
+    {
+     "id": "c/01-hello",
+     "title": "Hello, C",
+     "summary": "Write, compile and run your first C program, and learn to read what the compiler tells you.",
+     "exercises": [
+      {
+       "id": "c/01-hello",
+       "title": "Hello, C"
+      }
+     ]
+    },
+    {
+     "id": "c/02-types-and-variables",
+     "title": "Types and variables",
+     "summary": "Store numbers and characters, do arithmetic, and read input and print output with the right format.",
+     "exercises": [
+      {
+       "id": "c/02-rectangle",
+       "title": "Area and perimeter"
+      },
+      {
+       "id": "c/03-average",
+       "title": "Average of three"
+      }
+     ]
+    },
+    {
+     "id": "c/03-control-flow",
+     "title": "Control flow",
+     "summary": "Make decisions with if and switch, and repeat work with while and for.",
+     "exercises": [
+      {
+       "id": "c/04-fizzbuzz",
+       "title": "FizzBuzz"
+      },
+      {
+       "id": "c/05-collatz",
+       "title": "Collatz steps"
+      }
+     ]
+    },
+    {
+     "id": "c/04-functions",
+     "title": "Functions",
+     "summary": "Give a piece of code a name, inputs and a result, so you can use it again and test it on its own.",
+     "exercises": [
+      {
+       "id": "c/06-functions",
+       "title": "A small maths library"
+      }
+     ]
+    },
+    {
+     "id": "c/05-arrays",
+     "title": "Arrays",
+     "summary": "Hold many values of the same type side by side, and pass them to functions.",
+     "exercises": [
+      {
+       "id": "c/07-arrays",
+       "title": "Array functions"
+      }
+     ]
+    },
+    {
+     "id": "c/06-strings",
+     "title": "Strings",
+     "summary": "In C a string is an array of characters with a zero at the end. Everything about strings follows from that.",
+     "exercises": [
+      {
+       "id": "c/08-strings",
+       "title": "String functions"
+      }
+     ]
+    },
+    {
+     "id": "c/07-pointers",
+     "title": "Pointers",
+     "summary": "A pointer holds the address of another variable. It is how C shares and changes data across functions.",
+     "exercises": [
+      {
+       "id": "c/09-pointers",
+       "title": "Pointer functions"
+      }
+     ]
+    },
+    {
+     "id": "c/08-memory",
+     "title": "Memory, malloc and free",
+     "summary": "Ask for memory while the program runs, and give it back. This is where C asks the most of you.",
+     "exercises": [
+      {
+       "id": "c/10-heap",
+       "title": "Functions that allocate"
+      }
+     ]
+    },
+    {
+     "id": "c/09-structs",
+     "title": "Structs",
+     "summary": "Group related values into one type of your own.",
+     "exercises": [
+      {
+       "id": "c/11-structs",
+       "title": "Points and students"
+      }
+     ]
+    },
+    {
+     "id": "c/10-files",
+     "title": "Files and command-line arguments",
+     "summary": "Read and write files, take arguments from the command line, and report errors properly.",
+     "exercises": [
+      {
+       "id": "c/12-wc",
+       "title": "Count lines, words and characters"
+      }
+     ]
+    },
+    {
+     "id": "c/11-make-and-headers",
+     "title": "Headers and Makefiles",
+     "summary": "Split a program across several files, and let make rebuild only what changed.",
+     "exercises": [
+      {
+       "id": "c/13-makefile",
+       "title": "Write a Makefile"
+      }
+     ]
+    },
+    {
+     "id": "c/12-debugging",
+     "title": "Debugging",
+     "summary": "Find bugs on purpose, with a method and with tools, in place of staring at the code and hoping.",
+     "exercises": [
+      {
+       "id": "c/14-fix-the-bugs",
+       "title": "Fix the bugs"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

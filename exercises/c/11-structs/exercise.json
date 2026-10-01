@@ -1,0 +1,45 @@
+{
+  "title": "Points and students",
+  "lesson": "c/09-structs",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "shapes.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "distance",
+      "args": [
+        "distance"
+      ],
+      "stdout": "5.00\n0.00\n2.83\n"
+    },
+    {
+      "name": "translate",
+      "args": [
+        "translate"
+      ],
+      "stdout": "(3.0, 0.5)\n(0.0, 0.0)\n"
+    },
+    {
+      "name": "midpoint",
+      "args": [
+        "midpoint"
+      ],
+      "stdout": "(2.0, 3.0)\n(-1.5, 0.0)\n"
+    },
+    {
+      "name": "best_student",
+      "args": [
+        "best"
+      ],
+      "stdout": "Grace 95\nAda 91\nnone\n"
+    }
+  ],
+  "hints": [
+    "distance: sqrt(dx * dx + dy * dy), with sqrt from <math.h>.",
+    "translate receives a pointer, so use the arrow: p->x += dx;",
+    "best_student: return &s[i] for the best one. On a tie keep the earlier student, so only replace when the score is strictly greater."
+  ]
+}

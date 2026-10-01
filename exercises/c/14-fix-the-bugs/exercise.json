@@ -1,0 +1,33 @@
+{
+  "title": "Fix the bugs",
+  "lesson": "c/12-debugging",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "five numbers",
+      "stdin": "5\n1 2 3 4 5\n",
+      "stdout": "5 4 3 2 1\nsum: 15\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "1\n42\n",
+      "stdout": "42\nsum: 42\n"
+    },
+    {
+      "name": "negative numbers",
+      "stdin": "3\n-1 -2 10\n",
+      "stdout": "10 -2 -1\nsum: 7\n"
+    },
+    {
+      "name": "no numbers",
+      "stdin": "0\n",
+      "stdout": "\nsum: 0\n"
+    }
+  ],
+  "hints": [
+    "Read the sanitizer report from the top. It names the line of the bad read.",
+    "For an array of n elements the last index is n - 1. Check both the loop condition and the index a[n - i].",
+    "Two more bugs remain after that: a variable that is never given a starting value, and memory that is never freed."
+  ]
+}

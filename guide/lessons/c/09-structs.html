@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structs · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/09-structs">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 9 of 12</p>
+<h1>Structs</h1>
+<p class="lede">Group related values into one type of your own.</p>
+<h2 id="defining-a-struct">Defining a struct</h2>
+<p>A <code>struct</code> bundles several named values, called <strong>fields</strong> or <strong>members</strong>, into one unit.</p>
+<pre><code class="lang-c">struct Point {
+    double x;
+    double y;
+};
+
+struct Point p = {3.0, 4.0};
+printf("%.1f %.1f\n", p.x, p.y);
+p.x = 10.0;</code></pre>
+<p>The dot reaches a field.</p>
+<h2 id="typedef">typedef</h2>
+<p>Writing <code>struct Point</code> everywhere is tiring. <code>typedef</code> gives a type a second, shorter name:</p>
+<pre><code class="lang-c">typedef struct {
+    double x;
+    double y;
+} Point;
+
+Point p = {3.0, 4.0};
+Point origin = {0};        // every field set to zero</code></pre>
+<p>You can also name the fields when creating one, which is clearer with many fields:</p>
+<pre><code class="lang-c">Point q = {.x = 1.5, .y = 2.5};</code></pre>
+<h2 id="structs-and-functions">Structs and functions</h2>
+<p>A struct is passed <strong>by value</strong>, like an <code>int</code>: the function gets a copy.</p>
+<pre><code class="lang-c">double distance(Point a, Point b) {
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return sqrt(dx * dx + dy * dy);
+}</code></pre>
+<p><code>sqrt</code> comes from <code>&lt;math.h&gt;</code>. When compiling by hand, add <code>-lm</code> at the end of the command to link the maths library.</p>
+<p>A function can also return a struct:</p>
+<pre><code class="lang-c">Point midpoint(Point a, Point b) {
+    Point m = {(a.x + b.x) / 2, (a.y + b.y) / 2};
+    return m;
+}</code></pre>
+<h2 id="pointers-to-structs">Pointers to structs</h2>
+<p>To let a function <strong>change</strong> a struct, or to avoid copying a large one, pass a pointer. Reaching a field through a pointer uses the arrow <code>-&gt;</code>:</p>
+<pre><code class="lang-c">void move(Point *p, double dx, double dy) {
+    p-&gt;x += dx;
+    p-&gt;y += dy;
+}
+
+Point p = {1.0, 1.0};
+move(&amp;p, 2.0, 0.0);        // p is now {3.0, 1.0}</code></pre>
+<p><code>p-&gt;x</code> is shorthand for <code>(*p).x</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>You have</th><th>Use</th><th>Example</th></tr></thead><tbody><tr><td>the struct itself</td><td><code>.</code></td><td><code>point.x</code></td></tr><tr><td>a pointer to it</td><td><code>-&gt;</code></td><td><code>ptr-&gt;x</code></td></tr></tbody></table></div>
+<p>Use <code>const</code> when the function only reads: <code>double length(const Point *p)</code>.</p>
+<h2 id="arrays-of-structs">Arrays of structs</h2>
+<pre><code class="lang-c">typedef struct {
+    char name[32];
+    int score;
+} Student;
+
+Student class[] = {
+    {"Ada", 91},
+    {"Linus", 78},
+    {"Grace", 95}
+};
+
+for (int i = 0; i &lt; 3; i++) {
+    printf("%s: %d\n", class[i].name, class[i].score);
+}</code></pre>
+<h2 id="structs-inside-structs">Structs inside structs</h2>
+<pre><code class="lang-c">typedef struct {
+    Point top_left;
+    Point bottom_right;
+} Rect;
+
+Rect r = {{0, 10}, {5, 0}};
+double width = r.bottom_right.x - r.top_left.x;</code></pre>
+<h2 id="enum">enum</h2>
+<p>An <code>enum</code> gives names to a set of whole-number constants. It makes code readable and works well with <code>switch</code>.</p>
+<pre><code class="lang-c">typedef enum { RED, GREEN, BLUE } Color;
+
+Color c = GREEN;
+if (c == GREEN) {
+    printf("go\n");
+}</code></pre>
+<p><code>RED</code> is 0, <code>GREEN</code> is 1, <code>BLUE</code> is 2.</p>
+<h2 id="structs-on-the-heap">Structs on the heap</h2>
+<p>Structs and <code>malloc</code> together are the basis of every data structure you will build in the algorithms track:</p>
+<pre><code class="lang-c">Point *p = malloc(sizeof(Point));
+if (p != NULL) {
+    p-&gt;x = 1.0;
+    p-&gt;y = 2.0;
+    free(p);
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>.</code> on a pointer or <code>-&gt;</code> on a struct.</strong> The compiler error names the right one.</li><li><strong>Comparing structs with <code>==</code>.</strong> It does not compile. Compare field by field.</li><li><strong>Assigning a string into a <code>char</code> array field.</strong> <code>s.name = "Ada"</code> is an error. Use <code>strcpy(s.name, "Ada")</code>, or set it when the struct is created.</li><li><strong>Forgetting the semicolon</strong> after the closing brace of the definition.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/11-structs">
+<h3>Points and students <span class="ex-id">c/11-structs</span></h3>
+<p>The types <code>Point</code> and <code>Student</code> are defined in <code>shapes.h</code>. Implement the functions in <code>shapes.c</code>.</p>
+<ul><li><code>double distance(Point a, Point b)</code>: the straight-line distance between two points.</li><li><code>void translate(Point *p, double dx, double dy)</code>: move the point by <code>dx</code> and <code>dy</code>, changing the caller's struct.</li><li><code>Point midpoint(Point a, Point b)</code>: the point halfway between the two.</li><li><code>const Student *best_student(const Student *s, int n)</code>: a pointer to the student with the highest score. If several share the highest score, the first of them. <code>NULL</code> when <code>n</code> is 0.</li></ul>
+<p class="ex-files">Files: <code>exercises/c/11-structs/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/11-structs</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/08-memory.html"><span>Previous</span>Memory, malloc and free</a><a class="next" href="../c/10-files.html"><span>Next</span>Files and command-line arguments</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

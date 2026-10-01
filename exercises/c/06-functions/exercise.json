@@ -1,0 +1,45 @@
+{
+  "title": "A small maths library",
+  "lesson": "c/04-functions",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "mathx.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "gcd",
+      "args": [
+        "gcd"
+      ],
+      "stdout": "gcd(12, 18) = 6\ngcd(17, 5) = 1\ngcd(100, 10) = 10\ngcd(7, 0) = 7\n"
+    },
+    {
+      "name": "is_prime",
+      "args": [
+        "prime"
+      ],
+      "stdout": "primes up to 30: 2 3 5 7 11 13 17 19 23 29\nis_prime(1) = 0\nis_prime(0) = 0\nis_prime(-7) = 0\nis_prime(97) = 1\nis_prime(91) = 0\n"
+    },
+    {
+      "name": "factorial",
+      "args": [
+        "factorial"
+      ],
+      "stdout": "0! = 1\n1! = 1\n5! = 120\n10! = 3628800\n20! = 2432902008176640000\n"
+    },
+    {
+      "name": "fib",
+      "args": [
+        "fib"
+      ],
+      "stdout": "0 1 1 2 3 5 8 13 21 34 55\nfib(40) = 102334155\n"
+    }
+  ],
+  "hints": [
+    "gcd: while b is not 0, replace (a, b) with (b, a % b). The answer is a.",
+    "is_prime: numbers below 2 are not prime. Then try every divisor d while d * d <= n.",
+    "fib(40) must finish quickly. A loop with two variables is fast; plain double recursion is too slow."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Average of three",
+  "lesson": "c/02-types-and-variables",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "1 2 4",
+      "stdin": "1 2 4\n",
+      "stdout": "average: 2.33\n"
+    },
+    {
+      "name": "10 20 30",
+      "stdin": "10 20 30\n",
+      "stdout": "average: 20.00\n"
+    },
+    {
+      "name": "0 0 1",
+      "stdin": "0 0 1\n",
+      "stdout": "average: 0.33\n"
+    },
+    {
+      "name": "negative numbers",
+      "stdin": "-3 4 4\n",
+      "stdout": "average: 1.67\n"
+    }
+  ],
+  "hints": [
+    "Dividing two ints throws the fraction away. Make one side a double: sum / 3.0",
+    "%.2f prints two digits after the decimal point."
+  ]
+}

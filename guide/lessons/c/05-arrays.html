@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/05-arrays">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 5 of 12</p>
+<h1>Arrays</h1>
+<p class="lede">Hold many values of the same type side by side, and pass them to functions.</p>
+<h2 id="declaring-and-using">Declaring and using</h2>
+<p>An array is a row of values of one type, stored next to each other in memory.</p>
+<pre><code class="lang-c">int scores[5] = {90, 72, 85, 60, 77};</code></pre>
+<p>Each value has an <strong>index</strong>, starting from <strong>0</strong>:</p>
+<pre><code class="lang-text">index:    0    1    2    3    4
+value:   90   72   85   60   77</code></pre>
+<pre><code class="lang-c">printf("%d\n", scores[0]);   // 90, the first
+printf("%d\n", scores[4]);   // 77, the last
+scores[1] = 75;              // change the second</code></pre>
+<p>An array of size <code>n</code> has indexes <code>0</code> to <code>n - 1</code>. There is no <code>scores[5]</code>.</p>
+<p>Other ways to create one:</p>
+<pre><code class="lang-c">int counts[10] = {0};        // all ten set to 0
+int primes[] = {2, 3, 5, 7}; // size worked out from the values: 4
+int raw[100];                // garbage until you fill it</code></pre>
+<h2 id="looping-over-an-array">Looping over an array</h2>
+<pre><code class="lang-c">int total = 0;
+for (int i = 0; i &lt; 5; i++) {
+    total += scores[i];
+}</code></pre>
+<p>This is why loops count from 0 with <code>&lt;</code>. The same <code>i</code> is both the round number and a valid index.</p>
+<h2 id="arrays-do-not-know-their-length">Arrays do not know their length</h2>
+<p>An array carries no record of its size. The compiler can work it out, but only in the same scope where the array was declared:</p>
+<pre><code class="lang-c">int n = sizeof(scores) / sizeof(scores[0]);   // 5</code></pre>
+<p><code>sizeof(scores)</code> is the total number of bytes, and <code>sizeof(scores[0])</code> is the bytes in one element.</p>
+<h2 id="passing-an-array-to-a-function">Passing an array to a function</h2>
+<p>When you pass an array, the function receives the <strong>location of the first element</strong>, not a copy of the values. Two things follow.</p>
+<p><strong>1. The function cannot tell how long the array is.</strong> You must pass the length as a separate argument.</p>
+<pre><code class="lang-c">int sum(const int a[], int n) {
+    int total = 0;
+    for (int i = 0; i &lt; n; i++) {
+        total += a[i];
+    }
+    return total;
+}</code></pre>
+<p><strong>2. Changes the function makes are visible to the caller.</strong> That is the opposite of plain <code>int</code> parameters.</p>
+<pre><code class="lang-c">void double_all(int a[], int n) {
+    for (int i = 0; i &lt; n; i++) {
+        a[i] *= 2;
+    }
+}</code></pre>
+<p><code>const</code> in the first example is a promise that the function will not modify the array. The compiler enforces it. Use it whenever the function only reads.</p>
+<h2 id="out-of-bounds">Out of bounds</h2>
+<p>C does <strong>not</strong> check that an index is valid. Reading <code>scores[5]</code> reads whatever memory happens to sit after the array. Writing to it overwrites that memory.</p>
+<pre><code class="lang-c">int a[3] = {1, 2, 3};
+a[3] = 99;   // undefined behaviour: writes past the end</code></pre>
+<p>The program may crash, print wrong answers, or seem to work and fail later. This single mistake is behind a large share of all security bugs in C programs.</p>
+<p>The checker builds your code with <strong>AddressSanitizer</strong>, which catches it at the moment it happens:</p>
+<pre><code class="lang-text">ERROR: AddressSanitizer: stack-buffer-overflow
+WRITE of size 4
+    #0 in main example.c:3</code></pre>
+<p>Use the same flags when you compile by hand:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra -g -fsanitize=address,undefined example.c -o example</code></pre>
+<h2 id="two-dimensions">Two dimensions</h2>
+<pre><code class="lang-c">int grid[2][3] = {
+    {1, 2, 3},
+    {4, 5, 6}
+};
+printf("%d\n", grid[1][2]);   // 6: row 1, column 2</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using index <code>n</code></strong> on an array of size <code>n</code>. The last valid index is <code>n - 1</code>.</li><li><strong><code>i &lt;= n</code> in the loop</strong>, which reaches one element too far.</li><li><strong>Calling <code>sizeof</code> on an array parameter.</strong> Inside the function it gives the size of an address, not of the array.</li><li><strong>Returning a local array from a function.</strong> Its memory is released when the function ends. The <a href="../c/08-memory.html">memory</a> lesson shows the correct way.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/07-arrays">
+<h3>Array functions <span class="ex-id">c/07-arrays</span></h3>
+<p>Implement the functions declared in <code>arrays.h</code>. Write your code in <code>arrays.c</code>.</p>
+<ul><li><code>long sum_of(const int a[], int n)</code>: the sum of the <code>n</code> elements. 0 when <code>n</code> is 0.</li><li><code>int max_of(const int a[], int n)</code>: the largest element. <code>n</code> is at least 1.</li><li><code>int count_even(const int a[], int n)</code>: how many elements are even.</li><li><code>void reverse(int a[], int n)</code>: reverse the array in place.</li></ul>
+<p>Every function gets the length as a second argument, because an array does not know its own length. Never read or write outside indexes <code>0</code> to <code>n - 1</code>: the tests run with AddressSanitizer.</p>
+<p class="ex-files">Files: <code>exercises/c/07-arrays/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/07-arrays</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/04-functions.html"><span>Previous</span>Functions</a><a class="next" href="../c/06-strings.html"><span>Next</span>Strings</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

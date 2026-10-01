@@ -1,0 +1,38 @@
+{
+  "title": "Functions that allocate",
+  "lesson": "c/08-memory",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "heap.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "range",
+      "args": [
+        "range"
+      ],
+      "stdout": "0 1 2 3 4\n0\n"
+    },
+    {
+      "name": "repeat",
+      "args": [
+        "repeat"
+      ],
+      "stdout": "[ababab]\n[x]\n[]\n[]\n"
+    },
+    {
+      "name": "filter_even",
+      "args": [
+        "filter"
+      ],
+      "stdout": "3: 4 10 8\n0:\n"
+    }
+  ],
+  "hints": [
+    "range: malloc(n * sizeof(int)), then fill it in a loop.",
+    "repeat: the result needs strlen(s) * times + 1 bytes. The + 1 is for the terminator, which you must write yourself.",
+    "filter_even: allocate room for n ints (the largest it could need), copy the even ones, and store how many through out_n."
+  ]
+}

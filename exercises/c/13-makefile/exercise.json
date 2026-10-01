@@ -1,0 +1,45 @@
+{
+  "title": "Write a Makefile",
+  "lesson": "c/11-make-and-headers",
+  "kind": "sandbox",
+  "timeout": 60,
+  "setup": [
+    "cp \"$Z2D_EX\"/files/* ."
+  ],
+  "checks": [
+    {
+      "name": "make builds the program app",
+      "cmd": "make clean >/dev/null 2>&1; make >/dev/null 2>&1 && test -x app"
+    },
+    {
+      "name": "./app prints the greeting",
+      "cmd": "./app",
+      "stdout": "Hello, make"
+    },
+    {
+      "name": "main.o and greet.o are built as separate object files",
+      "cmd": "test -f main.o && test -f greet.o"
+    },
+    {
+      "name": "running make again has nothing to do",
+      "cmd": "make -q"
+    },
+    {
+      "name": "after changing greet.c, only greet.o is recompiled",
+      "cmd": "sleep 1; touch greet.c; out=$(make -n); echo \"$out\" | grep -q 'greet\\.c' && ! echo \"$out\" | grep -q 'main\\.c'"
+    },
+    {
+      "name": "the Makefile compiles with -Wall",
+      "cmd": "grep -q -- '-Wall' Makefile"
+    },
+    {
+      "name": "make clean removes app and the object files",
+      "cmd": "make clean >/dev/null 2>&1 && test ! -e app && test ! -e main.o && test ! -e greet.o"
+    }
+  ],
+  "hints": [
+    "Command lines in a Makefile must begin with a Tab character, not spaces.",
+    "You need a rule for app that depends on main.o and greet.o, and one rule for each .o file.",
+    "Each .o rule lists the .c file and greet.h as dependencies, and compiles with -c."
+  ]
+}

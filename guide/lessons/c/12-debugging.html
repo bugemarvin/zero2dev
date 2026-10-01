@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debugging · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/12-debugging">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 12 of 12</p>
+<h1>Debugging</h1>
+<p class="lede">Find bugs on purpose, with a method and with tools, in place of staring at the code and hoping.</p>
+<h2 id="a-method">A method</h2>
+<ol><li><strong>Reproduce it.</strong> Find the smallest input that makes the bug happen every time.</li><li><strong>Read the message.</strong> The file name and line number are in it.</li><li><strong>Form a guess</strong> about the cause, one you can check.</li><li><strong>Test the guess.</strong> Print a value, or stop in a debugger and look.</li><li><strong>Fix one thing</strong>, then run again.</li></ol>
+<p>Changing several things at once, at random, is how a one-hour bug becomes a one-day bug.</p>
+<h2 id="printing">Printing</h2>
+<p>The simplest tool is often enough. Print to <code>stderr</code>, so that the debug lines stay separate from the real output:</p>
+<pre><code class="lang-c">fprintf(stderr, "i=%d total=%d\n", i, total);</code></pre>
+<p>Remove these lines when you are done.</p>
+<h2 id="sanitizers">Sanitizers</h2>
+<p>Compile with them whenever you are developing:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra -g -fsanitize=address,undefined prog.c -o prog</code></pre>
+<p><code>-g</code> adds line numbers to the reports. The sanitizers stop the program at the instant something illegal happens and say where.</p>
+<div class="table-wrap"><table><thead><tr><th>Report contains</th><th>It means</th></tr></thead><tbody><tr><td><code>heap-buffer-overflow</code></td><td>read or write past the end of a <code>malloc</code> block</td></tr><tr><td><code>stack-buffer-overflow</code></td><td>past the end of a local array</td></tr><tr><td><code>heap-use-after-free</code></td><td>used a block after <code>free</code></td></tr><tr><td><code>detected memory leaks</code></td><td>a block was never freed</td></tr><tr><td><code>signed integer overflow</code></td><td>arithmetic went past the limit of the type</td></tr><tr><td><code>SEGV on unknown address 0x000000000000</code></td><td>dereferenced <code>NULL</code></td></tr></tbody></table></div>
+<p>A report looks like this:</p>
+<pre><code class="lang-text">==4131==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000024
+READ of size 4 at 0x602000000024 thread T0
+    #0 0x55e1 in reverse buggy.c:9
+    #1 0x55e1 in main buggy.c:24
+
+0x602000000024 is located 0 bytes after 20-byte region
+allocated by thread T0 here:
+    #0 0x7f3a in malloc
+    #1 0x55e1 in main buggy.c:17</code></pre>
+<p>Read it in three parts: <strong>what</strong> happened (a read past the end of a heap block), <strong>where</strong> (line 9 of <code>buggy.c</code>, in <code>reverse</code>, called from line 24), and <strong>which block</strong> (20 bytes, allocated on line 17). "0 bytes after" means the access was at the very first position past the end, the classic off-by-one.</p>
+<h2 id="gdb">gdb</h2>
+<p>A debugger runs your program under your control. You can stop it at any line and look at every variable.</p>
+<pre><code class="lang-console">$ gcc -g prog.c -o prog
+$ gdb ./prog</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Short</th><th>What it does</th></tr></thead><tbody><tr><td><code>break main</code></td><td><code>b</code></td><td>stop when <code>main</code> starts</td></tr><tr><td><code>break prog.c:12</code></td><td></td><td>stop at line 12</td></tr><tr><td><code>run</code></td><td><code>r</code></td><td>start the program</td></tr><tr><td><code>next</code></td><td><code>n</code></td><td>run one line, stepping over function calls</td></tr><tr><td><code>step</code></td><td><code>s</code></td><td>run one line, stepping into function calls</td></tr><tr><td><code>print total</code></td><td><code>p</code></td><td>show the value of a variable or expression</td></tr><tr><td><code>continue</code></td><td><code>c</code></td><td>run until the next breakpoint</td></tr><tr><td><code>backtrace</code></td><td><code>bt</code></td><td>show the chain of function calls that led here</td></tr><tr><td><code>quit</code></td><td><code>q</code></td><td>leave</td></tr></tbody></table></div>
+<p>When a program crashes, the quickest route to the cause is:</p>
+<pre><code class="lang-console">$ gdb ./prog
+(gdb) run
+Program received signal SIGSEGV, Segmentation fault.
+0x0000555555555171 in count (s=0x0) at prog.c:6
+(gdb) bt
+#0  count (s=0x0) at prog.c:6
+#1  main () at prog.c:14</code></pre>
+<p><code>s=0x0</code> shows that <code>count</code> was called with a <code>NULL</code> pointer, from line 14 of <code>main</code>.</p>
+<h2 id="valgrind">valgrind</h2>
+<p><code>valgrind</code> finds memory errors too, without recompiling. It is slower than the sanitizers and useful when you cannot rebuild the program:</p>
+<pre><code class="lang-console">$ valgrind --leak-check=full ./prog</code></pre>
+<p>Use it on a build <strong>without</strong> <code>-fsanitize</code>. The two do not work together.</p>
+<h2 id="the-usual-suspects">The usual suspects</h2>
+<p>When a C program misbehaves, check these first:</p>
+<ul><li><strong>Uninitialised variable.</strong> A counter or total that was never set to 0.</li><li><strong>Off by one.</strong> <code>&lt;=</code> where <code>&lt;</code> was meant, or a string buffer with no room for <code>'\0'</code>.</li><li><strong>Missing <code>free</code></strong>, or a <code>free</code> in only one of several exit paths.</li><li><strong>Using a pointer after the thing it pointed to is gone.</strong></li><li><strong><code>=</code> in a condition</strong> where <code>==</code> was meant.</li><li><strong>Integer division</strong> producing 0.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Fixing the symptom.</strong> If a value is wrong at line 40, find where it first became wrong.</li><li><strong>Not reading the whole message.</strong> The line number is right there.</li><li><strong>Debugging without <code>-g</code>.</strong> The reports show addresses with no file names or lines.</li></ul>
+<p>That is the end of the C track. The data structures and algorithms track builds on everything here.</p>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/14-fix-the-bugs">
+<h3>Fix the bugs <span class="ex-id">c/14-fix-the-bugs</span></h3>
+<p><code>main.c</code> is meant to read a count <code>n</code>, then <code>n</code> whole numbers, and print them in reverse order on one line followed by their sum:</p>
+<pre><code class="lang-console">$ printf '5\n1 2 3 4 5\n' | ./prog
+5 4 3 2 1
+sum: 15</code></pre>
+<p>The program has <strong>three bugs</strong>. Find and fix them. Do not rewrite the program from scratch: the point is to practise reading what the compiler and the sanitizer report.</p>
+<p>Build it the way the checker does, then run it and read the output:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra -g -fsanitize=address,undefined main.c -o prog
+$ printf '5\n1 2 3 4 5\n' | ./prog</code></pre>
+<p class="ex-files">Files: <code>exercises/c/14-fix-the-bugs/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/14-fix-the-bugs</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/11-make-and-headers.html"><span>Previous</span>Headers and Makefiles</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Files and command-line arguments · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/10-files">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 10 of 12</p>
+<h1>Files and command-line arguments</h1>
+<p class="lede">Read and write files, take arguments from the command line, and report errors properly.</p>
+<h2 id="command-line-arguments">Command-line arguments</h2>
+<p><code>main</code> can receive the words typed after the program name:</p>
+<pre><code class="lang-c">#include &lt;stdio.h&gt;
+
+int main(int argc, char *argv[]) {
+    printf("%d arguments\n", argc);
+    for (int i = 0; i &lt; argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+    }
+    return 0;
+}</code></pre>
+<pre><code class="lang-console">$ ./args notes.txt 3
+3 arguments
+argv[0] = ./args
+argv[1] = notes.txt
+argv[2] = 3</code></pre>
+<ul><li><code>argc</code> is the count. It includes the program name, so it is at least 1.</li><li><code>argv</code> is an array of strings. <code>argv[0]</code> is the program name, and your real arguments start at <code>argv[1]</code>.</li></ul>
+<p>Arguments are always strings. Convert with <code>atoi(argv[2])</code> for an <code>int</code> or <code>atof</code> for a <code>double</code>, both from <code>&lt;stdlib.h&gt;</code>.</p>
+<p>Always check <code>argc</code> before using <code>argv[1]</code>:</p>
+<pre><code class="lang-c">if (argc != 2) {
+    fprintf(stderr, "usage: %s FILE\n", argv[0]);
+    return 1;
+}</code></pre>
+<h2 id="opening-and-closing">Opening and closing</h2>
+<pre><code class="lang-c">FILE *f = fopen("notes.txt", "r");
+if (f == NULL) {
+    fprintf(stderr, "cannot open notes.txt\n");
+    return 1;
+}
+
+/* ... use the file ... */
+
+fclose(f);</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Meaning</th></tr></thead><tbody><tr><td><code>"r"</code></td><td>read. The file must exist.</td></tr><tr><td><code>"w"</code></td><td>write. Creates the file, or <strong>empties</strong> it if it exists.</td></tr><tr><td><code>"a"</code></td><td>append. Writes go to the end.</td></tr></tbody></table></div>
+<p><code>fopen</code> returns <code>NULL</code> when it fails: no such file, no permission. <strong>Always check.</strong> Using a <code>NULL</code> file pointer crashes.</p>
+<p>Every successful <code>fopen</code> needs an <code>fclose</code>. Closing also makes sure buffered output is really written to disk.</p>
+<h2 id="reading">Reading</h2>
+<p>Line by line, which suits most text:</p>
+<pre><code class="lang-c">char line[256];
+while (fgets(line, sizeof(line), f) != NULL) {
+    printf("%s", line);
+}</code></pre>
+<p>Character by character. <code>fgetc</code> returns an <code>int</code>, because it has to be able to return the special value <code>EOF</code> at the end of the file:</p>
+<pre><code class="lang-c">int c;
+while ((c = fgetc(f)) != EOF) {
+    putchar(c);
+}</code></pre>
+<p>Formatted, like <code>scanf</code>:</p>
+<pre><code class="lang-c">int n;
+while (fscanf(f, "%d", &amp;n) == 1) {
+    printf("read %d\n", n);
+}</code></pre>
+<h2 id="writing">Writing</h2>
+<pre><code class="lang-c">FILE *out = fopen("report.txt", "w");
+if (out == NULL) {
+    return 1;
+}
+fprintf(out, "Total: %d\n", total);
+fclose(out);</code></pre>
+<p><code>fprintf</code> is <code>printf</code> with a file as its first argument. In fact <code>printf(...)</code> is <code>fprintf(stdout, ...)</code>.</p>
+<h2 id="the-three-standard-streams">The three standard streams</h2>
+<p>Three files are open before <code>main</code> starts: <code>stdin</code>, <code>stdout</code> and <code>stderr</code>. Send error messages to <code>stderr</code>:</p>
+<pre><code class="lang-c">fprintf(stderr, "error: file is empty\n");</code></pre>
+<p>That keeps them out of the normal output, so a user who redirects output to a file still sees them. Combine it with a non-zero return from <code>main</code>, and other programs and scripts can tell that yours failed.</p>
+<h2 id="a-complete-example">A complete example</h2>
+<p>Count the lines in a file given on the command line:</p>
+<pre><code class="lang-c">#include &lt;stdio.h&gt;
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s FILE\n", argv[0]);
+        return 1;
+    }
+    FILE *f = fopen(argv[1], "r");
+    if (f == NULL) {
+        fprintf(stderr, "cannot open %s\n", argv[1]);
+        return 1;
+    }
+    int lines = 0;
+    int c;
+    while ((c = fgetc(f)) != EOF) {
+        if (c == '\n') {
+            lines++;
+        }
+    }
+    fclose(f);
+    printf("%d\n", lines);
+    return 0;
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Not checking <code>fopen</code> for <code>NULL</code>.</strong></li><li><strong>Storing <code>fgetc</code>'s result in a <code>char</code>.</strong> The comparison with <code>EOF</code> then goes wrong. Use <code>int</code>.</li><li><strong>Opening with <code>"w"</code> to read.</strong> The file is emptied.</li><li><strong>Forgetting <code>fclose</code></strong>, which can lose the last part of what you wrote.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/12-wc">
+<h3>Count lines, words and characters <span class="ex-id">c/12-wc</span></h3>
+<p>Write a small version of the <code>wc</code> command in <code>main.c</code>.</p>
+<p>The program takes one argument, a file name, and prints three numbers separated by single spaces:</p>
+<ol><li>the number of lines (count the newline characters),</li><li>the number of words (runs of characters separated by spaces, tabs or newlines),</li><li>the number of characters.</li></ol>
+<pre><code class="lang-console">$ ./wc notes.txt
+2 5 22</code></pre>
+<p>If the file cannot be opened, or no argument is given, print a message to <strong>standard error</strong> and exit with code 1. Print nothing to standard output in that case.</p>
+<p class="ex-files">Files: <code>exercises/c/12-wc/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/12-wc</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/09-structs.html"><span>Previous</span>Structs</a><a class="next" href="../c/11-make-and-headers.html"><span>Next</span>Headers and Makefiles</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{
+  "title": "Count lines, words and characters",
+  "lesson": "c/10-files",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "a two-line file",
+      "args": [
+        "notes.txt"
+      ],
+      "files": {
+        "notes.txt": "hello world\nthis is C\n"
+      },
+      "stdout": "2 5 22\n"
+    },
+    {
+      "name": "extra spaces, blank line, no final newline",
+      "args": [
+        "messy.txt"
+      ],
+      "files": {
+        "messy.txt": "one\n\n  two   three  \nfour"
+      },
+      "stdout": "3 4 25\n"
+    },
+    {
+      "name": "an empty file",
+      "args": [
+        "empty.txt"
+      ],
+      "files": {
+        "empty.txt": ""
+      },
+      "stdout": "0 0 0\n"
+    },
+    {
+      "name": "a missing file: exit code 1 and nothing on stdout",
+      "args": [
+        "nope.txt"
+      ],
+      "stdout": "",
+      "exit": 1
+    },
+    {
+      "name": "no argument: exit code 1 and nothing on stdout",
+      "args": [],
+      "stdout": "",
+      "exit": 1
+    }
+  ],
+  "hints": [
+    "Read one character at a time: int c; while ((c = fgetc(f)) != EOF)",
+    "A word starts when you see a non-space character and the previous character was a space (or the start of the file). Keep an in_word flag.",
+    "isspace from <ctype.h> is true for spaces, tabs and newlines."
+  ]
+}
