@@ -1,5 +1,36 @@
 # Contributing
 
+zero2dev is open source under the [MIT licence](LICENSE), and it grows through contributions: a fixed typo, a clearer sentence, a better hint, a new exercise, a whole new stack. All of them are welcome. Be kind to each other while doing it: see the [code of conduct](CODE_OF_CONDUCT.md).
+
+## The rules
+
+1. **Your contribution is under the MIT licence**, like the rest of the project. By opening a pull request you confirm that you wrote it, or that its licence allows it to be used here and you named the source. Do not paste from books, courses or sites whose text you may not reuse.
+2. **Small pull requests.** One lesson, one exercise or one fix at a time is reviewed in a day. A thousand lines wait for weeks. For a new stack, send the first lesson and exercise first.
+3. **Talk before big work.** For a new stack or a change to the engine, open an issue first (there is a "Propose a new stack" form). It saves you from building something that will not fit.
+4. **Every exercise proves itself.** It has a task (`README.md`), hints, starter files that **fail** the tests, and a reference solution in `solutions/` that **passes**. `tools/selftest.py` checks exactly that.
+5. **Every lesson has a quiz**, and at least one exercise unless it is reading only.
+6. **Write for a beginner whose first language may not be English.** Short sentences. One idea per paragraph. Explain a term the first time it appears. No slang, no "simply" or "just". Show an example before the rule.
+7. **Teach what is true today.** Use current, stable versions and practices. Say where a thing is an opinion.
+8. **Offline first.** A learner must be able to work without the internet once things are installed. No trackers, no analytics, no external fonts or scripts, no accounts.
+9. **The engine stays in the Python standard library**, and the pages stay plain HTML, CSS and JavaScript without a build step. New stacks are data, not new engine code, wherever possible.
+10. **Never weaken the security of the local server** (see [SECURITY.md](SECURITY.md)), and never commit secrets, keys or personal data.
+11. **Keep it friendly.** Jokes are welcome if every learner can laugh at them.
+
+## How to contribute
+
+1. Fork the repository on GitHub and clone your fork.
+2. Create a branch: `git switch -c add-vue-track`.
+3. Make the change. Run the three commands below.
+4. Commit with a message that says what changed, and push the branch to your fork.
+5. Open a pull request against `main`. The template lists what a reviewer will look for.
+6. A maintainer reviews it. Expect questions and requested changes: that is normal, and not a judgement of you.
+
+New to Git and pull requests? The guide teaches exactly this, in [the Git track](content/git/09-pull-requests.md).
+
+Found a mistake and do not want to fix it yourself? Open an issue. That is a contribution too.
+
+## Before you send it
+
 Almost everything here is data that a small engine reads. A new lesson, exercise, language, service or whole stack does not require changing the engine.
 
 After any change, these three must pass:
