@@ -52,6 +52,9 @@ def make_handler(token, port):
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Cross-Origin-Resource-Policy", "cross-origin" if self.cors else "same-origin")
             self.send_header("Referrer-Policy", "no-referrer")
+            # never inside a frame of another site: a hidden frame could trick a click on "Allow"
+            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Content-Security-Policy", "frame-ancestors 'none'")
             self.cors_headers()
             try:
                 self.end_headers()
@@ -66,7 +69,14 @@ def make_handler(token, port):
             self.json(status, {"error": message})
 
         # ---- checks
-        def trusted(self):
+        def trusted(self, page=False):
+            """May this request be answered? `page`: it asks for a page of the guide, not for the API.
+
+            A page may be opened by following a link from anywhere, for example from the copy of the
+            guide that is online: the other site cannot read what comes back, and the pages are the
+            public guide anyway. The API is different: it runs code, so it answers only this app's own
+            pages and websites the learner approved.
+            """
             self.cors = None
             if self.headers.get("Host") not in hosts:
                 self.refuse(403, "this server only answers on 127.0.0.1")
@@ -77,6 +87,8 @@ def make_handler(token, port):
                     self.refuse(403, "requests from other sites are not accepted")
                     return False
                 self.cors = origin          # a website the learner approved on this computer
+                return True
+            if page and self.command == "GET":
                 return True
             if self.headers.get("Sec-Fetch-Site", "same-origin") not in ("same-origin", "none"):
                 self.refuse(403, "requests from other sites are not accepted")
@@ -132,7 +144,7 @@ def make_handler(token, port):
             if url.path == "/api/hello" and self.headers.get("Host") in hosts:
                 self.hello()
                 return
-            if not self.trusted():
+            if not self.trusted(page=not url.path.startswith("/api/")):
                 return
             if url.path == "/api/session":
                 self.json(200, {"token": token})
