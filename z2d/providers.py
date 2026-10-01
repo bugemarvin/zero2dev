@@ -69,24 +69,12 @@ def ensure_image(image):
     if image_present(image):
         return
     if not AUTO_PULL:
-        raise Skip_needs_download(image)
+        raise core.NeedsDownload("image", image, f"the Docker image {image} is not downloaded yet. "
+                                 f"Download it with: docker pull {image}")
     sys.stderr.write(f"  downloading the Docker image {image} (one time) ...\n")
     ok, message = pull_image(image)
     if not ok:
         raise core.Skip(f"could not download the Docker image {image}: {message.splitlines()[-1] if message else 'unknown error'}")
-
-
-class NeedsDownload(core.Skip):
-    """A Docker image must be downloaded first. Carries the image name for the web app."""
-
-    def __init__(self, image):
-        super().__init__(f"the Docker image {image} is not downloaded yet. "
-                         f"Download it with: docker pull {image}")
-        self.image = image
-
-
-def Skip_needs_download(image):
-    return NeedsDownload(image)
 
 
 def native_ok(needs):

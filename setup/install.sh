@@ -36,6 +36,8 @@ MISE_SHIMS="$HOME/.local/share/mise/shims"
 
 DRY=0
 YES=0
+NOSUDO=0
+USER_STACKS=" node java go rust elixir "
 SELECTED=()
 PICKED=0
 
@@ -80,6 +82,7 @@ zero2dev installer: developer toolchains for Ubuntu / Debian / WSL.
   install.sh --list               show available stacks
   install.sh --dry-run            print what would be done, change nothing
   install.sh --yes                never ask questions
+  install.sh --no-sudo --stack go  only stacks that install into your home folder (no password)
 USAGE
 }
 
@@ -116,6 +119,10 @@ pkg_installed() {
 }
 
 apt_install() {
+  if [ "$NOSUDO" -eq 1 ]; then
+    warn "skipped system packages (no administrator rights in this mode): $*"
+    return 0
+  fi
   local p want=() avail=()
   for p in "$@"; do
     if ! pkg_installed "$p"; then want+=("$p"); fi
@@ -426,31 +433,48 @@ while [ "$#" -gt 0 ]; do
     --list)     list_stacks; exit 0 ;;
     --dry-run)  DRY=1; shift ;;
     --yes|-y)   YES=1; shift ;;
+    --no-sudo)  NOSUDO=1; YES=1; shift ;;
     -h|--help)  usage; exit 0 ;;
     *)          die "unknown option: $1 (see --help)" ;;
   esac
 done
 
-have apt-get || die "this script needs apt (Ubuntu, Debian or WSL Ubuntu)."
-if [ "$(id -u)" -ne 0 ] && ! have sudo; then die "sudo is required when not running as root."; fi
+if [ "$NOSUDO" -eq 0 ]; then
+  have apt-get || die "this script needs apt (Ubuntu, Debian or WSL Ubuntu)."
+  if [ "$(id -u)" -ne 0 ] && ! have sudo; then die "sudo is required when not running as root."; fi
+fi
 
 if [ "$PICKED" -eq 0 ]; then
   if interactive; then pick_stacks; else SELECTED=("${DEFAULT_STACKS[@]}"); fi
 fi
 
-# core always runs, and runs first.
-ORDERED=(core)
-for s in "${SELECTED[@]}"; do
-  if [ "$s" != "core" ]; then ORDERED+=("$s"); fi
-done
+# core always runs, and runs first. In --no-sudo mode only home-folder stacks run.
+if [ "$NOSUDO" -eq 1 ]; then
+  ORDERED=()
+  for s in "${SELECTED[@]}"; do
+    case "$USER_STACKS" in
+      *" $s "*) ORDERED+=("$s") ;;
+      *) warn "stack '$s' needs administrator rights. Run in a terminal: ./setup/install.sh --stack $s" ;;
+    esac
+  done
+  if [ "${#ORDERED[@]}" -eq 0 ]; then die "nothing to install without administrator rights."; fi
+  have curl || die "curl is required. Install it with: sudo apt-get install curl"
+else
+  ORDERED=(core)
+  for s in "${SELECTED[@]}"; do
+    if [ "$s" != "core" ]; then ORDERED+=("$s"); fi
+  done
+fi
 
 if is_wsl; then where="WSL"; else where="Linux"; fi
 info "zero2dev installer on $where: ${ORDERED[*]}"
 if [ "$DRY" -eq 1 ]; then info "dry run: nothing will be changed"; fi
 
-apt_update
-# curl is needed by several stacks before core finishes on a bare system.
-apt_install curl ca-certificates
+if [ "$NOSUDO" -eq 0 ]; then
+  apt_update
+  # curl is needed by several stacks before core finishes on a bare system.
+  apt_install curl ca-certificates
+fi
 
 FAILED=()
 for s in "${ORDERED[@]}"; do
