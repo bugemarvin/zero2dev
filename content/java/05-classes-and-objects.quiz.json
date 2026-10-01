@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is encapsulation?",
+  "options": [
+   "Inheritance",
+   "Private fields, reached only through methods",
+   "Static methods",
+   "Packages"
+  ],
+  "answer": 1,
+  "why": "The class controls its own data."
+ },
+ {
+  "q": "What does `static` mean for a method?",
+  "options": [
+   "It cannot change",
+   "It belongs to the class, not to an object",
+   "It is private",
+   "It is fast"
+  ],
+  "answer": 1,
+  "why": "Called as ClassName.method()."
+ },
+ {
+  "q": "If you override equals, what else must you override?",
+  "options": [
+   "toString",
+   "hashCode",
+   "clone",
+   "finalize"
+  ],
+  "answer": 1,
+  "why": "Equal objects must have equal hash codes, or HashMap breaks."
+ }
+]

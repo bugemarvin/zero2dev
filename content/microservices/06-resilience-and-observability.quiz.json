@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does a circuit breaker do?",
+  "options": [
+   "Encrypts calls",
+   "Stops calling a failing service for a while and fails fast",
+   "Restarts servers",
+   "Balances load"
+  ],
+  "answer": 1,
+  "why": "It gives the service time to recover."
+ },
+ {
+  "q": "How should retries be spaced?",
+  "options": [
+   "Immediately, for ever",
+   "With growing waits (backoff) and a limit",
+   "Once a day",
+   "Randomly for ever"
+  ],
+  "answer": 1,
+  "why": "Immediate retries make an overload worse."
+ },
+ {
+  "q": "What ties the log lines of one request together across services?",
+  "options": [
+   "The timestamp",
+   "A request (correlation) id passed along",
+   "The IP address",
+   "The port"
+  ],
+  "answer": 1,
+  "why": "One search then shows the whole journey."
+ }
+]

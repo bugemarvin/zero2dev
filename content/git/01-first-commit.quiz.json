@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does `git add` do?",
+  "options": [
+   "Saves a snapshot",
+   "Puts changes in the staging area for the next commit",
+   "Uploads to GitHub",
+   "Creates a repository"
+  ],
+  "answer": 1,
+  "why": "add stages. commit saves what is staged."
+ },
+ {
+  "q": "What creates a new repository in the current folder?",
+  "options": [
+   "git new",
+   "git init",
+   "git start",
+   "git create"
+  ],
+  "answer": 1,
+  "why": "git init creates the hidden .git folder."
+ },
+ {
+  "q": "What are the three places a change can be?",
+  "options": [
+   "Disk, memory, cloud",
+   "Working folder, staging area, repository",
+   "Local, remote, backup",
+   "Draft, review, final"
+  ],
+  "answer": 1,
+  "why": "You edit in the working folder, stage, then commit to the repository."
+ },
+ {
+  "q": "Which is the best commit message?",
+  "options": [
+   "stuff",
+   "fix",
+   "Fix crash when the cart is empty",
+   "asdf"
+  ],
+  "answer": 2,
+  "why": "Say what the change does, in a short sentence."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "How does a Bash function give back text?",
+  "options": [
+   "With return \"text\"",
+   "By printing it, and the caller captures it with $( )",
+   "It cannot",
+   "With a global only"
+  ],
+  "answer": 1,
+  "why": "return only sets an exit code from 0 to 255."
+ },
+ {
+  "q": "What does `local` do inside a function?",
+  "options": [
+   "Makes the variable visible everywhere",
+   "Keeps the variable inside the function",
+   "Exports it",
+   "Makes it read-only"
+  ],
+  "answer": 1,
+  "why": "Without local, a variable in a function is global."
+ },
+ {
+  "q": "Which variable holds the exit code of the last command?",
+  "options": [
+   "$?",
+   "$!",
+   "$0",
+   "$#"
+  ],
+  "answer": 0,
+  "why": "$? is the last exit code."
+ }
+]

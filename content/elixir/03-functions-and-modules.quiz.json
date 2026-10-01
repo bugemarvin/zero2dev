@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `|>` do?",
+  "options": [
+   "Compares",
+   "Passes the left value as the first argument of the function on the right",
+   "Defines a function",
+   "Concatenates"
+  ],
+  "answer": 1,
+  "why": "Pipelines read top to bottom."
+ },
+ {
+  "q": "What defines a private function?",
+  "options": [
+   "def",
+   "defp",
+   "private",
+   "fn"
+  ],
+  "answer": 1,
+  "why": "defp is visible only inside its module."
+ },
+ {
+  "q": "What is a guard?",
+  "options": [
+   "A security check",
+   "A `when` condition on a function clause",
+   "A lock",
+   "A test"
+  ],
+  "answer": 1,
+  "why": "def f(x) when x > 0"
+ }
+]

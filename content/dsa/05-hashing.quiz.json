@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is the average cost of a hash table lookup?",
+  "options": [
+   "O(1)",
+   "O(n)",
+   "O(log n)",
+   "O(n log n)"
+  ],
+  "answer": 0,
+  "why": "The hash says where to look."
+ },
+ {
+  "q": "What is a collision?",
+  "options": [
+   "A crash",
+   "Two keys that land in the same slot",
+   "A full table",
+   "A missing key"
+  ],
+  "answer": 1,
+  "why": "The table must store both, for example in a small list."
+ },
+ {
+  "q": "What does a hash table not give you?",
+  "options": [
+   "Fast lookup",
+   "The keys in sorted order",
+   "Fast insert",
+   "Membership tests"
+  ],
+  "answer": 1,
+  "why": "For order you need a tree or a sort."
+ }
+]

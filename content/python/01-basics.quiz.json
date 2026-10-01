@@ -1,0 +1,43 @@
+[
+ {
+  "q": "What does this print?",
+  "accept": [
+   "3.5"
+  ],
+  "why": "The / operator always gives a float. // is integer division.",
+  "code": "print(7 / 2)"
+ },
+ {
+  "q": "Which defines a function?",
+  "options": [
+   "function f():",
+   "def f():",
+   "fn f():",
+   "f = function()"
+  ],
+  "answer": 1,
+  "why": "def, a name, brackets, a colon."
+ },
+ {
+  "q": "How does Python mark the body of an if or a function?",
+  "options": [
+   "Braces",
+   "Indentation",
+   "The word end",
+   "Semicolons"
+  ],
+  "answer": 1,
+  "why": "Indentation is part of the syntax."
+ },
+ {
+  "q": "What is the type of \"42\"?",
+  "options": [
+   "int",
+   "str",
+   "float",
+   "bool"
+  ],
+  "answer": 1,
+  "why": "Quotes make it text. int(\"42\") converts it."
+ }
+]

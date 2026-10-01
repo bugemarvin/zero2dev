@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which function asks for memory on the heap?",
+  "options": [
+   "alloc",
+   "malloc",
+   "new",
+   "create"
+  ],
+  "answer": 1,
+  "why": "malloc returns a pointer, or NULL when it fails."
+ },
+ {
+  "q": "What is a memory leak?",
+  "options": [
+   "Memory that was allocated and never freed",
+   "A broken disk",
+   "A too-small array",
+   "A syntax error"
+  ],
+  "answer": 0,
+  "why": "Every malloc needs a matching free."
+ },
+ {
+  "q": "What is wrong with returning the address of a local variable?",
+  "options": [
+   "Nothing",
+   "The variable is gone when the function returns",
+   "It is slow",
+   "It leaks"
+  ],
+  "answer": 1,
+  "why": "Stack memory is reused after the function ends."
+ },
+ {
+  "q": "What must you never do with freed memory?",
+  "options": [
+   "Forget it",
+   "Use it, or free it again",
+   "Allocate more",
+   "Print its size"
+  ],
+  "answer": 1,
+  "why": "Use-after-free and double free are serious bugs."
+ }
+]

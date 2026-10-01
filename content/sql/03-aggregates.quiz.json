@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does COUNT(*) count?",
+  "options": [
+   "Columns",
+   "Rows",
+   "Tables",
+   "NULLs"
+  ],
+  "answer": 1,
+  "why": "COUNT(column) skips NULLs. COUNT(*) counts rows."
+ },
+ {
+  "q": "Which clause filters groups after GROUP BY?",
+  "options": [
+   "WHERE",
+   "HAVING",
+   "FILTER BY",
+   "LIMIT"
+  ],
+  "answer": 1,
+  "why": "WHERE filters rows before grouping. HAVING filters groups."
+ },
+ {
+  "q": "With GROUP BY genre, which columns may appear in SELECT?",
+  "options": [
+   "Any",
+   "genre and aggregates",
+   "Only aggregates",
+   "Only genre"
+  ],
+  "answer": 1,
+  "why": "Every other column would have many values per group."
+ }
+]

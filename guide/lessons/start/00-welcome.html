@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome: start here · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/00-welcome">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 1 of 8</p>
+<h1>Welcome: start here</h1>
+<p class="lede">What this is, what you need (very little), how a session works, and what to do when you are stuck.</p>
+<details class="install" id="install" data-track="start">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack core</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
+<h4>C compiler, Make, Git and shell tools: by hand</h4>
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
+$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre></div>
+<p>Check that it works:</p><pre><code class="lang-console">$ gcc --version &amp;&amp; git --version</code></pre>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="you-are-in-the-right-place">You are in the right place</h2>
+<p>This guide assumes you know <strong>nothing</strong> about programming. If you can use a web browser and type on a keyboard, you have everything you need.</p>
+<p>You do not need to be good at mathematics. You do not need a new computer. You do not need to be young, or "a computer person". Programming is a skill like cooking or driving: it looks like magic from outside, and it is learned by doing a little, often.</p>
+<h2 id="what-programming-is">What programming is</h2>
+<p>A computer is fast and has no judgement at all. It does exactly what it is told, in order, with no idea of what you meant.</p>
+<p><strong>Programming</strong> is writing down instructions precisely enough for a machine to follow. Those instructions are called <strong>code</strong>, and a finished set of them is a <strong>program</strong> (or an "app").</p>
+<p>Here is a complete program in the language Python:</p>
+<pre><code class="lang-python">name = "Sam"
+print("Hello, " + name)</code></pre>
+<p>It stores a name, then shows <code>Hello, Sam</code> on the screen. In a few days you will write programs like this without thinking.</p>
+<h2 id="how-one-session-works">How one session works</h2>
+<p>Every lesson has the same three parts:</p>
+<ol><li><strong>Read.</strong> A short explanation with examples. Ten minutes, usually.</li><li><strong>Quiz.</strong> A few questions in a pop-up. You see at once whether you understood, with an explanation for each answer.</li><li><strong>Practise.</strong> An exercise where you write real code. You press <strong>Run tests</strong>, and the computer checks your work and tells you exactly what is right and what is not.</li></ol>
+<p>The third part is where you learn. Reading feels like progress. <strong>Typing is progress.</strong></p>
+<h2 id="the-words-on-this-site">The words on this site</h2>
+<div class="table-wrap"><table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody><tr><td><strong>lesson</strong></td><td>one page that teaches one idea</td></tr><tr><td><strong>track</strong></td><td>a series of lessons on one subject, such as Python or Git</td></tr><tr><td><strong>path</strong></td><td>a route through several tracks towards a kind of job</td></tr><tr><td><strong>exercise</strong></td><td>a small task with automatic tests</td></tr><tr><td><strong>XP</strong></td><td>experience points. You earn them for exercises, quizzes and reading.</td></tr><tr><td><strong>streak</strong></td><td>how many days in a row you have learned something</td></tr></tbody></table></div>
+<h2 id="a-few-words-you-will-meet-in-the-first-hour">A few words you will meet in the first hour</h2>
+<div class="table-wrap"><table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody><tr><td><strong>file</strong></td><td>a named piece of stored information: a photo, a text, a program</td></tr><tr><td><strong>folder</strong> (or <strong>directory</strong>)</td><td>a container for files and other folders</td></tr><tr><td><strong>terminal</strong></td><td>a window where you type commands in place of clicking. It looks old-fashioned and is the most powerful tool you will learn.</td></tr><tr><td><strong>command</strong></td><td>one instruction typed in the terminal</td></tr><tr><td><strong>editor</strong></td><td>a program for writing code. This site has one built in.</td></tr><tr><td><strong>bug</strong></td><td>a mistake in a program. Everyone writes them, every day, for ever.</td></tr><tr><td><strong>to run</strong> a program</td><td>to make the computer carry out its instructions</td></tr></tbody></table></div>
+<p>Do not memorise these. They become familiar with use.</p>
+<h2 id="which-path">Which path?</h2>
+<p>On the home page you choose a <strong>path</strong>. If you are new, choose <strong>Start from zero</strong>. It takes you through:</p>
+<ol><li>how computers run programs, and the terminal;</li><li>Git, the tool that saves every version of your work;</li><li>Python, a first language that reads almost like English;</li><li>HTML and CSS: your first web page.</li></ol>
+<p>After that you will know enough to pick a direction: websites, the server side, games, automation, artificial intelligence. Each has its own path, and you can switch at any time.</p>
+<h2 id="you-will-get-stuck-that-is-the-job">You will get stuck. That is the job.</h2>
+<p>Being stuck is not a sign that you are bad at this. It is what the work <strong>is</strong>. A professional with twenty years of experience is stuck several times a day. The difference is that they have a routine for it:</p>
+<ol><li><strong>Read the error message.</strong> Slowly, the whole thing. It usually names the line and the problem. Beginners skip it. Do not.</li><li><strong>Check the obvious.</strong> A missing bracket, a misspelled name, a capital letter where a small one belongs.</li><li><strong>Make it smaller.</strong> Remove things until it works, then add them back one at a time.</li><li><strong>Use the hint.</strong> Every exercise has hints. After two failed tries one appears by itself.</li><li><strong>Explain it out loud</strong>, to a friend, a pet or a rubber duck. Saying what the code should do, line by line, often reveals the line that does something else.</li><li><strong>Take a break.</strong> Solutions arrive in the shower with suspicious regularity.</li></ol>
+<h2 id="how-to-learn-this-well">How to learn this well</h2>
+<ul><li><strong>A little every day</strong> beats a lot once a week. Twenty minutes is enough. The streak counter is there to help.</li><li><strong>Type the examples.</strong> Do not copy and paste. Your fingers learn too.</li><li><strong>Change things on purpose.</strong> What happens if you remove this line? Break it, see the error, put it back. Nothing you do in an exercise can harm your computer.</li><li><strong>Do not wait to feel ready.</strong> Nobody does. Start the next lesson.</li></ul>
+<h2 id="what-you-need-on-your-computer">What you need on your computer</h2>
+<p>To <strong>read</strong> the lessons and do the <strong>quizzes</strong>: nothing. They work as they are.</p>
+<p>To <strong>do the exercises</strong>, the app must be running on your computer. If you are reading this in the app, it already is. If not, <a href="../start/02-install.html">the next lesson but one</a> gets you there, step by step, for Windows, Linux and macOS.</p>
+<h2 id="common-worries">Common worries</h2>
+<ul><li><strong>"I am too old / too young / not clever enough."</strong> No. The people who succeed are the ones who keep turning up.</li><li><strong>"I do not understand everything in a lesson."</strong> Normal. Carry on. Things click three lessons later, when you use them.</li><li><strong>"Everyone else already knows this."</strong> They were exactly where you are now.</li><li><strong>"I broke it."</strong> Good. You are about to learn something. Press Reset and try again.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+
+<nav class="pager"><a class="next" href="../start/01-how-programs-run.html"><span>Next</span>How programs run</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

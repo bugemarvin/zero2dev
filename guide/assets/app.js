@@ -144,6 +144,7 @@
     var totalEx = 0, passedEx = 0;
 
     var chosen = (window.Z2D_PROFILE && window.Z2D_PROFILE.tracks) || [];
+    if (!chosen.length && window.Z2D && window.Z2D.pathTracks) chosen = window.Z2D.pathTracks();
     var ordered = curriculum.tracks.filter(function (t) { return chosen.indexOf(t.id) >= 0; })
       .concat(curriculum.tracks.filter(function (t) { return chosen.indexOf(t.id) < 0; }));
 
@@ -344,11 +345,55 @@
     renderSidebar();
     renderExerciseBadges();
     renderHome();
+    if (window.Z2D && window.Z2D.onProgress) window.Z2D.onProgress();     // game.js: experience, badges
+  }
+
+  // ---------- instructions for the system the learner is on ----------
+  // Blocks marked data-os="linux wsl", "macos" or "windows" are shown when they match, and
+  // tucked away behind one button when they do not.
+  var OS_SHOWS = { wsl: ["wsl", "linux"], linux: ["linux"], macos: ["macos"], windows: ["windows", "wsl"] };
+
+  function guessOs() {
+    var agent = navigator.userAgent || "";
+    if (/Windows/i.test(agent)) return { os: "windows", name: "Windows" };
+    if (/Mac OS X|Macintosh/i.test(agent)) return { os: "macos", name: "macOS" };
+    if (/Linux|X11/i.test(agent)) return { os: "linux", name: "Linux" };
+    return { os: "other", name: "" };
+  }
+
+  function applyOs(info) {
+    var shows = OS_SHOWS[info.os];
+    document.body.dataset.os = info.os;
+    var parents = [];
+    document.querySelectorAll("[data-os]").forEach(function (block) {
+      if (block === document.body) return;
+      var wanted = block.dataset.os.split(" ");
+      var match = !shows || wanted.some(function (w) { return shows.indexOf(w) >= 0; });
+      block.classList.toggle("os-other", !match);
+      if (parents.indexOf(block.parentNode) < 0) parents.push(block.parentNode);
+    });
+    parents.forEach(function (parent) {
+      var old = parent.querySelector(":scope > .os-note");
+      if (old) old.remove();
+      var hidden = parent.querySelectorAll(":scope > .os-other").length;
+      var first = parent.querySelector(":scope > [data-os]");
+      if (!shows || !hidden || !first) return;
+      var toggle = el("button", { type: "button", class: "os-toggle", text: "Show the steps for other systems" });
+      toggle.addEventListener("click", function () {
+        var all = parent.classList.toggle("os-show-all");
+        toggle.textContent = all ? "Show only the steps for this system" : "Show the steps for other systems";
+      });
+      var words = info.os === "windows"
+        ? "You are on Windows. The work happens in Ubuntu inside WSL, so the steps for both are shown. "
+        : "Showing the steps for " + info.name + ". ";
+      parent.insertBefore(el("p", { class: "os-note" }, [document.createTextNode(words), toggle]), first);
+    });
   }
 
   // hooks for studio.js (the interactive layer of the local app)
-  window.Z2D = { render: renderProgress, colour: colour };
+  window.Z2D = { render: renderProgress, colour: colour, applyOs: applyOs };
 
+  applyOs(guessOs());
   initTheme();
   initMenu();
   initCode();

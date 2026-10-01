@@ -1,4 +1,1806 @@
 window.Z2D_QUIZZES = {
+"start/00-welcome": [
+{
+"q": "What do you need to already know to start this guide?",
+"options": [
+"Advanced mathematics",
+"Another programming language",
+"How to use a browser and a keyboard",
+"How computers are built"
+],
+"answer": 2,
+"why": "The guide starts from zero and explains every word as it comes."
+},
+{
+"q": "What is a program?",
+"options": [
+"A kind of computer",
+"A set of precise instructions for a computer",
+"A website",
+"A file that cannot be changed"
+],
+"answer": 1,
+"why": "Code is instructions. A finished set of them is a program."
+},
+{
+"q": "Which part of a lesson teaches you the most?",
+"options": [
+"Reading it twice",
+"Writing code in the exercise",
+"Looking at the examples",
+"Skipping to the next one"
+],
+"answer": 1,
+"why": "Reading feels like progress. Typing is progress."
+},
+{
+"q": "Your code shows an error. What is the first thing to do?",
+"options": [
+"Start over",
+"Read the error message, slowly",
+"Give up for today",
+"Change things at random"
+],
+"answer": 1,
+"why": "The message usually names the line and the problem."
+},
+{
+"q": "What is a bug?",
+"options": [
+"A virus",
+"A mistake in a program",
+"A slow computer",
+"A missing file"
+],
+"answer": 1,
+"why": "Everyone writes bugs, every day. Finding them is part of the work."
+}
+],
+"start/01-how-programs-run": [
+{
+"q": "What is the source code of a program?",
+"options": [
+"A secret key",
+"Text files with instructions, written by people",
+"The computer's memory",
+"A kind of processor"
+],
+"answer": 1,
+"why": "Programs start as plain text that a person writes."
+},
+{
+"q": "What does a compiler do?",
+"options": [
+"Runs the program line by line",
+"Translates source code into a program the machine can run",
+"Deletes old files",
+"Connects to the internet"
+],
+"answer": 1,
+"why": "A compiler translates the whole program before it runs. An interpreter runs it directly."
+},
+{
+"q": "Python is usually run by ...",
+"options": [
+"a compiler that produces an executable",
+"an interpreter that reads and runs the code",
+"the web browser",
+"the keyboard"
+],
+"answer": 1,
+"why": "Python code is run by the Python interpreter."
+},
+{
+"q": "What manages files, memory and running programs on a computer?",
+"options": [
+"The editor",
+"The operating system",
+"The compiler",
+"The terminal"
+],
+"answer": 1,
+"why": "Linux, Windows and macOS are operating systems."
+}
+],
+"start/02-install": [
+{
+"q": "How does Windows run the Linux tools of this guide?",
+"options": [
+"It cannot",
+"Through WSL, a real Linux next to Windows",
+"In the browser",
+"With a USB stick"
+],
+"answer": 1,
+"why": "WSL (Windows Subsystem for Linux) runs Ubuntu alongside Windows."
+},
+{
+"q": "A language is not installed on your machine. What can the app use instead?",
+"options": [
+"Nothing",
+"Docker, which runs it in a container",
+"The cloud",
+"Another language"
+],
+"answer": 1,
+"why": "With Docker running, a missing language runs in a container."
+},
+{
+"q": "Is it safe to run the install script a second time?",
+"options": [
+"No, it breaks things",
+"Yes: it skips what is already installed"
+],
+"answer": 1,
+"why": "The script is written to be run again."
+}
+],
+"start/03-terminal": [
+{
+"q": "Which command shows the folder you are in?",
+"options": [
+"ls",
+"pwd",
+"cd",
+"whoami"
+],
+"answer": 1,
+"why": "pwd: print working directory."
+},
+{
+"q": "Which command lists the files in a folder?",
+"options": [
+"ls",
+"cd",
+"mkdir",
+"pwd"
+],
+"answer": 0,
+"why": "ls lists. cd changes folder. mkdir makes one."
+},
+{
+"q": "What does `cd ..` do?",
+"options": [
+"Goes to the home folder",
+"Goes one folder up",
+"Deletes the folder",
+"Lists hidden files"
+],
+"answer": 1,
+"why": "Two dots mean the parent folder."
+},
+{
+"q": "Which key completes a file name for you?",
+"options": [
+"Enter",
+"Tab",
+"Esc",
+"Shift"
+],
+"answer": 1,
+"why": "Tab completion saves typing and prevents typos."
+}
+],
+"start/04-files-and-paths": [
+{
+"q": "Which of these is an absolute path?",
+"options": [
+"notes/todo.txt",
+"../todo.txt",
+"/home/sam/todo.txt",
+"todo.txt"
+],
+"answer": 2,
+"why": "An absolute path starts at the root, with a slash."
+},
+{
+"q": "What does `~` stand for in a path?",
+"options": [
+"The root folder",
+"Your home folder",
+"The current folder",
+"The parent folder"
+],
+"answer": 1,
+"why": "The tilde is short for your home folder."
+},
+{
+"q": "Which files does `*.txt` match?",
+"options": [
+"All files",
+"Files whose name ends in .txt",
+"Files named txt",
+"Hidden files"
+],
+"answer": 1,
+"why": "The star matches any run of characters."
+},
+{
+"q": "How do you list hidden files, whose names start with a dot?",
+"options": [
+"ls -a",
+"ls -h",
+"ls *",
+"ls .."
+],
+"answer": 0,
+"why": "-a means all."
+}
+],
+"start/05-pipes-and-redirection": [
+{
+"q": "What does `>` do?",
+"options": [
+"Compares two numbers",
+"Sends a command's output into a file, replacing it",
+"Appends to a file",
+"Runs two commands"
+],
+"answer": 1,
+"why": "> replaces the file. >> appends to it."
+},
+{
+"q": "What does the pipe `|` do?",
+"options": [
+"Writes to a file",
+"Feeds the output of one command into the next",
+"Runs a command in the background",
+"Stops a command"
+],
+"answer": 1,
+"why": "A pipe connects standard output to the next command's standard input."
+},
+{
+"q": "Which command counts lines?",
+"options": [
+"wc -l",
+"ls -l",
+"cat -n",
+"head -c"
+],
+"answer": 0,
+"why": "wc counts. -l counts lines."
+},
+{
+"q": "Where do error messages normally go?",
+"options": [
+"Standard input",
+"Standard output",
+"Standard error",
+"A log file"
+],
+"answer": 2,
+"why": "Errors go to standard error, so they are not mixed into the data."
+}
+],
+"start/06-shell-scripts": [
+{
+"q": "What is the first line of a Bash script, the 'shebang'?",
+"options": [
+"# bash",
+"#!/usr/bin/env bash",
+"//bash",
+"start bash"
+],
+"answer": 1,
+"why": "The shebang tells the system which program runs the file."
+},
+{
+"q": "How do you make a script executable?",
+"options": [
+"chmod +x script.sh",
+"run script.sh",
+"exec +x",
+"make script.sh"
+],
+"answer": 0,
+"why": "chmod +x adds the execute permission."
+},
+{
+"q": "Inside a script, what is `$1`?",
+"options": [
+"The script's name",
+"The first argument",
+"The exit code",
+"The number of arguments"
+],
+"answer": 1,
+"why": "$1 is the first argument. $0 is the script name."
+},
+{
+"q": "Which exit code means success?",
+"accept": [
+"0"
+],
+"why": "Zero is success. Anything else is a failure."
+}
+],
+"start/07-editor": [
+{
+"q": "What is the work loop of programming?",
+"options": [
+"Write everything, then test once",
+"Edit, run, read the result, repeat",
+"Read only",
+"Copy and paste"
+],
+"answer": 1,
+"why": "Small steps, each one checked."
+},
+{
+"q": "Which command shows what to do next in this guide?",
+"options": [
+"python3 check.py next",
+"python3 check.py stop",
+"git next",
+"ls next"
+],
+"answer": 0,
+"why": "check.py next names the next exercise."
+},
+{
+"q": "You are stuck on an exercise. What is a good first move?",
+"options": [
+"Rewrite everything",
+"Read the error message and the failing test carefully",
+"Skip the track",
+"Reinstall Python"
+],
+"answer": 1,
+"why": "The message usually says exactly what is wrong."
+}
+],
+"git/01-first-commit": [
+{
+"q": "What does `git add` do?",
+"options": [
+"Saves a snapshot",
+"Puts changes in the staging area for the next commit",
+"Uploads to GitHub",
+"Creates a repository"
+],
+"answer": 1,
+"why": "add stages. commit saves what is staged."
+},
+{
+"q": "What creates a new repository in the current folder?",
+"options": [
+"git new",
+"git init",
+"git start",
+"git create"
+],
+"answer": 1,
+"why": "git init creates the hidden .git folder."
+},
+{
+"q": "What are the three places a change can be?",
+"options": [
+"Disk, memory, cloud",
+"Working folder, staging area, repository",
+"Local, remote, backup",
+"Draft, review, final"
+],
+"answer": 1,
+"why": "You edit in the working folder, stage, then commit to the repository."
+},
+{
+"q": "Which is the best commit message?",
+"options": [
+"stuff",
+"fix",
+"Fix crash when the cart is empty",
+"asdf"
+],
+"answer": 2,
+"why": "Say what the change does, in a short sentence."
+}
+],
+"git/02-history-and-diff": [
+{
+"q": "Which command shows the history of commits?",
+"options": [
+"git status",
+"git log",
+"git diff",
+"git show-all"
+],
+"answer": 1,
+"why": "git log lists commits, newest first."
+},
+{
+"q": "What does `git diff` show?",
+"options": [
+"Commits",
+"Changes you have not staged yet",
+"Branches",
+"Remote addresses"
+],
+"answer": 1,
+"why": "git diff --staged shows what is staged."
+},
+{
+"q": "What is `.gitignore` for?",
+"options": [
+"Listing files Git should not track",
+"Storing passwords",
+"Listing contributors",
+"Undoing commits"
+],
+"answer": 0,
+"why": "Build output, secrets and editor files belong in it."
+}
+],
+"git/03-branches": [
+{
+"q": "What is a branch?",
+"options": [
+"A copy of all files",
+"A movable name pointing at a commit",
+"A remote server",
+"A backup"
+],
+"answer": 1,
+"why": "Branches are cheap: just a pointer."
+},
+{
+"q": "What is HEAD?",
+"options": [
+"The first commit",
+"Where you are now: the current branch or commit",
+"The remote",
+"The newest tag"
+],
+"answer": 1,
+"why": "HEAD points at what is checked out."
+},
+{
+"q": "Which command creates a branch and switches to it?",
+"options": [
+"git branch -d name",
+"git switch -c name",
+"git merge name",
+"git init name"
+],
+"answer": 1,
+"why": "-c means create."
+}
+],
+"git/04-merge": [
+{
+"q": "What is a fast-forward merge?",
+"options": [
+"A merge with conflicts",
+"The branch name simply moves forward: no new commit is needed",
+"A deleted branch",
+"A rebase"
+],
+"answer": 1,
+"why": "It happens when the target has no commits of its own since the branch started."
+},
+{
+"q": "To merge `feature` into `main`, which branch must you be on?",
+"options": [
+"feature",
+"main"
+],
+"answer": 1,
+"why": "You merge into the branch you are on."
+},
+{
+"q": "What does a merge commit have that an ordinary commit does not?",
+"options": [
+"A message",
+"Two parents",
+"A tag",
+"A remote"
+],
+"answer": 1,
+"why": "It joins two lines of history."
+}
+],
+"git/05-conflicts": [
+{
+"q": "When does a merge conflict happen?",
+"options": [
+"Two branches changed the same lines differently",
+"Two branches have different names",
+"A file was added",
+"The network is down"
+],
+"answer": 0,
+"why": "Git cannot choose between two different edits of the same lines."
+},
+{
+"q": "After fixing a conflicted file by hand, what next?",
+"options": [
+"git add the file, then commit",
+"git init",
+"Delete the repository",
+"git log"
+],
+"answer": 0,
+"why": "Staging marks the conflict as resolved."
+},
+{
+"q": "How do you give up on a merge that went wrong?",
+"options": [
+"git merge --abort",
+"git stop",
+"git delete",
+"git undo"
+],
+"answer": 0,
+"why": "It restores the state before the merge."
+}
+],
+"git/06-remotes": [
+{
+"q": "What does `git clone` do?",
+"options": [
+"Copies a remote repository to your machine, with its history",
+"Deletes a branch",
+"Creates an empty repository",
+"Uploads commits"
+],
+"answer": 0,
+"why": "You get every commit, not just the latest files."
+},
+{
+"q": "What does `git push` do?",
+"options": [
+"Downloads commits",
+"Uploads your commits to the remote",
+"Merges branches",
+"Shows history"
+],
+"answer": 1,
+"why": "push sends, pull receives."
+},
+{
+"q": "Your push is rejected because the remote has new commits. What do you do?",
+"options": [
+"Force push",
+"Pull first, then push",
+"Delete the remote",
+"Create a new repository"
+],
+"answer": 1,
+"why": "Bring in the others' work, then push."
+}
+],
+"git/07-undoing": [
+{
+"q": "Which command undoes a commit by adding a new commit that reverses it?",
+"options": [
+"git reset",
+"git revert",
+"git restore",
+"git clean"
+],
+"answer": 1,
+"why": "revert is safe for commits that were already shared."
+},
+{
+"q": "How do you fix the message of the last commit, not yet pushed?",
+"options": [
+"git commit --amend",
+"git rename",
+"git log --edit",
+"git push --fix"
+],
+"answer": 0,
+"why": "amend replaces the last commit."
+},
+{
+"q": "What does `git reflog` give you?",
+"options": [
+"A list of remotes",
+"A record of where HEAD has been: the safety net",
+"The ignore list",
+"File sizes"
+],
+"answer": 1,
+"why": "Commits you 'lost' can usually be found there."
+}
+],
+"git/08-rebase": [
+{
+"q": "What does rebasing a branch do?",
+"options": [
+"Deletes it",
+"Replays its commits on top of another branch",
+"Uploads it",
+"Renames it"
+],
+"answer": 1,
+"why": "The result is a straight line of history."
+},
+{
+"q": "What is the golden rule of rebase?",
+"options": [
+"Rebase daily",
+"Do not rebase commits that others already have",
+"Always squash",
+"Never use merge"
+],
+"answer": 1,
+"why": "Rebase rewrites commits. Rewriting shared history causes trouble for everyone."
+},
+{
+"q": "A conflict stops a rebase. After fixing and staging the file, which command goes on?",
+"options": [
+"git rebase --continue",
+"git commit",
+"git merge",
+"git push"
+],
+"answer": 0,
+"why": "--abort would cancel the whole rebase."
+}
+],
+"git/09-pull-requests": [
+{
+"q": "What is a pull request?",
+"options": [
+"A request to download a file",
+"A proposal to merge a branch, with review",
+"A kind of commit",
+"A backup"
+],
+"answer": 1,
+"why": "Others read and comment before it is merged."
+},
+{
+"q": "To contribute to a project you cannot push to, you first ...",
+"options": [
+"email the files",
+"fork it",
+"delete it",
+"rename it"
+],
+"answer": 1,
+"why": "A fork is your own copy on the server."
+},
+{
+"q": "What makes a pull request easy to review?",
+"options": [
+"Being as large as possible",
+"Being small and focused, with a clear description",
+"Having no description",
+"Mixing many topics"
+],
+"answer": 1,
+"why": "Small changes are reviewed faster and better."
+}
+],
+"bash/01-variables-and-quoting": [
+{
+"q": "Which assignment is correct in Bash?",
+"options": [
+"name = Sam",
+"name=Sam",
+"$name=Sam",
+"set name Sam"
+],
+"answer": 1,
+"why": "No spaces around the equals sign."
+},
+{
+"q": "What do single quotes do?",
+"options": [
+"Expand variables",
+"Keep every character exactly as written",
+"Run a command",
+"Start a comment"
+],
+"answer": 1,
+"why": "Nothing is expanded inside single quotes."
+},
+{
+"q": "Why write \"$file\" with double quotes?",
+"options": [
+"It is faster",
+"So a name with spaces stays one word",
+"It is required syntax",
+"To make it upper case"
+],
+"answer": 1,
+"why": "Unquoted variables are split at spaces."
+},
+{
+"q": "What does $(date) do?",
+"options": [
+"Prints the text date",
+"Runs date and inserts its output",
+"Defines a variable",
+"Compares dates"
+],
+"answer": 1,
+"why": "This is command substitution."
+}
+],
+"bash/02-tests-and-conditionals": [
+{
+"q": "What does `if` test in Bash?",
+"options": [
+"A boolean value",
+"The exit code of a command",
+"A number",
+"A string length"
+],
+"answer": 1,
+"why": "Exit code 0 counts as true."
+},
+{
+"q": "Which test is true when a file exists and is a regular file?",
+"options": [
+"[[ -f path ]]",
+"[[ -d path ]]",
+"[[ -z path ]]",
+"[[ -n path ]]"
+],
+"answer": 0,
+"why": "-d tests for a directory."
+},
+{
+"q": "What does `cmd1 && cmd2` do?",
+"options": [
+"Runs both always",
+"Runs cmd2 only if cmd1 succeeded",
+"Runs cmd2 only if cmd1 failed",
+"Runs them at the same time"
+],
+"answer": 1,
+"why": "|| runs the second only if the first failed."
+},
+{
+"q": "Which operator compares numbers for 'less than' inside [[ ]]?",
+"options": [
+"<",
+"-lt",
+"lt",
+"=<"
+],
+"answer": 1,
+"why": "-lt, -gt, -eq compare numbers. < compares text."
+}
+],
+"bash/03-loops": [
+{
+"q": "Which loop goes over every .txt file?",
+"options": [
+"for f in *.txt; do ... done",
+"for f = *.txt",
+"loop *.txt",
+"each *.txt"
+],
+"answer": 0,
+"why": "The shell expands the pattern into the list of names."
+},
+{
+"q": "What is the safe way to read a file line by line?",
+"options": [
+"for line in $(cat file)",
+"while IFS= read -r line; do ... done < file",
+"cat file | for",
+"read file"
+],
+"answer": 1,
+"why": "read -r keeps backslashes, and IFS= keeps leading spaces."
+},
+{
+"q": "What does `break` do?",
+"options": [
+"Skips to the next round",
+"Leaves the loop",
+"Stops the script",
+"Pauses"
+],
+"answer": 1,
+"why": "continue skips to the next round."
+}
+],
+"bash/04-functions-and-exit-codes": [
+{
+"q": "How does a Bash function give back text?",
+"options": [
+"With return \"text\"",
+"By printing it, and the caller captures it with $( )",
+"It cannot",
+"With a global only"
+],
+"answer": 1,
+"why": "return only sets an exit code from 0 to 255."
+},
+{
+"q": "What does `local` do inside a function?",
+"options": [
+"Makes the variable visible everywhere",
+"Keeps the variable inside the function",
+"Exports it",
+"Makes it read-only"
+],
+"answer": 1,
+"why": "Without local, a variable in a function is global."
+},
+{
+"q": "Which variable holds the exit code of the last command?",
+"options": [
+"$?",
+"$!",
+"$0",
+"$#"
+],
+"answer": 0,
+"why": "$? is the last exit code."
+}
+],
+"bash/05-text-processing": [
+{
+"q": "Which tool finds the lines that match a pattern?",
+"options": [
+"grep",
+"cut",
+"sort",
+"tr"
+],
+"answer": 0,
+"why": "grep prints matching lines."
+},
+{
+"q": "How do you count how often each line occurs?",
+"options": [
+"uniq -c alone",
+"sort | uniq -c",
+"wc -l",
+"cut -c"
+],
+"answer": 1,
+"why": "uniq only joins neighbouring lines, so sort first."
+},
+{
+"q": "Which tool is best for columns and sums?",
+"options": [
+"tr",
+"awk",
+"head",
+"tee"
+],
+"answer": 1,
+"why": "awk splits each line into fields and can calculate."
+},
+{
+"q": "What does `sed 's/cat/dog/'` do?",
+"options": [
+"Deletes lines with cat",
+"Replaces the first cat on each line with dog",
+"Counts cats",
+"Sorts"
+],
+"answer": 1,
+"why": "Add g at the end to replace every occurrence."
+}
+],
+"bash/06-arrays-and-strings": [
+{
+"q": "How do you expand every element of an array, each as its own word?",
+"options": [
+"$array",
+"\"${array[@]}\"",
+"${array}",
+"$array[*]"
+],
+"answer": 1,
+"why": "Quoted [@] keeps each element whole."
+},
+{
+"q": "What gives the number of elements of an array?",
+"options": [
+"${#array[@]}",
+"${array#}",
+"$#array",
+"len(array)"
+],
+"answer": 0,
+"why": "The # in front counts."
+},
+{
+"q": "With file=report.txt, what is ${file%.txt}?",
+"accept": [
+"report"
+],
+"why": "% removes a matching ending."
+}
+],
+"bash/07-robust-scripts": [
+{
+"q": "What does `set -e` do?",
+"options": [
+"Echoes commands",
+"Stops the script when a command fails",
+"Exports variables",
+"Enables arrays"
+],
+"answer": 1,
+"why": "Without it a script carries on after an error."
+},
+{
+"q": "What does `set -u` protect against?",
+"options": [
+"Slow scripts",
+"Using a variable that was never set",
+"Unsorted output",
+"Unicode errors"
+],
+"answer": 1,
+"why": "A typo in a variable name becomes an error."
+},
+{
+"q": "What is `trap ... EXIT` used for?",
+"options": [
+"Speed",
+"Running clean-up when the script ends, however it ends",
+"Parsing options",
+"Logging in"
+],
+"answer": 1,
+"why": "For example removing a temporary folder."
+},
+{
+"q": "Which tool finds bugs in shell scripts without running them?",
+"accept": [
+"shellcheck"
+],
+"why": "ShellCheck reports unquoted variables, wrong tests and more."
+}
+],
+"bash/08-automation": [
+{
+"q": "Which command searches a folder tree for files?",
+"options": [
+"find",
+"grep",
+"ls",
+"locate-all"
+],
+"answer": 0,
+"why": "find walks the tree and tests each entry."
+},
+{
+"q": "In cron, what does `0 2 * * *` mean?",
+"options": [
+"Every 2 minutes",
+"At 02:00 every day",
+"Twice a day",
+"On the 2nd of each month"
+],
+"answer": 1,
+"why": "Minute 0, hour 2, every day."
+},
+{
+"q": "Why do cron jobs often fail though they work in your terminal?",
+"options": [
+"Cron is slower",
+"Cron runs with a minimal environment and PATH",
+"Cron needs root",
+"Cron ignores scripts"
+],
+"answer": 1,
+"why": "Use full paths, or set PATH in the script."
+},
+{
+"q": "When should you move from Bash to a language like Python?",
+"options": [
+"Never",
+"When the script needs data structures, careful error handling, or grows long",
+"After 5 lines",
+"When it uses pipes"
+],
+"answer": 1,
+"why": "Bash is glue. Larger logic belongs elsewhere."
+}
+],
+"c/01-hello": [
+{
+"q": "Which function is where a C program starts?",
+"options": [
+"start",
+"main",
+"init",
+"run"
+],
+"answer": 1,
+"why": "Execution begins in main."
+},
+{
+"q": "What does `gcc hello.c -o hello` produce?",
+"options": [
+"A text file",
+"An executable named hello",
+"A header",
+"A library"
+],
+"answer": 1,
+"why": "-o names the output file."
+},
+{
+"q": "Why compile with -Wall -Wextra?",
+"options": [
+"Faster programs",
+"The compiler warns about likely mistakes",
+"Smaller files",
+"It is required"
+],
+"answer": 1,
+"why": "Warnings find bugs before you run anything."
+}
+],
+"c/02-types-and-variables": [
+{
+"q": "Which printf format prints an int?",
+"options": [
+"%s",
+"%d",
+"%f",
+"%c"
+],
+"answer": 1,
+"why": "%d for int, %f for double, %s for strings, %c for a char."
+},
+{
+"q": "What is 7 / 2 in C, with two ints?",
+"accept": [
+"3"
+],
+"why": "Integer division drops the fraction."
+},
+{
+"q": "Why does scanf need `&x`?",
+"options": [
+"For speed",
+"It needs the address of x to store the value there",
+"To print x",
+"It is optional"
+],
+"answer": 1,
+"why": "scanf writes into the variable, so it needs its address."
+},
+{
+"q": "What happens when a signed int goes past its maximum?",
+"options": [
+"It stays at the maximum",
+"Undefined behaviour",
+"An exception",
+"It becomes a long"
+],
+"answer": 1,
+"why": "Signed overflow is undefined in C: anything may happen."
+}
+],
+"c/03-control-flow": [
+{
+"q": "In C, which value counts as false?",
+"accept": [
+"0"
+],
+"why": "Zero is false. Everything else is true."
+},
+{
+"q": "What is the classic mistake in `if (x = 5)`?",
+"options": [
+"Nothing",
+"It assigns 5 instead of comparing",
+"It does not compile",
+"It compares strings"
+],
+"answer": 1,
+"why": "== compares. = assigns."
+},
+{
+"q": "What does a missing `break` in a switch case cause?",
+"options": [
+"A compile error",
+"Execution falls through into the next case",
+"The loop ends",
+"Nothing"
+],
+"answer": 1,
+"why": "Each case normally ends with break."
+}
+],
+"c/04-functions": [
+{
+"q": "A function receives an int argument and changes it. Does the caller's variable change?",
+"options": [
+"Yes",
+"No: arguments are copies"
+],
+"answer": 1,
+"why": "C passes arguments by value."
+},
+{
+"q": "What is a function prototype for?",
+"options": [
+"Speed",
+"Telling the compiler a function's types before it is used",
+"Documentation only",
+"Linking libraries"
+],
+"answer": 1,
+"why": "The compiler must know a function before a call to it."
+},
+{
+"q": "What must every recursive function have?",
+"options": [
+"A loop",
+"A base case that stops the recursion",
+"A global variable",
+"Two parameters"
+],
+"answer": 1,
+"why": "Without a base case it never ends."
+}
+],
+"c/05-arrays": [
+{
+"q": "What is the index of the first element of an array?",
+"accept": [
+"0"
+],
+"why": "Indexes start at 0."
+},
+{
+"q": "An array has 5 elements. What is its last valid index?",
+"accept": [
+"4"
+],
+"why": "0 to 4."
+},
+{
+"q": "What happens when you write past the end of an array in C?",
+"options": [
+"An exception",
+"Undefined behaviour: it may corrupt memory",
+"The array grows",
+"A compile error"
+],
+"answer": 1,
+"why": "C does not check bounds."
+},
+{
+"q": "When an array is passed to a function, what does the function not know?",
+"options": [
+"Its type",
+"Its length",
+"Its name",
+"Its first element"
+],
+"answer": 1,
+"why": "Pass the length as a second argument."
+}
+],
+"c/06-strings": [
+{
+"q": "How does C mark the end of a string?",
+"options": [
+"With its length in front",
+"With a zero byte, '\\0'",
+"With a newline",
+"With a quote"
+],
+"answer": 1,
+"why": "A string is a char array ending in '\\0'."
+},
+{
+"q": "How many bytes does the string \"cat\" need?",
+"accept": [
+"4"
+],
+"why": "Three letters and the terminating zero byte."
+},
+{
+"q": "How do you compare two strings for equality?",
+"options": [
+"a == b",
+"strcmp(a, b) == 0",
+"a.equals(b)",
+"a = b"
+],
+"answer": 1,
+"why": "== compares addresses, not contents."
+}
+],
+"c/07-pointers": [
+{
+"q": "What does a pointer store?",
+"options": [
+"A value",
+"A memory address",
+"A type",
+"A file name"
+],
+"answer": 1,
+"why": "A pointer holds the address of another value."
+},
+{
+"q": "If `p` points at x, what does `*p = 7` do?",
+"options": [
+"Changes p",
+"Sets x to 7",
+"Declares a pointer",
+"Multiplies"
+],
+"answer": 1,
+"why": "* follows the pointer to the value."
+},
+{
+"q": "What does `&x` mean?",
+"options": [
+"The value of x",
+"The address of x",
+"A reference count",
+"x and something"
+],
+"answer": 1,
+"why": "& takes the address."
+},
+{
+"q": "What happens if you follow a NULL pointer?",
+"options": [
+"You get 0",
+"The program crashes (undefined behaviour)",
+"Nothing",
+"A warning"
+],
+"answer": 1,
+"why": "Usually a segmentation fault."
+}
+],
+"c/08-memory": [
+{
+"q": "Which function asks for memory on the heap?",
+"options": [
+"alloc",
+"malloc",
+"new",
+"create"
+],
+"answer": 1,
+"why": "malloc returns a pointer, or NULL when it fails."
+},
+{
+"q": "What is a memory leak?",
+"options": [
+"Memory that was allocated and never freed",
+"A broken disk",
+"A too-small array",
+"A syntax error"
+],
+"answer": 0,
+"why": "Every malloc needs a matching free."
+},
+{
+"q": "What is wrong with returning the address of a local variable?",
+"options": [
+"Nothing",
+"The variable is gone when the function returns",
+"It is slow",
+"It leaks"
+],
+"answer": 1,
+"why": "Stack memory is reused after the function ends."
+},
+{
+"q": "What must you never do with freed memory?",
+"options": [
+"Forget it",
+"Use it, or free it again",
+"Allocate more",
+"Print its size"
+],
+"answer": 1,
+"why": "Use-after-free and double free are serious bugs."
+}
+],
+"c/09-structs": [
+{
+"q": "What is a struct?",
+"options": [
+"A loop",
+"A group of named values in one type",
+"A function",
+"A file"
+],
+"answer": 1,
+"why": "It groups related data."
+},
+{
+"q": "With a pointer `p` to a struct, how do you reach its field `x`?",
+"options": [
+"p.x",
+"p->x",
+"p::x",
+"*p.x"
+],
+"answer": 1,
+"why": "p->x is short for (*p).x."
+},
+{
+"q": "What does typedef do?",
+"options": [
+"Allocates memory",
+"Gives a type a new name",
+"Defines a variable",
+"Includes a file"
+],
+"answer": 1,
+"why": "It saves writing `struct` everywhere."
+}
+],
+"c/10-files": [
+{
+"q": "What does `argc` hold?",
+"options": [
+"The arguments",
+"The number of command-line arguments",
+"The program's exit code",
+"The file size"
+],
+"answer": 1,
+"why": "argv holds the arguments themselves."
+},
+{
+"q": "What does fopen return when it cannot open the file?",
+"options": [
+"0 bytes",
+"NULL",
+"-1",
+"An exception"
+],
+"answer": 1,
+"why": "Always check for NULL."
+},
+{
+"q": "Which function must you call when you are done with a file?",
+"accept": [
+"fclose"
+],
+"why": "It flushes buffers and releases the file."
+}
+],
+"c/11-make-and-headers": [
+{
+"q": "What goes in a header file (.h)?",
+"options": [
+"Function bodies",
+"Declarations that other files need",
+"The main function",
+"Test data"
+],
+"answer": 1,
+"why": "Definitions go in .c files."
+},
+{
+"q": "What is an include guard for?",
+"options": [
+"Security",
+"Stopping a header from being included twice",
+"Speed",
+"Comments"
+],
+"answer": 1,
+"why": "#ifndef, #define, #endif."
+},
+{
+"q": "What does `make` decide for you?",
+"options": [
+"Which language to use",
+"Which files need rebuilding, from their timestamps",
+"The program's name",
+"Nothing"
+],
+"answer": 1,
+"why": "Only what changed is rebuilt."
+}
+],
+"c/12-debugging": [
+{
+"q": "What do sanitizers (-fsanitize=address) find?",
+"options": [
+"Style problems",
+"Memory errors, at the moment they happen",
+"Slow code",
+"Missing comments"
+],
+"answer": 1,
+"why": "Out-of-bounds access, use-after-free and leaks."
+},
+{
+"q": "Which tool lets you stop a program and look at its variables?",
+"options": [
+"gdb",
+"make",
+"gcc",
+"cat"
+],
+"answer": 0,
+"why": "A debugger runs the program step by step."
+},
+{
+"q": "What is a good first step when a program misbehaves?",
+"options": [
+"Rewrite it",
+"Reproduce the problem with the smallest input you can",
+"Add more features",
+"Change compilers"
+],
+"answer": 1,
+"why": "A small, reliable reproduction is half the fix."
+}
+],
+"python/01-basics": [
+{
+"q": "What does this print?",
+"accept": [
+"3.5"
+],
+"why": "The / operator always gives a float. // is integer division.",
+"code": "print(7 / 2)"
+},
+{
+"q": "Which defines a function?",
+"options": [
+"function f():",
+"def f():",
+"fn f():",
+"f = function()"
+],
+"answer": 1,
+"why": "def, a name, brackets, a colon."
+},
+{
+"q": "How does Python mark the body of an if or a function?",
+"options": [
+"Braces",
+"Indentation",
+"The word end",
+"Semicolons"
+],
+"answer": 1,
+"why": "Indentation is part of the syntax."
+},
+{
+"q": "What is the type of \"42\"?",
+"options": [
+"int",
+"str",
+"float",
+"bool"
+],
+"answer": 1,
+"why": "Quotes make it text. int(\"42\") converts it."
+}
+],
+"python/02-loops-and-collections": [
+{
+"q": "What does this print?",
+"accept": [
+"3"
+],
+"why": "Negative indexes count from the end.",
+"code": "print([1, 2, 3][-1])"
+},
+{
+"q": "Which collection maps keys to values?",
+"options": [
+"list",
+"tuple",
+"dict",
+"set"
+],
+"answer": 2,
+"why": "A dictionary: {\"name\": \"Sam\"}."
+},
+{
+"q": "What does range(3) produce?",
+"options": [
+"1, 2, 3",
+"0, 1, 2",
+"0, 1, 2, 3",
+"3"
+],
+"answer": 1,
+"why": "It starts at 0 and stops before 3."
+},
+{
+"q": "What is special about a set?",
+"options": [
+"It is ordered",
+"Each value appears at most once",
+"It cannot change",
+"It holds only numbers"
+],
+"answer": 1,
+"why": "Sets are for uniqueness and fast membership tests."
+}
+],
+"python/03-functions": [
+{
+"q": "What is wrong with `def add(item, items=[])`?",
+"options": [
+"Nothing",
+"The same list is shared between all calls",
+"Lists cannot be defaults",
+"It is slow"
+],
+"answer": 1,
+"why": "Default values are created once. Use None and create the list inside."
+},
+{
+"q": "What does *args collect?",
+"options": [
+"Keyword arguments",
+"Any number of positional arguments, as a tuple",
+"The return value",
+"Global variables"
+],
+"answer": 1,
+"why": "**kwargs collects keyword arguments, as a dict."
+},
+{
+"q": "What does a function return when it has no return statement?",
+"accept": [
+"None"
+],
+"why": "Every function returns something. Without return, that is None."
+}
+],
+"python/04-files": [
+{
+"q": "Why open files with `with open(...) as f:`?",
+"options": [
+"It is faster",
+"The file is closed for you, even when an error happens",
+"It is the only way",
+"It encrypts"
+],
+"answer": 1,
+"why": "The with block guarantees the clean-up."
+},
+{
+"q": "Which mode opens a file for appending?",
+"options": [
+"r",
+"w",
+"a",
+"x"
+],
+"answer": 2,
+"why": "w replaces the file. a adds to the end."
+},
+{
+"q": "Which module reads and writes JSON?",
+"accept": [
+"json"
+],
+"why": "json.load, json.dump, json.loads, json.dumps."
+}
+],
+"python/05-errors": [
+{
+"q": "Which block handles an exception?",
+"options": [
+"catch",
+"except",
+"rescue",
+"error"
+],
+"answer": 1,
+"why": "try ... except."
+},
+{
+"q": "Why avoid a bare `except:`?",
+"options": [
+"It is slow",
+"It hides every error, including bugs you did not expect",
+"It does not compile",
+"It is deprecated"
+],
+"answer": 1,
+"why": "Catch only the exceptions you can handle."
+},
+{
+"q": "Which statement raises an exception?",
+"options": [
+"throw",
+"raise",
+"error",
+"fail"
+],
+"answer": 1,
+"why": "raise ValueError(\"message\")."
+},
+{
+"q": "Where do you read a traceback to find the cause?",
+"options": [
+"The first line",
+"The last lines: the error type and the line that failed",
+"The middle",
+"Nowhere"
+],
+"answer": 1,
+"why": "The last line names the error. Just above it is the line of your code."
+}
+],
+"python/06-modules-and-venv": [
+{
+"q": "What is a virtual environment for?",
+"options": [
+"Speed",
+"Keeping each project's packages separate",
+"Running Windows programs",
+"Encrypting code"
+],
+"answer": 1,
+"why": "Projects can need different versions of the same package."
+},
+{
+"q": "What does `if __name__ == \"__main__\":` do?",
+"options": [
+"Starts a loop",
+"Runs code only when the file is run directly, not when imported",
+"Imports a module",
+"Defines main"
+],
+"answer": 1,
+"why": "It lets a file be both a program and a module."
+},
+{
+"q": "Which file usually lists a project's packages?",
+"accept": [
+"requirements.txt"
+],
+"why": "pip install -r requirements.txt installs them."
+}
+],
+"python/07-classes": [
+{
+"q": "What is `self` in a method?",
+"options": [
+"The class",
+"The object the method was called on",
+"A keyword for private",
+"The parent class"
+],
+"answer": 1,
+"why": "It is the first parameter of every method."
+},
+{
+"q": "Which method runs when an object is created?",
+"options": [
+"__init__",
+"__new_object__",
+"create",
+"__start__"
+],
+"answer": 0,
+"why": "__init__ sets up the new object."
+},
+{
+"q": "What does a dataclass save you from writing?",
+"options": [
+"Imports",
+"Boilerplate such as __init__ and __repr__",
+"Tests",
+"Type hints"
+],
+"answer": 1,
+"why": "@dataclass generates them from the field list."
+}
+],
+"python/08-iterators-and-generators": [
+{
+"q": "Which keyword makes a function a generator?",
+"options": [
+"return",
+"yield",
+"async",
+"gen"
+],
+"answer": 1,
+"why": "yield hands out one value and pauses."
+},
+{
+"q": "Why are generators useful for a huge file?",
+"options": [
+"They sort it",
+"They produce one item at a time, so memory use stays small",
+"They compress it",
+"They cache it"
+],
+"answer": 1,
+"why": "This is lazy evaluation."
+},
+{
+"q": "How many times can you loop over a generator?",
+"options": [
+"Once",
+"Twice",
+"Any number"
+],
+"answer": 0,
+"why": "A generator is used up after one pass."
+}
+],
+"python/09-testing": [
+{
+"q": "What does `assert x == 5` do when x is 4?",
+"options": [
+"Nothing",
+"Raises AssertionError",
+"Sets x to 5",
+"Prints a warning"
+],
+"answer": 1,
+"why": "A failed assert stops the test."
+},
+{
+"q": "How should you compare floating-point results?",
+"options": [
+"With ==",
+"With a tolerance, such as math.isclose",
+"As strings",
+"Never"
+],
+"answer": 1,
+"why": "0.1 + 0.2 is not exactly 0.3."
+},
+{
+"q": "What makes a good test?",
+"options": [
+"It tests many things at once",
+"It is small, checks one behaviour, and has a clear name",
+"It needs the network",
+"It is random"
+],
+"answer": 1,
+"why": "A failing test should tell you what broke."
+}
+],
+"python/10-typing": [
+{
+"q": "Do type hints change how Python runs your code?",
+"options": [
+"Yes, they are enforced",
+"No: they are checked by separate tools"
+],
+"answer": 1,
+"why": "A type checker such as mypy reads them."
+},
+{
+"q": "What does `str | None` mean?",
+"options": [
+"A string or None",
+"A string and None",
+"An empty string",
+"An error"
+],
+"answer": 0,
+"why": "The value may be missing."
+},
+{
+"q": "What is the hint for a list of integers?",
+"options": [
+"list[int]",
+"int[]",
+"List<int>",
+"[int]"
+],
+"answer": 0,
+"why": "list[int], dict[str, int], and so on."
+}
+],
 "llm/01-how-llms-work": [
 {
 "q": "What does a language model fundamentally do?",
@@ -256,6 +2058,963 @@ window.Z2D_QUIZZES = {
 ],
 "answer": 1,
 "why": "Look at what was retrieved before changing the prompt or the model."
+}
+],
+"dsa/01-big-o": [
+{
+"q": "What does Big-O describe?",
+"options": [
+"The exact running time in seconds",
+"How the work grows as the input grows",
+"The size of the source code",
+"The number of bugs"
+],
+"answer": 1,
+"why": "It ignores constants and keeps the growth rate."
+},
+{
+"q": "Two nested loops, each over n items, cost ...",
+"options": [
+"O(n)",
+"O(n²)",
+"O(log n)",
+"O(1)"
+],
+"answer": 1,
+"why": "n times n steps."
+},
+{
+"q": "Which is fastest for large n?",
+"options": [
+"O(n²)",
+"O(n log n)",
+"O(log n)",
+"O(n)"
+],
+"answer": 2,
+"why": "A logarithm grows very slowly: about 20 steps for a million items."
+},
+{
+"q": "O(2n + 5) simplifies to ...",
+"options": [
+"O(n)",
+"O(2n)",
+"O(n + 5)",
+"O(1)"
+],
+"answer": 0,
+"why": "Constants and lower-order terms are dropped."
+}
+],
+"dsa/02-arrays-and-two-pointers": [
+{
+"q": "What does reading an array element by index cost?",
+"options": [
+"O(1)",
+"O(n)",
+"O(log n)",
+"O(n²)"
+],
+"answer": 0,
+"why": "The position is computed directly."
+},
+{
+"q": "The two-pointer technique on a sorted array often turns O(n²) into ...",
+"options": [
+"O(n)",
+"O(n³)",
+"O(2^n)",
+"O(1)"
+],
+"answer": 0,
+"why": "Each pointer only moves forward, so the total is linear."
+},
+{
+"q": "What do prefix sums let you compute in O(1)?",
+"options": [
+"The maximum",
+"The sum of any range",
+"The sorted order",
+"The median"
+],
+"answer": 1,
+"why": "sum(l..r) = prefix[r+1] - prefix[l]."
+}
+],
+"dsa/03-linked-lists": [
+{
+"q": "What does each node of a singly linked list hold?",
+"options": [
+"A value and a pointer to the next node",
+"Only a value",
+"An index",
+"Two values"
+],
+"answer": 0,
+"why": "The list is a chain of nodes."
+},
+{
+"q": "Reaching the k-th element of a linked list costs ...",
+"options": [
+"O(1)",
+"O(k)",
+"O(log k)",
+"O(k²)"
+],
+"answer": 1,
+"why": "You must walk from the head."
+},
+{
+"q": "Where is a linked list better than an array?",
+"options": [
+"Random access",
+"Inserting or removing at a known position without shifting",
+"Sorting",
+"Memory use"
+],
+"answer": 1,
+"why": "Only pointers change. An array must shift elements."
+}
+],
+"dsa/04-stacks-and-queues": [
+{
+"q": "A stack is ...",
+"options": [
+"first in, first out",
+"last in, first out",
+"sorted",
+"random"
+],
+"answer": 1,
+"why": "The last item pushed is the first popped."
+},
+{
+"q": "A queue is ...",
+"options": [
+"first in, first out",
+"last in, first out",
+"sorted",
+"random"
+],
+"answer": 0,
+"why": "Like a line of people."
+},
+{
+"q": "Which structure checks whether brackets are balanced?",
+"options": [
+"A queue",
+"A stack",
+"A heap",
+"A hash table"
+],
+"answer": 1,
+"why": "Push each opening bracket, and pop when a closing one arrives."
+}
+],
+"dsa/05-hashing": [
+{
+"q": "What is the average cost of a hash table lookup?",
+"options": [
+"O(1)",
+"O(n)",
+"O(log n)",
+"O(n log n)"
+],
+"answer": 0,
+"why": "The hash says where to look."
+},
+{
+"q": "What is a collision?",
+"options": [
+"A crash",
+"Two keys that land in the same slot",
+"A full table",
+"A missing key"
+],
+"answer": 1,
+"why": "The table must store both, for example in a small list."
+},
+{
+"q": "What does a hash table not give you?",
+"options": [
+"Fast lookup",
+"The keys in sorted order",
+"Fast insert",
+"Membership tests"
+],
+"answer": 1,
+"why": "For order you need a tree or a sort."
+}
+],
+"dsa/06-recursion-and-backtracking": [
+{
+"q": "What stops a recursion?",
+"options": [
+"A loop",
+"The base case",
+"A timeout",
+"A global"
+],
+"answer": 1,
+"why": "The case that is answered without another call."
+},
+{
+"q": "How many permutations do 4 different items have?",
+"accept": [
+"24"
+],
+"why": "4 × 3 × 2 × 1."
+},
+{
+"q": "What is pruning in backtracking?",
+"options": [
+"Sorting the input",
+"Abandoning a branch as soon as it cannot lead to a solution",
+"Removing duplicates",
+"Using less memory"
+],
+"answer": 1,
+"why": "It cuts away large parts of the search."
+}
+],
+"dsa/07-sorting": [
+{
+"q": "What is the running time of merge sort?",
+"options": [
+"O(n)",
+"O(n log n)",
+"O(n²)",
+"O(log n)"
+],
+"answer": 1,
+"why": "It halves the input log n times, with n work per level."
+},
+{
+"q": "When is insertion sort a good choice?",
+"options": [
+"Huge random inputs",
+"Small or nearly sorted inputs",
+"Never",
+"Only for strings"
+],
+"answer": 1,
+"why": "It is O(n) on nearly sorted data."
+},
+{
+"q": "What is quicksort's worst case?",
+"options": [
+"O(n log n)",
+"O(n²)",
+"O(n)",
+"O(2^n)"
+],
+"answer": 1,
+"why": "It happens with bad pivots, such as an already sorted input and the first element as pivot."
+},
+{
+"q": "In real code, what should you usually use to sort?",
+"options": [
+"Your own quicksort",
+"The language's built-in sort",
+"Bubble sort",
+"A hash table"
+],
+"answer": 1,
+"why": "It is fast, tested and stable where promised."
+}
+],
+"dsa/08-binary-search": [
+{
+"q": "What must be true of the data for binary search?",
+"options": [
+"It is sorted",
+"It is short",
+"It has no duplicates",
+"It is numeric"
+],
+"answer": 0,
+"why": "Each step relies on the order."
+},
+{
+"q": "How many steps does binary search need for about a million items?",
+"accept": [
+"20"
+],
+"why": "2 to the power 20 is about a million."
+},
+{
+"q": "What is 'binary search on the answer'?",
+"options": [
+"Searching twice",
+"Searching the range of possible answers with a yes/no test",
+"Sorting first",
+"A hash lookup"
+],
+"answer": 1,
+"why": "It works when 'is x enough?' changes from no to yes exactly once."
+}
+],
+"dsa/09-trees-and-bst": [
+{
+"q": "In a binary search tree, where are the values smaller than a node?",
+"options": [
+"In its left subtree",
+"In its right subtree",
+"In its parent",
+"Anywhere"
+],
+"answer": 0,
+"why": "Smaller left, larger right."
+},
+{
+"q": "Which traversal of a BST visits the values in sorted order?",
+"options": [
+"Pre-order",
+"In-order",
+"Post-order",
+"Level order"
+],
+"answer": 1,
+"why": "Left, node, right."
+},
+{
+"q": "What is the cost of a search in a BST that has become a straight line?",
+"options": [
+"O(1)",
+"O(log n)",
+"O(n)",
+"O(n²)"
+],
+"answer": 2,
+"why": "An unbalanced tree is no better than a list."
+}
+],
+"dsa/10-heaps": [
+{
+"q": "What does a min-heap give you quickly?",
+"options": [
+"The largest item",
+"The smallest item",
+"The median",
+"Sorted order"
+],
+"answer": 1,
+"why": "The smallest is always at the top."
+},
+{
+"q": "What does pushing onto a heap cost?",
+"options": [
+"O(1)",
+"O(log n)",
+"O(n)",
+"O(n log n)"
+],
+"answer": 1,
+"why": "The new item sifts up at most the height of the tree."
+},
+{
+"q": "In the array form of a heap, where are the children of index i?",
+"options": [
+"i+1 and i+2",
+"2i+1 and 2i+2",
+"i/2",
+"i-1 and i+1"
+],
+"answer": 1,
+"why": "With indexes starting at 0."
+}
+],
+"dsa/11-graphs-bfs-dfs": [
+{
+"q": "Which search finds the shortest path in an unweighted graph?",
+"options": [
+"DFS",
+"BFS",
+"Binary search",
+"Sorting"
+],
+"answer": 1,
+"why": "BFS explores in order of distance."
+},
+{
+"q": "Which data structure drives BFS?",
+"options": [
+"A stack",
+"A queue",
+"A heap",
+"A set only"
+],
+"answer": 1,
+"why": "DFS uses a stack, or recursion."
+},
+{
+"q": "What must BFS and DFS remember, to avoid going round in circles?",
+"options": [
+"The edges",
+"Which nodes were already visited",
+"The weights",
+"The path lengths"
+],
+"answer": 1,
+"why": "Without a visited set, a cycle loops for ever."
+}
+],
+"dsa/12-shortest-paths": [
+{
+"q": "Which algorithm finds shortest paths with non-negative weights?",
+"options": [
+"BFS",
+"Dijkstra",
+"DFS",
+"Binary search"
+],
+"answer": 1,
+"why": "It always expands the closest unfinished node."
+},
+{
+"q": "What breaks Dijkstra's algorithm?",
+"options": [
+"Large graphs",
+"Negative edge weights",
+"Cycles",
+"Many edges"
+],
+"answer": 1,
+"why": "A finished node could later be reached more cheaply."
+},
+{
+"q": "Which data structure makes Dijkstra fast?",
+"options": [
+"A stack",
+"A priority queue (heap)",
+"A linked list",
+"A trie"
+],
+"answer": 1,
+"why": "It hands out the closest node in O(log n)."
+}
+],
+"dsa/13-dynamic-programming": [
+{
+"q": "What is memoisation?",
+"options": [
+"Sorting results",
+"Storing the result of a sub-problem so it is computed once",
+"Using less memory",
+"Guessing"
+],
+"answer": 1,
+"why": "The second request for the same sub-problem is a lookup."
+},
+{
+"q": "When does dynamic programming apply?",
+"options": [
+"The same sub-problems come up again and again",
+"The input is sorted",
+"There is one loop",
+"The data is random"
+],
+"answer": 0,
+"why": "Overlapping sub-problems, and an answer built from their answers."
+},
+{
+"q": "Plain recursive Fibonacci takes exponential time. With memoisation it takes ...",
+"options": [
+"O(n)",
+"O(n²)",
+"O(2^n)",
+"O(log n)"
+],
+"answer": 0,
+"why": "Each of the n values is computed once."
+}
+],
+"dsa/14-greedy": [
+{
+"q": "What does a greedy algorithm do?",
+"options": [
+"Tries every option",
+"Takes the best-looking choice at each step and never goes back",
+"Uses recursion",
+"Sorts twice"
+],
+"answer": 1,
+"why": "It is fast, and correct only for some problems."
+},
+{
+"q": "For activity selection (most non-overlapping meetings), which rule is right?",
+"options": [
+"Shortest first",
+"Earliest start first",
+"Earliest finish first",
+"Longest first"
+],
+"answer": 2,
+"why": "Finishing early leaves the most room for the rest."
+},
+{
+"q": "How do you know a greedy rule is correct?",
+"options": [
+"It passes one example",
+"By an argument, such as the exchange argument",
+"It is always correct",
+"By its speed"
+],
+"answer": 1,
+"why": "Many plausible greedy rules are wrong."
+}
+],
+"dsa/15-tries": [
+{
+"q": "What is a trie good at?",
+"options": [
+"Sorting numbers",
+"Finding all words with a given prefix",
+"Shortest paths",
+"Hashing"
+],
+"answer": 1,
+"why": "Each node is one more letter of a prefix."
+},
+{
+"q": "Looking up a word of length L in a trie costs ...",
+"options": [
+"O(L)",
+"O(n)",
+"O(log n)",
+"O(n L)"
+],
+"answer": 0,
+"why": "It does not depend on how many words are stored."
+},
+{
+"q": "Where are tries used?",
+"options": [
+"Autocomplete",
+"Image compression",
+"Video playback",
+"Printing"
+],
+"answer": 0,
+"why": "Also spell checkers and IP routing."
+}
+],
+"dsa/16-union-find": [
+{
+"q": "Which question does union-find answer fast?",
+"options": [
+"Are these two items in the same group?",
+"What is the shortest path?",
+"What is the median?",
+"Is the list sorted?"
+],
+"answer": 0,
+"why": "It tracks groups that only ever merge."
+},
+{
+"q": "Which two improvements make it almost constant time?",
+"options": [
+"Sorting and hashing",
+"Path compression and union by size",
+"Recursion and loops",
+"Caching and paging"
+],
+"answer": 1,
+"why": "Together they keep the trees nearly flat."
+},
+{
+"q": "Union-find is the core of which algorithm?",
+"options": [
+"Kruskal's minimum spanning tree",
+"Binary search",
+"Merge sort",
+"Dijkstra"
+],
+"answer": 0,
+"why": "It tells whether an edge would close a cycle."
+}
+],
+"dsa/17-segment-trees": [
+{
+"q": "What does a segment tree offer?",
+"options": [
+"Range queries and point updates, both in O(log n)",
+"O(1) sorting",
+"Shortest paths",
+"String matching"
+],
+"answer": 0,
+"why": "Prefix sums are faster to query, and slow to update."
+},
+{
+"q": "How much space does a segment tree over n items need?",
+"options": [
+"O(n)",
+"O(n²)",
+"O(log n)",
+"O(1)"
+],
+"answer": 0,
+"why": "About 2n to 4n nodes."
+},
+{
+"q": "Besides sums, what can a segment tree keep?",
+"options": [
+"Only sums",
+"Minimum, maximum, and other operations that combine"
+],
+"answer": 1,
+"why": "Any associative operation works."
+}
+],
+"sql/01-select": [
+{
+"q": "Which clause filters rows?",
+"options": [
+"SELECT",
+"WHERE",
+"FROM",
+"ORDER BY"
+],
+"answer": 1,
+"why": "WHERE keeps the rows for which the condition is true."
+},
+{
+"q": "How do you test for a missing value?",
+"options": [
+"= NULL",
+"IS NULL",
+"== NULL",
+"NULL()"
+],
+"answer": 1,
+"why": "NULL is never equal to anything, not even NULL."
+},
+{
+"q": "What does SELECT * return?",
+"options": [
+"One row",
+"Every column",
+"The row count",
+"Nothing"
+],
+"answer": 1,
+"why": "Name the columns you need in real queries."
+}
+],
+"sql/02-sort-and-limit": [
+{
+"q": "Without ORDER BY, in which order do rows come back?",
+"options": [
+"Insertion order",
+"Sorted by id",
+"No guaranteed order",
+"Alphabetical"
+],
+"answer": 2,
+"why": "A table is a set. Ask for an order if you need one."
+},
+{
+"q": "Which clause gives the top 3 rows?",
+"options": [
+"TOP 3",
+"LIMIT 3",
+"FIRST 3",
+"MAX 3"
+],
+"answer": 1,
+"why": "Together with ORDER BY."
+},
+{
+"q": "What does DISTINCT do?",
+"options": [
+"Sorts",
+"Removes duplicate rows from the result",
+"Counts",
+"Joins"
+],
+"answer": 1,
+"why": "Each different row appears once."
+}
+],
+"sql/03-aggregates": [
+{
+"q": "What does COUNT(*) count?",
+"options": [
+"Columns",
+"Rows",
+"Tables",
+"NULLs"
+],
+"answer": 1,
+"why": "COUNT(column) skips NULLs. COUNT(*) counts rows."
+},
+{
+"q": "Which clause filters groups after GROUP BY?",
+"options": [
+"WHERE",
+"HAVING",
+"FILTER BY",
+"LIMIT"
+],
+"answer": 1,
+"why": "WHERE filters rows before grouping. HAVING filters groups."
+},
+{
+"q": "With GROUP BY genre, which columns may appear in SELECT?",
+"options": [
+"Any",
+"genre and aggregates",
+"Only aggregates",
+"Only genre"
+],
+"answer": 1,
+"why": "Every other column would have many values per group."
+}
+],
+"sql/04-joins": [
+{
+"q": "What does an INNER JOIN return?",
+"options": [
+"All rows of both tables",
+"Only the rows that have a match in both tables",
+"All rows of the left table",
+"Nothing"
+],
+"answer": 1,
+"why": "Rows without a partner are left out."
+},
+{
+"q": "Which join keeps every row of the first table, even without a match?",
+"options": [
+"INNER JOIN",
+"LEFT JOIN",
+"CROSS JOIN",
+"SELF JOIN"
+],
+"answer": 1,
+"why": "The missing side is filled with NULL."
+},
+{
+"q": "How do you find customers with no orders?",
+"options": [
+"INNER JOIN",
+"LEFT JOIN ... WHERE orders.id IS NULL",
+"GROUP BY",
+"LIMIT 0"
+],
+"answer": 1,
+"why": "The rows that found no match have NULL on the right side."
+}
+],
+"sql/05-subqueries-and-ctes": [
+{
+"q": "What is a subquery?",
+"options": [
+"A slow query",
+"A query inside another query",
+"A stored procedure",
+"A view"
+],
+"answer": 1,
+"why": "It can produce a value, a list or a table."
+},
+{
+"q": "Which keyword starts a common table expression?",
+"options": [
+"WITH",
+"USING",
+"DEFINE",
+"LET"
+],
+"answer": 0,
+"why": "WITH name AS ( ... ) SELECT ..."
+},
+{
+"q": "What is the main benefit of a CTE?",
+"options": [
+"Speed",
+"A named step that makes a long query readable",
+"Less storage",
+"Security"
+],
+"answer": 1,
+"why": "You read the query from top to bottom."
+}
+],
+"sql/06-changing-data": [
+{
+"q": "What does `DELETE FROM books;` with no WHERE do?",
+"options": [
+"Nothing",
+"Deletes every row",
+"Deletes one row",
+"Asks for confirmation"
+],
+"answer": 1,
+"why": "Run the WHERE as a SELECT first."
+},
+{
+"q": "Which statement changes existing rows?",
+"options": [
+"INSERT",
+"UPDATE",
+"ALTER",
+"CHANGE"
+],
+"answer": 1,
+"why": "UPDATE table SET column = value WHERE ..."
+},
+{
+"q": "What does a foreign key stop?",
+"options": [
+"Slow queries",
+"A row that points at a row which does not exist",
+"Duplicates",
+"NULLs"
+],
+"answer": 1,
+"why": "The database refuses an order for an unknown customer."
+}
+],
+"sql/07-schema-and-constraints": [
+{
+"q": "What does a PRIMARY KEY guarantee?",
+"options": [
+"Unique and not NULL",
+"Sorted rows",
+"Fast inserts",
+"Text only"
+],
+"answer": 0,
+"why": "It identifies each row."
+},
+{
+"q": "Which constraint refuses a negative price?",
+"options": [
+"UNIQUE",
+"CHECK (price >= 0)",
+"NOT NULL",
+"DEFAULT 0"
+],
+"answer": 1,
+"why": "CHECK holds any condition on the row."
+},
+{
+"q": "What is the idea of normalisation?",
+"options": [
+"Store each fact in one place",
+"Use fewer tables",
+"Avoid keys",
+"Store everything as text"
+],
+"answer": 0,
+"why": "Repeated facts drift apart."
+}
+],
+"sql/08-indexes-and-explain": [
+{
+"q": "What does an index speed up?",
+"options": [
+"Inserts",
+"Finding rows by the indexed columns",
+"Backups",
+"Typing"
+],
+"answer": 1,
+"why": "It is a sorted structure pointing at the rows."
+},
+{
+"q": "What does an index cost?",
+"options": [
+"Nothing",
+"Space, and slower writes",
+"Slower reads",
+"A licence"
+],
+"answer": 1,
+"why": "Every insert and update must maintain it."
+},
+{
+"q": "Which command shows how the database will run a query?",
+"options": [
+"SHOW",
+"EXPLAIN",
+"DESCRIBE QUERY",
+"PLAN"
+],
+"answer": 1,
+"why": "EXPLAIN ANALYZE also runs it and shows real times."
+}
+],
+"sql/09-transactions": [
+{
+"q": "What does a transaction guarantee?",
+"options": [
+"Speed",
+"Its changes all happen, or none do",
+"Sorted output",
+"No NULLs"
+],
+"answer": 1,
+"why": "That is atomicity."
+},
+{
+"q": "Which statement undoes an open transaction?",
+"options": [
+"UNDO",
+"ROLLBACK",
+"CANCEL",
+"REVERT"
+],
+"answer": 1,
+"why": "COMMIT makes it permanent."
+},
+{
+"q": "Why keep transactions short?",
+"options": [
+"They cost money",
+"They hold locks that make others wait",
+"They use more disk",
+"They cannot be long"
+],
+"answer": 1,
+"why": "Long transactions block others and invite deadlocks."
+}
+],
+"sql/10-window-functions-and-json": [
+{
+"q": "How does a window function differ from GROUP BY?",
+"options": [
+"It is slower",
+"It keeps every row and adds a value computed over related rows",
+"It deletes rows",
+"It needs no table"
+],
+"answer": 1,
+"why": "GROUP BY collapses rows. A window does not."
+},
+{
+"q": "Which clause turns a function into a window function?",
+"options": [
+"OVER",
+"WINDOW BY",
+"WITHIN",
+"ACROSS"
+],
+"answer": 0,
+"why": "OVER (PARTITION BY ... ORDER BY ...)."
+},
+{
+"q": "In PostgreSQL, which operator reads a JSON field as text?",
+"options": [
+"->>",
+"=>",
+"::",
+"@"
+],
+"answer": 0,
+"why": "-> gives JSON. ->> gives text."
 }
 ],
 "mongodb/01-documents-and-crud": [
@@ -1176,6 +3935,342 @@ window.Z2D_QUIZZES = {
 "why": "Let the content decide: resize the window until it breaks."
 }
 ],
+"java/01-hello-jvm": [
+{
+"q": "What does `javac` produce?",
+"options": [
+"Machine code for your processor",
+"Bytecode in .class files",
+"A script",
+"A web page"
+],
+"answer": 1,
+"why": "The JVM runs the bytecode on any system."
+},
+{
+"q": "What must the file of `public class Main` be called?",
+"accept": [
+"Main.java"
+],
+"why": "The file name must match the public class."
+},
+{
+"q": "What is the signature of the entry point?",
+"options": [
+"public static void main(String[] args)",
+"void start()",
+"int main()",
+"def main()"
+],
+"answer": 0,
+"why": "The JVM looks for exactly this method."
+}
+],
+"java/02-types-and-control-flow": [
+{
+"q": "What is 7 / 2 with two ints?",
+"accept": [
+"3"
+],
+"why": "Integer division. Use 7 / 2.0 for 3.5."
+},
+{
+"q": "How do you compare two strings for equal content?",
+"options": [
+"a == b",
+"a.equals(b)",
+"a = b",
+"a.same(b)"
+],
+"answer": 1,
+"why": "== compares references."
+},
+{
+"q": "Which type holds true or false?",
+"options": [
+"bool",
+"boolean",
+"bit",
+"Boolean only"
+],
+"answer": 1,
+"why": "boolean, in lower case, is the primitive."
+}
+],
+"java/03-methods": [
+{
+"q": "What is overloading?",
+"options": [
+"Too many methods",
+"Several methods with the same name and different parameters",
+"A recursive method",
+"A slow method"
+],
+"answer": 1,
+"why": "The compiler picks one by the argument types."
+},
+{
+"q": "A method changes its int parameter. Does the caller's variable change?",
+"options": [
+"Yes",
+"No"
+],
+"answer": 1,
+"why": "Java passes copies of the values."
+},
+{
+"q": "What does `void` mean as a return type?",
+"options": [
+"Returns null",
+"Returns nothing",
+"Returns 0",
+"Returns an object"
+],
+"answer": 1,
+"why": "The method gives no value back."
+}
+],
+"java/04-arrays-and-strings": [
+{
+"q": "How do you get the length of an array `a`?",
+"options": [
+"a.length()",
+"a.length",
+"a.size()",
+"len(a)"
+],
+"answer": 1,
+"why": "A field, with no brackets. Strings use length()."
+},
+{
+"q": "Why use StringBuilder in a loop?",
+"options": [
+"It is required",
+"Strings cannot change, so + creates a new string each time",
+"It sorts",
+"It saves disk space"
+],
+"answer": 1,
+"why": "StringBuilder appends in place."
+},
+{
+"q": "What happens when you call a method on null?",
+"options": [
+"It returns null",
+"NullPointerException",
+"Nothing",
+"A compile error"
+],
+"answer": 1,
+"why": "Check for null, or avoid it."
+}
+],
+"java/05-classes-and-objects": [
+{
+"q": "What is encapsulation?",
+"options": [
+"Inheritance",
+"Private fields, reached only through methods",
+"Static methods",
+"Packages"
+],
+"answer": 1,
+"why": "The class controls its own data."
+},
+{
+"q": "What does `static` mean for a method?",
+"options": [
+"It cannot change",
+"It belongs to the class, not to an object",
+"It is private",
+"It is fast"
+],
+"answer": 1,
+"why": "Called as ClassName.method()."
+},
+{
+"q": "If you override equals, what else must you override?",
+"options": [
+"toString",
+"hashCode",
+"clone",
+"finalize"
+],
+"answer": 1,
+"why": "Equal objects must have equal hash codes, or HashMap breaks."
+}
+],
+"java/06-interfaces-and-inheritance": [
+{
+"q": "What is an interface?",
+"options": [
+"A class with fields",
+"A list of methods that a class promises to have",
+"A package",
+"An object"
+],
+"answer": 1,
+"why": "Code can then work with any class that implements it."
+},
+{
+"q": "Which keyword makes a class inherit from another?",
+"options": [
+"implements",
+"extends",
+"inherits",
+"super"
+],
+"answer": 1,
+"why": "implements is for interfaces."
+},
+{
+"q": "What is polymorphism?",
+"options": [
+"Many classes in a file",
+"One call that runs different code depending on the object's real type",
+"Overloading",
+"Private methods"
+],
+"answer": 1,
+"why": "shape.area() works for every shape."
+}
+],
+"java/07-collections": [
+{
+"q": "Which collection maps keys to values?",
+"options": [
+"ArrayList",
+"HashMap",
+"HashSet",
+"ArrayDeque"
+],
+"answer": 1,
+"why": "A Map."
+},
+{
+"q": "Why `List<Integer>` and not `List<int>`?",
+"options": [
+"A typo",
+"Generics need object types, so primitives use wrappers",
+"int is slower",
+"Integer is shorter"
+],
+"answer": 1,
+"why": "Integer is the wrapper of int."
+},
+{
+"q": "Which keeps unique values?",
+"options": [
+"List",
+"Set",
+"Queue",
+"Array"
+],
+"answer": 1,
+"why": "A Set holds each value at most once."
+}
+],
+"java/08-generics": [
+{
+"q": "What do generics give you?",
+"options": [
+"Speed",
+"Type checking for collections and reusable classes",
+"Smaller files",
+"Threads"
+],
+"answer": 1,
+"why": "A List<String> cannot receive an Integer."
+},
+{
+"q": "What does `<T extends Comparable<T>>` mean?",
+"options": [
+"T is a number",
+"T must be comparable with itself",
+"T is optional",
+"T is a string"
+],
+"answer": 1,
+"why": "A bound: only types with compareTo are accepted."
+},
+{
+"q": "What does a class implement so that its objects can be sorted?",
+"accept": [
+"Comparable"
+],
+"why": "It supplies compareTo."
+}
+],
+"java/09-exceptions": [
+{
+"q": "What is a checked exception?",
+"options": [
+"One the compiler makes you handle or declare",
+"A tested one",
+"A runtime error",
+"A warning"
+],
+"answer": 0,
+"why": "IOException is checked. NullPointerException is not."
+},
+{
+"q": "What does try-with-resources do?",
+"options": [
+"Retries",
+"Closes the resource automatically",
+"Catches everything",
+"Logs errors"
+],
+"answer": 1,
+"why": "Even when an exception is thrown."
+},
+{
+"q": "Where should an exception be caught?",
+"options": [
+"Everywhere",
+"Where something useful can be done about it",
+"Never",
+"In main only"
+],
+"answer": 1,
+"why": "Otherwise let it travel up."
+}
+],
+"java/10-files-and-streams": [
+{
+"q": "What is a lambda?",
+"options": [
+"A class",
+"A short anonymous function",
+"A loop",
+"A file"
+],
+"answer": 1,
+"why": "x -> x * 2"
+},
+{
+"q": "Which stream operation keeps the elements that pass a test?",
+"options": [
+"map",
+"filter",
+"collect",
+"reduce"
+],
+"answer": 1,
+"why": "map transforms. filter selects."
+},
+{
+"q": "What is Optional for?",
+"options": [
+"Speed",
+"A value that may be absent, without using null",
+"Optional parameters",
+"Lazy loading"
+],
+"answer": 1,
+"why": "It makes 'no value' visible in the type."
+}
+],
 "go/01-basics": [
 {
 "q": "What is the difference between := and = ?",
@@ -1806,6 +4901,684 @@ window.Z2D_QUIZZES = {
 "why": "into_iter takes ownership of the items. iter() only borrows."
 }
 ],
+"elixir/01-basics": [
+{
+"q": "Can you change a value in Elixir?",
+"options": [
+"Yes",
+"No: data is immutable, you make new values"
+],
+"answer": 1,
+"why": "A variable can be bound again, but the data never changes."
+},
+{
+"q": "What is `:ok`?",
+"options": [
+"A string",
+"An atom",
+"A variable",
+"A module"
+],
+"answer": 1,
+"why": "An atom is a constant whose name is its value."
+},
+{
+"q": "Which tool is the interactive Elixir shell?",
+"accept": [
+"iex"
+],
+"why": "iex starts it."
+}
+],
+"elixir/02-pattern-matching": [
+{
+"q": "What does `=` do in Elixir?",
+"options": [
+"Assigns only",
+"Matches the left side against the right",
+"Compares",
+"Copies"
+],
+"answer": 1,
+"why": "It binds variables where it can, and fails otherwise."
+},
+{
+"q": "After `{:ok, value} = {:ok, 42}`, what is value?",
+"accept": [
+"42"
+],
+"why": "The tuple shapes match, so value is bound."
+},
+{
+"q": "What does the pin `^x` do in a pattern?",
+"options": [
+"Rebinds x",
+"Uses the current value of x and does not rebind it",
+"Negates x",
+"Deletes x"
+],
+"answer": 1,
+"why": "The match succeeds only if the value equals x."
+}
+],
+"elixir/03-functions-and-modules": [
+{
+"q": "What does `|>` do?",
+"options": [
+"Compares",
+"Passes the left value as the first argument of the function on the right",
+"Defines a function",
+"Concatenates"
+],
+"answer": 1,
+"why": "Pipelines read top to bottom."
+},
+{
+"q": "What defines a private function?",
+"options": [
+"def",
+"defp",
+"private",
+"fn"
+],
+"answer": 1,
+"why": "defp is visible only inside its module."
+},
+{
+"q": "What is a guard?",
+"options": [
+"A security check",
+"A `when` condition on a function clause",
+"A lock",
+"A test"
+],
+"answer": 1,
+"why": "def f(x) when x > 0"
+}
+],
+"elixir/04-lists-and-recursion": [
+{
+"q": "What does `[head | tail]` match?",
+"options": [
+"Two lists",
+"The first element and the rest of a list",
+"A map",
+"A tuple"
+],
+"answer": 1,
+"why": "It is how lists are taken apart."
+},
+{
+"q": "How do you repeat something in Elixir?",
+"options": [
+"for loops with a counter",
+"Recursion, or functions such as Enum.map",
+"while loops",
+"goto"
+],
+"answer": 1,
+"why": "There are no classic loops."
+},
+{
+"q": "What is the accumulator for in a tail-recursive function?",
+"options": [
+"Speed only",
+"Carrying the result so far into the next call",
+"Storing errors",
+"Counting calls"
+],
+"answer": 1,
+"why": "The last thing the function does is call itself."
+}
+],
+"elixir/05-enum-and-pipes": [
+{
+"q": "Which function transforms every element?",
+"options": [
+"Enum.filter",
+"Enum.map",
+"Enum.reduce",
+"Enum.sum"
+],
+"answer": 1,
+"why": "map returns a list of the same length."
+},
+{
+"q": "Which function can build any result from a list?",
+"options": [
+"Enum.reduce",
+"Enum.count",
+"Enum.sort",
+"Enum.take"
+],
+"answer": 0,
+"why": "map and filter can be written with reduce."
+},
+{
+"q": "How do Streams differ from Enum?",
+"options": [
+"They are faster always",
+"They are lazy: work happens only when the result is needed",
+"They sort",
+"They are parallel"
+],
+"answer": 1,
+"why": "Good for large or endless sequences."
+}
+],
+"elixir/06-maps-and-structs": [
+{
+"q": "How do you read the key :name of a map `m`?",
+"options": [
+"m.name or m[:name]",
+"m->name",
+"m::name",
+"get m name"
+],
+"answer": 0,
+"why": "m.name raises when the key is missing. m[:name] gives nil."
+},
+{
+"q": "What does `%{m | age: 31}` do?",
+"options": [
+"Changes m",
+"Returns a new map with age updated (the key must exist)",
+"Adds a new key",
+"Deletes age"
+],
+"answer": 1,
+"why": "The original m is unchanged."
+},
+{
+"q": "What is a struct?",
+"options": [
+"A list",
+"A map with a fixed set of keys, defined in a module",
+"A process",
+"A tuple"
+],
+"answer": 1,
+"why": "defstruct lists its fields."
+}
+],
+"elixir/07-processes": [
+{
+"q": "What are Elixir processes?",
+"options": [
+"Operating-system processes",
+"Very light processes managed by the BEAM",
+"Threads with locks",
+"Files"
+],
+"answer": 1,
+"why": "Millions can run at once."
+},
+{
+"q": "How do processes communicate?",
+"options": [
+"Shared memory",
+"Messages",
+"Global variables",
+"Files"
+],
+"answer": 1,
+"why": "send and receive."
+},
+{
+"q": "What does 'let it crash' mean?",
+"options": [
+"Ignore errors",
+"Let a failing process die and have a supervisor restart it clean",
+"Never test",
+"Crash the machine"
+],
+"answer": 1,
+"why": "Recovery is the supervisor's job."
+}
+],
+"elixir/08-genserver": [
+{
+"q": "What is a GenServer?",
+"options": [
+"A web server",
+"A process that keeps state and answers requests",
+"A database",
+"A compiler"
+],
+"answer": 1,
+"why": "The standard building block for stateful processes."
+},
+{
+"q": "How do call and cast differ?",
+"options": [
+"call waits for a reply, cast does not",
+"cast waits, call does not",
+"They are the same",
+"call is deprecated"
+],
+"answer": 0,
+"why": "Use call when you need the answer."
+},
+{
+"q": "How many requests does one GenServer handle at a time?",
+"accept": [
+"1"
+],
+"why": "Its mailbox is processed one message at a time."
+}
+],
+"elixir/09-mix-and-exunit": [
+{
+"q": "What is Mix?",
+"options": [
+"A test library",
+"Elixir's build tool: projects, dependencies, tasks",
+"A database",
+"An editor"
+],
+"answer": 1,
+"why": "mix new, mix test, mix deps.get."
+},
+{
+"q": "Which command runs the tests?",
+"accept": [
+"mix test"
+],
+"why": "ExUnit comes with Elixir."
+},
+{
+"q": "What is a doctest?",
+"options": [
+"A medical check",
+"An example in the documentation that is run as a test",
+"A slow test",
+"A mock"
+],
+"answer": 1,
+"why": "The documentation cannot go out of date unnoticed."
+}
+],
+"js/01-values-and-functions": [
+{
+"q": "Which should you use by default to declare a variable?",
+"options": [
+"var",
+"const",
+"let always",
+"global"
+],
+"answer": 1,
+"why": "const, and let when the variable must change."
+},
+{
+"q": "Which comparison should you use?",
+"options": [
+"==",
+"===",
+"=",
+"equals"
+],
+"answer": 1,
+"why": "=== compares without converting types."
+},
+{
+"q": "Which of these is falsy?",
+"options": [
+"\"0\"",
+"[]",
+"0",
+"{}"
+],
+"answer": 2,
+"why": "0, \"\", null, undefined, NaN and false are falsy."
+},
+{
+"q": "What does this print?",
+"accept": [
+"12"
+],
+"why": "With a string, + joins text.",
+"code": "console.log(\"1\" + 2)"
+}
+],
+"js/02-arrays-and-objects": [
+{
+"q": "Which method returns a new array with each element transformed?",
+"options": [
+"forEach",
+"map",
+"filter",
+"push"
+],
+"answer": 1,
+"why": "map keeps the length."
+},
+{
+"q": "What does `const b = a` do when a is an array?",
+"options": [
+"Copies the array",
+"Makes b refer to the same array",
+"Freezes a",
+"Fails"
+],
+"answer": 1,
+"why": "Use [...a] for a copy."
+},
+{
+"q": "What does `user?.address?.city` return when address is missing?",
+"options": [
+"An error",
+"undefined",
+"null",
+"\"\""
+],
+"answer": 1,
+"why": "Optional chaining stops and gives undefined."
+}
+],
+"js/03-modules": [
+{
+"q": "How do you import a named export?",
+"options": [
+"import add from \"./math.js\"",
+"import { add } from \"./math.js\"",
+"require add",
+"include math"
+],
+"answer": 1,
+"why": "Braces for named exports. No braces for the default export."
+},
+{
+"q": "What is a pure function?",
+"options": [
+"One with no arguments",
+"Same input, same output, and no side effects",
+"A private one",
+"A fast one"
+],
+"answer": 1,
+"why": "Pure functions are the easiest to test."
+},
+{
+"q": "What does the prefix `node:` in an import mean?",
+"options": [
+"A package from npm",
+"A module built into Node",
+"A local file",
+"A URL"
+],
+"answer": 1,
+"why": "node:fs, node:path, and so on."
+}
+],
+"js/04-async": [
+{
+"q": "What does `await` do?",
+"options": [
+"Blocks the whole program",
+"Pauses this async function until the promise settles",
+"Starts a thread",
+"Cancels a promise"
+],
+"answer": 1,
+"why": "Other code keeps running meanwhile."
+},
+{
+"q": "How do you run several promises at the same time and wait for all?",
+"options": [
+"await in a loop",
+"Promise.all",
+"setTimeout",
+"Promise.race"
+],
+"answer": 1,
+"why": "await in a loop runs them one after another."
+},
+{
+"q": "How do you catch an error from an awaited promise?",
+"options": [
+"try / catch",
+"if / else",
+"It cannot fail",
+"finally only"
+],
+"answer": 0,
+"why": "A rejected promise becomes an exception at the await."
+}
+],
+"js/05-classes-and-closures": [
+{
+"q": "What is a closure?",
+"options": [
+"A closed file",
+"A function that remembers the variables around it",
+"A class",
+"A loop"
+],
+"answer": 1,
+"why": "It keeps access after the outer function has returned."
+},
+{
+"q": "How do you declare a private field in a class?",
+"options": [
+"private x",
+"#x",
+"_x",
+"var x"
+],
+"answer": 1,
+"why": "#x is truly private."
+},
+{
+"q": "How do you create your own error type?",
+"options": [
+"class MyError extends Error",
+"new Error.type",
+"throw string",
+"Error.create"
+],
+"answer": 0,
+"why": "Callers can then test with instanceof."
+}
+],
+"js/06-node-and-npm": [
+{
+"q": "Which file lists a project's dependencies?",
+"accept": [
+"package.json"
+],
+"why": "package-lock.json pins the exact versions."
+},
+{
+"q": "Should node_modules be committed to Git?",
+"options": [
+"Yes",
+"No: it is rebuilt with npm install"
+],
+"answer": 1,
+"why": "Put it in .gitignore."
+},
+{
+"q": "What does `npm ci` do?",
+"options": [
+"Checks style",
+"Installs exactly what the lock file says",
+"Publishes",
+"Updates everything"
+],
+"answer": 1,
+"why": "It is the reproducible install, for CI and deployments."
+}
+],
+"js/07-http-and-servers": [
+{
+"q": "Which HTTP method should only read, and never change anything?",
+"options": [
+"POST",
+"GET",
+"DELETE",
+"PATCH"
+],
+"answer": 1,
+"why": "GET must be safe to repeat."
+},
+{
+"q": "What does a status code starting with 4 mean?",
+"options": [
+"Success",
+"The client made a mistake",
+"The server failed",
+"A redirect"
+],
+"answer": 1,
+"why": "5xx is the server's fault."
+},
+{
+"q": "Does fetch reject on a 404?",
+"options": [
+"Yes",
+"No: check response.ok"
+],
+"answer": 1,
+"why": "fetch rejects only when the network fails."
+}
+],
+"js/08-express-api": [
+{
+"q": "What does `app.use(express.json())` do?",
+"options": [
+"Sends JSON",
+"Parses JSON request bodies into req.body",
+"Validates JSON schemas",
+"Logs requests"
+],
+"answer": 1,
+"why": "It must come before the routes."
+},
+{
+"q": "Which status fits a successful POST that created something?",
+"options": [
+"200",
+"201",
+"204",
+"404"
+],
+"answer": 1,
+"why": "201 Created."
+},
+{
+"q": "Where is the `:id` of `/todos/:id`?",
+"options": [
+"req.query.id",
+"req.params.id",
+"req.body.id",
+"req.id"
+],
+"answer": 1,
+"why": "It is a string: convert it."
+}
+],
+"js/09-typescript-basics": [
+{
+"q": "When are TypeScript's types checked?",
+"options": [
+"While the program runs",
+"Before it runs, by the compiler",
+"Never",
+"In the browser"
+],
+"answer": 1,
+"why": "Types are removed from the JavaScript that runs."
+},
+{
+"q": "What does `string | number` mean?",
+"options": [
+"Both at once",
+"Either a string or a number",
+"A tuple",
+"An error"
+],
+"answer": 1,
+"why": "A union type."
+},
+{
+"q": "Which is safer for a value of unknown shape?",
+"options": [
+"any",
+"unknown"
+],
+"answer": 1,
+"why": "unknown must be checked before use. any switches checking off."
+}
+],
+"js/10-the-browser-and-dom": [
+{
+"q": "What is the DOM?",
+"options": [
+"A database",
+"The page as a tree of objects that JavaScript can change",
+"A CSS file",
+"A server"
+],
+"answer": 1,
+"why": "Document Object Model."
+},
+{
+"q": "Which is safe for showing text from a user?",
+"options": [
+"innerHTML",
+"textContent"
+],
+"answer": 1,
+"why": "innerHTML would run markup in the text."
+},
+{
+"q": "How do you react to a click?",
+"options": [
+"element.addEventListener(\"click\", fn)",
+"element.click = fn()",
+"onClick(element)",
+"listen(click)"
+],
+"answer": 0,
+"why": "The function runs on every click."
+}
+],
+"js/11-tooling": [
+{
+"q": "What does Prettier do?",
+"options": [
+"Finds bugs",
+"Formats code in one consistent style",
+"Bundles files",
+"Runs tests"
+],
+"answer": 1,
+"why": "No more arguments about style."
+},
+{
+"q": "What does ESLint do?",
+"options": [
+"Formats",
+"Reports likely mistakes and bad patterns",
+"Compiles",
+"Deploys"
+],
+"answer": 1,
+"why": "A linter reads code without running it."
+},
+{
+"q": "Where do secrets such as API keys belong?",
+"options": [
+"In the source",
+"In environment variables, outside Git",
+"In package.json",
+"In comments"
+],
+"answer": 1,
+"why": "Never commit them."
+}
+],
 "node/01-runtime-and-processes": [
 {
 "q": "How many threads run your JavaScript in a Node server?",
@@ -2348,6 +6121,581 @@ window.Z2D_QUIZZES = {
 "why": "A transaction is all or nothing: rollBack undoes the first update."
 }
 ],
+"react/01-components-and-jsx": [
+{
+"q": "What is a React component?",
+"options": [
+"An HTML file",
+"A function that returns what to show",
+"A CSS class",
+"A database table"
+],
+"answer": 1,
+"why": "Its name starts with a capital letter."
+},
+{
+"q": "In JSX, how do you put a JavaScript value into the output?",
+"options": [
+"{{value}}",
+"{value}",
+"$value",
+"<value>"
+],
+"answer": 1,
+"why": "Braces switch to JavaScript."
+},
+{
+"q": "Which attribute name does JSX use for a CSS class?",
+"accept": [
+"className"
+],
+"why": "class is a reserved word in JavaScript."
+}
+],
+"react/02-props": [
+{
+"q": "What are props?",
+"options": [
+"Private state",
+"Arguments passed to a component by its parent",
+"CSS rules",
+"Events"
+],
+"answer": 1,
+"why": "They arrive as one object."
+},
+{
+"q": "May a component change its own props?",
+"options": [
+"Yes",
+"No: props are read-only"
+],
+"answer": 1,
+"why": "To change something, the parent passes new props."
+},
+{
+"q": "What is the `children` prop?",
+"options": [
+"A list of components in the file",
+"Whatever was written between the component's tags",
+"State",
+"A ref"
+],
+"answer": 1,
+"why": "<Card>this part</Card>"
+}
+],
+"react/03-state": [
+{
+"q": "What does `useState(0)` return?",
+"options": [
+"A number",
+"A pair: the current value and a function to change it",
+"An object",
+"A promise"
+],
+"answer": 1,
+"why": "const [count, setCount] = useState(0)"
+},
+{
+"q": "Why not change an array in state with push?",
+"options": [
+"It is slow",
+"React sees the same array and does not render again",
+"push is deprecated",
+"It throws"
+],
+"answer": 1,
+"why": "Create a new array: [...items, item]."
+},
+{
+"q": "What happens when you call the setter?",
+"options": [
+"Nothing",
+"React renders the component again with the new value",
+"The page reloads",
+"The value changes at once in this render"
+],
+"answer": 1,
+"why": "Each render sees its own snapshot of the state."
+}
+],
+"react/04-lists-and-keys": [
+{
+"q": "What is the `key` of a list item for?",
+"options": [
+"Styling",
+"Letting React tell the items apart between renders",
+"Sorting",
+"Security"
+],
+"answer": 1,
+"why": "Without stable keys, state can attach to the wrong item."
+},
+{
+"q": "Which makes a good key?",
+"options": [
+"The array index",
+"A stable id from the data",
+"Math.random()",
+"The text"
+],
+"answer": 1,
+"why": "Indexes change when items move."
+},
+{
+"q": "How do you render a list in JSX?",
+"options": [
+"A for loop inside JSX",
+"items.map(item => <li key={item.id}>...</li>)",
+"forEach",
+"repeat()"
+],
+"answer": 1,
+"why": "map returns the array of elements."
+}
+],
+"react/05-forms": [
+{
+"q": "What is a controlled input?",
+"options": [
+"A disabled one",
+"One whose value comes from state and changes through onChange",
+"A validated one",
+"A hidden one"
+],
+"answer": 1,
+"why": "React state is the single source of truth."
+},
+{
+"q": "What must a submit handler usually call first?",
+"options": [
+"event.preventDefault()",
+"event.stop()",
+"form.reset()",
+"return false"
+],
+"answer": 0,
+"why": "Otherwise the browser reloads the page."
+},
+{
+"q": "Is validation in the browser enough?",
+"options": [
+"Yes",
+"No: the server must validate again"
+],
+"answer": 1,
+"why": "The browser check is for convenience."
+}
+],
+"react/06-effects": [
+{
+"q": "What is useEffect for?",
+"options": [
+"Calculating values for rendering",
+"Synchronising with something outside React: timers, subscriptions, the network",
+"Styling",
+"Routing"
+],
+"answer": 1,
+"why": "Not for things you can compute during rendering."
+},
+{
+"q": "What does the dependency array `[]` mean?",
+"options": [
+"Run on every render",
+"Run once, after the first render",
+"Never run",
+"Run on unmount only"
+],
+"answer": 1,
+"why": "The effect runs again when a listed value changes."
+},
+{
+"q": "What is the function returned from an effect?",
+"options": [
+"The result",
+"The clean-up, run before the next effect and on unmount",
+"An error handler",
+"A ref"
+],
+"answer": 1,
+"why": "Clear timers and remove listeners there."
+}
+],
+"react/07-fetching-data": [
+{
+"q": "Which three states does data loading have?",
+"options": [
+"Start, middle, end",
+"Loading, error, success",
+"Get, post, put",
+"On, off, auto"
+],
+"answer": 1,
+"why": "Show something for each."
+},
+{
+"q": "Why ignore a response that arrives after the prop changed?",
+"options": [
+"It is slow",
+"An older response could overwrite newer data",
+"It is illegal",
+"React forbids it"
+],
+"answer": 1,
+"why": "This is a race condition. Cancel or ignore the stale request."
+},
+{
+"q": "What do real projects often use for data fetching?",
+"options": [
+"Raw effects everywhere",
+"A library such as TanStack Query, or a framework's loader",
+"jQuery",
+"Cookies"
+],
+"answer": 1,
+"why": "They handle caching, retries and races."
+}
+],
+"react/08-custom-hooks": [
+{
+"q": "What is a custom hook?",
+"options": [
+"A plugin",
+"A function starting with `use` that calls other hooks",
+"A class",
+"A CSS trick"
+],
+"answer": 1,
+"why": "It shares logic, not state."
+},
+{
+"q": "Two components use the same custom hook. Do they share its state?",
+"options": [
+"Yes",
+"No: each call has its own state"
+],
+"answer": 1,
+"why": "A hook reuses behaviour."
+},
+{
+"q": "Where may hooks be called?",
+"options": [
+"Anywhere",
+"At the top level of a component or another hook",
+"Inside loops",
+"Inside conditions"
+],
+"answer": 1,
+"why": "The order of hook calls must be the same on every render."
+}
+],
+"react/09-sharing-state": [
+{
+"q": "Two sibling components need the same state. Where does it go?",
+"options": [
+"In both",
+"In their closest common parent",
+"In a global",
+"In CSS"
+],
+"answer": 1,
+"why": "This is lifting state up."
+},
+{
+"q": "What is prop drilling?",
+"options": [
+"A test method",
+"Passing props through many layers that do not use them",
+"A bug",
+"A hook"
+],
+"answer": 1,
+"why": "Context or composition avoids it."
+},
+{
+"q": "What is context good for?",
+"options": [
+"All state",
+"Values many components need: theme, current user",
+"Fast-changing form input",
+"Lists"
+],
+"answer": 1,
+"why": "Use it sparingly: every consumer renders again when it changes."
+}
+],
+"next/01-app-router": [
+{
+"q": "In the app router, which file makes a route's page?",
+"options": [
+"index.js",
+"page.js",
+"route.html",
+"main.js"
+],
+"answer": 1,
+"why": "app/about/page.js is the page for /about."
+},
+{
+"q": "What decides the address of a page?",
+"options": [
+"A config file",
+"The folder structure inside app/",
+"The file's title",
+"A database"
+],
+"answer": 1,
+"why": "File-based routing."
+},
+{
+"q": "Where do components render by default in the app router?",
+"options": [
+"In the browser",
+"On the server"
+],
+"answer": 1,
+"why": "They are server components unless marked otherwise."
+}
+],
+"next/02-layouts-and-links": [
+{
+"q": "What does layout.js do?",
+"options": [
+"Styles one element",
+"Wraps the pages of its folder and stays in place during navigation",
+"Defines an API",
+"Loads data"
+],
+"answer": 1,
+"why": "Navigation bars and footers live there."
+},
+{
+"q": "Which component navigates without a full page reload?",
+"options": [
+"<a>",
+"<Link>",
+"<Nav>",
+"<Route>"
+],
+"answer": 1,
+"why": "Link from next/link."
+},
+{
+"q": "How do you set a page's title?",
+"options": [
+"document.title",
+"Export a metadata object",
+"A <title> in the body",
+"CSS"
+],
+"answer": 1,
+"why": "export const metadata = { title: ... }"
+}
+],
+"next/03-server-and-client-components": [
+{
+"q": "Which directive marks a client component?",
+"accept": [
+"\"use client\""
+],
+"why": "It goes on the first line of the file."
+},
+{
+"q": "Which needs a client component?",
+"options": [
+"Reading a database",
+"useState and click handlers",
+"Fetching on the server",
+"Static text"
+],
+"answer": 1,
+"why": "State and events exist only in the browser."
+},
+{
+"q": "Why keep client components small?",
+"options": [
+"Tradition",
+"Their JavaScript is sent to the browser",
+"They are slower to write",
+"They cannot have props"
+],
+"answer": 1,
+"why": "Server components send no JavaScript."
+}
+],
+"next/04-dynamic-routes": [
+{
+"q": "Which folder name makes a dynamic segment?",
+"options": [
+"{id}",
+"[id]",
+":id",
+"$id"
+],
+"answer": 1,
+"why": "app/posts/[id]/page.js"
+},
+{
+"q": "How do you show the 404 page from a page?",
+"options": [
+"throw 404",
+"notFound()",
+"return null",
+"redirect(404)"
+],
+"answer": 1,
+"why": "notFound from next/navigation."
+},
+{
+"q": "What is generateStaticParams for?",
+"options": [
+"Validation",
+"Building dynamic pages in advance, at build time",
+"Authentication",
+"Styling"
+],
+"answer": 1,
+"why": "It lists the parameters to prerender."
+}
+],
+"next/05-route-handlers": [
+{
+"q": "Which file defines an API endpoint?",
+"options": [
+"page.js",
+"route.js",
+"api.js",
+"handler.js"
+],
+"answer": 1,
+"why": "It exports functions named GET, POST and so on."
+},
+{
+"q": "How do you return JSON with a status?",
+"options": [
+"Response.json(data, { status: 201 })",
+"res.send",
+"return data",
+"print"
+],
+"answer": 0,
+"why": "Route handlers use the standard Response."
+},
+{
+"q": "A server component needs data from your database. Does it need an API route?",
+"options": [
+"Yes, always",
+"No: it can read the data directly"
+],
+"answer": 1,
+"why": "It already runs on the server."
+}
+],
+"next/06-data-fetching": [
+{
+"q": "What does loading.js show?",
+"options": [
+"Errors",
+"A placeholder while the page's data loads",
+"The footer",
+"Logs"
+],
+"answer": 1,
+"why": "It appears instantly."
+},
+{
+"q": "What does error.js do?",
+"options": [
+"Logs to a file",
+"Shows a fallback when rendering throws",
+"Validates forms",
+"Redirects"
+],
+"answer": 1,
+"why": "It must be a client component."
+},
+{
+"q": "How do you load two independent pieces of data fast?",
+"options": [
+"One after the other",
+"Start both, then await Promise.all",
+"Twice",
+"With setTimeout"
+],
+"answer": 1,
+"why": "Otherwise the second waits for the first."
+}
+],
+"next/07-forms-and-server-actions": [
+{
+"q": "What is a server action?",
+"options": [
+"A cron job",
+"A function that runs on the server and can be called from a form",
+"A route file",
+"A hook"
+],
+"answer": 1,
+"why": "Marked with \"use server\"."
+},
+{
+"q": "Where must input be validated?",
+"options": [
+"Only in the browser",
+"On the server",
+"Nowhere",
+"In CSS"
+],
+"answer": 1,
+"why": "Anyone can call the action with any data."
+},
+{
+"q": "After an action changes data, how do pages show the new data?",
+"options": [
+"They never do",
+"revalidatePath, or a redirect",
+"A reload by the user only",
+"A cookie"
+],
+"answer": 1,
+"why": "It tells Next.js that cached pages are out of date."
+}
+],
+"next/08-building-and-deploying": [
+{
+"q": "Which command builds the production version?",
+"options": [
+"next dev",
+"next build",
+"next make",
+"npm test"
+],
+"answer": 1,
+"why": "next start then serves it."
+},
+{
+"q": "Which environment variables reach the browser?",
+"options": [
+"All",
+"Those starting with NEXT_PUBLIC_",
+"None",
+"Those in upper case"
+],
+"answer": 1,
+"why": "Everything else stays on the server."
+},
+{
+"q": "Should a secret key have the NEXT_PUBLIC_ prefix?",
+"options": [
+"Yes",
+"No: it would be sent to every visitor"
+],
+"answer": 1,
+"why": "Anything public is public."
+}
+],
 "gamedev/01-the-game-loop": [
 {
 "q": "What are the three steps of a game loop?",
@@ -2558,6 +6906,422 @@ window.Z2D_QUIZZES = {
 ],
 "answer": 1,
 "why": "Finished small games teach more than unfinished big ones."
+}
+],
+"docker/01-images-and-containers": [
+{
+"q": "What is the difference between an image and a container?",
+"options": [
+"None",
+"An image is the template. A container is a running instance of it.",
+"A container is bigger",
+"An image runs"
+],
+"answer": 1,
+"why": "Many containers can run from one image."
+},
+{
+"q": "Which command lists running containers?",
+"options": [
+"docker ps",
+"docker ls",
+"docker images",
+"docker top"
+],
+"answer": 0,
+"why": "docker ps -a also lists stopped ones."
+},
+{
+"q": "What does `--rm` do in docker run?",
+"options": [
+"Removes the image",
+"Removes the container when it exits",
+"Removes volumes",
+"Restarts"
+],
+"answer": 1,
+"why": "It keeps your machine tidy."
+}
+],
+"docker/02-dockerfile": [
+{
+"q": "Which instruction sets the base image?",
+"options": [
+"BASE",
+"FROM",
+"IMAGE",
+"START"
+],
+"answer": 1,
+"why": "Every Dockerfile begins with FROM."
+},
+{
+"q": "Why copy package.json and install before copying the rest of the code?",
+"options": [
+"Alphabetical order",
+"The slow install layer is reused when only the code changes",
+"It is required",
+"For security"
+],
+"answer": 1,
+"why": "Layers are cached until an earlier one changes."
+},
+{
+"q": "What is .dockerignore for?",
+"options": [
+"Ignoring errors",
+"Keeping files out of the build, such as node_modules and .git",
+"Hiding images",
+"Logging"
+],
+"answer": 1,
+"why": "Builds are faster and secrets stay out."
+}
+],
+"docker/03-volumes-and-environment": [
+{
+"q": "What happens to files written inside a container when it is removed?",
+"options": [
+"They are kept",
+"They are gone"
+],
+"answer": 1,
+"why": "Use a volume for data that must last."
+},
+{
+"q": "What does `-p 8080:80` mean?",
+"options": [
+"Container port 8080 to host port 80",
+"Host port 8080 to container port 80",
+"Two containers",
+"A range"
+],
+"answer": 1,
+"why": "Host first, container second."
+},
+{
+"q": "How do you pass configuration to a container?",
+"options": [
+"Edit the image",
+"Environment variables: -e NAME=value",
+"A keyboard",
+"Rebuild each time"
+],
+"answer": 1,
+"why": "The same image then runs anywhere."
+}
+],
+"docker/04-compose": [
+{
+"q": "What is Docker Compose for?",
+"options": [
+"Building images faster",
+"Describing and running several containers together, from one file",
+"Monitoring",
+"Kubernetes"
+],
+"answer": 1,
+"why": "compose.yaml lists the services."
+},
+{
+"q": "Which command starts everything in the background?",
+"options": [
+"docker compose up -d",
+"docker compose start all",
+"docker run all",
+"compose go"
+],
+"answer": 0,
+"why": "docker compose down stops and removes it."
+},
+{
+"q": "In Compose, how does one service reach another?",
+"options": [
+"By IP address",
+"By the service's name",
+"By localhost",
+"It cannot"
+],
+"answer": 1,
+"why": "Compose creates a network with DNS names."
+}
+],
+"docker/05-app-with-a-database": [
+{
+"q": "Inside the app container, what is the database's host name?",
+"options": [
+"localhost",
+"The name of the database service",
+"127.0.0.1",
+"db.local always"
+],
+"answer": 1,
+"why": "localhost would be the app container itself."
+},
+{
+"q": "Why does the app need to wait or retry at start-up?",
+"options": [
+"Docker is slow",
+"The database container may not be ready yet",
+"Ports are random",
+"It does not"
+],
+"answer": 1,
+"why": "Started is not the same as ready."
+},
+{
+"q": "What keeps the database's data between runs?",
+"options": [
+"The image",
+"A named volume",
+"The network",
+"Environment variables"
+],
+"answer": 1,
+"why": "docker compose down -v would delete it."
+}
+],
+"docker/06-good-practice": [
+{
+"q": "What is a multi-stage build for?",
+"options": [
+"Running two apps",
+"Building in a big image and copying only the result into a small one",
+"Testing",
+"Logging"
+],
+"answer": 1,
+"why": "The final image has no compilers."
+},
+{
+"q": "Why not run as root in a container?",
+"options": [
+"It is slower",
+"A break-in then has root's power",
+"It uses more memory",
+"Docker forbids it"
+],
+"answer": 1,
+"why": "Add a USER instruction."
+},
+{
+"q": "Where should a container write its logs?",
+"options": [
+"A file inside the container",
+"Standard output",
+"A database",
+"Nowhere"
+],
+"answer": 1,
+"why": "The platform collects them."
+}
+],
+"microservices/01-what-and-why": [
+{
+"q": "What is a monolith?",
+"options": [
+"A bug",
+"One application that contains all the features, deployed as one unit",
+"A database",
+"A queue"
+],
+"answer": 1,
+"why": "It is the right start for most projects."
+},
+{
+"q": "What is the main price of microservices?",
+"options": [
+"Slower code",
+"The complexity of a distributed system: network, deployment, debugging",
+"More bugs in logic",
+"Licences"
+],
+"answer": 1,
+"why": "Calls can fail, be slow, or arrive twice."
+},
+{
+"q": "When do microservices make sense?",
+"options": [
+"Always",
+"When teams and scale need independent deployment",
+"For a first project",
+"Never"
+],
+"answer": 1,
+"why": "Start with a monolith. Split when there is a reason."
+}
+],
+"microservices/02-services-talking": [
+{
+"q": "In Compose, how does the orders service find the users service?",
+"options": [
+"A fixed IP",
+"The service name as host name",
+"localhost",
+"A file"
+],
+"answer": 1,
+"why": "http://users:3000"
+},
+{
+"q": "What must every call to another service have?",
+"options": [
+"A cookie",
+"A timeout",
+"A retry for ever",
+"A lock"
+],
+"answer": 1,
+"why": "Otherwise one slow service freezes all its callers."
+},
+{
+"q": "What is a health endpoint?",
+"options": [
+"A login page",
+"A URL that says whether the service is working",
+"A database table",
+"A log"
+],
+"answer": 1,
+"why": "GET /health"
+}
+],
+"microservices/03-api-gateway": [
+{
+"q": "What is an API gateway?",
+"options": [
+"A database",
+"The single entry point that forwards requests to the services",
+"A queue",
+"A test tool"
+],
+"answer": 1,
+"why": "Clients know one address."
+},
+{
+"q": "What belongs in a gateway?",
+"options": [
+"Business rules",
+"Cross-cutting concerns: routing, authentication, rate limits",
+"The database",
+"Everything"
+],
+"answer": 1,
+"why": "Business logic stays in the services."
+},
+{
+"q": "Which services should be reachable from outside?",
+"options": [
+"All",
+"Only the gateway"
+],
+"answer": 1,
+"why": "The others stay on the internal network."
+}
+],
+"microservices/04-queues-and-workers": [
+{
+"q": "Why put work on a queue?",
+"options": [
+"It is trendy",
+"The caller gets an answer at once, and the slow work happens later",
+"To lose data",
+"To avoid testing"
+],
+"answer": 1,
+"why": "The producer and the worker are decoupled."
+},
+{
+"q": "A job can be delivered twice. What must the worker be?",
+"options": [
+"Fast",
+"Idempotent: doing it twice has the same effect as once",
+"Single-threaded",
+"Stateless"
+],
+"answer": 1,
+"why": "Design for at-least-once delivery."
+},
+{
+"q": "What is a dead-letter queue?",
+"options": [
+"A deleted queue",
+"Where jobs go after failing too many times",
+"A backup",
+"A log file"
+],
+"answer": 1,
+"why": "Someone can then look at them."
+}
+],
+"microservices/05-data-and-consistency": [
+{
+"q": "Why does each service own its database?",
+"options": [
+"For speed",
+"So services can change and deploy independently",
+"Licensing",
+"Backups"
+],
+"answer": 1,
+"why": "A shared database couples everyone together."
+},
+{
+"q": "What is eventual consistency?",
+"options": [
+"Never consistent",
+"Data in different services agrees after a short delay",
+"Always consistent",
+"A bug"
+],
+"answer": 1,
+"why": "For a moment the copies may differ."
+},
+{
+"q": "What is an idempotency key for?",
+"options": [
+"Encryption",
+"Recognising a repeated request so it is not carried out twice",
+"Sorting",
+"Routing"
+],
+"answer": 1,
+"why": "A retried payment must not charge twice."
+}
+],
+"microservices/06-resilience-and-observability": [
+{
+"q": "What does a circuit breaker do?",
+"options": [
+"Encrypts calls",
+"Stops calling a failing service for a while and fails fast",
+"Restarts servers",
+"Balances load"
+],
+"answer": 1,
+"why": "It gives the service time to recover."
+},
+{
+"q": "How should retries be spaced?",
+"options": [
+"Immediately, for ever",
+"With growing waits (backoff) and a limit",
+"Once a day",
+"Randomly for ever"
+],
+"answer": 1,
+"why": "Immediate retries make an overload worse."
+},
+{
+"q": "What ties the log lines of one request together across services?",
+"options": [
+"The timestamp",
+"A request (correlation) id passed along",
+"The IP address",
+"The port"
+],
+"answer": 1,
+"why": "One search then shows the whole journey."
 }
 ],
 "devops/01-environments-and-config": [

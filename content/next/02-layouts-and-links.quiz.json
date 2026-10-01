@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does layout.js do?",
+  "options": [
+   "Styles one element",
+   "Wraps the pages of its folder and stays in place during navigation",
+   "Defines an API",
+   "Loads data"
+  ],
+  "answer": 1,
+  "why": "Navigation bars and footers live there."
+ },
+ {
+  "q": "Which component navigates without a full page reload?",
+  "options": [
+   "<a>",
+   "<Link>",
+   "<Nav>",
+   "<Route>"
+  ],
+  "answer": 1,
+  "why": "Link from next/link."
+ },
+ {
+  "q": "How do you set a page's title?",
+  "options": [
+   "document.title",
+   "Export a metadata object",
+   "A <title> in the body",
+   "CSS"
+  ],
+  "answer": 1,
+  "why": "export const metadata = { title: ... }"
+ }
+]

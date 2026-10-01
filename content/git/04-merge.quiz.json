@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is a fast-forward merge?",
+  "options": [
+   "A merge with conflicts",
+   "The branch name simply moves forward: no new commit is needed",
+   "A deleted branch",
+   "A rebase"
+  ],
+  "answer": 1,
+  "why": "It happens when the target has no commits of its own since the branch started."
+ },
+ {
+  "q": "To merge `feature` into `main`, which branch must you be on?",
+  "options": [
+   "feature",
+   "main"
+  ],
+  "answer": 1,
+  "why": "You merge into the branch you are on."
+ },
+ {
+  "q": "What does a merge commit have that an ordinary commit does not?",
+  "options": [
+   "A message",
+   "Two parents",
+   "A tag",
+   "A remote"
+  ],
+  "answer": 1,
+  "why": "It joins two lines of history."
+ }
+]

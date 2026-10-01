@@ -1,0 +1,42 @@
+[
+ {
+  "q": "What does `set -e` do?",
+  "options": [
+   "Echoes commands",
+   "Stops the script when a command fails",
+   "Exports variables",
+   "Enables arrays"
+  ],
+  "answer": 1,
+  "why": "Without it a script carries on after an error."
+ },
+ {
+  "q": "What does `set -u` protect against?",
+  "options": [
+   "Slow scripts",
+   "Using a variable that was never set",
+   "Unsorted output",
+   "Unicode errors"
+  ],
+  "answer": 1,
+  "why": "A typo in a variable name becomes an error."
+ },
+ {
+  "q": "What is `trap ... EXIT` used for?",
+  "options": [
+   "Speed",
+   "Running clean-up when the script ends, however it ends",
+   "Parsing options",
+   "Logging in"
+  ],
+  "answer": 1,
+  "why": "For example removing a temporary folder."
+ },
+ {
+  "q": "Which tool finds bugs in shell scripts without running them?",
+  "accept": [
+   "shellcheck"
+  ],
+  "why": "ShellCheck reports unquoted variables, wrong tests and more."
+ }
+]

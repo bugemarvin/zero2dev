@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is an API gateway?",
+  "options": [
+   "A database",
+   "The single entry point that forwards requests to the services",
+   "A queue",
+   "A test tool"
+  ],
+  "answer": 1,
+  "why": "Clients know one address."
+ },
+ {
+  "q": "What belongs in a gateway?",
+  "options": [
+   "Business rules",
+   "Cross-cutting concerns: routing, authentication, rate limits",
+   "The database",
+   "Everything"
+  ],
+  "answer": 1,
+  "why": "Business logic stays in the services."
+ },
+ {
+  "q": "Which services should be reachable from outside?",
+  "options": [
+   "All",
+   "Only the gateway"
+  ],
+  "answer": 1,
+  "why": "The others stay on the internal network."
+ }
+]

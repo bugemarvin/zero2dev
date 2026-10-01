@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which folder name makes a dynamic segment?",
+  "options": [
+   "{id}",
+   "[id]",
+   ":id",
+   "$id"
+  ],
+  "answer": 1,
+  "why": "app/posts/[id]/page.js"
+ },
+ {
+  "q": "How do you show the 404 page from a page?",
+  "options": [
+   "throw 404",
+   "notFound()",
+   "return null",
+   "redirect(404)"
+  ],
+  "answer": 1,
+  "why": "notFound from next/navigation."
+ },
+ {
+  "q": "What is generateStaticParams for?",
+  "options": [
+   "Validation",
+   "Building dynamic pages in advance, at build time",
+   "Authentication",
+   "Styling"
+  ],
+  "answer": 1,
+  "why": "It lists the parameters to prerender."
+ }
+]

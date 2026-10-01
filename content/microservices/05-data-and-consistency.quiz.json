@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Why does each service own its database?",
+  "options": [
+   "For speed",
+   "So services can change and deploy independently",
+   "Licensing",
+   "Backups"
+  ],
+  "answer": 1,
+  "why": "A shared database couples everyone together."
+ },
+ {
+  "q": "What is eventual consistency?",
+  "options": [
+   "Never consistent",
+   "Data in different services agrees after a short delay",
+   "Always consistent",
+   "A bug"
+  ],
+  "answer": 1,
+  "why": "For a moment the copies may differ."
+ },
+ {
+  "q": "What is an idempotency key for?",
+  "options": [
+   "Encryption",
+   "Recognising a repeated request so it is not carried out twice",
+   "Sorting",
+   "Routing"
+  ],
+  "answer": 1,
+  "why": "A retried payment must not charge twice."
+ }
+]

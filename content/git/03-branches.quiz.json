@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a branch?",
+  "options": [
+   "A copy of all files",
+   "A movable name pointing at a commit",
+   "A remote server",
+   "A backup"
+  ],
+  "answer": 1,
+  "why": "Branches are cheap: just a pointer."
+ },
+ {
+  "q": "What is HEAD?",
+  "options": [
+   "The first commit",
+   "Where you are now: the current branch or commit",
+   "The remote",
+   "The newest tag"
+  ],
+  "answer": 1,
+  "why": "HEAD points at what is checked out."
+ },
+ {
+  "q": "Which command creates a branch and switches to it?",
+  "options": [
+   "git branch -d name",
+   "git switch -c name",
+   "git merge name",
+   "git init name"
+  ],
+  "answer": 1,
+  "why": "-c means create."
+ }
+]

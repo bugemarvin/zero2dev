@@ -6,22 +6,44 @@
 <title>zero2dev · learn to program on your own machine</title>
 <link rel="stylesheet" href="assets/style.css">
 <link rel="stylesheet" href="assets/studio.css">
+<link rel="stylesheet" href="assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="">
 <header class="topbar">
 <a class="brand" href="index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="paths.html">Paths</a>
 <a class="top-link" href="setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <main class="home">
 <section class="hero">
 <h1>From zero to developer, on your own machine.</h1>
-<p class="lede">Short lessons, then real practice. Write the code here in the browser or in your own editor, and run tests that tell you straight away whether it works.</p>
+<p class="lede">Short lessons, then real practice. Write the code here in the browser or in your own editor, and tests tell you straight away whether it works. Quizzes, levels and a daily challenge keep it moving.</p>
 <div class="actions">
-<a class="btn" id="continue" href="lessons/start/01-how-programs-run.html">Start the first lesson</a>
+<a class="btn" id="continue" href="lessons/start/00-welcome.html">Start the first lesson</a>
+<a class="btn-ghost" id="resume" href="#" hidden>Resume where you left off</a>
 <span class="overall" id="overall"></span>
 </div>
+</section>
+
+<section class="newcomer" id="newcomer">
+<h2>Never done anything like this before?</h2>
+<p>That is who this is for. You need a computer and curiosity, nothing else. No maths, no "tech background".</p>
+<ol>
+<li>Choose <strong>Start from zero</strong> just below. It lines up the first tracks for you.</li>
+<li>Press the <strong>Start</strong> button above. The first lesson explains every word as it comes.</li>
+<li>Do a little every day. Twenty minutes beats three hours once a week.</li>
+</ol>
+</section>
+
+<section id="path-home"></section>
+
+<section>
+<h2>Play</h2>
+<div class="gm-cards" id="play"></div>
 </section>
 
 <section>
@@ -29,7 +51,7 @@
 <ol class="steps">
 <li>
 <h3>Read a lesson</h3>
-<p>Pick a track below. Each lesson explains one idea with examples you can run.</p>
+<p>Each lesson explains one idea with examples you can run. A quick quiz at the end checks that it landed.</p>
 </li>
 <li>
 <h3>Do the exercise</h3>
@@ -46,13 +68,20 @@
 
 <section>
 <h2>Tracks</h2>
-<p>New to all of this? Go in order: Start here, then Git, then pick a language. Otherwise choose what you want to learn: tick tracks on the <a href="setup.html">Setup</a> page and they move to the top.</p>
+<p>Every track is open. Follow your path, or pick what you are curious about. The tracks of your path come first.</p>
 <div class="tracks" id="tracks"></div>
 <noscript><p>This page needs JavaScript to list the tracks. The lessons themselves are plain HTML in the <code>lessons/</code> folder.</p></noscript>
 </section>
+
+<section id="achievements">
+<h2>Your progress</h2>
+<div id="achievements-body"></div>
+</section>
 </main>
 <script src="assets/curriculum.js"></script>
+<script src="assets/quizzes.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/game.js"></script>
 <script src="assets/studio.js"></script>
 </body>
 </html>

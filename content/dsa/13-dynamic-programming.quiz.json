@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is memoisation?",
+  "options": [
+   "Sorting results",
+   "Storing the result of a sub-problem so it is computed once",
+   "Using less memory",
+   "Guessing"
+  ],
+  "answer": 1,
+  "why": "The second request for the same sub-problem is a lookup."
+ },
+ {
+  "q": "When does dynamic programming apply?",
+  "options": [
+   "The same sub-problems come up again and again",
+   "The input is sorted",
+   "There is one loop",
+   "The data is random"
+  ],
+  "answer": 0,
+  "why": "Overlapping sub-problems, and an answer built from their answers."
+ },
+ {
+  "q": "Plain recursive Fibonacci takes exponential time. With memoisation it takes ...",
+  "options": [
+   "O(n)",
+   "O(n²)",
+   "O(2^n)",
+   "O(log n)"
+  ],
+  "answer": 0,
+  "why": "Each of the n values is computed once."
+ }
+]

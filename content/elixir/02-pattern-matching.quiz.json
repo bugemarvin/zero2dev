@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What does `=` do in Elixir?",
+  "options": [
+   "Assigns only",
+   "Matches the left side against the right",
+   "Compares",
+   "Copies"
+  ],
+  "answer": 1,
+  "why": "It binds variables where it can, and fails otherwise."
+ },
+ {
+  "q": "After `{:ok, value} = {:ok, 42}`, what is value?",
+  "accept": [
+   "42"
+  ],
+  "why": "The tuple shapes match, so value is bound."
+ },
+ {
+  "q": "What does the pin `^x` do in a pattern?",
+  "options": [
+   "Rebinds x",
+   "Uses the current value of x and does not rebind it",
+   "Negates x",
+   "Deletes x"
+  ],
+  "answer": 1,
+  "why": "The match succeeds only if the value equals x."
+ }
+]

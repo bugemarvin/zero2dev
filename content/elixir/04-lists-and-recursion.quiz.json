@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `[head | tail]` match?",
+  "options": [
+   "Two lists",
+   "The first element and the rest of a list",
+   "A map",
+   "A tuple"
+  ],
+  "answer": 1,
+  "why": "It is how lists are taken apart."
+ },
+ {
+  "q": "How do you repeat something in Elixir?",
+  "options": [
+   "for loops with a counter",
+   "Recursion, or functions such as Enum.map",
+   "while loops",
+   "goto"
+  ],
+  "answer": 1,
+  "why": "There are no classic loops."
+ },
+ {
+  "q": "What is the accumulator for in a tail-recursive function?",
+  "options": [
+   "Speed only",
+   "Carrying the result so far into the next call",
+   "Storing errors",
+   "Counting calls"
+  ],
+  "answer": 1,
+  "why": "The last thing the function does is call itself."
+ }
+]

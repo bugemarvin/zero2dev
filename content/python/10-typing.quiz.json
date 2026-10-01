@@ -1,0 +1,33 @@
+[
+ {
+  "q": "Do type hints change how Python runs your code?",
+  "options": [
+   "Yes, they are enforced",
+   "No: they are checked by separate tools"
+  ],
+  "answer": 1,
+  "why": "A type checker such as mypy reads them."
+ },
+ {
+  "q": "What does `str | None` mean?",
+  "options": [
+   "A string or None",
+   "A string and None",
+   "An empty string",
+   "An error"
+  ],
+  "answer": 0,
+  "why": "The value may be missing."
+ },
+ {
+  "q": "What is the hint for a list of integers?",
+  "options": [
+   "list[int]",
+   "int[]",
+   "List<int>",
+   "[int]"
+  ],
+  "answer": 0,
+  "why": "list[int], dict[str, int], and so on."
+ }
+]

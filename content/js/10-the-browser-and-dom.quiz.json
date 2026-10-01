@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is the DOM?",
+  "options": [
+   "A database",
+   "The page as a tree of objects that JavaScript can change",
+   "A CSS file",
+   "A server"
+  ],
+  "answer": 1,
+  "why": "Document Object Model."
+ },
+ {
+  "q": "Which is safe for showing text from a user?",
+  "options": [
+   "innerHTML",
+   "textContent"
+  ],
+  "answer": 1,
+  "why": "innerHTML would run markup in the text."
+ },
+ {
+  "q": "How do you react to a click?",
+  "options": [
+   "element.addEventListener(\"click\", fn)",
+   "element.click = fn()",
+   "onClick(element)",
+   "listen(click)"
+  ],
+  "answer": 0,
+  "why": "The function runs on every click."
+ }
+]

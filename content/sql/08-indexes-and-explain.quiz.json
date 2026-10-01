@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does an index speed up?",
+  "options": [
+   "Inserts",
+   "Finding rows by the indexed columns",
+   "Backups",
+   "Typing"
+  ],
+  "answer": 1,
+  "why": "It is a sorted structure pointing at the rows."
+ },
+ {
+  "q": "What does an index cost?",
+  "options": [
+   "Nothing",
+   "Space, and slower writes",
+   "Slower reads",
+   "A licence"
+  ],
+  "answer": 1,
+  "why": "Every insert and update must maintain it."
+ },
+ {
+  "q": "Which command shows how the database will run a query?",
+  "options": [
+   "SHOW",
+   "EXPLAIN",
+   "DESCRIBE QUERY",
+   "PLAN"
+  ],
+  "answer": 1,
+  "why": "EXPLAIN ANALYZE also runs it and shows real times."
+ }
+]

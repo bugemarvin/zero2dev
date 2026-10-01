@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a subquery?",
+  "options": [
+   "A slow query",
+   "A query inside another query",
+   "A stored procedure",
+   "A view"
+  ],
+  "answer": 1,
+  "why": "It can produce a value, a list or a table."
+ },
+ {
+  "q": "Which keyword starts a common table expression?",
+  "options": [
+   "WITH",
+   "USING",
+   "DEFINE",
+   "LET"
+  ],
+  "answer": 0,
+  "why": "WITH name AS ( ... ) SELECT ..."
+ },
+ {
+  "q": "What is the main benefit of a CTE?",
+  "options": [
+   "Speed",
+   "A named step that makes a long query readable",
+   "Less storage",
+   "Security"
+  ],
+  "answer": 1,
+  "why": "You read the query from top to bottom."
+ }
+]

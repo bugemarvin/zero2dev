@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `await` do?",
+  "options": [
+   "Blocks the whole program",
+   "Pauses this async function until the promise settles",
+   "Starts a thread",
+   "Cancels a promise"
+  ],
+  "answer": 1,
+  "why": "Other code keeps running meanwhile."
+ },
+ {
+  "q": "How do you run several promises at the same time and wait for all?",
+  "options": [
+   "await in a loop",
+   "Promise.all",
+   "setTimeout",
+   "Promise.race"
+  ],
+  "answer": 1,
+  "why": "await in a loop runs them one after another."
+ },
+ {
+  "q": "How do you catch an error from an awaited promise?",
+  "options": [
+   "try / catch",
+   "if / else",
+   "It cannot fail",
+   "finally only"
+  ],
+  "answer": 0,
+  "why": "A rejected promise becomes an exception at the await."
+ }
+]

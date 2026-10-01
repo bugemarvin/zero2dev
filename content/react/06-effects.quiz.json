@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is useEffect for?",
+  "options": [
+   "Calculating values for rendering",
+   "Synchronising with something outside React: timers, subscriptions, the network",
+   "Styling",
+   "Routing"
+  ],
+  "answer": 1,
+  "why": "Not for things you can compute during rendering."
+ },
+ {
+  "q": "What does the dependency array `[]` mean?",
+  "options": [
+   "Run on every render",
+   "Run once, after the first render",
+   "Never run",
+   "Run on unmount only"
+  ],
+  "answer": 1,
+  "why": "The effect runs again when a listed value changes."
+ },
+ {
+  "q": "What is the function returned from an effect?",
+  "options": [
+   "The result",
+   "The clean-up, run before the next effect and on unmount",
+   "An error handler",
+   "A ref"
+  ],
+  "answer": 1,
+  "why": "Clear timers and remove listeners there."
+ }
+]

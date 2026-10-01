@@ -1,0 +1,35 @@
+[
+ {
+  "q": "How does a window function differ from GROUP BY?",
+  "options": [
+   "It is slower",
+   "It keeps every row and adds a value computed over related rows",
+   "It deletes rows",
+   "It needs no table"
+  ],
+  "answer": 1,
+  "why": "GROUP BY collapses rows. A window does not."
+ },
+ {
+  "q": "Which clause turns a function into a window function?",
+  "options": [
+   "OVER",
+   "WINDOW BY",
+   "WITHIN",
+   "ACROSS"
+  ],
+  "answer": 0,
+  "why": "OVER (PARTITION BY ... ORDER BY ...)."
+ },
+ {
+  "q": "In PostgreSQL, which operator reads a JSON field as text?",
+  "options": [
+   "->>",
+   "=>",
+   "::",
+   "@"
+  ],
+  "answer": 0,
+  "why": "-> gives JSON. ->> gives text."
+ }
+]

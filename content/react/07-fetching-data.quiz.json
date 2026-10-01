@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which three states does data loading have?",
+  "options": [
+   "Start, middle, end",
+   "Loading, error, success",
+   "Get, post, put",
+   "On, off, auto"
+  ],
+  "answer": 1,
+  "why": "Show something for each."
+ },
+ {
+  "q": "Why ignore a response that arrives after the prop changed?",
+  "options": [
+   "It is slow",
+   "An older response could overwrite newer data",
+   "It is illegal",
+   "React forbids it"
+  ],
+  "answer": 1,
+  "why": "This is a race condition. Cancel or ignore the stale request."
+ },
+ {
+  "q": "What do real projects often use for data fetching?",
+  "options": [
+   "Raw effects everywhere",
+   "A library such as TanStack Query, or a framework's loader",
+   "jQuery",
+   "Cookies"
+  ],
+  "answer": 1,
+  "why": "They handle caching, retries and races."
+ }
+]

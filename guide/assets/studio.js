@@ -250,6 +250,11 @@
         self.status.textContent = r.opened ? "Opened " + r.path : r.error;
       });
     }));
+    bar.appendChild(button("Open folder", "st-quiet", function () {
+      api("POST", "open", { id: self.id, "with": "files" }).then(function (r) {
+        self.status.textContent = r.opened ? "Opened " + r.path : r.error;
+      });
+    }));
     bar.appendChild(this.status);
     this.node.appendChild(bar);
 
@@ -674,18 +679,48 @@
     missing: ["Not installed", "st-bad"], unavailable: ["Unavailable", "st-bad"]
   };
   var USER_STACKS = ["node", "java", "go", "rust", "elixir"];
+  var FALLBACK_STACKS = ["node", "java", "go", "rust", "elixir"];
 
   // One line of the Setup page or of a lesson's install box: a badge, what was found, and what can be done about it.
   function needRow(item, kind, canSudo, log, reload) {
     var badge = BADGE[item.state] || [item.state, "st-warn"];
     var actions = el("div", { class: "st-actions" });
+    function start(payload, b) {
+      b.disabled = true;
+      api("POST", "job", payload).then(function (j) {
+        watchJob(j, log, function (ok) {
+          if (ok || payload.kind !== "install") { reload(); return; }
+          b.disabled = false;
+          failed(payload);            // keep the log on screen and say what can be done now
+        });
+      }).catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
+    }
     function job(payload, label) {
-      var b = button(label, "", function () {
-        b.disabled = true;
-        api("POST", "job", payload).then(function (j) { watchJob(j, log, reload); })
-          .catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
-      });
+      var b = button(label, "", function () { start(payload, b); });
       actions.appendChild(b);
+    }
+    function failed(payload) {
+      var old = log.parentNode.querySelector(".st-failed");
+      if (old) old.remove();
+      var box = el("div", { class: "st-failed" }, [
+        el("p", { text: item.name + " was not installed. The lines above say why. What you can do now:" })
+      ]);
+      var again = button("Try again", "", function () { box.remove(); start({ kind: "install", name: payload.name }, again); });
+      box.appendChild(again);
+      if (!payload.fallback && canSudo && FALLBACK_STACKS.indexOf(payload.name) >= 0) {
+        var other = button("Install it another way (system packages)", "", function () {
+          box.remove();
+          start({ kind: "install", name: payload.name, fallback: true }, other);
+        });
+        box.appendChild(other);
+      }
+      box.appendChild(button("Check again", "", reload));
+      box.appendChild(el("p", {
+        class: "st-count",
+        text: (item.image ? "Or install nothing: with Docker running, the app runs " + item.name + " in a container. " : "") +
+          "In a terminal: ./setup/install.sh --stack " + payload.name + (FALLBACK_STACKS.indexOf(payload.name) >= 0 ? "   (add --fallback for the system packages)" : "")
+      }));
+      log.parentNode.insertBefore(box, log.nextSibling);
     }
     function service(action, label, purge) {
       var b = button(label, "", function () {
@@ -747,7 +782,7 @@
 
   function renderSetup(mount) {
     mount.textContent = "Checking this machine ...";
-    api("GET", "doctor").then(function (report) {
+    api("GET", "doctor", { fresh: "1" }).then(function (report) {
       mount.textContent = "";
       var log = el("pre", { class: "st-log" });
       log.hidden = true;
@@ -803,6 +838,44 @@
           report.workspaces, "workspace"));
       }
       mount.appendChild(el("p", { class: "st-count", text: "Working folders and downloads live in " + report.work_root }));
+      if (report.platform) {
+        mount.insertBefore(el("p", {
+          class: "st-tool " + (report.platform.installer ? "st-ok" : "st-warn"),
+          text: "This is " + report.platform.name + ". " + (report.platform.os === "wsl"
+            ? "You work in Ubuntu, and this page is shown by your Windows browser. Install buttons act inside Ubuntu."
+            : report.platform.installer ? "Install buttons use the install script of this project."
+            : "The install script covers Ubuntu and Debian. Here, install missing tools with your own package manager, or let Docker run them.")
+        }), mount.firstChild);
+        if (window.Z2D && window.Z2D.applyOs) window.Z2D.applyOs(report.platform);
+      }
+      // keep the app running
+      var keep = el("section", {}, [
+        el("h2", { text: "Keep the app running" }),
+        el("p", { text: "The app can start by itself when you log in, always at the same address, so this page is one bookmark away. It listens on this computer only." })
+      ]);
+      var keepLine = el("p", { class: "st-tool", text: "Checking ..." });
+      var keepBtn = button("", "", function () {
+        keepBtn.disabled = true;
+        api("POST", "autostart", { enable: !keepBtn.dataset.on }).then(showKeep)
+          .catch(function (error) { keepLine.textContent = error.message; keepBtn.disabled = false; });
+      });
+      keepBtn.hidden = true;
+      function showKeep(info) {
+        keepBtn.disabled = false;
+        keepBtn.hidden = !info.supported;
+        if (info.enabled) keepBtn.dataset.on = "1"; else delete keepBtn.dataset.on;
+        keepBtn.textContent = info.enabled ? "Stop starting at login" : "Start at login";
+        keepLine.className = "st-tool " + (info.enabled ? "st-ok" : "");
+        keepLine.textContent = (info.message ? info.message + " " : "") + (info.supported
+          ? (info.enabled ? "On: " : "Off. It would use ") + info.description + "."
+          : "Starting at login is not available on this system.");
+      }
+      api("GET", "autostart").then(showKeep).catch(function (error) { keepLine.textContent = error.message; });
+      keep.appendChild(keepLine);
+      keep.appendChild(keepBtn);
+      keep.appendChild(el("p", { class: "st-count", text: "In a terminal: python3 app.py start (run in the background), stop, status, autostart on, autostart off." }));
+      mount.appendChild(keep);
+
       mount.appendChild(button("Check again", "", reload));
       if (!report.can_sudo) {
         mount.appendChild(el("p", {
@@ -842,6 +915,7 @@
     if (mount) renderSetup(mount);
     api("GET", "state").then(function (state) {
       window.Z2D_PROFILE = state.profile;
+      if (state.platform && window.Z2D && window.Z2D.applyOs) window.Z2D.applyOs(state.platform);
       setProgress(state.progress);
     });
     window.addEventListener("focus", function () { studios.forEach(function (s) { s.syncFromDisk(); }); });

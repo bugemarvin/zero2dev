@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is wrong with `def add(item, items=[])`?",
+  "options": [
+   "Nothing",
+   "The same list is shared between all calls",
+   "Lists cannot be defaults",
+   "It is slow"
+  ],
+  "answer": 1,
+  "why": "Default values are created once. Use None and create the list inside."
+ },
+ {
+  "q": "What does *args collect?",
+  "options": [
+   "Keyword arguments",
+   "Any number of positional arguments, as a tuple",
+   "The return value",
+   "Global variables"
+  ],
+  "answer": 1,
+  "why": "**kwargs collects keyword arguments, as a dict."
+ },
+ {
+  "q": "What does a function return when it has no return statement?",
+  "accept": [
+   "None"
+  ],
+  "why": "Every function returns something. Without return, that is None."
+ }
+]

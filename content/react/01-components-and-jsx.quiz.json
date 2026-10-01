@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is a React component?",
+  "options": [
+   "An HTML file",
+   "A function that returns what to show",
+   "A CSS class",
+   "A database table"
+  ],
+  "answer": 1,
+  "why": "Its name starts with a capital letter."
+ },
+ {
+  "q": "In JSX, how do you put a JavaScript value into the output?",
+  "options": [
+   "{{value}}",
+   "{value}",
+   "$value",
+   "<value>"
+  ],
+  "answer": 1,
+  "why": "Braces switch to JavaScript."
+ },
+ {
+  "q": "Which attribute name does JSX use for a CSS class?",
+  "accept": [
+   "className"
+  ],
+  "why": "class is a reserved word in JavaScript."
+ }
+]

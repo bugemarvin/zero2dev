@@ -74,6 +74,7 @@ def markdown(text, inline, heading_shift=0):
     lines = text.split("\n")
     out = []
     i = 0
+    open_os = False       # inside a section whose heading carried {os=...}
 
     def is_block_start(line):
         return (line.startswith(("#", "```", "> ", "|")) or re.match(r"^(- |\d+\. )", line) is not None)
@@ -101,6 +102,16 @@ def markdown(text, inline, heading_shift=0):
         if heading:
             level = min(len(heading.group(1)) + heading_shift, 6)
             title = heading.group(2).strip()
+            # "## Windows {os=windows}" marks the section as being for one system. It ends at the next ## heading.
+            marker = re.search(r"\s*\{os=([a-z ]+)\}$", title)
+            if len(heading.group(1)) == 2 and open_os:
+                out.append("</div>")
+                open_os = False
+            if marker:
+                title = title[:marker.start()]
+                if len(heading.group(1)) == 2:
+                    out.append(f'<div class="os-section" data-os="{marker.group(1).strip()}">')
+                    open_os = True
             slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
             anchor = f' id="{slug}"' if heading_shift == 0 else ""
             out.append(f"<h{level}{anchor}>{inline(title)}</h{level}>")
@@ -154,6 +165,8 @@ def markdown(text, inline, heading_shift=0):
             i += 1
         out.append(f"<p>{inline(' '.join(para))}</p>")
 
+    if open_os:
+        out.append("</div>")
     return "\n".join(out)
 
 
@@ -297,16 +310,21 @@ def render_install(track):
         names = ",".join(s[0] for s in stacks)
         parts.append("<h4>Quick install</h4>")
         parts.append("<p>One command installs everything for this track. It skips what you already have.</p>")
-        parts.append("<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>")
-        parts.append(console([f"./setup/install.sh --stack {names}"]))
-        parts.append("<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder "
-                     "(it installs WSL first if needed):</p>")
-        parts.append(f'<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\\install.ps1 -Stacks {names}</code></pre>')
+        parts.append('<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>'
+                     + console([f"./setup/install.sh --stack {names}"])
+                     + "<p>If something does not install, the script says why and offers to try again or to install it "
+                       "another way.</p></div>")
+        parts.append('<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder '
+                     "(it installs WSL and Ubuntu first if needed):</p>"
+                     f'<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\\install.ps1 -Stacks {names}</code></pre></div>')
+        parts.append('<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, '
+                     "or let Docker run what is missing.</p></div>")
     for stack, image, label in stacks:
         info = install[stack]
         parts.append(f"<h4>{esc(info['name'])}: by hand</h4>")
-        parts.append("<p>Ubuntu, Debian, WSL:</p>" + console(info["linux"]))
-        parts.append("<p>macOS, with <a href=\"https://brew.sh\" rel=\"noopener\">Homebrew</a>:</p>" + console(info["mac"]))
+        parts.append('<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p>' + console(info["linux"]) + "</div>")
+        parts.append('<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p>'
+                     + console(info["mac"]) + "</div>")
         parts.append("<p>Check that it works:</p>" + console([info["check"]]))
         if info.get("note"):
             parts.append(f"<p>{esc(info['note'])}</p>")

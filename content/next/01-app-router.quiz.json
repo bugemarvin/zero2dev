@@ -1,0 +1,33 @@
+[
+ {
+  "q": "In the app router, which file makes a route's page?",
+  "options": [
+   "index.js",
+   "page.js",
+   "route.html",
+   "main.js"
+  ],
+  "answer": 1,
+  "why": "app/about/page.js is the page for /about."
+ },
+ {
+  "q": "What decides the address of a page?",
+  "options": [
+   "A config file",
+   "The folder structure inside app/",
+   "The file's title",
+   "A database"
+  ],
+  "answer": 1,
+  "why": "File-based routing."
+ },
+ {
+  "q": "Where do components render by default in the app router?",
+  "options": [
+   "In the browser",
+   "On the server"
+  ],
+  "answer": 1,
+  "why": "They are server components unless marked otherwise."
+ }
+]

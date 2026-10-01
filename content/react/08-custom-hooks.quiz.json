@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is a custom hook?",
+  "options": [
+   "A plugin",
+   "A function starting with `use` that calls other hooks",
+   "A class",
+   "A CSS trick"
+  ],
+  "answer": 1,
+  "why": "It shares logic, not state."
+ },
+ {
+  "q": "Two components use the same custom hook. Do they share its state?",
+  "options": [
+   "Yes",
+   "No: each call has its own state"
+  ],
+  "answer": 1,
+  "why": "A hook reuses behaviour."
+ },
+ {
+  "q": "Where may hooks be called?",
+  "options": [
+   "Anywhere",
+   "At the top level of a component or another hook",
+   "Inside loops",
+   "Inside conditions"
+  ],
+  "answer": 1,
+  "why": "The order of hook calls must be the same on every render."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is an interface?",
+  "options": [
+   "A class with fields",
+   "A list of methods that a class promises to have",
+   "A package",
+   "An object"
+  ],
+  "answer": 1,
+  "why": "Code can then work with any class that implements it."
+ },
+ {
+  "q": "Which keyword makes a class inherit from another?",
+  "options": [
+   "implements",
+   "extends",
+   "inherits",
+   "super"
+  ],
+  "answer": 1,
+  "why": "implements is for interfaces."
+ },
+ {
+  "q": "What is polymorphism?",
+  "options": [
+   "Many classes in a file",
+   "One call that runs different code depending on the object's real type",
+   "Overloading",
+   "Private methods"
+  ],
+  "answer": 1,
+  "why": "shape.area() works for every shape."
+ }
+]

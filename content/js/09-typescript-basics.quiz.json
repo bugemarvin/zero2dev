@@ -1,0 +1,33 @@
+[
+ {
+  "q": "When are TypeScript's types checked?",
+  "options": [
+   "While the program runs",
+   "Before it runs, by the compiler",
+   "Never",
+   "In the browser"
+  ],
+  "answer": 1,
+  "why": "Types are removed from the JavaScript that runs."
+ },
+ {
+  "q": "What does `string | number` mean?",
+  "options": [
+   "Both at once",
+   "Either a string or a number",
+   "A tuple",
+   "An error"
+  ],
+  "answer": 1,
+  "why": "A union type."
+ },
+ {
+  "q": "Which is safer for a value of unknown shape?",
+  "options": [
+   "any",
+   "unknown"
+  ],
+  "answer": 1,
+  "why": "unknown must be checked before use. any switches checking off."
+ }
+]

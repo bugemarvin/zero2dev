@@ -9,6 +9,8 @@
 #   ./install.sh --list               show available stacks
 #   ./install.sh --dry-run            print what would be done, change nothing
 #   ./install.sh --yes                never ask questions
+#   ./install.sh --on-fail ask|auto|skip   what to do when a stack does not install (see --help)
+#   ./install.sh --fallback --stack rust   use the other way of installing straight away
 #
 # Adding a stack: write stack_<name>_install and stack_<name>_verify,
 # then add <name> to STACKS and STACK_DESC below.
@@ -39,6 +41,10 @@ MISE_SHIMS="$HOME/.local/share/mise/shims"
 DRY=0
 YES=0
 NOSUDO=0
+ONFAIL=""            # ask, auto or skip. Empty: ask on a terminal, otherwise auto.
+USE_FALLBACK=0       # 1: go straight to the other way of installing
+CURRENT=""           # the stack being installed
+LOGDIR="$(mktemp -d "${TMPDIR:-/tmp}/z2d-install.XXXXXX")"
 USER_STACKS=" node java go rust elixir "
 SELECTED=()
 PICKED=0
@@ -85,6 +91,12 @@ zero2dev installer: developer toolchains for Ubuntu / Debian / WSL.
   install.sh --dry-run            print what would be done, change nothing
   install.sh --yes                never ask questions
   install.sh --no-sudo --stack go  only stacks that install into your home folder (no password)
+
+When a stack does not install, the script says why and does one of these:
+  --on-fail ask    ask you: try again, install another way, skip, or stop   (default on a terminal)
+  --on-fail auto   try again once, then install another way, then skip     (default otherwise)
+  --on-fail skip   note the problem and go on with the next stack
+  --fallback       use the other way of installing straight away (for example apt in place of rustup)
 USAGE
 }
 
@@ -188,6 +200,185 @@ mise_use() {
   run mise reshim
 }
 
+# ---------- when something does not work ----------
+soft() {
+  # soft "what it is for" command...
+  # A step the stack can live without. On failure: say so, remember why, return non-zero
+  # so the caller can try something else:  soft "Hex" mix local.hex --force || soft ...
+  local what="$1" out rc
+  shift
+  if [ "$DRY" -eq 1 ]; then run "$@"; return 0; fi
+  out="$("$@" 2>&1)" && rc=0 || rc=$?
+  if [ "$rc" -eq 0 ]; then return 0; fi
+  printf '%s\n' "$out" | tail -n 6
+  warn "$what did not work (exit $rc)."
+  printf '%s: %s\n' "$what" "$(printf '%s\n' "$out" | diagnose_text)" >> "$LOGDIR/$CURRENT.notes"
+  return "$rc"
+}
+
+diagnose_text() {
+  # Reads output on stdin, prints one line that says what went wrong in plain words.
+  local text
+  text="$(cat)"
+  if printf '%s' "$text" | grep -qiE 'could not resolve host|temporary failure in name resolution|network is unreachable|timed out|failed to connect|connection reset|connection refused|could not download|failed to download|unable to connect'; then
+    echo "the download failed (network, DNS or a proxy). Check the internet connection; behind a proxy set https_proxy."
+  elif printf '%s' "$text" | grep -qiE 'certificate problem|certificate verify failed|unable to get local issuer|self.signed certificate|unknown CA|bad certificate'; then
+    echo "a TLS certificate was not accepted. The clock may be wrong, or a company proxy inspects traffic: install its certificate."
+  elif printf '%s' "$text" | grep -qiE 'rate limit|API rate limit exceeded'; then
+    echo "GitHub limited the downloads from this address. Wait some minutes, or set GITHUB_TOKEN, then try again."
+  elif printf '%s' "$text" | grep -qiE 'no space left on device'; then
+    echo "the disk is full. Free some space (df -h shows how much is left)."
+  elif printf '%s' "$text" | grep -qiE 'could not get lock|unable to acquire the dpkg|dpkg was interrupted|unable to lock'; then
+    echo "another package manager is running or was interrupted. Wait a minute, or run: sudo dpkg --configure -a"
+  elif printf '%s' "$text" | grep -qiE 'unable to locate package|has no installation candidate|unmet dependencies'; then
+    echo "a package is not available for this version of Ubuntu or Debian."
+  elif printf '%s' "$text" | grep -qiE 'a password is required|a terminal is required|not in the sudoers|permission denied'; then
+    echo "administrator rights were needed and not given (sudo), or a folder is not writable."
+  elif printf '%s' "$text" | grep -qiE 'existing installation|cannot install while rust is installed'; then
+    echo "another installation of the same tool is in the way."
+  elif printf '%s' "$text" | grep -qiE 'no precompiled|build failed|configure: error|make: \*\*\*|compilation failed'; then
+    echo "no ready-made download exists for this system and building from source failed."
+  elif printf '%s' "$text" | grep -qiE 'command not found|not found in PATH|No such file or directory'; then
+    echo "a program it needs was not found: $(printf '%s\n' "$text" | grep -iE 'command not found|No such file' | tail -n 1 | cut -c1-160)"
+  else
+    printf '%s\n' "$text" | grep -v '^[[:space:]]*$' | tail -n 1 | cut -c1-200
+  fi
+}
+
+# The other way of installing a stack, used when the usual one does not work.
+declare -A FALLBACK_DESC=(
+  [node]="Node.js and npm from the Ubuntu packages (older, and enough for the lessons)"
+  [java]="the default JDK and Maven from the Ubuntu packages"
+  [elixir]="Erlang and Elixir from the Ubuntu packages"
+  [go]="Go from the Ubuntu packages"
+  [rust]="Rust (rustc and cargo) from the Ubuntu packages"
+)
+stack_node_fallback()   { apt_install nodejs npm; }
+stack_java_fallback()   { apt_install default-jdk maven; }
+stack_elixir_fallback() { apt_install erlang elixir; install_hex; }
+stack_go_fallback()     { apt_install golang-go; }
+stack_rust_fallback()   { apt_install rustc cargo; }
+
+# What the learning app can do when a stack stays missing.
+declare -A WITHOUT=(
+  [node]="the app can run JavaScript in Docker instead"
+  [java]="the app can run Java in Docker instead"
+  [elixir]="the app can run Elixir in Docker instead"
+  [go]="the app can run Go in Docker instead"
+  [rust]="the app can run Rust in Docker instead"
+  [ruby]="the app can run Ruby in Docker instead"
+  [php]="the app can run PHP in Docker instead"
+  [postgres]="the app can start PostgreSQL in Docker instead"
+  [redis]="the app can start Redis in Docker instead"
+  [mongodb]="the app can start MongoDB in Docker instead"
+)
+
+has_fallback() {
+  [ "$NOSUDO" -eq 0 ] && declare -F "stack_${1}_fallback" >/dev/null
+}
+
+attempt() {
+  # attempt <stack> <function>: run it in a subshell with its own `set -e`, so one failing
+  # stack does not stop the rest, and keep its output for the diagnosis.
+  local s="$1" fn="$2" rc
+  CURRENT="$s"
+  set +e
+  ( set -e; "$fn" ) 2>&1 | tee -a "$LOGDIR/$s.log"
+  rc="${PIPESTATUS[0]}"
+  set -e
+  return "$rc"
+}
+
+stack_ok() {
+  setup_paths
+  hash -r
+  "stack_${1}_verify" >/dev/null 2>&1
+}
+
+looks_temporary() {
+  grep -qiE 'could not resolve host|temporary failure|timed out|connection reset|rate limit|could not get lock|failed to download|could not download' "$LOGDIR/$1.log" 2>/dev/null
+}
+
+choose_action() {
+  # Prints retry, fallback, skip or quit. $2: already retried (0/1), $3: fallback already used (0/1).
+  local s="$1" retried="$2" fell_back="$3" mode="$ONFAIL" answer
+  if [ -z "$mode" ]; then
+    if interactive; then mode=ask; else mode=auto; fi
+  fi
+  if [ "$mode" = skip ]; then echo skip; return 0; fi
+  if [ "$mode" = auto ]; then
+    if [ "$retried" -eq 0 ] && looks_temporary "$s"; then echo retry
+    elif [ "$fell_back" -eq 0 ] && has_fallback "$s"; then echo fallback
+    elif [ "$retried" -eq 0 ]; then echo retry
+    else echo skip
+    fi
+    return 0
+  fi
+  {
+    printf '\n%sWhat now for %s?%s\n' "$BOLD" "$s" "$RESET"
+    printf '  r) try again\n'
+    if [ "$fell_back" -eq 0 ] && has_fallback "$s"; then
+      printf '  a) install it another way: %s\n' "${FALLBACK_DESC[$s]}"
+    fi
+    printf '  s) skip it%s\n' "${WITHOUT[$s]:+ (${WITHOUT[$s]})}"
+    printf '  q) stop the installer\n'
+    printf 'Choice [r/a/s/q]: '
+  } >&2
+  read -r answer || answer=s
+  case "$answer" in
+    r|R) echo retry ;;
+    a|A) if [ "$fell_back" -eq 0 ] && has_fallback "$s"; then echo fallback; else echo skip; fi ;;
+    q|Q) echo quit ;;
+    *)   echo skip ;;
+  esac
+}
+
+install_stack() {
+  # Install one stack and make sure it works. Returns 0 when it does.
+  local s="$1" rc=0 retried=0 fell_back=0 action reason
+  : > "$LOGDIR/$s.log"
+  : > "$LOGDIR/$s.reason"
+  if [ "$USE_FALLBACK" -eq 1 ] && has_fallback "$s"; then
+    info "Installing $s the other way: ${FALLBACK_DESC[$s]}"
+    fell_back=1
+    attempt "$s" "stack_${s}_fallback" || rc=$?
+  else
+    attempt "$s" "stack_${s}_install" || rc=$?
+  fi
+  while :; do
+    if [ "$DRY" -eq 1 ]; then return 0; fi
+    if [ "$s" = docker ] && is_wsl; then return 0; fi
+    if stack_ok "$s"; then
+      : > "$LOGDIR/$s.reason"
+      return 0
+    fi
+    reason="$(diagnose_text < "$LOGDIR/$s.log")"
+    printf '%s\n' "$reason" > "$LOGDIR/$s.reason"
+    warn "stack '$s' is not working (exit $rc): $reason"
+    action="$(choose_action "$s" "$retried" "$fell_back")"
+    case "$action" in
+      retry)
+        retried=1
+        info "Trying $s again"
+        : > "$LOGDIR/$s.log"
+        rc=0
+        if [ "$fell_back" -eq 1 ]; then attempt "$s" "stack_${s}_fallback" || rc=$?
+        else attempt "$s" "stack_${s}_install" || rc=$?
+        fi ;;
+      fallback)
+        fell_back=1
+        info "Installing $s another way: ${FALLBACK_DESC[$s]}"
+        : > "$LOGDIR/$s.log"
+        rc=0
+        attempt "$s" "stack_${s}_fallback" || rc=$? ;;
+      quit)
+        die "stopped at stack '$s'. The log is in $LOGDIR/$s.log" ;;
+      *)
+        return 1 ;;
+    esac
+  done
+}
+
 # ---------- stacks ----------
 stack_core_install() {
   apt_install build-essential gcc g++ gdb valgrind make cmake clang clang-format \
@@ -284,8 +475,17 @@ stack_elixir_install() {
   apt_install autoconf m4 libncurses-dev libssl-dev unzip
   mise_use erlang@latest
   mise_use elixir@latest
-  run mix local.hex --force
-  run mix local.rebar --force
+  install_hex
+}
+
+install_hex() {
+  # Hex and rebar are the package tools of Mix projects (Phoenix and friends). Elixir itself,
+  # and every exercise of the guide, works without them, so a failure here is a note, not an error.
+  setup_paths
+  soft "Hex (the Elixir package manager)" mix local.hex --force \
+    || soft "Hex, from its source on GitHub" mix archive.install github hexpm/hex branch latest --force \
+    || warn "Elixir works. Only projects with dependencies need Hex. Later, try: mix local.hex --force"
+  soft "rebar (the Erlang build tool)" mix local.rebar --force || true
 }
 stack_elixir_verify() {
   have elixir || return 1
@@ -304,9 +504,13 @@ stack_rust_install() {
   setup_paths
   if have rustup; then
     run rustup update stable
-  else
-    run sh -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+    run rustup default stable
+    return 0
   fi
+  # Download the installer to a file first: piping curl straight into sh hides a failed download.
+  run curl --proto '=https' --tlsv1.2 -fsSL --retry 3 --retry-delay 2 https://sh.rustup.rs -o "$LOGDIR/rustup-init.sh"
+  # RUSTUP_INIT_SKIP_PATH_CHECK: a rustc from apt elsewhere on PATH must not stop the install.
+  run env RUSTUP_INIT_SKIP_PATH_CHECK=yes sh "$LOGDIR/rustup-init.sh" -y --profile minimal --default-toolchain stable
 }
 stack_rust_verify() {
   have rustc || return 1
@@ -496,6 +700,14 @@ while [ "$#" -gt 0 ]; do
     --dry-run)  DRY=1; shift ;;
     --yes|-y)   YES=1; shift ;;
     --no-sudo)  NOSUDO=1; YES=1; shift ;;
+    --fallback) USE_FALLBACK=1; shift ;;
+    --on-fail)
+      [ "$#" -ge 2 ] || die "--on-fail needs a value: ask, auto or skip"
+      case "$2" in
+        ask|auto|skip) ONFAIL="$2" ;;
+        *) die "--on-fail must be ask, auto or skip" ;;
+      esac
+      shift 2 ;;
     -h|--help)  usage; exit 0 ;;
     *)          die "unknown option: $1 (see --help)" ;;
   esac
@@ -541,19 +753,14 @@ fi
 FAILED=()
 for s in "${ORDERED[@]}"; do
   info "Stack: $s"
-  # A subshell with its own `set -e`, so one failing stack does not stop the rest.
-  set +e
-  ( set -e; "stack_${s}_install" )
-  rc=$?
-  set -e
-  if [ "$rc" -ne 0 ]; then
-    warn "stack '$s' failed (exit $rc), continuing"
+  if ! install_stack "$s"; then
     FAILED+=("$s")
   fi
 done
 
 setup_paths
 hash -r
+STILL=()
 printf '\n%sSummary%s\n' "$BOLD" "$RESET"
 for s in "${ORDERED[@]}"; do
   if version="$("stack_${s}_verify" 2>/dev/null)"; then
@@ -563,16 +770,25 @@ for s in "${ORDERED[@]}"; do
   elif [ "$s" = "docker" ] && is_wsl; then
     printf '  - %-9s install Docker Desktop on Windows\n' "$s"
   else
+    STILL+=("$s")
     printf '  %s✗%s %-9s not working\n' "$RED" "$RESET" "$s"
-    case " ${FAILED[*]-} " in
-      *" $s "*) ;;
-      *) FAILED+=("$s") ;;
-    esac
+    if [ -s "$LOGDIR/$s.reason" ]; then printf '      why:  %s\n' "$(head -n 1 "$LOGDIR/$s.reason")"; fi
+    printf '      log:  %s\n' "$LOGDIR/$s.log"
+    printf '      next: ./setup/install.sh --stack %s              (try again)\n' "$s"
+    if has_fallback "$s"; then
+      printf '            ./setup/install.sh --stack %s --fallback   (%s)\n' "$s" "${FALLBACK_DESC[$s]}"
+    fi
+    if [ -n "${WITHOUT[$s]:-}" ]; then printf '            or do nothing: %s\n' "${WITHOUT[$s]}"; fi
+  fi
+  if [ -s "$LOGDIR/$s.notes" ]; then
+    while IFS= read -r line; do printf '      note: %s\n' "$line"; done < "$LOGDIR/$s.notes"
   fi
 done
 
 if [ "$DRY" -eq 1 ]; then exit 0; fi
-if [ "${#FAILED[@]}" -gt 0 ]; then
-  die "finished with problems in: ${FAILED[*]}"
+# A stack that works in the end is not a failure, whatever happened on the way.
+if [ "${#STILL[@]}" -gt 0 ]; then
+  printf '\n%sNot installed:%s %s. Everything else is ready. See "next" above for each one.\n' "$YELLOW" "$RESET" "${STILL[*]}" >&2
+  exit 1
 fi
 printf '\nDone. Open a new terminal so PATH changes take effect.\n'

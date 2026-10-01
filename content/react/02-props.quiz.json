@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What are props?",
+  "options": [
+   "Private state",
+   "Arguments passed to a component by its parent",
+   "CSS rules",
+   "Events"
+  ],
+  "answer": 1,
+  "why": "They arrive as one object."
+ },
+ {
+  "q": "May a component change its own props?",
+  "options": [
+   "Yes",
+   "No: props are read-only"
+  ],
+  "answer": 1,
+  "why": "To change something, the parent passes new props."
+ },
+ {
+  "q": "What is the `children` prop?",
+  "options": [
+   "A list of components in the file",
+   "Whatever was written between the component's tags",
+   "State",
+   "A ref"
+  ],
+  "answer": 1,
+  "why": "<Card>this part</Card>"
+ }
+]

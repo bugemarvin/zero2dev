@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a multi-stage build for?",
+  "options": [
+   "Running two apps",
+   "Building in a big image and copying only the result into a small one",
+   "Testing",
+   "Logging"
+  ],
+  "answer": 1,
+  "why": "The final image has no compilers."
+ },
+ {
+  "q": "Why not run as root in a container?",
+  "options": [
+   "It is slower",
+   "A break-in then has root's power",
+   "It uses more memory",
+   "Docker forbids it"
+  ],
+  "answer": 1,
+  "why": "Add a USER instruction."
+ },
+ {
+  "q": "Where should a container write its logs?",
+  "options": [
+   "A file inside the container",
+   "Standard output",
+   "A database",
+   "Nowhere"
+  ],
+  "answer": 1,
+  "why": "The platform collects them."
+ }
+]

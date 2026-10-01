@@ -1,0 +1,29 @@
+[
+ {
+  "q": "Which file lists a project's dependencies?",
+  "accept": [
+   "package.json"
+  ],
+  "why": "package-lock.json pins the exact versions."
+ },
+ {
+  "q": "Should node_modules be committed to Git?",
+  "options": [
+   "Yes",
+   "No: it is rebuilt with npm install"
+  ],
+  "answer": 1,
+  "why": "Put it in .gitignore."
+ },
+ {
+  "q": "What does `npm ci` do?",
+  "options": [
+   "Checks style",
+   "Installs exactly what the lock file says",
+   "Publishes",
+   "Updates everything"
+  ],
+  "answer": 1,
+  "why": "It is the reproducible install, for CI and deployments."
+ }
+]

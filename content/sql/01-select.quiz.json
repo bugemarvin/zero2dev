@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which clause filters rows?",
+  "options": [
+   "SELECT",
+   "WHERE",
+   "FROM",
+   "ORDER BY"
+  ],
+  "answer": 1,
+  "why": "WHERE keeps the rows for which the condition is true."
+ },
+ {
+  "q": "How do you test for a missing value?",
+  "options": [
+   "= NULL",
+   "IS NULL",
+   "== NULL",
+   "NULL()"
+  ],
+  "answer": 1,
+  "why": "NULL is never equal to anything, not even NULL."
+ },
+ {
+  "q": "What does SELECT * return?",
+  "options": [
+   "One row",
+   "Every column",
+   "The row count",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "Name the columns you need in real queries."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "When does a merge conflict happen?",
+  "options": [
+   "Two branches changed the same lines differently",
+   "Two branches have different names",
+   "A file was added",
+   "The network is down"
+  ],
+  "answer": 0,
+  "why": "Git cannot choose between two different edits of the same lines."
+ },
+ {
+  "q": "After fixing a conflicted file by hand, what next?",
+  "options": [
+   "git add the file, then commit",
+   "git init",
+   "Delete the repository",
+   "git log"
+  ],
+  "answer": 0,
+  "why": "Staging marks the conflict as resolved."
+ },
+ {
+  "q": "How do you give up on a merge that went wrong?",
+  "options": [
+   "git merge --abort",
+   "git stop",
+   "git delete",
+   "git undo"
+  ],
+  "answer": 0,
+  "why": "It restores the state before the merge."
+ }
+]

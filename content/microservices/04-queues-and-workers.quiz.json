@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Why put work on a queue?",
+  "options": [
+   "It is trendy",
+   "The caller gets an answer at once, and the slow work happens later",
+   "To lose data",
+   "To avoid testing"
+  ],
+  "answer": 1,
+  "why": "The producer and the worker are decoupled."
+ },
+ {
+  "q": "A job can be delivered twice. What must the worker be?",
+  "options": [
+   "Fast",
+   "Idempotent: doing it twice has the same effect as once",
+   "Single-threaded",
+   "Stateless"
+  ],
+  "answer": 1,
+  "why": "Design for at-least-once delivery."
+ },
+ {
+  "q": "What is a dead-letter queue?",
+  "options": [
+   "A deleted queue",
+   "Where jobs go after failing too many times",
+   "A backup",
+   "A log file"
+  ],
+  "answer": 1,
+  "why": "Someone can then look at them."
+ }
+]

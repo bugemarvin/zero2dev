@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Without ORDER BY, in which order do rows come back?",
+  "options": [
+   "Insertion order",
+   "Sorted by id",
+   "No guaranteed order",
+   "Alphabetical"
+  ],
+  "answer": 2,
+  "why": "A table is a set. Ask for an order if you need one."
+ },
+ {
+  "q": "Which clause gives the top 3 rows?",
+  "options": [
+   "TOP 3",
+   "LIMIT 3",
+   "FIRST 3",
+   "MAX 3"
+  ],
+  "answer": 1,
+  "why": "Together with ORDER BY."
+ },
+ {
+  "q": "What does DISTINCT do?",
+  "options": [
+   "Sorts",
+   "Removes duplicate rows from the result",
+   "Counts",
+   "Joins"
+  ],
+  "answer": 1,
+  "why": "Each different row appears once."
+ }
+]

@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is 7 / 2 with two ints?",
+  "accept": [
+   "3"
+  ],
+  "why": "Integer division. Use 7 / 2.0 for 3.5."
+ },
+ {
+  "q": "How do you compare two strings for equal content?",
+  "options": [
+   "a == b",
+   "a.equals(b)",
+   "a = b",
+   "a.same(b)"
+  ],
+  "answer": 1,
+  "why": "== compares references."
+ },
+ {
+  "q": "Which type holds true or false?",
+  "options": [
+   "bool",
+   "boolean",
+   "bit",
+   "Boolean only"
+  ],
+  "answer": 1,
+  "why": "boolean, in lower case, is the primitive."
+ }
+]

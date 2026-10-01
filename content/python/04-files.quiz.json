@@ -1,0 +1,31 @@
+[
+ {
+  "q": "Why open files with `with open(...) as f:`?",
+  "options": [
+   "It is faster",
+   "The file is closed for you, even when an error happens",
+   "It is the only way",
+   "It encrypts"
+  ],
+  "answer": 1,
+  "why": "The with block guarantees the clean-up."
+ },
+ {
+  "q": "Which mode opens a file for appending?",
+  "options": [
+   "r",
+   "w",
+   "a",
+   "x"
+  ],
+  "answer": 2,
+  "why": "w replaces the file. a adds to the end."
+ },
+ {
+  "q": "Which module reads and writes JSON?",
+  "accept": [
+   "json"
+  ],
+  "why": "json.load, json.dump, json.loads, json.dumps."
+ }
+]

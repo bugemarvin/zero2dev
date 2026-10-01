@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does a pointer store?",
+  "options": [
+   "A value",
+   "A memory address",
+   "A type",
+   "A file name"
+  ],
+  "answer": 1,
+  "why": "A pointer holds the address of another value."
+ },
+ {
+  "q": "If `p` points at x, what does `*p = 7` do?",
+  "options": [
+   "Changes p",
+   "Sets x to 7",
+   "Declares a pointer",
+   "Multiplies"
+  ],
+  "answer": 1,
+  "why": "* follows the pointer to the value."
+ },
+ {
+  "q": "What does `&x` mean?",
+  "options": [
+   "The value of x",
+   "The address of x",
+   "A reference count",
+   "x and something"
+  ],
+  "answer": 1,
+  "why": "& takes the address."
+ },
+ {
+  "q": "What happens if you follow a NULL pointer?",
+  "options": [
+   "You get 0",
+   "The program crashes (undefined behaviour)",
+   "Nothing",
+   "A warning"
+  ],
+  "answer": 1,
+  "why": "Usually a segmentation fault."
+ }
+]

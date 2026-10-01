@@ -11,7 +11,7 @@ summary: Get a Linux terminal, a compiler, Git and Python, with one script.
 
 The `setup` folder of this project installs all of it for you.
 
-## Windows
+## Windows {os=windows}
 
 Windows runs Linux through **WSL** (Windows Subsystem for Linux). It is a real Ubuntu system living next to Windows, and it is what you will work in.
 
@@ -31,7 +31,7 @@ From now on, do everything in the **Ubuntu** terminal, not in PowerShell.
 
 > Keep your code inside the Linux home folder (`~`), not under `/mnt/c`. Files there are much faster, and tools behave correctly.
 
-## Ubuntu or Debian Linux
+## Ubuntu or Debian Linux {os=linux wsl}
 
 ```console
 $ cd zero2dev/setup
@@ -47,7 +47,7 @@ $ ./install.sh --stack java,elixir,postgres
 
 You can run the script again at any time. It skips what is already installed.
 
-## macOS
+## macOS {os=macos}
 
 The script does not cover macOS. Install the Xcode command line tools, which include `gcc`, `make` and `git`, then Python from python.org or Homebrew:
 

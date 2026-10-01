@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which algorithm finds shortest paths with non-negative weights?",
+  "options": [
+   "BFS",
+   "Dijkstra",
+   "DFS",
+   "Binary search"
+  ],
+  "answer": 1,
+  "why": "It always expands the closest unfinished node."
+ },
+ {
+  "q": "What breaks Dijkstra's algorithm?",
+  "options": [
+   "Large graphs",
+   "Negative edge weights",
+   "Cycles",
+   "Many edges"
+  ],
+  "answer": 1,
+  "why": "A finished node could later be reached more cheaply."
+ },
+ {
+  "q": "Which data structure makes Dijkstra fast?",
+  "options": [
+   "A stack",
+   "A priority queue (heap)",
+   "A linked list",
+   "A trie"
+  ],
+  "answer": 1,
+  "why": "It hands out the closest node in O(log n)."
+ }
+]

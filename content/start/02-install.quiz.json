@@ -1,0 +1,33 @@
+[
+ {
+  "q": "How does Windows run the Linux tools of this guide?",
+  "options": [
+   "It cannot",
+   "Through WSL, a real Linux next to Windows",
+   "In the browser",
+   "With a USB stick"
+  ],
+  "answer": 1,
+  "why": "WSL (Windows Subsystem for Linux) runs Ubuntu alongside Windows."
+ },
+ {
+  "q": "A language is not installed on your machine. What can the app use instead?",
+  "options": [
+   "Nothing",
+   "Docker, which runs it in a container",
+   "The cloud",
+   "Another language"
+  ],
+  "answer": 1,
+  "why": "With Docker running, a missing language runs in a container."
+ },
+ {
+  "q": "Is it safe to run the install script a second time?",
+  "options": [
+   "No, it breaks things",
+   "Yes: it skips what is already installed"
+  ],
+  "answer": 1,
+  "why": "The script is written to be run again."
+ }
+]

@@ -1,0 +1,42 @@
+[
+ {
+  "q": "What is the first line of a Bash script, the 'shebang'?",
+  "options": [
+   "# bash",
+   "#!/usr/bin/env bash",
+   "//bash",
+   "start bash"
+  ],
+  "answer": 1,
+  "why": "The shebang tells the system which program runs the file."
+ },
+ {
+  "q": "How do you make a script executable?",
+  "options": [
+   "chmod +x script.sh",
+   "run script.sh",
+   "exec +x",
+   "make script.sh"
+  ],
+  "answer": 0,
+  "why": "chmod +x adds the execute permission."
+ },
+ {
+  "q": "Inside a script, what is `$1`?",
+  "options": [
+   "The script's name",
+   "The first argument",
+   "The exit code",
+   "The number of arguments"
+  ],
+  "answer": 1,
+  "why": "$1 is the first argument. $0 is the script name."
+ },
+ {
+  "q": "Which exit code means success?",
+  "accept": [
+   "0"
+  ],
+  "why": "Zero is success. Anything else is a failure."
+ }
+]

@@ -1,0 +1,34 @@
+[
+ {
+  "q": "Which keyword makes a function a generator?",
+  "options": [
+   "return",
+   "yield",
+   "async",
+   "gen"
+  ],
+  "answer": 1,
+  "why": "yield hands out one value and pauses."
+ },
+ {
+  "q": "Why are generators useful for a huge file?",
+  "options": [
+   "They sort it",
+   "They produce one item at a time, so memory use stays small",
+   "They compress it",
+   "They cache it"
+  ],
+  "answer": 1,
+  "why": "This is lazy evaluation."
+ },
+ {
+  "q": "How many times can you loop over a generator?",
+  "options": [
+   "Once",
+   "Twice",
+   "Any number"
+  ],
+  "answer": 0,
+  "why": "A generator is used up after one pass."
+ }
+]

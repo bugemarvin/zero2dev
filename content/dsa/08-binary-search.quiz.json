@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What must be true of the data for binary search?",
+  "options": [
+   "It is sorted",
+   "It is short",
+   "It has no duplicates",
+   "It is numeric"
+  ],
+  "answer": 0,
+  "why": "Each step relies on the order."
+ },
+ {
+  "q": "How many steps does binary search need for about a million items?",
+  "accept": [
+   "20"
+  ],
+  "why": "2 to the power 20 is about a million."
+ },
+ {
+  "q": "What is 'binary search on the answer'?",
+  "options": [
+   "Searching twice",
+   "Searching the range of possible answers with a yes/no test",
+   "Sorting first",
+   "A hash lookup"
+  ],
+  "answer": 1,
+  "why": "It works when 'is x enough?' changes from no to yes exactly once."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a monolith?",
+  "options": [
+   "A bug",
+   "One application that contains all the features, deployed as one unit",
+   "A database",
+   "A queue"
+  ],
+  "answer": 1,
+  "why": "It is the right start for most projects."
+ },
+ {
+  "q": "What is the main price of microservices?",
+  "options": [
+   "Slower code",
+   "The complexity of a distributed system: network, deployment, debugging",
+   "More bugs in logic",
+   "Licences"
+  ],
+  "answer": 1,
+  "why": "Calls can fail, be slow, or arrive twice."
+ },
+ {
+  "q": "When do microservices make sense?",
+  "options": [
+   "Always",
+   "When teams and scale need independent deployment",
+   "For a first project",
+   "Never"
+  ],
+  "answer": 1,
+  "why": "Start with a monolith. Split when there is a reason."
+ }
+]

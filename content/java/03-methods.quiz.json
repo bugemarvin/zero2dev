@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is overloading?",
+  "options": [
+   "Too many methods",
+   "Several methods with the same name and different parameters",
+   "A recursive method",
+   "A slow method"
+  ],
+  "answer": 1,
+  "why": "The compiler picks one by the argument types."
+ },
+ {
+  "q": "A method changes its int parameter. Does the caller's variable change?",
+  "options": [
+   "Yes",
+   "No"
+  ],
+  "answer": 1,
+  "why": "Java passes copies of the values."
+ },
+ {
+  "q": "What does `void` mean as a return type?",
+  "options": [
+   "Returns null",
+   "Returns nothing",
+   "Returns 0",
+   "Returns an object"
+  ],
+  "answer": 1,
+  "why": "The method gives no value back."
+ }
+]

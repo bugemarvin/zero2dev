@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What do sanitizers (-fsanitize=address) find?",
+  "options": [
+   "Style problems",
+   "Memory errors, at the moment they happen",
+   "Slow code",
+   "Missing comments"
+  ],
+  "answer": 1,
+  "why": "Out-of-bounds access, use-after-free and leaks."
+ },
+ {
+  "q": "Which tool lets you stop a program and look at its variables?",
+  "options": [
+   "gdb",
+   "make",
+   "gcc",
+   "cat"
+  ],
+  "answer": 0,
+  "why": "A debugger runs the program step by step."
+ },
+ {
+  "q": "What is a good first step when a program misbehaves?",
+  "options": [
+   "Rewrite it",
+   "Reproduce the problem with the smallest input you can",
+   "Add more features",
+   "Change compilers"
+  ],
+  "answer": 1,
+  "why": "A small, reliable reproduction is half the fix."
+ }
+]

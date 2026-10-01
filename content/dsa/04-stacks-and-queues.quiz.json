@@ -1,0 +1,35 @@
+[
+ {
+  "q": "A stack is ...",
+  "options": [
+   "first in, first out",
+   "last in, first out",
+   "sorted",
+   "random"
+  ],
+  "answer": 1,
+  "why": "The last item pushed is the first popped."
+ },
+ {
+  "q": "A queue is ...",
+  "options": [
+   "first in, first out",
+   "last in, first out",
+   "sorted",
+   "random"
+  ],
+  "answer": 0,
+  "why": "Like a line of people."
+ },
+ {
+  "q": "Which structure checks whether brackets are balanced?",
+  "options": [
+   "A queue",
+   "A stack",
+   "A heap",
+   "A hash table"
+  ],
+  "answer": 1,
+  "why": "Push each opening bracket, and pop when a closing one arrives."
+ }
+]

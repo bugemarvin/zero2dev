@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does rebasing a branch do?",
+  "options": [
+   "Deletes it",
+   "Replays its commits on top of another branch",
+   "Uploads it",
+   "Renames it"
+  ],
+  "answer": 1,
+  "why": "The result is a straight line of history."
+ },
+ {
+  "q": "What is the golden rule of rebase?",
+  "options": [
+   "Rebase daily",
+   "Do not rebase commits that others already have",
+   "Always squash",
+   "Never use merge"
+  ],
+  "answer": 1,
+  "why": "Rebase rewrites commits. Rewriting shared history causes trouble for everyone."
+ },
+ {
+  "q": "A conflict stops a rebase. After fixing and staging the file, which command goes on?",
+  "options": [
+   "git rebase --continue",
+   "git commit",
+   "git merge",
+   "git push"
+  ],
+  "answer": 0,
+  "why": "--abort would cancel the whole rebase."
+ }
+]

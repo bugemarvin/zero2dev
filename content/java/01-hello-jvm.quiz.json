@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What does `javac` produce?",
+  "options": [
+   "Machine code for your processor",
+   "Bytecode in .class files",
+   "A script",
+   "A web page"
+  ],
+  "answer": 1,
+  "why": "The JVM runs the bytecode on any system."
+ },
+ {
+  "q": "What must the file of `public class Main` be called?",
+  "accept": [
+   "Main.java"
+  ],
+  "why": "The file name must match the public class."
+ },
+ {
+  "q": "What is the signature of the entry point?",
+  "options": [
+   "public static void main(String[] args)",
+   "void start()",
+   "int main()",
+   "def main()"
+  ],
+  "answer": 0,
+  "why": "The JVM looks for exactly this method."
+ }
+]

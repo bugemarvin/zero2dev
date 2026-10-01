@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a closure?",
+  "options": [
+   "A closed file",
+   "A function that remembers the variables around it",
+   "A class",
+   "A loop"
+  ],
+  "answer": 1,
+  "why": "It keeps access after the outer function has returned."
+ },
+ {
+  "q": "How do you declare a private field in a class?",
+  "options": [
+   "private x",
+   "#x",
+   "_x",
+   "var x"
+  ],
+  "answer": 1,
+  "why": "#x is truly private."
+ },
+ {
+  "q": "How do you create your own error type?",
+  "options": [
+   "class MyError extends Error",
+   "new Error.type",
+   "throw string",
+   "Error.create"
+  ],
+  "answer": 0,
+  "why": "Callers can then test with instanceof."
+ }
+]

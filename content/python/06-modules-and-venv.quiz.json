@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is a virtual environment for?",
+  "options": [
+   "Speed",
+   "Keeping each project's packages separate",
+   "Running Windows programs",
+   "Encrypting code"
+  ],
+  "answer": 1,
+  "why": "Projects can need different versions of the same package."
+ },
+ {
+  "q": "What does `if __name__ == \"__main__\":` do?",
+  "options": [
+   "Starts a loop",
+   "Runs code only when the file is run directly, not when imported",
+   "Imports a module",
+   "Defines main"
+  ],
+  "answer": 1,
+  "why": "It lets a file be both a program and a module."
+ },
+ {
+  "q": "Which file usually lists a project's packages?",
+  "accept": [
+   "requirements.txt"
+  ],
+  "why": "pip install -r requirements.txt installs them."
+ }
+]

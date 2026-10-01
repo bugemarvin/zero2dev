@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a pull request?",
+  "options": [
+   "A request to download a file",
+   "A proposal to merge a branch, with review",
+   "A kind of commit",
+   "A backup"
+  ],
+  "answer": 1,
+  "why": "Others read and comment before it is merged."
+ },
+ {
+  "q": "To contribute to a project you cannot push to, you first ...",
+  "options": [
+   "email the files",
+   "fork it",
+   "delete it",
+   "rename it"
+  ],
+  "answer": 1,
+  "why": "A fork is your own copy on the server."
+ },
+ {
+  "q": "What makes a pull request easy to review?",
+  "options": [
+   "Being as large as possible",
+   "Being small and focused, with a clear description",
+   "Having no description",
+   "Mixing many topics"
+  ],
+  "answer": 1,
+  "why": "Small changes are reviewed faster and better."
+ }
+]

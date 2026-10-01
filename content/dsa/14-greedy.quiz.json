@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does a greedy algorithm do?",
+  "options": [
+   "Tries every option",
+   "Takes the best-looking choice at each step and never goes back",
+   "Uses recursion",
+   "Sorts twice"
+  ],
+  "answer": 1,
+  "why": "It is fast, and correct only for some problems."
+ },
+ {
+  "q": "For activity selection (most non-overlapping meetings), which rule is right?",
+  "options": [
+   "Shortest first",
+   "Earliest start first",
+   "Earliest finish first",
+   "Longest first"
+  ],
+  "answer": 2,
+  "why": "Finishing early leaves the most room for the rest."
+ },
+ {
+  "q": "How do you know a greedy rule is correct?",
+  "options": [
+   "It passes one example",
+   "By an argument, such as the exchange argument",
+   "It is always correct",
+   "By its speed"
+  ],
+  "answer": 1,
+  "why": "Many plausible greedy rules are wrong."
+ }
+]

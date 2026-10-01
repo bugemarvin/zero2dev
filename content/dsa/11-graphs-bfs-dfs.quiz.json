@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which search finds the shortest path in an unweighted graph?",
+  "options": [
+   "DFS",
+   "BFS",
+   "Binary search",
+   "Sorting"
+  ],
+  "answer": 1,
+  "why": "BFS explores in order of distance."
+ },
+ {
+  "q": "Which data structure drives BFS?",
+  "options": [
+   "A stack",
+   "A queue",
+   "A heap",
+   "A set only"
+  ],
+  "answer": 1,
+  "why": "DFS uses a stack, or recursion."
+ },
+ {
+  "q": "What must BFS and DFS remember, to avoid going round in circles?",
+  "options": [
+   "The edges",
+   "Which nodes were already visited",
+   "The weights",
+   "The path lengths"
+  ],
+  "answer": 1,
+  "why": "Without a visited set, a cycle loops for ever."
+ }
+]

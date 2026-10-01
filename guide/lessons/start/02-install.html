@@ -22,12 +22,13 @@
 <div class="layout">
 <nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
 <main class="lesson">
-<p class="crumb">Start here · lesson 2 of 7</p>
+<p class="crumb">Start here · lesson 3 of 8</p>
 <h1>Install your tools</h1>
 <p class="lede">Get a Linux terminal, a compiler, Git and Python, with one script.</p>
 <h2 id="what-you-need">What you need</h2>
 <ul><li>A <strong>terminal</strong> running Linux (or macOS).</li><li>A <strong>C compiler</strong> (<code>gcc</code>), <strong>Python 3</strong> and <strong>Git</strong>.</li><li>A <strong>code editor</strong>. This guide uses VS Code.</li></ul>
 <p>The <code>setup</code> folder of this project installs all of it for you.</p>
+<div class="os-section" data-os="windows">
 <h2 id="windows">Windows</h2>
 <p>Windows runs Linux through <strong>WSL</strong> (Windows Subsystem for Linux). It is a real Ubuntu system living next to Windows, and it is what you will work in.</p>
 <ol><li>Open the Start menu, type <code>PowerShell</code>, right-click it and choose <strong>Run as administrator</strong>.</li><li>Go to the folder where you put this project and run the installer:</li></ol>
@@ -36,6 +37,8 @@ $ powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre>
 <ol><li>The first run installs WSL and Ubuntu, then asks you to <strong>restart</strong>.</li><li>After the restart, open <strong>Ubuntu</strong> from the Start menu. It asks you to choose a Linux user name and password. The password stays invisible while you type. That is normal.</li><li>Run the same <code>install.ps1</code> command again. This time it installs the tools inside Ubuntu.</li></ol>
 <p>From now on, do everything in the <strong>Ubuntu</strong> terminal, not in PowerShell.</p>
 <div class="callout"><p>Keep your code inside the Linux home folder (<code>~</code>), not under <code>/mnt/c</code>. Files there are much faster, and tools behave correctly.</p></div>
+</div>
+<div class="os-section" data-os="linux wsl">
 <h2 id="ubuntu-or-debian-linux">Ubuntu or Debian Linux</h2>
 <pre><code class="lang-console">$ cd zero2dev/setup
 $ ./install.sh</code></pre>
@@ -43,9 +46,12 @@ $ ./install.sh</code></pre>
 <pre><code class="lang-console">$ ./install.sh --list
 $ ./install.sh --stack java,elixir,postgres</code></pre>
 <p>You can run the script again at any time. It skips what is already installed.</p>
+</div>
+<div class="os-section" data-os="macos">
 <h2 id="macos">macOS</h2>
 <p>The script does not cover macOS. Install the Xcode command line tools, which include <code>gcc</code>, <code>make</code> and <code>git</code>, then Python from python.org or Homebrew:</p>
 <pre><code class="lang-console">$ xcode-select --install</code></pre>
+</div>
 <h2 id="check-that-it-worked">Check that it worked</h2>
 <p>Start the app from the <code>zero2dev</code> folder:</p>
 <pre><code class="lang-console">$ python3 app.py</code></pre>

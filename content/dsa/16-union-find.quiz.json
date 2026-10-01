@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which question does union-find answer fast?",
+  "options": [
+   "Are these two items in the same group?",
+   "What is the shortest path?",
+   "What is the median?",
+   "Is the list sorted?"
+  ],
+  "answer": 0,
+  "why": "It tracks groups that only ever merge."
+ },
+ {
+  "q": "Which two improvements make it almost constant time?",
+  "options": [
+   "Sorting and hashing",
+   "Path compression and union by size",
+   "Recursion and loops",
+   "Caching and paging"
+  ],
+  "answer": 1,
+  "why": "Together they keep the trees nearly flat."
+ },
+ {
+  "q": "Union-find is the core of which algorithm?",
+  "options": [
+   "Kruskal's minimum spanning tree",
+   "Binary search",
+   "Merge sort",
+   "Dijkstra"
+  ],
+  "answer": 0,
+  "why": "It tells whether an edge would close a cycle."
+ }
+]

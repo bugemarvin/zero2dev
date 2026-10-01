@@ -38,7 +38,31 @@ Text with `code`, **bold** and a [link to another lesson](c/08-memory).
 
 Supported: `##` and `###` headings, paragraphs, `-` and `1.` lists (one level), fenced code blocks with a language, `>` callouts (start with `**Warning:**` for the warning style), pipe tables (write `\|` for a pipe inside a cell), `` `code` ``, `**bold**`, `*italic*`, links.
 
-Code block languages with colouring: `c`, `python`, `java`, `elixir`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`), `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
+Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html`, `css`, `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
+
+A section that applies to one system only says so in its heading: `## Windows {os=windows}`, `## Ubuntu or Debian Linux {os=linux wsl}`, `## macOS {os=macos}`. The page shows the sections for the learner's system and tucks the others behind a button. The marker is removed from the title, and the section ends at the next `##` heading.
+
+## Quizzes
+
+A lesson's quiz lives next to it, as `content/<track>/NN-name.quiz.json`: a list of questions.
+
+```json
+[
+  {"q": "Which command shows the folder you are in?", "options": ["ls", "pwd", "cd"], "answer": 1,
+   "why": "pwd: print working directory."},
+  {"q": "What does this print?", "code": "print(7 // 2)", "accept": ["3"], "why": "// is integer division."}
+]
+```
+
+- A choice question has `options` and `answer`, the position of the right option counting from 0 (or a list of positions, any of which is right). The options are shuffled when shown.
+- A typed-answer question has `accept`: the accepted texts. Upper and lower case and extra spaces do not matter.
+- `why` is shown after the answer. `code` is shown as a code block. Text in backticks is shown as code.
+
+Aim for three to five questions that test understanding, not memory of a sentence.
+
+## Paths
+
+`content/paths.json` lists the career paths: an `id`, a `title`, a `blurb`, an `outcome`, the `stages` (each with a `title`, a `why` and the `tracks` in order), and `electives`: optional tracks the learner can add.
 
 ## Tracks
 
@@ -109,7 +133,7 @@ Runs a test program shipped with the exercise.
 
 Output is read as TAP: `ok - name`, `not ok - name: reason`, and the numbered form with a YAML block that `node --test` and Vitest print. With no such lines, the exit code decides.
 
-Add `"workspace": "react"` to run inside a package set, and `"preview": {"start": [...]}` to give the app a **Start app** button.
+Add `"workspace": "react"` to run inside a package set, and `"preview": {"start": [...]}` to give the app a **Start app** button. `"preview": "static"` serves the exercise folder as a web site, for pages that load the learner's JavaScript.
 
 ### kind: http
 
@@ -125,11 +149,63 @@ The checker starts an app, calls it and stops it.
  ]}
 ```
 
-- `start` is a long-running command. It must listen on the port in the `PORT` environment variable; `{port}` in the command is replaced by it.
+- `start` is a long-running command. It must listen on the port in the `PORT` environment variable; `{port}` in the command is replaced by it, and `{host}` by the address to bind to.
+- When the language is not installed, the app runs in a container of the language's image. So listen on the address in `HOST`, not on a fixed `127.0.0.1`.
+- `DATA_DIR` names an empty folder that is removed afterwards, for apps that keep data in files.
 - For Compose systems use `up` and `down` in place of `start`, and `"needs": ["docker"]`. Publish one port as `127.0.0.1:${PORT}:<container port>`.
 - A request may have `method`, `path`, `body` (JSON), `raw` (a body sent as written), `headers`.
 - Expectations: `status`, `json` (exact), `json_contains` (a subset), `contains` and `not_contains` (a string or a list), `header`.
 - `retry`: keep asking for that many seconds, for results that arrive later.
+
+### kind: web
+
+For HTML and CSS. The page is parsed and the cascade applied by the checker itself: no browser is involved.
+
+```json
+{"kind": "web", "page": "index.html", "styles": ["style.css"], "edit": ["style.css"],
+ "checks": [
+   {"name": "there is exactly one h1", "select": "body h1", "count": 1},
+   {"name": "every image has an alt text", "select": "img", "attr": {"alt": true}},
+   {"name": "nav links have no underline", "select": "nav a", "style": {"text-decoration": "none"}},
+   {"name": "a hovered link is underlined", "select": "nav a", "state": "hover", "style": {"text-decoration": "underline"}},
+   {"name": "from 700px there are two columns", "select": ".layout", "media": "min-width: 700px",
+    "style": {"grid-template-columns": "2fr 1fr"}}
+ ]}
+```
+
+- `select` is a CSS selector. `count`, `min` and `max` test how many elements match. `text` is the exact text of the first match, and `contains` a piece of text in any match.
+- `attr` tests attributes of every match: a value, `true` for "present and not empty", `false` for "absent".
+- `style` tests the value each matched element ends up with: its own declaration by specificity and order, an inherited one for inherited properties, with `var(--x)` resolved. A value can be a list of accepted spellings, `null` in the list means "not set", and `"~text"` means "contains".
+- `state` (`hover`, `focus`, ...) and `media` select the rules that apply in that state or inside that media query.
+- `{"doctype": true}` and `{"valid": true}` test the doctype and that every element is closed in the right order.
+- Values are compared as written, after light normalisation (case, spaces, `#fff` and `#ffffff`, `0px` and `0`). Of the shorthands only `margin`, `padding` and a one-colour `background` are expanded, so name in the task the property you test.
+
+The app gives every web exercise an **Open preview** button.
+
+### kind: mongo
+
+Runs the learner's `query.js` in `mongosh` on a fresh database, after `seed.js`.
+
+```json
+{"kind": "mongo", "seed": "seed.js", "require": ["$gt"],
+ "expect": {"ordered": true, "docs": [{"title": "Dune", "price": 12.5}]},
+ "checks": [{"name": "book 7 is deleted", "eval": "db.books.findOne({ _id: 7 })", "expect": null}]}
+```
+
+`expect` judges the variable `result` of the script: `docs` for a list of documents (a cursor is read for you), or `value` for anything else. Each check evaluates an expression afterwards; `"error": true` means it must fail. Give seeded documents a simple `_id`, so results can be compared.
+
+### kind: redis
+
+Runs the learner's `commands.redis`, one command per line, on an empty database (number 15), after `seed.redis`.
+
+```json
+{"kind": "redis", "require": ["ZINCRBY"],
+ "checks": [{"name": "sam has 1300 points", "cmd": "ZSCORE game:scores sam", "expect": "1300"},
+            {"name": "the session expires", "cmd": "TTL session:abc", "min": 250, "max": 300},
+            {"name": "the tags", "cmd": "SMEMBERS tags", "expect": ["a", "b"], "unordered": true}]}
+```
+
+A check runs a command with `redis-cli` and compares its reply lines. A reply of nil is an empty list.
 
 ### kind: sql
 
@@ -170,7 +246,7 @@ One entry in `catalog/toolchains.json`:
 }
 ```
 
-`needs` are the executables looked for on the machine. `image` is the Docker image used when they are missing. Placeholders: `{sources}`, `{src}` (the first source), `{out}` (a temporary build folder), `{main}`, `{python}`. `stack` is the `setup/install.sh` stack that installs it.
+`needs` are the executables looked for on the machine. `image` is the Docker image used when they are missing. `docker_cache` names a folder inside the container whose content is kept between runs (Go's build cache). Placeholders: `{sources}`, `{src}` (the first source), `{out}` (a temporary build folder), `{main}`, `{python}`. `stack` is the `setup/install.sh` stack that installs it.
 
 ## Services
 
@@ -190,6 +266,8 @@ It is installed once into `~/zero2dev-work/.workspaces/<name>/`. An exercise wit
 
 See [setup/README.md](setup/README.md): two shell functions and one line in the list.
 
+`catalog/install.json` holds, per stack, what the **Install** box of a track's first lesson shows: a `name`, the commands for `linux` (Ubuntu, Debian, WSL) and `mac` (Homebrew), a `check` command, and an optional `note`.
+
 ## The engine
 
 `z2d/` is standard-library Python.
@@ -197,8 +275,10 @@ See [setup/README.md](setup/README.md): two shell functions and one line in the 
 | Module | Role |
 | --- | --- |
 | `runner.py` | the exercise kinds |
+| `webcheck.py` | HTML parsing, CSS selectors and the cascade, for the `web` kind |
 | `toolchains.py`, `providers.py` | build and run commands, natively or in a container |
 | `services.py`, `workspaces.py` | databases and package sets |
 | `doctor.py` | what the machine has |
 | `server.py`, `api.py`, `jobs.py` | the local web app |
+| `platforminfo.py`, `background.py` | which system this is; running in the background and at login |
 | `cli.py` | the terminal commands |

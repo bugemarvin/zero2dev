@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is the difference between an image and a container?",
+  "options": [
+   "None",
+   "An image is the template. A container is a running instance of it.",
+   "A container is bigger",
+   "An image runs"
+  ],
+  "answer": 1,
+  "why": "Many containers can run from one image."
+ },
+ {
+  "q": "Which command lists running containers?",
+  "options": [
+   "docker ps",
+   "docker ls",
+   "docker images",
+   "docker top"
+  ],
+  "answer": 0,
+  "why": "docker ps -a also lists stopped ones."
+ },
+ {
+  "q": "What does `--rm` do in docker run?",
+  "options": [
+   "Removes the image",
+   "Removes the container when it exits",
+   "Removes volumes",
+   "Restarts"
+  ],
+  "answer": 1,
+  "why": "It keeps your machine tidy."
+ }
+]

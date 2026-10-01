@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is the work loop of programming?",
+  "options": [
+   "Write everything, then test once",
+   "Edit, run, read the result, repeat",
+   "Read only",
+   "Copy and paste"
+  ],
+  "answer": 1,
+  "why": "Small steps, each one checked."
+ },
+ {
+  "q": "Which command shows what to do next in this guide?",
+  "options": [
+   "python3 check.py next",
+   "python3 check.py stop",
+   "git next",
+   "ls next"
+  ],
+  "answer": 0,
+  "why": "check.py next names the next exercise."
+ },
+ {
+  "q": "You are stuck on an exercise. What is a good first move?",
+  "options": [
+   "Rewrite everything",
+   "Read the error message and the failing test carefully",
+   "Skip the track",
+   "Reinstall Python"
+  ],
+  "answer": 1,
+  "why": "The message usually says exactly what is wrong."
+ }
+]

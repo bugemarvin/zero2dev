@@ -1,0 +1,31 @@
+[
+ {
+  "q": "How does C mark the end of a string?",
+  "options": [
+   "With its length in front",
+   "With a zero byte, '\\0'",
+   "With a newline",
+   "With a quote"
+  ],
+  "answer": 1,
+  "why": "A string is a char array ending in '\\0'."
+ },
+ {
+  "q": "How many bytes does the string \"cat\" need?",
+  "accept": [
+   "4"
+  ],
+  "why": "Three letters and the terminating zero byte."
+ },
+ {
+  "q": "How do you compare two strings for equality?",
+  "options": [
+   "a == b",
+   "strcmp(a, b) == 0",
+   "a.equals(b)",
+   "a = b"
+  ],
+  "answer": 1,
+  "why": "== compares addresses, not contents."
+ }
+]

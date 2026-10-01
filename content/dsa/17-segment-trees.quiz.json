@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What does a segment tree offer?",
+  "options": [
+   "Range queries and point updates, both in O(log n)",
+   "O(1) sorting",
+   "Shortest paths",
+   "String matching"
+  ],
+  "answer": 0,
+  "why": "Prefix sums are faster to query, and slow to update."
+ },
+ {
+  "q": "How much space does a segment tree over n items need?",
+  "options": [
+   "O(n)",
+   "O(n²)",
+   "O(log n)",
+   "O(1)"
+  ],
+  "answer": 0,
+  "why": "About 2n to 4n nodes."
+ },
+ {
+  "q": "Besides sums, what can a segment tree keep?",
+  "options": [
+   "Only sums",
+   "Minimum, maximum, and other operations that combine"
+  ],
+  "answer": 1,
+  "why": "Any associative operation works."
+ }
+]

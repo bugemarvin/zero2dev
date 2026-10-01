@@ -1,0 +1,109 @@
+[
+  {
+    "id": "zero",
+    "title": "Start from zero",
+    "blurb": "Never written a line of code? Begin here. You learn how computers run programs, the terminal, your first language, and how web pages are made. Then you pick a direction.",
+    "outcome": "You can write small programs, use Git, and build a simple web page.",
+    "stages": [
+      {"title": "Find your feet", "why": "The words, the terminal and the tools every developer uses daily.", "tracks": ["start", "git"]},
+      {"title": "Your first language", "why": "Python reads almost like English, so you learn programming and not punctuation.", "tracks": ["python"]},
+      {"title": "Your first web page", "why": "Something you can see and show to people.", "tracks": ["html", "css"]}
+    ],
+    "electives": ["js", "bash", "sql"]
+  },
+  {
+    "id": "frontend",
+    "title": "Frontend developer",
+    "blurb": "Build what people see and touch: pages, layouts and interactive applications in the browser.",
+    "outcome": "You can build a responsive, interactive web application with React and Next.js.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "The web platform", "why": "Every framework produces HTML and CSS in the end.", "tracks": ["html", "css"]},
+      {"title": "JavaScript", "why": "The language that makes pages do things.", "tracks": ["js"]},
+      {"title": "Applications", "why": "Components, state and routing for real products.", "tracks": ["react", "next"]}
+    ],
+    "electives": ["gamedev", "node", "dsa", "llm"]
+  },
+  {
+    "id": "backend",
+    "title": "Backend developer",
+    "blurb": "Build what happens behind the screen: APIs, databases, authentication and services that stay up.",
+    "outcome": "You can design, build, test and ship an API with a database behind it.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "A first language", "why": "A language for thinking in before you specialise.", "tracks": ["python"]},
+      {"title": "Data", "why": "Almost every backend is a careful way of reading and writing data.", "tracks": ["sql", "mongodb", "redis"]},
+      {"title": "Services", "why": "HTTP, APIs, authentication and structure.", "tracks": ["js", "node"]},
+      {"title": "Shipping", "why": "Code is finished when it runs somewhere other than your laptop.", "tracks": ["docker", "microservices", "devops"]}
+    ],
+    "electives": ["go", "java", "php", "elixir", "rust", "dsa", "llm", "bash"]
+  },
+  {
+    "id": "fullstack",
+    "title": "Full-stack developer",
+    "blurb": "Both sides: the interface in the browser and the server and database behind it. The broadest path.",
+    "outcome": "You can build and deploy a complete web application on your own.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "The web platform", "why": "Structure, style and the language of the browser.", "tracks": ["html", "css", "js"]},
+      {"title": "The interface", "why": "Components and state.", "tracks": ["react"]},
+      {"title": "The server", "why": "APIs and the database they talk to.", "tracks": ["node", "sql"]},
+      {"title": "The whole product", "why": "One framework for both sides, packaged to run anywhere.", "tracks": ["next", "docker"]}
+    ],
+    "electives": ["mongodb", "redis", "devops", "dsa", "llm", "php"]
+  },
+  {
+    "id": "devops",
+    "title": "DevOps engineer",
+    "blurb": "Get software from a commit to production, keep it running, and automate everything in between.",
+    "outcome": "You can containerise a system, build its pipeline, deploy it safely and watch it in production.",
+    "stages": [
+      {"title": "Foundations", "why": "You will live in the terminal.", "tracks": ["start", "git", "bash"]},
+      {"title": "A scripting language", "why": "For everything that outgrows a shell script.", "tracks": ["python"]},
+      {"title": "Containers", "why": "The unit that everything is shipped in.", "tracks": ["docker"]},
+      {"title": "Pipelines and operations", "why": "Build, release, deploy, observe.", "tracks": ["devops", "microservices"]},
+      {"title": "The services you will run", "why": "Know the databases you are responsible for.", "tracks": ["sql", "redis"]}
+    ],
+    "electives": ["go", "c", "node", "mongodb"]
+  },
+  {
+    "id": "gamedev",
+    "title": "Game developer",
+    "blurb": "Make things move: game loops, input, collisions and the mathematics behind them.",
+    "outcome": "You can build a complete 2D game, and you understand what a game engine does for you.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "Programming", "why": "Games in the browser are written in JavaScript.", "tracks": ["js"]},
+      {"title": "Games", "why": "The loop, movement, collisions, state, a finished game.", "tracks": ["gamedev"]},
+      {"title": "Under the hood", "why": "Path finding, performance, and the languages engines are written in.", "tracks": ["dsa", "c"]}
+    ],
+    "electives": ["rust", "html", "css", "python"]
+  },
+  {
+    "id": "systems",
+    "title": "Systems programmer",
+    "blurb": "Close to the machine: memory, performance, concurrency, and the languages operating systems and databases are built in.",
+    "outcome": "You understand how programs use memory and processors, in C, Rust and Go.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "The machine", "why": "C shows you memory and pointers with nothing hidden.", "tracks": ["c"]},
+      {"title": "Algorithms", "why": "The difference between fast and impossible.", "tracks": ["dsa"]},
+      {"title": "Modern systems languages", "why": "Safety without a garbage collector, and concurrency made simple.", "tracks": ["rust", "go"]}
+    ],
+    "electives": ["bash", "docker", "elixir", "java"]
+  },
+  {
+    "id": "ai",
+    "title": "AI application engineer",
+    "blurb": "Build products on top of large language models: prompts, tools, agents and retrieval, with solid engineering around them.",
+    "outcome": "You can build, evaluate and ship an application that uses a language model.",
+    "stages": [
+      {"title": "Foundations", "why": "The terminal and Git are part of every job.", "tracks": ["start", "git"]},
+      {"title": "Python", "why": "The language of the AI ecosystem.", "tracks": ["python"]},
+      {"title": "Language models", "why": "From a first API call to agents and retrieval.", "tracks": ["llm"]},
+      {"title": "Data and speed", "why": "Where the documents live, and how to cache expensive calls.", "tracks": ["sql", "redis"]},
+      {"title": "Shipping", "why": "An API around your model, in a container.", "tracks": ["docker"]}
+    ],
+    "electives": ["js", "node", "mongodb", "dsa", "devops"]
+  }
+]

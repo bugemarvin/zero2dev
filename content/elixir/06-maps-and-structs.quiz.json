@@ -1,0 +1,35 @@
+[
+ {
+  "q": "How do you read the key :name of a map `m`?",
+  "options": [
+   "m.name or m[:name]",
+   "m->name",
+   "m::name",
+   "get m name"
+  ],
+  "answer": 0,
+  "why": "m.name raises when the key is missing. m[:name] gives nil."
+ },
+ {
+  "q": "What does `%{m | age: 31}` do?",
+  "options": [
+   "Changes m",
+   "Returns a new map with age updated (the key must exist)",
+   "Adds a new key",
+   "Deletes age"
+  ],
+  "answer": 1,
+  "why": "The original m is unchanged."
+ },
+ {
+  "q": "What is a struct?",
+  "options": [
+   "A list",
+   "A map with a fixed set of keys, defined in a module",
+   "A process",
+   "A tuple"
+  ],
+  "answer": 1,
+  "why": "defstruct lists its fields."
+ }
+]

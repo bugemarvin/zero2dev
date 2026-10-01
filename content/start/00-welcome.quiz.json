@@ -1,0 +1,7 @@
+[
+ {"q": "What do you need to already know to start this guide?", "options": ["Advanced mathematics", "Another programming language", "How to use a browser and a keyboard", "How computers are built"], "answer": 2, "why": "The guide starts from zero and explains every word as it comes."},
+ {"q": "What is a program?", "options": ["A kind of computer", "A set of precise instructions for a computer", "A website", "A file that cannot be changed"], "answer": 1, "why": "Code is instructions. A finished set of them is a program."},
+ {"q": "Which part of a lesson teaches you the most?", "options": ["Reading it twice", "Writing code in the exercise", "Looking at the examples", "Skipping to the next one"], "answer": 1, "why": "Reading feels like progress. Typing is progress."},
+ {"q": "Your code shows an error. What is the first thing to do?", "options": ["Start over", "Read the error message, slowly", "Give up for today", "Change things at random"], "answer": 1, "why": "The message usually names the line and the problem."},
+ {"q": "What is a bug?", "options": ["A virus", "A mistake in a program", "A slow computer", "A missing file"], "answer": 1, "why": "Everyone writes bugs, every day. Finding them is part of the work."}
+]

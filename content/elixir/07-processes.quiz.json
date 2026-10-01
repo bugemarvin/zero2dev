@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What are Elixir processes?",
+  "options": [
+   "Operating-system processes",
+   "Very light processes managed by the BEAM",
+   "Threads with locks",
+   "Files"
+  ],
+  "answer": 1,
+  "why": "Millions can run at once."
+ },
+ {
+  "q": "How do processes communicate?",
+  "options": [
+   "Shared memory",
+   "Messages",
+   "Global variables",
+   "Files"
+  ],
+  "answer": 1,
+  "why": "send and receive."
+ },
+ {
+  "q": "What does 'let it crash' mean?",
+  "options": [
+   "Ignore errors",
+   "Let a failing process die and have a supervisor restart it clean",
+   "Never test",
+   "Crash the machine"
+  ],
+  "answer": 1,
+  "why": "Recovery is the supervisor's job."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "How do you import a named export?",
+  "options": [
+   "import add from \"./math.js\"",
+   "import { add } from \"./math.js\"",
+   "require add",
+   "include math"
+  ],
+  "answer": 1,
+  "why": "Braces for named exports. No braces for the default export."
+ },
+ {
+  "q": "What is a pure function?",
+  "options": [
+   "One with no arguments",
+   "Same input, same output, and no side effects",
+   "A private one",
+   "A fast one"
+  ],
+  "answer": 1,
+  "why": "Pure functions are the easiest to test."
+ },
+ {
+  "q": "What does the prefix `node:` in an import mean?",
+  "options": [
+   "A package from npm",
+   "A module built into Node",
+   "A local file",
+   "A URL"
+  ],
+  "answer": 1,
+  "why": "node:fs, node:path, and so on."
+ }
+]

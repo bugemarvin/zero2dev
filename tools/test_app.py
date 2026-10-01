@@ -26,6 +26,7 @@ from z2d import progress, server  # noqa: E402
 progress.PROGRESS_FILE = Path(TMP) / "progress.json"
 progress.PROGRESS_JS = Path(TMP) / "nowhere" / "progress.js"
 progress.PROFILE_FILE = Path(TMP) / "profile.json"
+progress.GAME_FILE = Path(TMP) / "game.json"
 
 srv, TOKEN, PORT = server.create(port=4790)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -248,6 +249,71 @@ status, body, _ = request("POST", "/api/job", {"kind": "image", "name": "evil/im
 check("only catalog images can be downloaded", status == 404)
 status, body, _ = request("POST", "/api/job", {"kind": "install", "name": "rm -rf"})
 check("only known stacks can be installed", status == 404)
+
+status, body, _ = request("POST", "/api/job", {"kind": "install", "name": "python", "fallback": True})
+check("a stack with one way of installing has no fallback", status in (400, 409), str(status))
+status, body, _ = request("GET", "/api/state")
+check("state says which system the app runs on", body.get("platform", {}).get("os") in ("linux", "wsl", "macos"), str(body.get("platform")))
+status, body, _ = request("GET", "/api/track?id=go")
+check("a track reports what it needs", status == 200 and [n["id"] for n in body["needs"]] == ["go"] and "ready" in body, str(body)[:200])
+status, body, _ = request("GET", "/api/track?id=nonsense")
+check("an unknown track is refused", status == 404)
+status, body, _ = request("GET", "/api/autostart")
+check("autostart reports whether it is available and on", status == 200 and isinstance(body.get("supported"), bool)
+      and isinstance(body.get("enabled"), bool), str(body)[:200])
+
+# ---------------------------------------------------------------- quizzes, game state
+status, body, _ = request("GET", "/assets/quizzes.js", token=None)
+check("the quizzes are served", status == 200 and b"Z2D_QUIZZES" in body)
+status, body, _ = request("GET", "/paths.html", token=None)
+check("the paths page is served", status == 200 and b"paths-page" in body)
+status, body, _ = request("GET", "/api/game")
+check("the game state starts empty", status == 200 and body == {"game": {}}, str(body))
+game = {"quiz": {"start/00-welcome": {"best": 4, "total": 5}}, "days": ["2026-01-01"], "path": "zero"}
+status, body, _ = request("POST", "/api/game", {"game": game})
+check("the game state can be saved", status == 200 and body == {"saved": True})
+status, body, _ = request("GET", "/api/game")
+check("and read back", body == {"game": game}, str(body))
+status, body, _ = request("POST", "/api/game", {"game": "not an object"})
+check("a game state that is not an object is refused", status == 400)
+status, body, _ = request("POST", "/api/game", {"game": {"junk": "x" * 500_000}})
+check("an oversized game state is refused", status == 400)
+
+# ---------------------------------------------------------------- HTML and CSS exercises
+WEB = "html/01-first-page"
+status, body, _ = request("GET", f"/api/exercise?id={WEB}")
+check("a web exercise offers its page for editing and a preview",
+      body["kind"] == "web" and [f["name"] for f in body["files"] if f["editable"]] == ["index.html"] and body["can_start_app"],
+      str(body)[:200])
+starter_page = read(f"exercises/{WEB}/index.html")
+try:
+    status, body, _ = request("POST", "/api/run", {"id": WEB})
+    check("the starter page fails its checks", body["status"] == "failed")
+    status, body, _ = request("POST", "/api/run", {"id": WEB, "files": {"index.html": read(f"solutions/{WEB}/index.html")}})
+    check("a correct page passes", body["status"] == "passed", str(body.get("results"))[:300])
+    status, body, _ = request("POST", "/api/app", {"id": WEB, "action": "start"})
+    url = (body.get("app") or {}).get("url", "")
+    check("the preview of a page starts on its own port", status == 200 and url.startswith("http://127.0.0.1:"), str(body)[:200])
+    if url:
+        import urllib.request
+        page = urllib.request.urlopen(url + "index.html", timeout=10).read()
+        check("the preview serves the learner's page", b"About me" in page)
+    status, body, _ = request("POST", "/api/app", {"id": WEB, "action": "stop"})
+    check("the preview stops", body == {"app": None})
+finally:
+    (ROOT / "exercises" / WEB / "index.html").write_text(starter_page, encoding="utf-8")
+
+CSS = "css/01-selectors"
+starter_css = read(f"exercises/{CSS}/style.css")
+try:
+    status, body, _ = request("POST", "/api/save", {"id": CSS, "files": {"index.html": "<p>changed</p>"}})
+    check("the given page of a CSS exercise cannot be overwritten", status == 403)
+    status, body, _ = request("POST", "/api/run", {"id": CSS, "files": {"style.css": "h1 { color: navy; }"}})
+    names = {r["name"]: r["ok"] for r in body["results"]}
+    check("CSS is judged rule by rule", body["status"] == "failed" and names.get("the h1 is navy") is True
+          and names.get("the active link is bold") is False, str(names)[:300])
+finally:
+    (ROOT / "exercises" / CSS / "style.css").write_text(starter_css, encoding="utf-8")
 
 srv.shutdown()
 print(f"{count} checks, {len(failures)} failed")

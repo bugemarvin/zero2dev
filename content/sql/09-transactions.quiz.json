@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does a transaction guarantee?",
+  "options": [
+   "Speed",
+   "Its changes all happen, or none do",
+   "Sorted output",
+   "No NULLs"
+  ],
+  "answer": 1,
+  "why": "That is atomicity."
+ },
+ {
+  "q": "Which statement undoes an open transaction?",
+  "options": [
+   "UNDO",
+   "ROLLBACK",
+   "CANCEL",
+   "REVERT"
+  ],
+  "answer": 1,
+  "why": "COMMIT makes it permanent."
+ },
+ {
+  "q": "Why keep transactions short?",
+  "options": [
+   "They cost money",
+   "They hold locks that make others wait",
+   "They use more disk",
+   "They cannot be long"
+  ],
+  "answer": 1,
+  "why": "Long transactions block others and invite deadlocks."
+ }
+]
