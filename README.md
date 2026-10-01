@@ -6,7 +6,7 @@ Learn to program on your own computer, from the first terminal command to shippi
 
 Two things live in this repository:
 
-- **the learning app**: 202 lessons, 697 quiz questions and 210 exercises in 26 tracks, with a checker that runs your code using the tools on your machine;
+- **the learning app**: 207 lessons, 717 quiz questions and 215 exercises in 27 tracks, with a checker that runs your code using the tools on your machine;
 - **`setup/`**: a quick installer for a developer machine (Windows with WSL2, Ubuntu, Debian), where you pick the stacks you want.
 
 ## Never done this before?
@@ -135,6 +135,7 @@ A path is a route through the tracks towards a kind of work. Everyone starts wit
 | Redis | strings and expiry, hashes, lists, sets, sorted sets, caching, rate limits, messaging |
 | HTML | page structure, text, links, images, tables, forms, semantic markup and accessibility |
 | CSS | selectors and the cascade, the box model, units and variables, flexbox, grid, responsive design |
+| Sass (SCSS) | variables, nesting and the parent selector, partials and modules, mixins and functions, maps and loops |
 | Java | classes, interfaces, collections, generics, exceptions, streams |
 | Go | slices and maps, structs, interfaces, errors, goroutines and channels, an HTTP API |
 | Rust | ownership and borrowing, enums and match, Option and Result, traits, iterators |
@@ -168,7 +169,7 @@ The app never installs tools behind your back, and never sends your code anywher
 - **A tool you already have is used as it is.** Setup shows its version and says there is nothing to do.
 - **A language you do not have can run in Docker.** With Docker installed, the C, Java, Elixir, Go, Rust, Ruby, PHP and JavaScript exercises run in a container of the official image, so you can start a track without installing its toolchain.
 - **Databases start on demand.** An exercise that needs PostgreSQL, MongoDB or Redis uses a server already on your machine, or starts a container such as `z2d-postgres`, reachable only from your computer.
-- **Frameworks need one download.** React, Vue, Next.js and Express come from npm. Setup has a button for each package set; after that they work offline.
+- **Frameworks need one download.** React, Vue, Next.js, Express and Sass come from npm. Setup has a button for each package set; after that they work offline.
 - **It knows where it runs.** On Ubuntu inside WSL it opens your Windows browser, and install instructions show the steps for your system first: Windows with WSL, Linux or macOS.
 
 The first lesson of every track has an **Install** box: the quick way first (one command), then the steps by hand, and what your machine already has.

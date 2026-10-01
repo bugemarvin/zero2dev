@@ -1,0 +1,121 @@
+{
+  "title": "A navigation bar and a card, nested",
+  "lesson": "scss/02-nesting",
+  "kind": "web",
+  "workspace": "sass",
+  "page": "index.html",
+  "compile": {
+    "style.scss": "style.css"
+  },
+  "edit": [
+    "style.scss"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": ".nav is a flex row with a gap",
+      "select": ".nav",
+      "style": {
+        "display": "flex",
+        "gap": "1rem"
+      }
+    },
+    {
+      "name": "nav links are dark and not underlined",
+      "select": ".nav a",
+      "style": {
+        "color": "#333333",
+        "text-decoration": "none"
+      }
+    },
+    {
+      "name": "a hovered nav link is underlined",
+      "select": ".nav a",
+      "state": "hover",
+      "style": {
+        "text-decoration": "underline"
+      }
+    },
+    {
+      "name": "the active link is bold, the others are not",
+      "select": ".nav a.active",
+      "style": {
+        "font-weight": [
+          "bold",
+          "700"
+        ]
+      }
+    },
+    {
+      "name": "the other links are not bold",
+      "select": ".nav a:not(.active)",
+      "style": {
+        "font-weight": [
+          null,
+          "normal",
+          "400"
+        ]
+      }
+    },
+    {
+      "name": ".card has its padding and border",
+      "select": ".card",
+      "style": {
+        "padding-top": "16px",
+        "border": [
+          "1px solid #cccccc",
+          "1px solid #ccc"
+        ]
+      }
+    },
+    {
+      "name": ".card__title is 1.25rem",
+      "select": ".card__title",
+      "style": {
+        "font-size": "1.25rem"
+      }
+    },
+    {
+      "name": "the featured card has a gold border colour",
+      "select": ".card--featured",
+      "style": {
+        "border-color": "gold"
+      }
+    },
+    {
+      "name": "the plain card does not",
+      "select": ".card:not(.card--featured)",
+      "style": {
+        "border-color": [
+          null,
+          "#cccccc",
+          "#ccc"
+        ]
+      }
+    },
+    {
+      "name": "the parent selector & is used for the states and the BEM names",
+      "source": "style.scss",
+      "contains": [
+        "&:hover",
+        "&.active",
+        "&__title",
+        "&--featured"
+      ]
+    },
+    {
+      "name": "the nested selectors are not written out",
+      "source": "style.scss",
+      "not_contains": [
+        ".nav a",
+        ".card__title",
+        ".card--featured"
+      ]
+    }
+  ],
+  "hints": [
+    "Inside .nav { }, write a { ... }. Inside that, &:hover { ... } and &.active { ... }.",
+    "Inside .card { }, write &__title { font-size: 1.25rem; } and &--featured { border-color: gold; }.",
+    "The & joins with no space: &:hover inside a becomes a:hover."
+  ]
+}

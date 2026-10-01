@@ -1,0 +1,38 @@
+[
+ {
+  "q": "What does the browser load?",
+  "options": [
+   "The .scss file",
+   "The compiled .css file",
+   "Both",
+   "Neither"
+  ],
+  "answer": 1,
+  "why": "Browsers do not understand Sass. It is compiled to CSS first."
+ },
+ {
+  "q": "Is every valid CSS file also valid SCSS?",
+  "options": [
+   "Yes",
+   "No"
+  ],
+  "answer": 0,
+  "why": "SCSS is CSS with additions."
+ },
+ {
+  "q": "With $space: 16px, what does `padding: $space * 2` compile to?",
+  "accept": [
+   "32px"
+  ],
+  "why": "Sass does the arithmetic and keeps the unit."
+ },
+ {
+  "q": "Which can change while the page is open?",
+  "options": [
+   "A Sass $variable",
+   "A CSS --custom-property"
+  ],
+  "answer": 1,
+  "why": "Sass variables are gone after compiling."
+ }
+]

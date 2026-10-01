@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which pair defines and uses a mixin?",
+  "options": [
+   "@function and @return",
+   "@mixin and @include",
+   "@use and @forward",
+   "@extend and %"
+  ],
+  "answer": 1,
+  "why": "@mixin defines, @include uses."
+ },
+ {
+  "q": "What does @content stand for inside a mixin?",
+  "options": [
+   "The mixin's arguments",
+   "The block of styles the caller passed in",
+   "The file's content",
+   "A comment"
+  ],
+  "answer": 1,
+  "why": "It is how a mixin wraps something around the caller's styles."
+ },
+ {
+  "q": "What does a function give back?",
+  "options": [
+   "A block of declarations",
+   "A value",
+   "A selector",
+   "A file"
+  ],
+  "answer": 1,
+  "why": "A mixin produces declarations. A function produces a value."
+ },
+ {
+  "q": "With a base of 16px, what is rem(24px)?",
+  "accept": [
+   "1.5rem"
+  ],
+  "why": "24 divided by 16."
+ }
+]

@@ -74,6 +74,7 @@
       }
     ],
     "electives": [
+      "scss",
       "vue",
       "gamedev",
       "node",
@@ -188,6 +189,7 @@
       }
     ],
     "electives": [
+      "scss",
       "vue",
       "mongodb",
       "redis",
