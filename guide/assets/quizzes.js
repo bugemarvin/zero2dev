@@ -6426,6 +6426,274 @@ window.Z2D_QUIZZES = {
 "why": "Use it sparingly: every consumer renders again when it changes."
 }
 ],
+"vue/01-components-and-templates": [
+{
+"q": "Which three blocks can a .vue file have?",
+"options": [
+"head, body, footer",
+"script, template, style",
+"html, css, js files",
+"model, view, controller"
+],
+"answer": 1,
+"why": "One file holds the component's logic, markup and styles."
+},
+{
+"q": "How do you bind the href attribute to the variable site?",
+"options": [
+"href=\"{{ site }}\"",
+":href=\"site\"",
+"href=site",
+"@href=\"site\""
+],
+"answer": 1,
+"why": "The colon is short for v-bind. Braces work only in text."
+},
+{
+"q": "What is `@click` short for?",
+"options": [
+"v-bind:click",
+"v-on:click",
+"v-if:click",
+"v-model:click"
+],
+"answer": 1,
+"why": "@ is short for v-on."
+},
+{
+"q": "What does `<style scoped>` do?",
+"options": [
+"Makes the CSS global",
+"Limits the CSS to this component",
+"Minifies the CSS",
+"Loads CSS later"
+],
+"answer": 1,
+"why": "Scoped styles do not leak into other components."
+}
+],
+"vue/02-reactivity": [
+{
+"q": "In the script, how do you add 1 to `const count = ref(0)`?",
+"options": [
+"count++",
+"count.value++",
+"count.set(1)",
+"setCount(1)"
+],
+"answer": 1,
+"why": "A ref is an object: its value lives in .value."
+},
+{
+"q": "In the template, how do you show that same count?",
+"options": [
+"{{ count.value }}",
+"{{ count }}",
+"{ count }",
+"{{ count() }}"
+],
+"answer": 1,
+"why": "Templates unwrap refs for you."
+},
+{
+"q": "What is `computed` for?",
+"options": [
+"Running code on a timer",
+"A value worked out from other reactive values, kept up to date",
+"Fetching data",
+"Styling"
+],
+"answer": 1,
+"why": "It is cached and recalculated only when its inputs change."
+},
+{
+"q": "When is `watch` the right tool?",
+"options": [
+"To derive a value",
+"To run a side effect when a value changes",
+"To declare props",
+"To loop"
+],
+"answer": 1,
+"why": "Saving, logging, fetching. For values, use computed."
+}
+],
+"vue/03-props-and-events": [
+{
+"q": "In which direction do props carry data?",
+"options": [
+"From child to parent",
+"From parent to child",
+"Both ways",
+"Between siblings"
+],
+"answer": 1,
+"why": "Props go down. Events go up."
+},
+{
+"q": "May a child component change a prop it received?",
+"options": [
+"Yes",
+"No: it emits an event and the parent changes the data"
+],
+"answer": 1,
+"why": "Props are read-only in the child."
+},
+{
+"q": "What does `<Counter :start=\"5\" />` pass?",
+"options": [
+"The string \"5\"",
+"The number 5"
+],
+"answer": 1,
+"why": "With the colon the value is a JavaScript expression."
+},
+{
+"q": "What is a slot for?",
+"options": [
+"Storing state",
+"Letting the parent put its own content inside the child",
+"Routing",
+"Styling only"
+],
+"answer": 1,
+"why": "Whatever is written between the component's tags replaces <slot>."
+}
+],
+"vue/04-lists-and-conditions": [
+{
+"q": "What happens to an element whose v-if is false?",
+"options": [
+"It is hidden with CSS",
+"It is not in the page at all",
+"It is greyed out",
+"It is moved to the end"
+],
+"answer": 1,
+"why": "v-show hides. v-if removes."
+},
+{
+"q": "What is the `:key` of a v-for for?",
+"options": [
+"Styling",
+"Letting Vue tell the items apart when the list changes",
+"Sorting",
+"Security"
+],
+"answer": 1,
+"why": "Use a stable id of the item."
+},
+{
+"q": "Where should a list be filtered?",
+"options": [
+"With v-if on the same element as v-for",
+"In a computed value",
+"In the CSS",
+"In the key"
+],
+"answer": 1,
+"why": "v-if and v-for do not belong on the same element."
+},
+{
+"q": "What does `:class=\"{ done: todo.done }\"` do?",
+"options": [
+"Always adds the class done",
+"Adds the class done when todo.done is true",
+"Removes all classes",
+"Sets an id"
+],
+"answer": 1,
+"why": "Each key of the object is a class, added when its value is true."
+}
+],
+"vue/05-forms-and-v-model": [
+{
+"q": "What does v-model do?",
+"options": [
+"Validates a field",
+"Binds a field and a ref in both directions",
+"Submits the form",
+"Styles the input"
+],
+"answer": 1,
+"why": "Typing updates the data, and changing the data updates the field."
+},
+{
+"q": "Which modifier removes spaces at both ends?",
+"options": [
+".lazy",
+".trim",
+".number",
+".prevent"
+],
+"answer": 1,
+"why": "v-model.trim."
+},
+{
+"q": "What type is the value of `<input type=\"number\" v-model=\"age\">`?",
+"options": [
+"A number",
+"A string, unless you add .number"
+],
+"answer": 1,
+"why": "Inputs give strings. v-model.number converts."
+},
+{
+"q": "Where should you listen to handle a form being sent?",
+"options": [
+"@click on the button",
+"@submit.prevent on the form",
+"@change on each field",
+"@keydown.enter everywhere"
+],
+"answer": 1,
+"why": "The form's submit event covers the button and the Enter key."
+}
+],
+"vue/06-composables-and-lifecycle": [
+{
+"q": "Which hook runs when the component has been put on the page?",
+"options": [
+"onCreated",
+"onMounted",
+"onUpdated",
+"onUnmounted"
+],
+"answer": 1,
+"why": "onMounted. Clean up in onUnmounted."
+},
+{
+"q": "Which three states should a data-loading component show?",
+"options": [
+"Start, middle, end",
+"Loading, error, the data",
+"Get, post, put",
+"Open, closed, hidden"
+],
+"answer": 1,
+"why": "A blank page while waiting or after a failure is a bug."
+},
+{
+"q": "What is a composable?",
+"options": [
+"A CSS file",
+"A function that uses Vue's reactivity, to share logic between components",
+"A kind of slot",
+"A router"
+],
+"answer": 1,
+"why": "By convention its name starts with use."
+},
+{
+"q": "Two components call useToggle(). Do they share the same state?",
+"options": [
+"Yes",
+"No: each call creates its own"
+],
+"answer": 1,
+"why": "A composable shares logic, not data."
+}
+],
 "next/01-app-router": [
 {
 "q": "In the app router, which file makes a route's page?",
