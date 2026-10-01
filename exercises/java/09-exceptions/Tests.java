@@ -71,7 +71,8 @@ public class Tests {
         check("the message for bad text contains 'not a number'", () -> {
             try {
                 Parser.parseAge("abc");
-            } catch (InvalidAgeException e) {
+            } catch (Exception e) {
+                yes(e instanceof InvalidAgeException, "expected InvalidAgeException but got " + e);
                 yes(e.getMessage() != null && e.getMessage().contains("not a number"), "the message was " + e.getMessage());
                 return;
             }
@@ -84,7 +85,8 @@ public class Tests {
         check("the message for a bad range contains 'out of range'", () -> {
             try {
                 Parser.parseAge("200");
-            } catch (InvalidAgeException e) {
+            } catch (Exception e) {
+                yes(e instanceof InvalidAgeException, "expected InvalidAgeException but got " + e);
                 yes(e.getMessage() != null && e.getMessage().contains("out of range"), "the message was " + e.getMessage());
                 return;
             }
