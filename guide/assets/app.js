@@ -204,6 +204,10 @@
     java: "abstract boolean break byte case catch char class continue default do double else enum extends final finally float for if implements import instanceof int interface long new null package private protected public record return short static super switch this throw throws try var void while true false",
     elixir: "def defp defmodule defstruct do end fn if else unless case cond with when for in and or not nil true false import alias require use receive after try rescue raise",
     javascript: "const let var function return if else for while do break continue switch case default class extends new this super import export from as async await try catch finally throw typeof instanceof in of null undefined true false void delete yield static get set interface type enum implements readonly public private",
+    cpp: "alignas auto bool break case catch char class const constexpr continue default delete do double else enum explicit extern false float for friend if inline int long namespace new nullptr operator private protected public return short signed sizeof static struct switch template this throw true try typedef typename union unsigned using virtual void volatile while",
+    go: "break case chan const continue default defer else fallthrough for func go goto if import interface map package range return select struct switch type var nil true false string int int64 float64 bool error",
+    rust: "as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type unsafe use where while",
+    ruby: "alias and begin break case class def defined do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield puts require",
     dockerfile: "FROM RUN COPY ADD CMD ENTRYPOINT WORKDIR ENV EXPOSE ARG USER VOLUME HEALTHCHECK LABEL AS",
     yaml: "true false null",
     sql: "select from where and or not null is in like between order by group having limit offset join left right inner outer full cross on as insert into values update set delete create table primary key foreign references unique check default index drop alter add distinct union all case when then else end with over partition begin commit rollback explain analyze returning asc desc exists integer text real numeric boolean serial jsonb timestamp date using"
@@ -215,6 +219,10 @@
     elixir: "#[^\\n]*",
     bash: "(?:^|(?<=\\s))#[^\\n]*",
     javascript: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    cpp: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    go: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    rust: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    ruby: "#[^\\n]*",
     dockerfile: "(?:^|(?<=\\s))#[^\\n]*",
     yaml: "(?:^|(?<=\\s))#[^\\n]*",
     sql: "--[^\\n]*"
@@ -243,7 +251,7 @@
     if (!KEYWORDS[lang]) return;
     var words = {};
     KEYWORDS[lang].split(" ").forEach(function (w) { words[w] = true; });
-    var pre = lang === "c" ? "|(^[ \\t]*#[ \\t]*\\w+)" : "|($^)";
+    var pre = lang === "c" || lang === "cpp" ? "|(^[ \\t]*#[ \\t]*\\w+)" : "|($^)";
     var re;
     try {
       re = new RegExp("(" + STRING + ")|(" + COMMENTS[lang] + ")" + pre + "|(\\b\\d+(?:\\.\\d+)?\\b)|([A-Za-z_]\\w*)", "gm");

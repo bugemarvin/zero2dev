@@ -75,6 +75,19 @@
   }
 
   // ---------------------------------------------------------------- editor
+  var EXTENSIONS = {
+    c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", py: "python", java: "java", ex: "elixir", exs: "elixir",
+    sql: "sql", sh: "bash", js: "javascript", mjs: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript",
+    go: "go", rs: "rust", rb: "ruby", yaml: "yaml", yml: "yaml"
+  };
+
+  function languageOf(name) {
+    var base = name.split("/").pop();
+    if (/^Dockerfile/.test(base)) return "dockerfile";
+    if (base === "Makefile") return "bash";
+    return EXTENSIONS[base.split(".").pop()] || "text";
+  }
+
   function Editor(file, onRun) {
     var self = this;
     this.file = file;
@@ -84,10 +97,24 @@
     });
     this.area.value = file.content;
     this.gutter = el("div", { class: "st-gutter", "aria-hidden": "true" });
-    this.node = el("div", { class: "st-editor" }, [this.gutter, this.area]);
+    // Syntax colouring: the textarea's own text is transparent, and an identically laid out
+    // <pre> behind it shows the same text in colour. The caret and the selection stay native.
+    this.lang = languageOf(file.name);
+    this.code = el("code", {});
+    this.backdrop = el("pre", { class: "st-highlight", "aria-hidden": "true" }, [this.code]);
+    this.node = el("div", { class: "st-editor" }, [
+      this.gutter, el("div", { class: "st-code" }, [this.backdrop, this.area])
+    ]);
     this.saved = file.content;
     var indent = /(^|\/)(Makefile|.*\.go)$/.test(file.name) ? "\t" : "    ";
 
+    function paint() {
+      // the extra line keeps the backdrop at least as tall as the textarea's scroll area
+      self.code.textContent = self.area.value + "\n ";
+      if (window.Z2D && window.Z2D.colour) window.Z2D.colour(self.code, self.lang);
+      self.backdrop.scrollTop = self.area.scrollTop;
+      self.backdrop.scrollLeft = self.area.scrollLeft;
+    }
     function refresh() {
       var lines = self.area.value.split("\n").length;
       var text = "";
@@ -96,6 +123,7 @@
       var height = Math.min(Math.max(lines, 8), 30) * 21 + 24;
       self.area.style.height = height + "px";
       self.gutter.style.height = height + "px";
+      paint();
     }
     function insert(text) {
       var start = self.area.selectionStart, end = self.area.selectionEnd;
@@ -103,7 +131,11 @@
       refresh();
     }
     this.area.addEventListener("input", refresh);
-    this.area.addEventListener("scroll", function () { self.gutter.scrollTop = self.area.scrollTop; });
+    this.area.addEventListener("scroll", function () {
+      self.gutter.scrollTop = self.area.scrollTop;
+      self.backdrop.scrollTop = self.area.scrollTop;
+      self.backdrop.scrollLeft = self.area.scrollLeft;
+    });
     this.area.addEventListener("keydown", function (event) {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
@@ -239,8 +271,9 @@
         self.editors[file.name] = editor;
         pane = editor.node;
       } else {
-        var code = el("code", { class: "lang-" + file.highlight, text: file.content });
-        if (window.Z2D && window.Z2D.colour) window.Z2D.colour(code, file.highlight);
+        var shown = languageOf(file.name);
+        var code = el("code", { class: "lang-" + shown, text: file.content });
+        if (window.Z2D && window.Z2D.colour) window.Z2D.colour(code, shown);
         pane = el("pre", { class: "st-readonly" }, [code]);
       }
       var tab = el("button", {
