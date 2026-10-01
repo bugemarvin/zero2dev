@@ -1,0 +1,38 @@
+{
+  "title": "Props, conditions and children",
+  "lesson": "react/02-props",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "UserCard.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Card: put {children} after the <h2>. Without it nothing between the tags is shown.",
+    "{user.admin && <span className=\"badge\">Admin</span>} renders the badge only for admins.",
+    "{user.online ? \"Online\" : \"Offline\"} chooses between two texts. user.role ?? \"No role\" supplies a fallback."
+  ]
+}

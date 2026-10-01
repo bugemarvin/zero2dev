@@ -1,0 +1,39 @@
+{
+  "title": "Write your own hooks",
+  "lesson": "react/08-custom-hooks",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "hooks.js"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "useToggle: const [on, setOn] = useState(initial); return [on, () => setOn((previous) => !previous)];",
+    "useCounter: return { count, increment: () => setCount((c) => c + step), ... }",
+    "useLocalStorage: start with useState(() => { const stored = localStorage.getItem(key); return stored === null ? initial : JSON.parse(stored); })",
+    "Then save in an effect: useEffect(() => { localStorage.setItem(key, JSON.stringify(value)); }, [key, value]);"
+  ]
+}

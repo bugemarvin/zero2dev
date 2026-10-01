@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fetching data · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/07-fetching-data">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 7 of 9</p>
+<h1>Fetching data</h1>
+<p class="lede">Load data from a server, and handle the three states every request has.</p>
+<h2 id="three-states">Three states</h2>
+<p>A request is not instant, and it can fail. A component that loads data is therefore always in one of three situations, and should show something sensible in each:</p>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Show</th></tr></thead><tbody><tr><td>loading</td><td>a "Loading" message or a spinner</td></tr><tr><td>error</td><td>what went wrong, ideally with a way to retry</td></tr><tr><td>success</td><td>the data, or a message when there is none</td></tr></tbody></table></div>
+<p>Beginners write the last one and forget the first two.</p>
+<h2 id="fetching-in-an-effect">Fetching in an effect</h2>
+<pre><code class="lang-jsx">import { useEffect, useState } from "react";
+
+function UserList() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() =&gt; {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const response = await fetch("/api/users");
+        if (!response.ok) {
+          throw new Error(`request failed: ${response.status}`);
+        }
+        const data = await response.json();
+        if (!cancelled) {
+          setUsers(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err.message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+    return () =&gt; {
+      cancelled = true;
+    };
+  }, []);
+
+  if (loading) {
+    return &lt;p&gt;Loading...&lt;/p&gt;;
+  }
+  if (error) {
+    return &lt;p role="alert"&gt;Could not load users: {error}&lt;/p&gt;;
+  }
+  if (users.length === 0) {
+    return &lt;p&gt;No users yet.&lt;/p&gt;;
+  }
+  return (
+    &lt;ul&gt;
+      {users.map((user) =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<p>Things to notice:</p>
+<ul><li>The effect function itself is not <code>async</code>. It defines an async function and calls it.</li><li><code>response.ok</code> is checked. <code>fetch</code> does not reject on a 404 or a 500.</li><li>The <code>cancelled</code> flag is set by the cleanup. If the component goes away, or the effect re-runs, before the response arrives, the late answer is ignored.</li></ul>
+<h2 id="requests-that-depend-on-a-prop">Requests that depend on a prop</h2>
+<p>Put the prop in the dependency array. The effect re-runs when it changes, and the cleanup discards the answer to the previous request:</p>
+<pre><code class="lang-jsx">useEffect(() =&gt; {
+  let cancelled = false;
+  setLoading(true);
+  fetch(`/api/users/${userId}`)
+    .then((response) =&gt; response.json())
+    .then((data) =&gt; {
+      if (!cancelled) {
+        setUser(data);
+        setLoading(false);
+      }
+    });
+  return () =&gt; {
+    cancelled = true;
+  };
+}, [userId]);</code></pre>
+<p>Without the flag, a slow response for user 1 could arrive after the response for user 2 and overwrite it. That is a <strong>race condition</strong>.</p>
+<h2 id="sending-data">Sending data</h2>
+<p>Changes happen in event handlers, not in effects:</p>
+<pre><code class="lang-jsx">async function handleAdd(title) {
+  const response = await fetch("/api/todos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title }),
+  });
+  const created = await response.json();
+  setTodos((previous) =&gt; [...previous, created]);
+}</code></pre>
+<p>While a request is in flight, disable the button so that it cannot be sent twice.</p>
+<h2 id="in-real-projects">In real projects</h2>
+<p>Fetching by hand in an effect is worth learning, because it shows what is involved. For a real application, a data library such as TanStack Query or SWR handles caching, retries, refetching and race conditions for you. Frameworks such as Next.js go further and load data on the server before the page is sent.</p>
+<h2 id="testing-components-that-fetch">Testing components that fetch</h2>
+<p>Tests must not call a real server. They replace <code>fetch</code> with a fake that returns prepared data:</p>
+<pre><code class="lang-jsx">globalThis.fetch = vi.fn(async () =&gt; ({
+  ok: true,
+  json: async () =&gt; [{ id: 1, name: "Ada" }],
+}));</code></pre>
+<p>The test then renders the component, waits for the name to appear, and checks it. The exercise for this lesson works that way.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No loading state</strong>, so the page flashes "No users" before the data arrives.</li><li><strong>No error state</strong>, so a failed request looks like an empty list.</li><li><strong>Not checking <code>response.ok</code>.</strong></li><li><strong>Setting state after the component is gone</strong>, or from an outdated request.</li><li><strong>Fetching in the body of the component</strong>, outside an effect: a new request on every render, each of which triggers another render.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/07-user-list">
+<h3>Load data from a server <span class="ex-id">react/07-user-list</span></h3>
+<p>Complete <code>UserList.jsx</code>.</p>
+<p><code>&lt;UserList url="/api/users" /&gt;</code> fetches the URL when it appears, and expects a JSON array of users such as <code>{ "id": 1, "name": "Ada" }</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>It shows</th></tr></thead><tbody><tr><td>while the request is running</td><td>a <code>&lt;p&gt;</code> with <code>Loading...</code></td></tr><tr><td>the request failed, or the status was not 2xx</td><td>an element with <code>role="alert"</code> and the text <code>Could not load users.</code></td></tr><tr><td>an empty array came back</td><td>a <code>&lt;p&gt;</code> with <code>No users yet.</code></td></tr><tr><td>users came back</td><td>a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per user, showing the name</td></tr></tbody></table></div>
+<p>When the <code>url</code> prop changes, it shows <code>Loading...</code> again and fetches the new URL.</p>
+<p>The tests replace <code>fetch</code> with a fake, so no server is needed. For <strong>Start app</strong>, the preview page supplies sample data in the same way.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/07-user-list/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/07-user-list</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/06-effects.html"><span>Previous</span>Effects</a><a class="next" href="../react/08-custom-hooks.html"><span>Next</span>Custom hooks</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

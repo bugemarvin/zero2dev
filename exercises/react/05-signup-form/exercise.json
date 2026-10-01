@@ -1,0 +1,39 @@
+{
+  "title": "A form with validation",
+  "lesson": "react/05-forms",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "SignupForm.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Each input needs value={...} and onChange={(event) => setEmail(event.target.value)}. Wrap the input in its <label>.",
+    "Put the handler on the form: <form onSubmit={handleSubmit}>, and call event.preventDefault() first.",
+    "Keep a third piece of state, submitted, and show an error only when submitted is true and the field is invalid.",
+    "After a successful submit, set the fields back to \"\" and submitted back to false."
+  ]
+}

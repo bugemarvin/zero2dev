@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/05-forms">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 5 of 9</p>
+<h1>Forms</h1>
+<p class="lede">Keep the value of every input in state, validate it, and handle the submit yourself.</p>
+<h2 id="controlled-inputs">Controlled inputs</h2>
+<p>In React the usual way to handle an input is to make state the single source of truth. The input <strong>shows</strong> the state, and every keystroke <strong>updates</strong> it.</p>
+<pre><code class="lang-jsx">function NameField() {
+  const [name, setName] = useState("");
+
+  return (
+    &lt;label&gt;
+      Name
+      &lt;input value={name} onChange={(event) =&gt; setName(event.target.value)} /&gt;
+    &lt;/label&gt;
+  );
+}</code></pre>
+<ul><li><code>value={name}</code> makes the input display the state.</li><li><code>onChange</code> fires on every change. <code>event.target.value</code> is the new text.</li></ul>
+<p>Because the value lives in state, you can use it anywhere at any time: to validate, to enable a button, to show a preview.</p>
+<p>An input with <code>value</code> and no <code>onChange</code> is frozen: the user cannot type in it.</p>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Value prop</th><th>Read in onChange</th></tr></thead><tbody><tr><td>text input, textarea, select</td><td><code>value</code></td><td><code>event.target.value</code></td></tr><tr><td>checkbox</td><td><code>checked</code></td><td><code>event.target.checked</code></td></tr></tbody></table></div>
+<h2 id="labels">Labels</h2>
+<p>Every input needs a label. It tells users, and screen readers, what the field is for, and clicking it focuses the field. Either wrap the input in the <code>&lt;label&gt;</code>, or connect them by id:</p>
+<pre><code class="lang-jsx">&lt;label htmlFor="email"&gt;Email&lt;/label&gt;
+&lt;input id="email" type="email" value={email} onChange={(e) =&gt; setEmail(e.target.value)} /&gt;</code></pre>
+<h2 id="submitting">Submitting</h2>
+<p>Put the fields in a <code>&lt;form&gt;</code> and handle its <code>submit</code> event. That way pressing Enter works as well as clicking the button.</p>
+<pre><code class="lang-jsx">function SignupForm({ onSubmit }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function handleSubmit(event) {
+    event.preventDefault();               // stop the browser reloading the page
+    onSubmit({ email, password });
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;label&gt;
+        Email
+        &lt;input type="email" value={email} onChange={(e) =&gt; setEmail(e.target.value)} /&gt;
+      &lt;/label&gt;
+      &lt;label&gt;
+        Password
+        &lt;input type="password" value={password} onChange={(e) =&gt; setPassword(e.target.value)} /&gt;
+      &lt;/label&gt;
+      &lt;button type="submit"&gt;Sign up&lt;/button&gt;
+    &lt;/form&gt;
+  );
+}</code></pre>
+<h2 id="validation">Validation</h2>
+<p>Validity can be <strong>calculated</strong> from the current values. It does not need its own state.</p>
+<pre><code class="lang-jsx">const emailOk = email.includes("@");
+const passwordOk = password.length &gt;= 8;
+const canSubmit = emailOk &amp;&amp; passwordOk;
+
+&lt;button type="submit" disabled={!canSubmit}&gt;Sign up&lt;/button&gt;</code></pre>
+<p>Showing an error for a field the user has not touched yet is unfriendly. A common approach is to show errors only after the first attempt to submit:</p>
+<pre><code class="lang-jsx">const [submitted, setSubmitted] = useState(false);
+
+function handleSubmit(event) {
+  event.preventDefault();
+  setSubmitted(true);
+  if (!canSubmit) {
+    return;
+  }
+  onSubmit({ email, password });
+}
+
+{submitted &amp;&amp; !emailOk &amp;&amp; &lt;p role="alert"&gt;Enter a valid email address.&lt;/p&gt;}</code></pre>
+<p><code>role="alert"</code> makes screen readers announce the message when it appears.</p>
+<h2 id="many-fields-in-one-object">Many fields in one object</h2>
+<pre><code class="lang-jsx">const [form, setForm] = useState({ name: "", email: "", city: "" });
+
+function handleChange(event) {
+  const { name, value } = event.target;
+  setForm({ ...form, [name]: value });
+}
+
+&lt;input name="email" value={form.email} onChange={handleChange} /&gt;</code></pre>
+<p><code>[name]: value</code> uses the value of <code>name</code> as the property name. One handler serves every field, as long as each input has a <code>name</code> that matches the key.</p>
+<h2 id="after-a-successful-submit">After a successful submit</h2>
+<p>Clear the form by resetting the state:</p>
+<pre><code class="lang-jsx">setEmail("");
+setPassword("");
+setSubmitted(false);</code></pre>
+<h2 id="validation-here-is-for-convenience">Validation here is for convenience</h2>
+<p>Checks in the browser help the user. They protect nothing: anyone can send a request to your server directly. The server must validate everything again.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>value</code> with no <code>onChange</code>.</strong></li><li><strong>Forgetting <code>event.preventDefault()</code></strong>, so the page reloads and the state is lost.</li><li><strong>Handling the button's click</strong> in place of the form's submit. Enter then does nothing.</li><li><strong>Inputs with no label.</strong></li><li><strong>Storing "is valid" in state</strong> when it follows from the values.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/05-signup-form">
+<h3>A form with validation <span class="ex-id">react/05-signup-form</span></h3>
+<p>Complete <code>SignupForm.jsx</code>.</p>
+<p><code>&lt;SignupForm onSubmit={fn} /&gt;</code> renders a <code>&lt;form&gt;</code> with:</p>
+<ul><li>a text input labelled <code>Email</code></li><li>a password input labelled <code>Password</code></li><li>a submit button <code>Sign up</code></li></ul>
+<p>Both inputs are controlled: their values live in state.</p>
+<p>When the form is submitted:</p>
+<ul><li>If the email does not contain <code>@</code>, show <code>Enter a valid email address.</code> in an element with <code>role="alert"</code>.</li><li>If the password has fewer than 8 characters, show <code>Password must be at least 8 characters.</code> in an element with <code>role="alert"</code>.</li><li>If anything is invalid, <code>onSubmit</code> is <strong>not</strong> called.</li><li>If everything is valid, call <code>onSubmit({ email, password })</code> once, clear both fields and remove any error messages.</li></ul>
+<p>No error is shown before the first attempt to submit. The page must not reload: call <code>event.preventDefault()</code>.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/05-signup-form/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/05-signup-form</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/04-lists-and-keys.html"><span>Previous</span>Lists and keys</a><a class="next" href="../react/06-effects.html"><span>Next</span>Effects</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

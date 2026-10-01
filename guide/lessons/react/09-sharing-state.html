@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sharing state · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/09-sharing-state">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 9 of 9</p>
+<h1>Sharing state</h1>
+<p class="lede">Lift state up to a common parent, and use context for data that many components need.</p>
+<h2 id="lifting-state-up">Lifting state up</h2>
+<p>Two components need the same data. Each having its own copy does not work: they would disagree.</p>
+<p>The answer is to move the state to their <strong>closest common parent</strong>. The parent owns it and passes it down as props, along with functions to change it.</p>
+<pre><code class="lang-jsx">function TemperatureConverter() {
+  const [celsius, setCelsius] = useState(20);
+
+  return (
+    &lt;&gt;
+      &lt;CelsiusInput value={celsius} onChange={setCelsius} /&gt;
+      &lt;FahrenheitDisplay celsius={celsius} /&gt;
+    &lt;/&gt;
+  );
+}
+
+function CelsiusInput({ value, onChange }) {
+  return (
+    &lt;label&gt;
+      Celsius
+      &lt;input type="number" value={value} onChange={(e) =&gt; onChange(Number(e.target.value))} /&gt;
+    &lt;/label&gt;
+  );
+}
+
+function FahrenheitDisplay({ celsius }) {
+  return &lt;p&gt;{(celsius * 9) / 5 + 32} °F&lt;/p&gt;;
+}</code></pre>
+<p>There is one source of truth. The input reports changes upward, and both children re-render with the new value.</p>
+<p>A useful question for every piece of state: <strong>which components need it?</strong> Put it in the lowest component that contains all of them.</p>
+<h2 id="prop-drilling">Prop drilling</h2>
+<p>Sometimes a value is needed deep in the tree: the logged-in user, the colour theme, the language. Passing it through every level in between, including components that do not use it, is called <strong>prop drilling</strong>. It is tedious and makes each component in the chain depend on something it does not care about.</p>
+<h2 id="context">Context</h2>
+<p><strong>Context</strong> makes a value available to every component below a certain point, however deep, with nothing passed in between.</p>
+<p>Three steps:</p>
+<pre><code class="lang-jsx">import { createContext, useContext, useState } from "react";
+
+// 1. create it
+const ThemeContext = createContext(null);
+
+// 2. provide a value to part of the tree
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState("light");
+
+  function toggleTheme() {
+    setTheme((previous) =&gt; (previous === "light" ? "dark" : "light"));
+  }
+
+  return (
+    &lt;ThemeContext.Provider value={{ theme, toggleTheme }}&gt;
+      {children}
+    &lt;/ThemeContext.Provider&gt;
+  );
+}
+
+// 3. read it anywhere below
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === null) {
+    throw new Error("useTheme must be used inside a ThemeProvider");
+  }
+  return context;
+}</code></pre>
+<pre><code class="lang-jsx">function App() {
+  return (
+    &lt;ThemeProvider&gt;
+      &lt;Toolbar /&gt;
+    &lt;/ThemeProvider&gt;
+  );
+}
+
+function ThemeButton() {                    // any depth below the provider
+  const { theme, toggleTheme } = useTheme();
+  return &lt;button onClick={toggleTheme}&gt;Theme: {theme}&lt;/button&gt;;
+}</code></pre>
+<p>Wrapping <code>useContext</code> in a small custom hook, as with <code>useTheme</code>, gives a clear error when a component is used outside its provider, and hides the context object from the rest of the code.</p>
+<p>When the provider's value changes, every component that reads the context re-renders.</p>
+<h2 id="when-to-use-what">When to use what</h2>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody><tr><td>one component needs the data</td><td>state in that component</td></tr><tr><td>a few nearby components need it</td><td>lift it to their common parent</td></tr><tr><td>many components at many depths need it</td><td>context</td></tr><tr><td>a wrapper needs to show arbitrary content</td><td>the <code>children</code> prop</td></tr></tbody></table></div>
+<p>Context is not a replacement for props. Props make it obvious what a component depends on. Reach for context when passing props has clearly become a burden, and for values that really are global to a part of the app.</p>
+<p>For a large application with a lot of shared, frequently changing state, there are dedicated libraries such as Zustand and Redux. Most apps need far less of that than people expect.</p>
+<h2 id="composition-before-context">Composition before context</h2>
+<p>Often prop drilling disappears if you pass <strong>components</strong> down in place of data:</p>
+<pre><code class="lang-jsx">// Layout does not need to know about the user at all
+&lt;Layout sidebar={&lt;UserMenu user={user} /&gt;}&gt;
+  &lt;Dashboard user={user} /&gt;
+&lt;/Layout&gt;</code></pre>
+<p><code>Layout</code> receives finished elements and puts them in place.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You now know the core of React: components, props, state, lists, forms, effects, data fetching, custom hooks and shared state. The natural next step is Next.js, which adds routing, server rendering and data loading on top of what you have learned here.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Duplicating state</strong> in two components and trying to keep the copies in step.</li><li><strong>Everything in context.</strong> A change then re-renders the whole app, and components become hard to reuse.</li><li><strong>Using a context hook outside its provider</strong>, and getting <code>null</code>.</li><li><strong>A new object as the provider value on every render</strong>, with unrelated state in it.</li><li><strong>Lifting state higher than needed.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/09-theme">
+<h3>Share state with context <span class="ex-id">react/09-theme</span></h3>
+<p>Complete <code>theme.jsx</code>. It exports four things.</p>
+<ul><li><code>ThemeProvider</code> wraps part of the app and holds the current theme, which starts as <code>"light"</code>.</li><li><code>useTheme()</code> returns <code>{ theme, toggleTheme }</code> from the nearest provider. Called outside any provider, it throws an <code>Error</code> whose message is <code>useTheme must be used inside a ThemeProvider</code>.</li><li><code>ThemeButton</code> renders a button with the text <code>Theme: light</code> or <code>Theme: dark</code>. Clicking it switches between the two.</li><li><code>ThemedBox</code> renders a <code>&lt;div&gt;</code> whose <code>className</code> is <code>box light</code> or <code>box dark</code>, with its children inside.</li></ul>
+<p>Any number of <code>ThemeButton</code> and <code>ThemedBox</code> components under the same provider share one theme. Two separate providers each have their own.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/09-theme/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/09-theme</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/08-custom-hooks.html"><span>Previous</span>Custom hooks</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -262,6 +262,33 @@
  "python/12-typing": {
   "solution.py": "def mean(values):\n    pass\n\n\ndef find_user(users, user_id):\n    pass\n\n\ndef lengths(words):\n    pass\n\n\nclass Point:\n    pass\n"
  },
+ "react/01-greeting": {
+  "App.jsx": "export function Footer() {\n  return null;\n}\n\nexport default function App() {\n  return null;\n}\n"
+ },
+ "react/02-user-card": {
+  "UserCard.jsx": "export function Card({ title, children }) {\n  return null;\n}\n\nexport default function UserCard({ user }) {\n  return null;\n}\n"
+ },
+ "react/03-counter": {
+  "Counter.jsx": "import { useState } from \"react\";\n\nexport default function Counter({ start = 0, step = 1 }) {\n  return <p>Count: {start}</p>;\n}\n"
+ },
+ "react/04-todo-list": {
+  "TodoList.jsx": "import { useState } from \"react\";\n\nexport default function TodoList({ initialTodos = [] }) {\n  return <p>Nothing to do.</p>;\n}\n"
+ },
+ "react/05-signup-form": {
+  "SignupForm.jsx": "import { useState } from \"react\";\n\nexport default function SignupForm({ onSubmit }) {\n  return (\n    <form>\n      <button type=\"submit\">Sign up</button>\n    </form>\n  );\n}\n"
+ },
+ "react/06-effects": {
+  "Timer.jsx": "import { useEffect, useState } from \"react\";\n\nexport function DocumentTitle({ title }) {\n  return null;\n}\n\nexport default function Stopwatch() {\n  return (\n    <div>\n      <p>0 seconds</p>\n      <button>Start</button>\n    </div>\n  );\n}\n"
+ },
+ "react/07-user-list": {
+  "UserList.jsx": "import { useEffect, useState } from \"react\";\n\nexport default function UserList({ url }) {\n  return <p>Loading...</p>;\n}\n"
+ },
+ "react/08-hooks": {
+  "hooks.js": "import { useEffect, useState } from \"react\";\n\nexport function useToggle(initial = false) {\n  return [initial, () => {}];\n}\n\nexport function useCounter(start = 0, step = 1) {\n  return { count: start, increment() {}, decrement() {}, reset() {} };\n}\n\nexport function useLocalStorage(key, initial) {\n  return [initial, () => {}];\n}\n"
+ },
+ "react/09-theme": {
+  "theme.jsx": "import { createContext, useContext, useState } from \"react\";\n\nconst ThemeContext = createContext(null);\n\nexport function ThemeProvider({ children }) {\n  return children;\n}\n\nexport function useTheme() {\n  return { theme: \"light\", toggleTheme() {} };\n}\n\nexport function ThemeButton() {\n  return <button>Theme: light</button>;\n}\n\nexport function ThemedBox({ children }) {\n  return <div className=\"box light\">{children}</div>;\n}\n"
+ },
  "sql/01-select-where": {
   "query.sql": "-- Write your query here.\n"
  },

@@ -1,0 +1,39 @@
+{
+  "title": "A stopwatch and the page title",
+  "lesson": "react/06-effects",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "Timer.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "DocumentTitle: useEffect(() => { document.title = title; }, [title]);",
+    "Keep two pieces of state: seconds and running. The button flips running.",
+    "useEffect(() => { if (!running) return; const id = setInterval(...); return () => clearInterval(id); }, [running]);",
+    "Inside the interval use setSeconds((previous) => previous + 1), so the effect does not depend on seconds."
+  ]
+}

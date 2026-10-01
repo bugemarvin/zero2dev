@@ -1,0 +1,38 @@
+{
+  "title": "A counter with state",
+  "lesson": "react/03-state",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "Counter.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "const [count, setCount] = useState(start);",
+    "Pass a function to the button: onClick={() => setCount(count + step)}. Writing onClick={setCount(count + step)} would call it while rendering.",
+    "Math.max(0, count - step) stops at 0. disabled={count === 0} switches the button off."
+  ]
+}

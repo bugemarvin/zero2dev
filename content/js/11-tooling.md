@@ -93,7 +93,7 @@ You know the language, modules, asynchronous code, Node, HTTP, a REST API, the b
 
 Where to go next in this guide:
 
-- React for user interfaces;
+- [React](react/01-components-and-jsx) for user interfaces;
 - Next.js for complete web applications;
 - [SQL and PostgreSQL](sql/01-select) to store data properly;
 - Docker to package and run what you build.

@@ -1,0 +1,38 @@
+{
+  "title": "Your first components",
+  "lesson": "react/01-components-and-jsx",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "App.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "A component returns JSX: return <footer>Made with React</footer>;",
+    "In JSX the attribute is className, not class.",
+    "Use your component like a tag, with a capital letter: <Footer />"
+  ]
+}

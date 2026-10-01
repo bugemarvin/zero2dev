@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Components and JSX · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/01-components-and-jsx">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 1 of 9</p>
+<h1>Components and JSX</h1>
+<p class="lede">Build a user interface out of small functions that return markup.</p>
+<h2 id="the-idea">The idea</h2>
+<p>In <a href="../js/10-the-browser-and-dom.html">the DOM lesson</a> you kept data in variables and wrote a <code>render</code> function to make the page match. React is that idea, made into a library: you describe what the page should look like <strong>for the current data</strong>, and React updates the real DOM to match, changing only what differs.</p>
+<p>A React app is built from <strong>components</strong>: functions that return a piece of the interface.</p>
+<pre><code class="lang-jsx">function Greeting() {
+  return &lt;h1&gt;Hello, React!&lt;/h1&gt;;
+}</code></pre>
+<h2 id="jsx">JSX</h2>
+<p>The HTML-like syntax inside JavaScript is <strong>JSX</strong>. A build tool turns it into ordinary function calls. It is not a string and not a template: it is JavaScript, so you can store it in variables and return it from functions.</p>
+<p>The rules that differ from HTML:</p>
+<div class="table-wrap"><table><thead><tr><th>Rule</th><th>Example</th></tr></thead><tbody><tr><td>a component returns <strong>one</strong> root element</td><td>wrap siblings in <code>&lt;div&gt;</code> or an empty <code>&lt;&gt;...&lt;/&gt;</code></td></tr><tr><td>every tag is closed</td><td><code>&lt;img /&gt;</code>, <code>&lt;br /&gt;</code>, <code>&lt;input /&gt;</code></td></tr><tr><td><code>class</code> is written <code>className</code></td><td><code>&lt;p className="note"&gt;</code></td></tr><tr><td><code>for</code> on a label is <code>htmlFor</code></td><td><code>&lt;label htmlFor="email"&gt;</code></td></tr><tr><td>attributes with several words use camelCase</td><td><code>onClick</code>, <code>tabIndex</code></td></tr><tr><td>JavaScript goes inside braces</td><td><code>&lt;p&gt;{user.name}&lt;/p&gt;</code></td></tr></tbody></table></div>
+<pre><code class="lang-jsx">function Profile() {
+  const name = "Ada";
+  const skills = 3;
+  return (
+    &lt;&gt;
+      &lt;h2 className="title"&gt;{name}&lt;/h2&gt;
+      &lt;p&gt;{skills * 2} years of experience&lt;/p&gt;
+      &lt;img src="/ada.png" alt={`Portrait of ${name}`} /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>Inside braces you can put any <strong>expression</strong>: a variable, a calculation, a function call. Statements such as <code>if</code> and <code>for</code> are not expressions, and the next lessons show what to use instead.</p>
+<h2 id="composing-components">Composing components</h2>
+<p>A component is used like a tag. Its name <strong>must start with a capital letter</strong>. That is how React tells your components from HTML elements.</p>
+<pre><code class="lang-jsx">function Header() {
+  return &lt;h1&gt;My shop&lt;/h1&gt;;
+}
+
+function Footer() {
+  return &lt;p&gt;Open every day&lt;/p&gt;;
+}
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      &lt;Header /&gt;
+      &lt;p&gt;Welcome.&lt;/p&gt;
+      &lt;Footer /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p><code>App</code> is the root. Each component can use others, forming a tree. Splitting an interface into small components, each with one job, is the main skill in React.</p>
+<h2 id="putting-it-on-a-page">Putting it on a page</h2>
+<p>Somewhere, once, the root component is attached to an element of a real HTML page:</p>
+<pre><code class="lang-jsx">import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+
+createRoot(document.getElementById("root")).render(&lt;App /&gt;);</code></pre>
+<p>A tool such as Vite serves the page and translates JSX. The exercises come with this file already written.</p>
+<h2 id="text-is-safe-by-default">Text is safe by default</h2>
+<p>A value placed in braces is inserted as <strong>text</strong>. If <code>name</code> contains <code>&lt;b&gt;</code>, the user sees those characters. The cross-site scripting risk of <code>innerHTML</code> does not arise.</p>
+<h2 id="styling">Styling</h2>
+<pre><code class="lang-jsx">&lt;p className="warning"&gt;Careful&lt;/p&gt;
+&lt;p style={{ color: "teal", fontSize: 18 }}&gt;Styled directly&lt;/p&gt;</code></pre>
+<p><code>style</code> takes an object, hence the double braces: the outer pair means "JavaScript here", the inner pair is the object. Property names are camelCase.</p>
+<h2 id="how-the-exercises-work">How the exercises work</h2>
+<p>Every React exercise has a component file for you to complete, a test file you can read, and a small page that shows your component.</p>
+<ul><li><strong>Run tests</strong> renders your component in a simulated browser and checks what appears.</li><li><strong>Start app</strong> opens it in a real browser tab, updating as you save.</li></ul>
+<p>They use the React package set. Download it once from the Setup page.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A lower-case component name.</strong> <code>&lt;header /&gt;</code> is the HTML element. <code>&lt;Header /&gt;</code> is your component.</li><li><strong>Two root elements.</strong> Wrap them in <code>&lt;&gt;...&lt;/&gt;</code>.</li><li><strong><code>class</code> in place of <code>className</code>.</strong></li><li><strong>An unclosed tag</strong> such as <code>&lt;br&gt;</code>.</li><li><strong>Forgetting <code>export</code></strong>, so nothing else can import the component.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/01-greeting">
+<h3>Your first components <span class="ex-id">react/01-greeting</span></h3>
+<p>Complete <code>App.jsx</code>.</p>
+<ol><li><code>Footer</code> is a component that returns a <code>&lt;footer&gt;</code> element containing the text <code>Made with React</code>. Export it by name.</li><li><code>App</code>, the default export, returns: - an <code>&lt;h1&gt;</code> with the text <code>Hello, React!</code> - a <code>&lt;p&gt;</code> with the CSS class <code>lead</code> and the text <code>This is my first component.</code> - the <code>Footer</code> component.</li></ol>
+<p>A component returns a single root element, so wrap the three in a <code>&lt;div&gt;</code> or in <code>&lt;&gt;...&lt;/&gt;</code>.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/01-greeting/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/01-greeting</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/11-tooling.html"><span>Previous</span>Tooling and what comes next</a><a class="next" href="../react/02-props.html"><span>Next</span>Props</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
