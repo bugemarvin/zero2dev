@@ -87,7 +87,7 @@
     c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", py: "python", java: "java", ex: "elixir", exs: "elixir",
     sql: "sql", sh: "bash", js: "javascript", mjs: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript",
     go: "go", rs: "rust", rb: "ruby", yaml: "yaml", yml: "yaml", php: "php", html: "html", htm: "html",
-    css: "css", scss: "css", json: "javascript", vue: "html"
+    css: "css", scss: "scss", json: "javascript", vue: "html"
   };
 
   // Unsaved edits survive a reload or a closed tab: they are kept in the browser until they are saved.

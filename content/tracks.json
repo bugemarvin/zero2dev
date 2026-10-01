@@ -109,6 +109,16 @@
     ]
   },
   {
+    "id": "tailwind",
+    "title": "Tailwind CSS",
+    "blurb": "Style pages with small utility classes in the HTML: spacing, colour, layout, responsive and hover variants, and your own theme.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:tailwind",
+      "tool:browser"
+    ]
+  },
+  {
     "id": "java",
     "title": "Java",
     "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",

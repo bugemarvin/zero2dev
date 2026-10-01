@@ -1,0 +1,46 @@
+[
+ {
+  "q": "In a React or Vue project, what is the first answer to a repeated list of classes?",
+  "options": [
+   "@apply",
+   "A component",
+   "A Sass mixin",
+   "Copy and paste"
+  ],
+  "answer": 1,
+  "why": "The repetition is in the markup, so it is removed in the markup."
+ },
+ {
+  "q": "What does @apply do?",
+  "options": [
+   "Imports a file",
+   "Copies the declarations of utilities into your own rule",
+   "Applies a theme",
+   "Runs Tailwind"
+  ],
+  "answer": 1,
+  "why": "It gives a set of utilities a class name."
+ },
+ {
+  "q": "Why put .btn in `@layer components`?",
+  "options": [
+   "It compiles faster",
+   "So that utilities on the element can still override it",
+   "It is required for @apply",
+   "For dark mode"
+  ],
+  "answer": 1,
+  "why": "The components layer comes before the utilities in the cascade."
+ },
+ {
+  "q": "What is wrong with using @apply for every element?",
+  "options": [
+   "It is slow",
+   "You rebuild a hand-written stylesheet, with names to invent and CSS that grows",
+   "It breaks hover",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "Keep it for a few small, much-repeated things."
+ }
+]

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layout: flexbox, grid and sizing · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="tailwind/02-layout">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Tailwind CSS · lesson 2 of 5</p>
+<h1>Layout: flexbox, grid and sizing</h1>
+<p class="lede">The layout tools of CSS, as classes.</p>
+<p>Everything here is <a href="../css/04-flexbox.html">flexbox</a> and <a href="../css/05-grid.html">grid</a> from the CSS track, written as classes.</p>
+<h2 id="display">Display</h2>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>block</code>, <code>inline-block</code>, <code>inline</code></td><td><code>display: ...</code></td></tr><tr><td><code>flex</code>, <code>inline-flex</code></td><td><code>display: flex</code></td></tr><tr><td><code>grid</code></td><td><code>display: grid</code></td></tr><tr><td><code>hidden</code></td><td><code>display: none</code></td></tr></tbody></table></div>
+<h2 id="flexbox">Flexbox</h2>
+<pre><code class="lang-html">&lt;header class="flex items-center justify-between gap-4"&gt;
+  &lt;a href="/"&gt;Bean&lt;/a&gt;
+  &lt;nav class="flex gap-4"&gt;...&lt;/nav&gt;
+&lt;/header&gt;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>flex-row</code>, <code>flex-col</code></td><td><code>flex-direction</code></td></tr><tr><td><code>justify-start</code>, <code>justify-center</code>, <code>justify-between</code>, <code>justify-end</code></td><td><code>justify-content</code>: along the main axis</td></tr><tr><td><code>items-start</code>, <code>items-center</code>, <code>items-end</code>, <code>items-stretch</code></td><td><code>align-items</code>: across it</td></tr><tr><td><code>flex-wrap</code></td><td>let items go to the next line</td></tr><tr><td><code>flex-1</code></td><td>grow and shrink to share the space</td></tr><tr><td><code>shrink-0</code></td><td>never shrink</td></tr><tr><td><code>gap-4</code>, <code>gap-x-4</code>, <code>gap-y-2</code></td><td>space between items</td></tr></tbody></table></div>
+<h2 id="grid">Grid</h2>
+<pre><code class="lang-html">&lt;div class="grid grid-cols-3 gap-6"&gt;
+  &lt;article&gt;...&lt;/article&gt;
+  &lt;article&gt;...&lt;/article&gt;
+  &lt;article&gt;...&lt;/article&gt;
+&lt;/div&gt;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>grid-cols-3</code></td><td>three equal columns: <code>repeat(3, minmax(0, 1fr))</code></td></tr><tr><td><code>col-span-2</code></td><td>an item that is two columns wide</td></tr><tr><td><code>grid-rows-2</code>, <code>row-span-2</code></td><td>the same for rows</td></tr><tr><td><code>place-items-center</code></td><td>centre every item in its cell</td></tr></tbody></table></div>
+<h2 id="sizing">Sizing</h2>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>w-64</code></td><td><code>width: 16rem</code> (the spacing scale)</td></tr><tr><td><code>w-full</code>, <code>h-full</code></td><td>100%</td></tr><tr><td><code>w-1/2</code>, <code>w-1/3</code></td><td>fractions</td></tr><tr><td><code>w-screen</code>, <code>h-screen</code>, <code>min-h-screen</code></td><td>the viewport</td></tr><tr><td><code>max-w-md</code>, <code>max-w-4xl</code></td><td>a named maximum width</td></tr><tr><td><code>size-10</code></td><td>width and height together</td></tr></tbody></table></div>
+<h2 id="the-centred-column">The centred column</h2>
+<p>The most common layout on the web is a column with a maximum width, centred:</p>
+<pre><code class="lang-html">&lt;main class="max-w-4xl mx-auto px-4"&gt;...&lt;/main&gt;</code></pre>
+<p><code>max-w-4xl</code> limits the width, <code>mx-auto</code> shares the remaining space left and right, and <code>px-4</code> keeps the text off the edges on a small screen.</p>
+<h2 id="space-between-children">Space between children</h2>
+<p><code>gap</code> works in flex and grid containers. For plain stacked elements there is <code>space-y-4</code>, which puts a margin between each child and the next:</p>
+<pre><code class="lang-html">&lt;div class="space-y-4"&gt;
+  &lt;p&gt;...&lt;/p&gt;
+  &lt;p&gt;...&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+<h2 id="position">Position</h2>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>relative</code>, <code>absolute</code>, <code>fixed</code>, <code>sticky</code></td><td><code>position</code></td></tr><tr><td><code>top-0</code>, <code>right-4</code>, <code>inset-0</code></td><td>the offsets</td></tr><tr><td><code>z-10</code>, <code>z-50</code></td><td><code>z-index</code></td></tr></tbody></table></div>
+<pre><code class="lang-html">&lt;header class="sticky top-0 z-10 bg-white"&gt;...&lt;/header&gt;</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>justify-*</code> and <code>items-*</code> with no <code>flex</code> or <code>grid</code></strong> on the same element. They do nothing.</li><li><strong><code>grid-cols-3</code> with no <code>grid</code>.</strong></li><li><strong>Classes on the wrong element.</strong> Layout classes go on the <strong>container</strong>, not on the items.</li><li><strong><code>mx-auto</code> with no width or maximum width.</strong> There is no space left to share.</li><li><strong>Margins on items where <code>gap</code> on the container</strong> would do.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="tailwind/02-layout">
+<h3>A header and a grid of cards <span class="ex-id">tailwind/02-layout</span></h3>
+<p>Lay out the page in <code>index.html</code> with classes. Do not write any CSS.</p>
+<ul><li>The <code>header</code> is a flex row: <code>flex</code>, with the items centred across (<code>items-center</code>) and pushed to both ends (<code>justify-between</code>). It has the padding <code>p-4</code>.</li><li>The <code>nav</code> is also <code>flex</code>, with a <code>gap-4</code> between the links.</li><li>The <code>main</code> is a centred column: <code>max-w-4xl</code>, <code>mx-auto</code>, and the padding <code>p-4</code>.</li><li>The element with the id <code>cards</code> is a grid of three columns: <code>grid</code>, <code>grid-cols-3</code>, with <code>gap-6</code>.</li><li>The first card, with the id <code>featured</code>, is two columns wide: <code>col-span-2</code>.</li></ul>
+<p><strong>Run tests</strong> builds the CSS with Tailwind and checks the classes on the page. <strong>Open preview</strong> shows the styled page, and builds again when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/tailwind/02-layout/</code></p>
+<pre><code class="lang-console">$ python3 check.py tailwind/02-layout</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../tailwind/01-utility-first.html"><span>Previous</span>Utility-first CSS</a><a class="next" href="../tailwind/03-responsive-and-states.html"><span>Next</span>Responsive design, states and dark mode</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utility-first CSS · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="tailwind/01-utility-first">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Tailwind CSS · lesson 1 of 5</p>
+<h1>Utility-first CSS</h1>
+<p class="lede">Style an element by listing small classes on it, and how Tailwind builds only the CSS you use.</p>
+<details class="install" id="install" data-track="tailwind">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
+<h4>Node.js and npm: by hand</h4>
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre></div>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>The <strong>tailwind</strong> packages come from npm, once: press <strong>Download packages</strong> on the Setup page, or run <code>python3 check.py prefetch tailwind</code>.</p>
+<p>A <strong>web browser</strong>: you are using one now. Nothing to install.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track builds on <a href="../css/01-selectors-and-cascade.html">CSS</a>. Tailwind does not replace knowing CSS: every class is one or two CSS declarations, and you need to know what they do.</p>
+<h2 id="two-ways-to-style-a-card">Two ways to style a card</h2>
+<p>The way you learned in the CSS track: invent a class name, then write its rules in a stylesheet.</p>
+<pre><code class="lang-html">&lt;article class="card"&gt;...&lt;/article&gt;</code></pre>
+<pre><code class="lang-css">.card {
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 0.5rem;
+}</code></pre>
+<p>The <strong>utility-first</strong> way: use small classes that already exist, each doing one thing.</p>
+<pre><code class="lang-html">&lt;article class="p-6 bg-white rounded-lg"&gt;...&lt;/article&gt;</code></pre>
+<p>No stylesheet to write, no name to invent. <code>p-6</code> is padding, <code>bg-white</code> is the background, <code>rounded-lg</code> is the border radius. <strong>Tailwind CSS</strong> is the best-known library of such classes.</p>
+<h2 id="why-people-like-it">Why people like it</h2>
+<ul><li><strong>No naming.</strong> You do not have to decide whether it is a <code>card</code>, a <code>panel</code> or a <code>box-wrapper</code>.</li><li><strong>Changes are local.</strong> You change this element's classes. Nothing else on the site can break.</li><li><strong>The CSS stops growing.</strong> Two hundred components reuse the same few hundred utilities.</li><li><strong>A design system for free.</strong> Spacing, sizes and colours come from a fixed scale, so pages look consistent.</li></ul>
+<p>And the cost: the HTML gets long. Lesson 5 shows how that is handled.</p>
+<h2 id="how-it-is-built">How it is built</h2>
+<p>Tailwind is not a big CSS file that you download. It is a <strong>compiler</strong>:</p>
+<pre><code class="lang-text">your HTML and components  --tailwind--&gt;  one CSS file with only the classes you used</code></pre>
+<p>It reads your files, finds the class names, and generates CSS for exactly those. A class you never use costs nothing.</p>
+<h2 id="setting-it-up">Setting it up</h2>
+<p>In a project with Vite (React, Vue and others):</p>
+<pre><code class="lang-console">$ npm install tailwindcss @tailwindcss/vite</code></pre>
+<pre><code class="lang-javascript">// vite.config.js
+import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({ plugins: [tailwindcss()] });</code></pre>
+<p>Without a build tool, the command-line program does the same:</p>
+<pre><code class="lang-console">$ npm install tailwindcss @tailwindcss/cli
+$ npx @tailwindcss/cli -i input.css -o style.css --watch</code></pre>
+<p>In both cases your CSS file starts with one line:</p>
+<pre><code class="lang-css">@import "tailwindcss";</code></pre>
+<p>The exercises in this track use the command-line program: <code>input.css</code> is compiled to <code>style.css</code>, which the page links.</p>
+<h2 id="the-spacing-scale">The spacing scale</h2>
+<p>Spacing classes take a number. One step is <code>0.25rem</code>, which is 4 pixels with default settings.</p>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>p-4</code></td><td><code>padding: 1rem</code></td></tr><tr><td><code>px-4</code></td><td>left and right padding</td></tr><tr><td><code>py-2</code></td><td>top and bottom padding</td></tr><tr><td><code>pt-2</code>, <code>pr-2</code>, <code>pb-2</code>, <code>pl-2</code></td><td>one side</td></tr><tr><td><code>m-4</code>, <code>mx-auto</code>, <code>mt-6</code></td><td>margin, the same pattern</td></tr><tr><td><code>gap-4</code></td><td>the gap in a flex or grid container</td></tr><tr><td><code>w-64</code>, <code>h-10</code></td><td>width and height</td></tr></tbody></table></div>
+<p>So <code>p-6</code> is 1.5rem, and <code>mt-2</code> is 0.5rem.</p>
+<h2 id="colour">Colour</h2>
+<p>Colours have a name and a shade from 50 (lightest) to 950 (darkest):</p>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>Sets</th></tr></thead><tbody><tr><td><code>text-gray-600</code></td><td>the text colour</td></tr><tr><td><code>bg-blue-600</code></td><td>the background</td></tr><tr><td><code>border-red-500</code></td><td>the border colour</td></tr><tr><td><code>bg-white</code>, <code>text-black</code></td><td>plain white and black</td></tr></tbody></table></div>
+<h2 id="text">Text</h2>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>text-sm</code>, <code>text-base</code>, <code>text-xl</code>, <code>text-3xl</code></td><td>font size</td></tr><tr><td><code>font-bold</code>, <code>font-semibold</code>, <code>font-medium</code></td><td>font weight</td></tr><tr><td><code>text-center</code>, <code>text-right</code></td><td>alignment</td></tr><tr><td><code>uppercase</code>, <code>underline</code>, <code>italic</code></td><td>what they say</td></tr><tr><td><code>leading-relaxed</code>, <code>tracking-wide</code></td><td>line height and letter spacing</td></tr></tbody></table></div>
+<h2 id="borders-and-shadows">Borders and shadows</h2>
+<div class="table-wrap"><table><thead><tr><th>Class</th><th>CSS</th></tr></thead><tbody><tr><td><code>border</code>, <code>border-2</code></td><td>a border of 1 or 2 pixels</td></tr><tr><td><code>rounded</code>, <code>rounded-lg</code>, <code>rounded-full</code></td><td>border radius</td></tr><tr><td><code>shadow-sm</code>, <code>shadow-md</code>, <code>shadow-lg</code></td><td>box shadows</td></tr></tbody></table></div>
+<h2 id="the-reset">The reset</h2>
+<p>Tailwind starts by removing the browser's default styles: headings are the same size as text, lists have no bullets, margins are zero. A bare <code>&lt;h1&gt;</code> looks like a paragraph until you give it classes. That is on purpose: every page starts from the same blank state.</p>
+<h2 id="do-not-build-class-names">Do not build class names</h2>
+<p>Tailwind finds classes by reading your files as text. It cannot run your code.</p>
+<pre><code class="lang-javascript">const colour = "red";
+const cls = "text-" + colour + "-600";      // never found: this class is not generated</code></pre>
+<p>Write complete class names: <code>error ? "text-red-600" : "text-green-600"</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting headings to be big.</strong> The reset removed that. Add <code>text-2xl font-bold</code>.</li><li><strong>A class that does nothing</strong>, because it is misspelled or does not exist. Look at the compiled CSS, or use the editor extension that completes class names.</li><li><strong>Building class names from pieces</strong> in code.</li><li><strong>Fighting the scale</strong> with odd values everywhere. The scale is the point.</li><li><strong>Skipping CSS.</strong> If you do not know what <code>flex</code> does in CSS, the class <code>flex</code> will not help you.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="tailwind/01-card">
+<h3>A card, with utilities only <span class="ex-id">tailwind/01-card</span></h3>
+<p>The page in <code>index.html</code> has no styling: the <code>class</code> attributes are empty. Fill them in. Do not write any CSS.</p>
+<ul><li>The <code>body</code> has the background <code>bg-gray-100</code> and a padding of <code>p-8</code>.</li><li>The <code>article</code> has the padding <code>p-6</code>, the background <code>bg-white</code>, the corners <code>rounded-lg</code> and the shadow <code>shadow-md</code>.</li><li>The <code>h2</code> has the size <code>text-xl</code>, is <code>font-bold</code>, and has the colour <code>text-gray-900</code>.</li><li>The paragraph has a top margin of <code>mt-2</code> and the colour <code>text-gray-600</code>.</li><li>The link has <code>text-blue-600</code> and is <code>underline</code>.</li></ul>
+<p><strong>Run tests</strong> builds the CSS with Tailwind and checks the classes on the page. <strong>Open preview</strong> shows the styled page, and builds again when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/tailwind/01-card/</code></p>
+<pre><code class="lang-console">$ python3 check.py tailwind/01-card</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../scss/05-maps-and-loops.html"><span>Previous</span>Maps, loops and conditions</a><a class="next" href="../tailwind/02-layout.html"><span>Next</span>Layout: flexbox, grid and sizing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
