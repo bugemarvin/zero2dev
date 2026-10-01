@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Merge conflicts · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/05-conflicts">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 5 of 9</p>
+<h1>Merge conflicts</h1>
+<p class="lede">When two branches change the same lines, Git asks you to decide. It looks alarming and is routine.</p>
+<h2 id="why-they-happen">Why they happen</h2>
+<p>Git merges changes automatically when they touch different lines. When two branches change <strong>the same lines</strong> in different ways, Git cannot know which one you want. It stops and asks.</p>
+<pre><code class="lang-console">$ git merge feature/blue
+Auto-merging colors.txt
+CONFLICT (content): Merge conflict in colors.txt
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+<p>Nothing is broken. The merge is paused, waiting for you.</p>
+<h2 id="what-the-file-looks-like">What the file looks like</h2>
+<p>Git writes both versions into the file, with markers around them:</p>
+<pre><code class="lang-text">Colors we like
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+favorite: green
+=======
+favorite: blue
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/blue</code></pre>
+<ul><li>Between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is the version from <strong>your current branch</strong>.</li><li>Between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/blue</code> is the version from the <strong>branch being merged</strong>.</li></ul>
+<h2 id="resolving-it">Resolving it</h2>
+<ol><li><strong>Open the file</strong> and decide what the lines should be. Keep one side, keep the other, or write something new that combines them.</li><li><strong>Delete all three marker lines.</strong> The file must end up as normal content.</li><li><strong>Stage the file</strong> to tell Git it is resolved.</li><li><strong>Commit</strong> to finish the merge.</li></ol>
+<p>After editing, the file might read:</p>
+<pre><code class="lang-text">Colors we like
+favorite: blue-green</code></pre>
+<pre><code class="lang-console">$ git add colors.txt
+$ git commit --no-edit
+[main 5e2d7b4] Merge branch 'feature/blue'</code></pre>
+<p><code>git status</code> shows you where you are at every step, including which files still have conflicts.</p>
+<h2 id="changing-your-mind">Changing your mind</h2>
+<p>To give up on the merge and return to how things were before it started:</p>
+<pre><code class="lang-console">$ git merge --abort</code></pre>
+<h2 id="fewer-smaller-conflicts">Fewer, smaller conflicts</h2>
+<ul><li><strong>Merge often.</strong> A branch that lives for a day conflicts far less than one that lives for a month.</li><li><strong>Keep commits focused.</strong> One change per commit makes each conflict easy to understand.</li><li><strong>Do not reformat whole files</strong> in the same commit as a real change. It makes every line conflict.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Leaving a marker in the file.</strong> The code no longer runs, and the marker gets committed. Search the file for <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> before you stage it.</li><li><strong>Staging without resolving.</strong> <code>git add</code> only tells Git the file is ready. It does not check that the content makes sense.</li><li><strong>Panicking and deleting the folder.</strong> <code>git merge --abort</code> is always available until you commit.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/05-conflict">
+<h3>Resolve a merge conflict <span class="ex-id">git/05-conflict</span></h3>
+<p>On <code>main</code>, the file <code>colors.txt</code> says <code>favorite: green</code>. On <code>feature/blue</code> the same line says <code>favorite: blue</code>.</p>
+<ol><li>Merge <code>feature/blue</code> into <code>main</code>. Git stops with a conflict.</li><li>Edit <code>colors.txt</code> so that it has exactly these two lines and no markers:</li></ol>
+<pre><code class="lang-text">Colors we like
+favorite: blue-green</code></pre>
+<ol><li>Stage the file and commit to finish the merge.</li></ol>
+<p class="ex-files">Files: <code>exercises/git/05-conflict/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/05-conflict</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/04-merge.html"><span>Previous</span>Merging</a><a class="next" href="../git/06-remotes.html"><span>Next</span>Remotes and GitHub</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

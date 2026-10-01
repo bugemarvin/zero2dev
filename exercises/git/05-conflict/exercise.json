@@ -1,0 +1,39 @@
+{
+  "title": "Resolve a merge conflict",
+  "lesson": "git/05-conflicts",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf 'Colors we like\\nfavorite: red\\n' > colors.txt && git add colors.txt && git commit -qm 'Add colors'",
+    "git checkout -q -b feature/blue && printf 'Colors we like\\nfavorite: blue\\n' > colors.txt && git add colors.txt && git commit -qm 'Prefer blue'",
+    "git checkout -q main && printf 'Colors we like\\nfavorite: green\\n' > colors.txt && git add colors.txt && git commit -qm 'Prefer green'"
+  ],
+  "checks": [
+    {
+      "name": "the merge is finished",
+      "cmd": "test ! -f .git/MERGE_HEAD && git merge-base --is-ancestor feature/blue main"
+    },
+    {
+      "name": "no conflict markers are left in colors.txt",
+      "cmd": "! grep -qE '^(<<<<<<<|=======|>>>>>>>)' colors.txt"
+    },
+    {
+      "name": "the favorite line reads: favorite: blue-green",
+      "cmd": "grep -qx 'favorite: blue-green' colors.txt"
+    },
+    {
+      "name": "colors.txt has exactly 2 lines",
+      "cmd": "wc -l < colors.txt | tr -d ' '",
+      "stdout": "2"
+    },
+    {
+      "name": "nothing is left uncommitted (git status is clean)",
+      "cmd": "test -z \"$(git status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "Start the merge with git merge feature/blue. It will stop and report the conflict.",
+    "Open colors.txt, delete the three marker lines, and leave one line: favorite: blue-green",
+    "Then git add colors.txt and git commit --no-edit."
+  ]
+}

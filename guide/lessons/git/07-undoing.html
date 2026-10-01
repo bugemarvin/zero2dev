@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Undoing things · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/07-undoing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 7 of 9</p>
+<h1>Undoing things</h1>
+<p class="lede">Throw away an edit, unstage a file, fix the last commit, or reverse an old one. Pick the right tool for where the mistake is.</p>
+<h2 id="find-where-the-mistake-is">Find where the mistake is</h2>
+<p>The right command depends on how far the mistake has travelled.</p>
+<div class="table-wrap"><table><thead><tr><th>The mistake is...</th><th>Use</th></tr></thead><tbody><tr><td>an edit you have not staged</td><td><code>git restore file</code></td></tr><tr><td>staged, and should not be</td><td><code>git restore --staged file</code></td></tr><tr><td>in the last commit, not pushed yet</td><td><code>git commit --amend</code></td></tr><tr><td>in a commit you already pushed</td><td><code>git revert commit</code></td></tr></tbody></table></div>
+<h2 id="discard-an-edit">Discard an edit</h2>
+<pre><code class="lang-console">$ git restore notes.txt</code></pre>
+<p>This puts the file back to how it was in the last commit.</p>
+<div class="callout warn"><p><strong>Warning:</strong> the discarded edits are gone for good. Git never saved them, so it cannot bring them back.</p></div>
+<h2 id="unstage-a-file">Unstage a file</h2>
+<pre><code class="lang-console">$ git restore --staged draft.txt</code></pre>
+<p>The file leaves the staging area. Your edits stay in the working directory, untouched.</p>
+<h2 id="fix-the-last-commit">Fix the last commit</h2>
+<p>Forgot a file, or made a typo in the message?</p>
+<pre><code class="lang-console">$ git add forgotten.txt
+$ git commit --amend -m "Add search page and its tests"</code></pre>
+<p><code>--amend</code> replaces the last commit with a new one. Only do this to commits you have <strong>not pushed</strong>. Replacing a commit that other people already have causes trouble for them.</p>
+<h2 id="reverse-an-old-commit">Reverse an old commit</h2>
+<p><code>git revert</code> makes a <strong>new</strong> commit that does the opposite of an earlier one. History is kept, and nothing is rewritten, so it is safe on shared branches.</p>
+<pre><code class="lang-console">$ git log --oneline
+e1f0a2b Add experimental cache
+9b1d3e7 Add pancake recipe
+$ git revert --no-edit e1f0a2b
+[main 7c4d9e2] Revert "Add experimental cache"</code></pre>
+<p>Revert needs a clean staging area. Commit or unstage other changes first.</p>
+<h2 id="reset">Reset</h2>
+<p><code>git reset</code> moves the current branch label back to an earlier commit. The three modes differ in what happens to the changes from the commits you stepped back over.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Commits</th><th>Changes</th></tr></thead><tbody><tr><td><code>git reset --soft HEAD~1</code></td><td>removed from the branch</td><td>kept, staged</td></tr><tr><td><code>git reset HEAD~1</code></td><td>removed from the branch</td><td>kept, unstaged</td></tr><tr><td><code>git reset --hard HEAD~1</code></td><td>removed from the branch</td><td><strong>deleted</strong></td></tr></tbody></table></div>
+<p><code>HEAD~1</code> means <em>one commit before the current one</em>.</p>
+<p>Like <code>--amend</code>, reset rewrites history. Use it only on commits you have not pushed.</p>
+<h2 id="the-safety-net">The safety net</h2>
+<p>Git remembers every position <code>HEAD</code> has been in, for weeks:</p>
+<pre><code class="lang-console">$ git reflog
+7c4d9e2 HEAD@{0}: revert: Revert "Add experimental cache"
+e1f0a2b HEAD@{1}: commit: Add experimental cache</code></pre>
+<p>If a reset removed a commit you wanted, find its hash here and return to it with <code>git reset --hard e1f0a2b</code>. <strong>Committed work is very hard to lose.</strong> Uncommitted work is easy to lose, which is one more reason to commit often.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>git reset --hard</code> with uncommitted work.</strong> It is the one command here that destroys things with no way back.</li><li><strong>Amending or resetting pushed commits.</strong> Use <code>git revert</code> on anything other people may have.</li><li><strong>Using <code>revert</code> when you meant <code>restore</code>.</strong> Revert reverses a commit. Restore puts a file back.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/07-undo">
+<h3>Three kinds of undo <span class="ex-id">git/07-undo</span></h3>
+<p>Run <code>git status</code> and <code>git log --oneline</code> to see the state of your working folder. Three things are wrong:</p>
+<ol><li><code>draft.txt</code> is staged, and it should not be. Unstage it. Keep the file.</li><li><code>notes.txt</code> has an unwanted edit. Discard the edit.</li><li>The last commit added <code>bad.txt</code>, which contains a password. Reverse that commit with <code>git revert</code>, so the file is gone and the history still shows what happened.</li></ol>
+<p>Do them in that order.</p>
+<p class="ex-files">Files: <code>exercises/git/07-undo/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/07-undo</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/06-remotes.html"><span>Previous</span>Remotes and GitHub</a><a class="next" href="../git/08-rebase.html"><span>Next</span>Rebase</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "title": "Three kinds of undo",
+  "lesson": "git/07-undoing",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf 'line one\\n' > notes.txt && git add notes.txt && git commit -qm 'Add notes'",
+    "printf 'print hello\\n' > app.txt && git add app.txt && git commit -qm 'Add app'",
+    "printf 'password=1234\\n' > bad.txt && git add bad.txt && git commit -qm 'Add secret password file'",
+    "printf 'oops, unwanted edit\\n' >> notes.txt",
+    "printf 'not ready yet\\n' > draft.txt && git add draft.txt"
+  ],
+  "checks": [
+    {
+      "name": "draft.txt still exists but is not staged or committed",
+      "cmd": "test -f draft.txt && git diff --cached --quiet && test -z \"$(git ls-files draft.txt)\""
+    },
+    {
+      "name": "notes.txt is back to its committed content",
+      "cmd": "test \"$(cat notes.txt)\" = \"line one\""
+    },
+    {
+      "name": "bad.txt is gone",
+      "cmd": "test ! -e bad.txt"
+    },
+    {
+      "name": "history is kept: there are now 4 commits",
+      "cmd": "git rev-list --count HEAD",
+      "stdout": "4"
+    },
+    {
+      "name": "the newest commit is a revert",
+      "cmd": "git log -1 --format=%s",
+      "regex": "^Revert"
+    }
+  ],
+  "hints": [
+    "Order matters: git revert needs a clean staging area, so unstage draft.txt first.",
+    "git restore --staged draft.txt unstages. git restore notes.txt discards the edit.",
+    "git revert --no-edit HEAD makes a new commit that reverses the last one."
+  ]
+}

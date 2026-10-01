@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell scripts · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/06-shell-scripts">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 6 of 7</p>
+<h1>Shell scripts</h1>
+<p class="lede">Put commands in a file and you have a program. Variables, arguments, decisions and loops in Bash.</p>
+<h2 id="your-first-script">Your first script</h2>
+<p>A shell script is a text file of commands. Create <code>hello.sh</code> with this inside:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+echo "Hello from a script"</code></pre>
+<p>The first line is the <strong>shebang</strong>. It tells the system which program should read the file, here Bash. Run the script either way:</p>
+<pre><code class="lang-console">$ bash hello.sh
+Hello from a script
+$ chmod +x hello.sh
+$ ./hello.sh
+Hello from a script</code></pre>
+<h2 id="variables">Variables</h2>
+<pre><code class="lang-bash">name="Sam"
+echo "Hello, $name"</code></pre>
+<ul><li><strong>No spaces around <code>=</code>.</strong> <code>name = "Sam"</code> is an error, because the shell reads <code>name</code> as a command.</li><li>Use <code>$name</code> to read the value.</li><li>Put variables inside <strong>double quotes</strong>. Without them, a value containing spaces splits into several words.</li></ul>
+<p>Capture the output of a command with <code>$( )</code>:</p>
+<pre><code class="lang-bash">today=$(date +%A)
+echo "Today is $today"</code></pre>
+<h2 id="arguments">Arguments</h2>
+<p>Words after the script name arrive as <code>$1</code>, <code>$2</code> and so on. <code>$#</code> is how many there are, and <code>$0</code> is the script's own name.</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+echo "First: $1"
+echo "Count: $#"</code></pre>
+<pre><code class="lang-console">$ bash args.sh apple banana
+First: apple
+Count: 2</code></pre>
+<h2 id="decisions">Decisions</h2>
+<pre><code class="lang-bash">if [ "$#" -eq 0 ]; then
+    echo "No arguments given"
+elif [ "$1" = "hi" ]; then
+    echo "Hello to you"
+else
+    echo "You said: $1"
+fi</code></pre>
+<p>The spaces inside <code>[ ... ]</code> are required. The common tests:</p>
+<div class="table-wrap"><table><thead><tr><th>Test</th><th>True when</th></tr></thead><tbody><tr><td><code>[ "$a" = "$b" ]</code></td><td>the two strings are equal</td></tr><tr><td><code>[ "$a" != "$b" ]</code></td><td>they differ</td></tr><tr><td><code>[ -z "$a" ]</code></td><td>the string is empty</td></tr><tr><td><code>[ "$n" -eq 5 ]</code></td><td>numbers are equal (<code>-ne</code>, <code>-lt</code>, <code>-le</code>, <code>-gt</code>, <code>-ge</code>)</td></tr><tr><td><code>[ -f path ]</code></td><td>a file exists</td></tr><tr><td><code>[ -d path ]</code></td><td>a folder exists</td></tr></tbody></table></div>
+<h2 id="loops">Loops</h2>
+<p>Loop over a list:</p>
+<pre><code class="lang-bash">for fruit in apple banana cherry; do
+    echo "I like $fruit"
+done</code></pre>
+<p>Loop over the lines of standard input:</p>
+<pre><code class="lang-bash">total=0
+while read -r number; do
+    total=$((total + number))
+done
+echo "$total"</code></pre>
+<p><code>read -r number</code> puts one line into the variable and fails when the input ends, which stops the loop. <code>$(( ))</code> does whole-number arithmetic.</p>
+<h2 id="exit-codes">Exit codes</h2>
+<p>Every command finishes with a number. <strong>0 means success</strong>, anything else means failure. Your script decides its own with <code>exit</code>:</p>
+<pre><code class="lang-bash">if [ "$#" -eq 0 ]; then
+    echo "usage: greet.sh NAME" &gt;&amp;2
+    exit 1
+fi</code></pre>
+<p><code>&gt;&amp;2</code> sends the message to standard error, where error messages belong. After any command, <code>$?</code> holds its exit code:</p>
+<pre><code class="lang-console">$ ls nothing-here
+ls: cannot access 'nothing-here': No such file or directory
+$ echo $?
+2</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Spaces around <code>=</code></strong> in an assignment.</li><li><strong>Missing spaces inside <code>[ ]</code>.</strong> <code>["$a" = "b"]</code> fails. Write <code>[ "$a" = "b" ]</code>.</li><li><strong>Unquoted variables.</strong> <code>[ $name = Sam ]</code> breaks when <code>name</code> is empty. Always write <code>"$name"</code>.</li><li><strong>Windows line endings.</strong> A script saved by a Windows editor can fail with <code>$'\r': command not found</code>. Save it with LF line endings (VS Code shows <code>CRLF</code> or <code>LF</code> at the bottom right; click it to change).</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="start/04-greet">
+<h3>Greet by name <span class="ex-id">start/04-greet</span></h3>
+<p>Write <code>greet.sh</code>.</p>
+<ul><li><code>bash greet.sh Sam</code> prints <code>Hello, Sam!</code></li><li>With no argument it prints <code>usage: greet.sh NAME</code> to <strong>standard error</strong>, prints nothing to standard output, and exits with code <code>1</code>.</li></ul>
+<pre><code class="lang-console">$ bash greet.sh "Grace Hopper"
+Hello, Grace Hopper!</code></pre>
+<p class="ex-files">Files: <code>exercises/start/04-greet/</code></p>
+<pre><code class="lang-console">$ python3 check.py start/04-greet</code></pre>
+</article>
+<article class="exercise" data-ex="start/05-sum">
+<h3>Add up numbers <span class="ex-id">start/05-sum</span></h3>
+<p>Write <code>sum.sh</code>. It reads whole numbers from standard input, one per line, and prints their total.</p>
+<pre><code class="lang-console">$ printf '1\n2\n3\n' | bash sum.sh
+6</code></pre>
+<p>With no input at all it prints <code>0</code>.</p>
+<p class="ex-files">Files: <code>exercises/start/05-sum/</code></p>
+<pre><code class="lang-console">$ python3 check.py start/05-sum</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../start/05-pipes-and-redirection.html"><span>Previous</span>Pipes and redirection</a><a class="next" href="../start/07-editor.html"><span>Next</span>Your editor and the work loop</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

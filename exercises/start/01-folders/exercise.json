@@ -1,0 +1,31 @@
+{
+  "title": "Build a project folder",
+  "lesson": "start/03-terminal",
+  "kind": "sandbox",
+  "checks": [
+    {
+      "name": "folder project/src exists",
+      "cmd": "test -d project/src"
+    },
+    {
+      "name": "folder project/docs exists",
+      "cmd": "test -d project/docs"
+    },
+    {
+      "name": "file project/README.md exists",
+      "cmd": "test -f project/README.md"
+    },
+    {
+      "name": "file project/src/main.txt exists",
+      "cmd": "test -f project/src/main.txt"
+    },
+    {
+      "name": "file project/docs/notes.txt exists",
+      "cmd": "test -f project/docs/notes.txt"
+    }
+  ],
+  "hints": [
+    "mkdir -p makes a folder together with any missing parent folders.",
+    "touch creates an empty file: touch project/README.md"
+  ]
+}

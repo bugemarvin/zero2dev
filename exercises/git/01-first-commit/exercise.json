@@ -1,0 +1,33 @@
+{
+  "title": "Make a repository and commit",
+  "lesson": "git/01-first-commit",
+  "kind": "sandbox",
+  "checks": [
+    {
+      "name": "the folder is a Git repository",
+      "cmd": "test -d .git"
+    },
+    {
+      "name": "README.md exists",
+      "cmd": "test -f README.md"
+    },
+    {
+      "name": "there is at least one commit",
+      "cmd": "git rev-list --count HEAD",
+      "min": 1
+    },
+    {
+      "name": "README.md is part of the commit",
+      "cmd": "git ls-files --error-unmatch README.md"
+    },
+    {
+      "name": "nothing is left uncommitted (git status is clean)",
+      "cmd": "test -z \"$(git status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "git init turns the current folder into a repository.",
+    "A new file must be staged with git add before git commit saves it.",
+    "If Git says 'Author identity unknown', run the two git config commands from the lesson."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "title": "Work on a branch",
+  "lesson": "git/03-branches",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf '# Greeter\\n' > README.md && git add README.md && git commit -qm 'Add README'"
+  ],
+  "checks": [
+    {
+      "name": "branch feature/greeting exists",
+      "cmd": "git rev-parse --verify -q refs/heads/feature/greeting"
+    },
+    {
+      "name": "greeting.txt is committed on feature/greeting",
+      "cmd": "git cat-file -e feature/greeting:greeting.txt"
+    },
+    {
+      "name": "main does not contain greeting.txt",
+      "cmd": "! git cat-file -e main:greeting.txt 2>/dev/null"
+    },
+    {
+      "name": "you are back on main",
+      "cmd": "git branch --show-current",
+      "stdout": "main"
+    },
+    {
+      "name": "nothing is left uncommitted (git status is clean)",
+      "cmd": "test -z \"$(git status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "git switch -c feature/greeting creates the branch and moves you onto it.",
+    "Commit greeting.txt while you are on the feature branch, then git switch main."
+  ]
+}

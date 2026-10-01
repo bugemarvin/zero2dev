@@ -1,0 +1,35 @@
+{
+  "title": "Answer questions about a log",
+  "lesson": "start/05-pipes-and-redirection",
+  "kind": "sandbox",
+  "setup": [
+    "cat > access.log <<'LOG'\n09:00 INFO alice\n09:02 ERROR bob\n09:05 INFO carol\n09:07 ERROR alice\n09:09 WARN dave\n09:12 ERROR bob\n09:15 INFO alice\n09:18 ERROR erin\n09:20 INFO bob\n09:21 ERROR carol\nLOG"
+  ],
+  "checks": [
+    {
+      "name": "errors.txt holds exactly the ERROR lines",
+      "cmd": "cat errors.txt",
+      "stdout": "09:02 ERROR bob\n09:07 ERROR alice\n09:12 ERROR bob\n09:18 ERROR erin\n09:21 ERROR carol\n"
+    },
+    {
+      "name": "error-count.txt holds the number of ERROR lines",
+      "cmd": "tr -d ' \\n' < error-count.txt",
+      "stdout": "5"
+    },
+    {
+      "name": "users.txt lists each user once, sorted",
+      "cmd": "cat users.txt",
+      "stdout": "alice\nbob\ncarol\ndave\nerin\n"
+    },
+    {
+      "name": "access.log is unchanged",
+      "cmd": "wc -l < access.log | tr -d ' '",
+      "stdout": "10"
+    }
+  ],
+  "hints": [
+    "grep ERROR access.log prints the matching lines. Add > errors.txt to save them.",
+    "Pipe into wc -l to count lines.",
+    "cut -d' ' -f3 takes the third field. Then sort, then uniq."
+  ]
+}

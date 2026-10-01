@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How programs run · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/01-how-programs-run">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 1 of 7</p>
+<h1>How programs run</h1>
+<p class="lede">What a program actually is, and what happens between typing code and seeing a result.</p>
+<h2 id="a-program-is-a-text-file">A program is a text file</h2>
+<p>A program is a list of instructions written in a text file. That is all. You could write one in Notepad. The file is called <strong>source code</strong>.</p>
+<p>The computer's processor (the CPU) cannot read that text. It only understands numbers that mean very small steps: <em>add these two values</em>, <em>copy this value there</em>, <em>jump to that instruction</em>. Those numbers are called <strong>machine code</strong>.</p>
+<p>So something has to translate your text into machine code. There are two common ways.</p>
+<h2 id="compiled-and-interpreted">Compiled and interpreted</h2>
+<p>A <strong>compiler</strong> translates the whole file once and writes a new file that the CPU can run directly. C works like this:</p>
+<pre><code class="lang-console">$ gcc hello.c -o hello
+$ ./hello
+Hello!</code></pre>
+<p>The first command translates <code>hello.c</code> into a program named <code>hello</code>. The second command runs it. If you change the source, you compile again.</p>
+<p>An <strong>interpreter</strong> reads your file and carries out the instructions as it goes, with no separate file in between. Python works like this:</p>
+<pre><code class="lang-console">$ python3 hello.py
+Hello!</code></pre>
+<div class="table-wrap"><table><thead><tr><th></th><th>Compiled (C, Go, Rust)</th><th>Interpreted (Python, Ruby, Bash)</th></tr></thead><tbody><tr><td>Steps to run</td><td>compile, then run</td><td>run</td></tr><tr><td>Speed</td><td>fast</td><td>slower</td></tr><tr><td>Mistakes found</td><td>many at compile time</td><td>mostly while running</td></tr></tbody></table></div>
+<p>Some languages sit in between. Java and Elixir compile to an in-between format that a second program (a <em>virtual machine</em>) then runs. You will meet both in their own tracks.</p>
+<h2 id="the-operating-system">The operating system</h2>
+<p>Your program never talks to the screen, the keyboard or the disk directly. It asks the <strong>operating system</strong> (Windows, Linux, macOS) to do it. The operating system also decides which program gets the CPU and how much memory each one can use.</p>
+<p>This guide uses <strong>Linux</strong>, because most servers and most developer tools run on it. On Windows you get Linux through WSL, which the next lesson sets up.</p>
+<h2 id="input-and-output">Input and output</h2>
+<p>Almost every program you write in this guide has the same shape:</p>
+<ol><li>Read some input.</li><li>Work on it.</li><li>Print some output.</li></ol>
+<p>That shape is also how your work gets tested here. The checker gives your program an input, looks at what it prints, and compares that with the expected answer:</p>
+<pre><code class="lang-console">$ python3 check.py c/01-hello
+c/01-hello  Hello, C
+  ✓ compiles without warnings
+  ✓ prints the greeting
+  PASSED 2/2</code></pre>
+<h2 id="mistakes-are-normal">Mistakes are normal</h2>
+<p>Programs have three kinds of mistake, and you will make all of them every day:</p>
+<ul><li><strong>Syntax errors</strong>: the text breaks the rules of the language, like a missing bracket. The compiler or interpreter refuses to run it and tells you the line.</li><li><strong>Runtime errors</strong>: the program starts, then does something impossible, like dividing by zero. It stops with an error message.</li><li><strong>Logic errors</strong>: the program runs fine and gives the wrong answer. Tests catch these.</li></ul>
+<div class="callout"><p>Read error messages slowly, from the top. They nearly always name the file and the line number. That habit alone solves most problems.</p></div>
+<h2 id="what-comes-next">What comes next</h2>
+<ul><li><a href="../start/02-install.html">Install your tools</a></li><li>Learn the <a href="../start/03-terminal.html">terminal</a>, where all of this happens</li></ul>
+
+<nav class="pager"><a class="next" href="../start/02-install.html"><span>Next</span>Install your tools</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remotes and GitHub · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/06-remotes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 6 of 9</p>
+<h1>Remotes and GitHub</h1>
+<p class="lede">A remote is another copy of the repository. Clone it, push your commits to it, pull other people's commits from it.</p>
+<h2 id="local-and-remote">Local and remote</h2>
+<p>Everything so far happened on your own machine. A <strong>remote</strong> is a copy of the repository stored somewhere else, usually on a service like GitHub. It gives you a backup and a place to share work.</p>
+<p>A remote does not have to be on the internet. It can be another folder on the same disk, which is how the exercise for this lesson works offline. The commands are identical.</p>
+<h2 id="cloning">Cloning</h2>
+<p><code>git clone</code> downloads a repository with its whole history:</p>
+<pre><code class="lang-console">$ git clone https://github.com/someone/recipes.git
+Cloning into 'recipes'...
+$ cd recipes
+$ git remote -v
+origin  https://github.com/someone/recipes.git (fetch)
+origin  https://github.com/someone/recipes.git (push)</code></pre>
+<p>Git names the place you cloned from <code>origin</code>.</p>
+<h2 id="push">Push</h2>
+<p><code>git push</code> uploads your new commits to the remote:</p>
+<pre><code class="lang-console">$ git add notes.txt
+$ git commit -m "Add notes"
+$ git push</code></pre>
+<p>The first time you push a <strong>new branch</strong>, tell Git where it goes. <code>-u</code> links your local branch to the one on the remote, so that a plain <code>git push</code> works afterwards:</p>
+<pre><code class="lang-console">$ git push -u origin feature/search</code></pre>
+<h2 id="pull-and-fetch">Pull and fetch</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>git fetch</code></td><td>download new commits from the remote, change nothing in your files</td></tr><tr><td><code>git pull</code></td><td>fetch, then merge the remote branch into your current branch</td></tr></tbody></table></div>
+<p><code>origin/main</code> is your machine's record of where <code>main</code> was on the remote the last time you fetched. <code>git status</code> compares against it:</p>
+<pre><code class="lang-console">$ git status
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.</code></pre>
+<p><em>Ahead</em> means you have commits to push. <em>Behind</em> means there are commits to pull.</p>
+<h2 id="when-a-push-is-rejected">When a push is rejected</h2>
+<pre><code class="lang-console">$ git push
+ ! [rejected]        main -&gt; main (fetch first)</code></pre>
+<p>Someone else pushed before you. Git will not overwrite their work. Pull first to combine their commits with yours, then push again:</p>
+<pre><code class="lang-console">$ git pull
+$ git push</code></pre>
+<h2 id="putting-your-own-project-on-github">Putting your own project on GitHub</h2>
+<p>With the GitHub CLI installed by the setup script:</p>
+<pre><code class="lang-console">$ gh auth login
+$ gh repo create my-project --public --source . --push</code></pre>
+<p><code>gh auth login</code> runs once per machine. The second command creates the repository on GitHub, adds it as <code>origin</code>, and pushes.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Committing and thinking it is backed up.</strong> A commit lives only on your machine until you push.</li><li><strong><code>git push --force</code> to get past a rejection.</strong> It deletes the other person's commits from the remote. Pull instead.</li><li><strong>Cloning inside another repository.</strong> Clone into a plain folder, not into an existing repo.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/06-remotes">
+<h3>Clone, commit, push <span class="ex-id">git/06-remotes</span></h3>
+<p>Your working folder contains <code>remote.git</code>. It plays the part of a repository on GitHub, so this exercise works offline.</p>
+<ol><li>Clone it into a folder named <code>mycopy</code>: <code>git clone remote.git mycopy</code></li><li>Inside <code>mycopy</code>, create <code>notes.txt</code> and commit it.</li><li>Push the commit to the remote.</li></ol>
+<p>Afterwards <code>git status</code> inside <code>mycopy</code> should say your branch is up to date with <code>origin/main</code>.</p>
+<p class="ex-files">Files: <code>exercises/git/06-remotes/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/06-remotes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/05-conflicts.html"><span>Previous</span>Merge conflicts</a><a class="next" href="../git/07-undoing.html"><span>Next</span>Undoing things</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
