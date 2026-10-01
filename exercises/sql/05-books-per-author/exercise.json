@@ -1,0 +1,44 @@
+{
+  "title": "How many books per author",
+  "lesson": "sql/04-joins",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "name",
+      "books"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "Mara Lind",
+        "3"
+      ],
+      [
+        "Tom Okafor",
+        "3"
+      ],
+      [
+        "Chen Wei",
+        "2"
+      ],
+      [
+        "Lucia Ferro",
+        "2"
+      ],
+      [
+        "Sam Reyes",
+        "2"
+      ],
+      [
+        "Eva Brandt",
+        "0"
+      ]
+    ]
+  },
+  "hints": [
+    "An inner join drops authors who have no books. Use LEFT JOIN, with authors on the left.",
+    "COUNT(*) would count the empty row of an author with no books as 1. COUNT(b.id) skips NULLs and gives 0.",
+    "ORDER BY books DESC, a.name"
+  ]
+}

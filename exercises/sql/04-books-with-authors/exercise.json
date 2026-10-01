@@ -1,0 +1,43 @@
+{
+  "title": "Recent books and their authors",
+  "lesson": "sql/04-joins",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title",
+      "author"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "Counting Stars",
+        "Tom Okafor"
+      ],
+      [
+        "Empire of Tea",
+        "Chen Wei"
+      ],
+      [
+        "Northern Lines",
+        "Mara Lind"
+      ],
+      [
+        "The Glass Orchard",
+        "Lucia Ferro"
+      ],
+      [
+        "The Last Ferry",
+        "Sam Reyes"
+      ],
+      [
+        "The Quiet Atom",
+        "Tom Okafor"
+      ]
+    ]
+  },
+  "hints": [
+    "Join books to authors where authors.id = books.author_id.",
+    "The author's name comes from the authors table. Rename it: a.name AS author"
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Books nobody has ordered",
+  "lesson": "sql/05-subqueries-and-ctes",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "Northern Lines"
+      ],
+      [
+        "The Glass Orchard"
+      ]
+    ]
+  },
+  "hints": [
+    "A book has been ordered if some row in orders has its id as book_id.",
+    "NOT EXISTS (SELECT 1 FROM orders AS o WHERE o.book_id = b.id) is true for books with no such row.",
+    "A LEFT JOIN from books to orders with WHERE o.id IS NULL works as well."
+  ]
+}

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Joins · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/04-joins">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 4 of 10</p>
+<h1>Joins</h1>
+<p class="lede">Combine rows from several tables. The feature that makes a relational database relational.</p>
+<h2 id="why-data-is-split-across-tables">Why data is split across tables</h2>
+<p>The bookshop does not store the author's name in every book row. It stores the author <strong>once</strong>, in an <code>authors</code> table, and each book holds the author's <code>id</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>books.title</th><th>books.author_id</th><th></th><th>authors.id</th><th>authors.name</th></tr></thead><tbody><tr><td>The Silent River</td><td>1</td><td></td><td>1</td><td>Mara Lind</td></tr><tr><td>Night Trains</td><td>1</td><td></td><td>2</td><td>Tom Okafor</td></tr><tr><td>Counting Stars</td><td>2</td><td></td><td></td><td></td></tr></tbody></table></div>
+<ul><li><code>authors.id</code> is a <strong>primary key</strong>: a value that identifies exactly one row.</li><li><code>books.author_id</code> is a <strong>foreign key</strong>: it refers to the primary key of another table.</li></ul>
+<p>If Mara Lind changes her name, one row changes. Nothing can become inconsistent.</p>
+<h2 id="inner-join">INNER JOIN</h2>
+<p>A join puts rows from two tables side by side wherever a condition holds.</p>
+<pre><code class="lang-sql">SELECT books.title, authors.name
+FROM books
+JOIN authors ON authors.id = books.author_id;</code></pre>
+<p>For each book, the database finds the author row whose <code>id</code> equals the book's <code>author_id</code>, and produces one combined row.</p>
+<p><code>JOIN</code> alone means <code>INNER JOIN</code>: only rows that have a match on <strong>both</strong> sides appear.</p>
+<h2 id="table-aliases">Table aliases</h2>
+<p>Short names keep queries readable:</p>
+<pre><code class="lang-sql">SELECT b.title, a.name
+FROM books AS b
+JOIN authors AS a ON a.id = b.author_id
+WHERE b.year &gt; 2000
+ORDER BY b.title;</code></pre>
+<p>When a column name exists in both tables, such as <code>id</code>, you must say which one you mean: <code>b.id</code> or <code>a.id</code>. Prefixing every column is a good habit.</p>
+<h2 id="left-join">LEFT JOIN</h2>
+<p>An inner join drops rows that have no partner. An author with no books would vanish from the result.</p>
+<p><code>LEFT JOIN</code> keeps <strong>every row of the left table</strong>. Where there is no match, the columns from the right table are <code>NULL</code>.</p>
+<pre><code class="lang-sql">SELECT a.name, b.title
+FROM authors AS a
+LEFT JOIN books AS b ON b.author_id = a.id;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>name</th><th>title</th></tr></thead><tbody><tr><td>Mara Lind</td><td>The Silent River</td></tr><tr><td>Mara Lind</td><td>Night Trains</td></tr><tr><td>Tom Okafor</td><td>Counting Stars</td></tr><tr><td>Eva Brandt</td><td>NULL</td></tr></tbody></table></div>
+<h2 id="counting-with-a-left-join">Counting with a left join</h2>
+<p>To count the books of each author, including authors with none:</p>
+<pre><code class="lang-sql">SELECT a.name, COUNT(b.id) AS books
+FROM authors AS a
+LEFT JOIN books AS b ON b.author_id = a.id
+GROUP BY a.id, a.name
+ORDER BY a.name;</code></pre>
+<p><code>COUNT(b.id)</code> is essential. <code>COUNT(*)</code> counts rows, and the author with no books still has one row, the one filled with NULLs, so it would report 1. <code>COUNT(b.id)</code> skips NULLs and reports 0.</p>
+<h2 id="finding-rows-with-no-match">Finding rows with no match</h2>
+<p>A left join followed by a NULL test finds what is missing:</p>
+<pre><code class="lang-sql">SELECT a.name
+FROM authors AS a
+LEFT JOIN books AS b ON b.author_id = a.id
+WHERE b.id IS NULL;</code></pre>
+<h2 id="joining-more-than-two-tables">Joining more than two tables</h2>
+<p>Add one <code>JOIN</code> for each further table:</p>
+<pre><code class="lang-sql">SELECT c.name, b.title, o.quantity
+FROM orders AS o
+JOIN customers AS c ON c.id = o.customer_id
+JOIN books AS b ON b.id = o.book_id;</code></pre>
+<h2 id="the-kinds-of-join">The kinds of join</h2>
+<div class="table-wrap"><table><thead><tr><th>Join</th><th>Keeps</th></tr></thead><tbody><tr><td><code>INNER JOIN</code></td><td>only rows that match on both sides</td></tr><tr><td><code>LEFT JOIN</code></td><td>all rows of the left table</td></tr><tr><td><code>RIGHT JOIN</code></td><td>all rows of the right table</td></tr><tr><td><code>FULL JOIN</code></td><td>all rows of both</td></tr><tr><td><code>CROSS JOIN</code></td><td>every combination of rows</td></tr></tbody></table></div>
+<p>Inner and left joins cover nearly all everyday work.</p>
+<h2 id="rows-multiply">Rows multiply</h2>
+<p>A join produces one row for <strong>every matching pair</strong>. If an author has three books, the author's data appears three times. Joining two "many" sides, say orders and reviews of the same book, multiplies them: 4 orders and 3 reviews give 12 rows, and any <code>SUM</code> over that is inflated. When totals look too large, check how many rows the join really produces.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Leaving out the <code>ON</code> condition.</strong> Every row is paired with every other row.</li><li><strong>A <code>WHERE</code> condition on the right table of a left join.</strong> <code>WHERE b.year &gt; 2000</code> removes the NULL rows and turns the join back into an inner join. Put the condition in the <code>ON</code> clause to keep unmatched rows.</li><li><strong><code>COUNT(*)</code> with a left join</strong>, which counts unmatched rows as 1.</li><li><strong>Ambiguous column names.</strong> Prefix them.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/04-books-with-authors">
+<h3>Recent books and their authors <span class="ex-id">sql/04-books-with-authors</span></h3>
+<p>For every book published <strong>after 2010</strong>, show its <code>title</code> and the name of its author in a column called <code>author</code>.</p>
+<p>Order the rows by title.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/04-books-with-authors</code></p>
+<p class="ex-files">Files: <code>exercises/sql/04-books-with-authors/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/04-books-with-authors</code></pre>
+</article>
+<article class="exercise" data-ex="sql/05-books-per-author">
+<h3>How many books per author <span class="ex-id">sql/05-books-per-author</span></h3>
+<p>Show every author's <code>name</code> and the number of books they have written, in a column called <code>books</code>.</p>
+<p><strong>Authors with no books must appear too, with 0.</strong></p>
+<p>Order by the number of books, highest first. Authors with the same number are ordered by name.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/05-books-per-author</code></p>
+<p class="ex-files">Files: <code>exercises/sql/05-books-per-author/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/05-books-per-author</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/03-aggregates.html"><span>Previous</span>Aggregates and GROUP BY</a><a class="next" href="../sql/05-subqueries-and-ctes.html"><span>Next</span>Subqueries and CTEs</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

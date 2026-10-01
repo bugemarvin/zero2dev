@@ -672,6 +672,139 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "sql",
+   "title": "SQL and PostgreSQL",
+   "blurb": "Ask a database questions, design tables that reject bad data, and keep queries fast.",
+   "lessons": [
+    {
+     "id": "sql/01-select",
+     "title": "Tables and SELECT",
+     "summary": "What a relational database is, and how to ask it for exactly the rows and columns you want.",
+     "exercises": [
+      {
+       "id": "sql/01-select-where",
+       "title": "Cheap fiction"
+      }
+     ]
+    },
+    {
+     "id": "sql/02-sort-and-limit",
+     "title": "Sorting, limiting and computed columns",
+     "summary": "Put rows in order, take the first few, remove duplicates, and calculate new columns.",
+     "exercises": [
+      {
+       "id": "sql/02-top-three",
+       "title": "The three most expensive books"
+      }
+     ]
+    },
+    {
+     "id": "sql/03-aggregates",
+     "title": "Aggregates and GROUP BY",
+     "summary": "Count, sum and average, for the whole table or for each group of rows.",
+     "exercises": [
+      {
+       "id": "sql/03-genre-stats",
+       "title": "Statistics per genre"
+      }
+     ]
+    },
+    {
+     "id": "sql/04-joins",
+     "title": "Joins",
+     "summary": "Combine rows from several tables. The feature that makes a relational database relational.",
+     "exercises": [
+      {
+       "id": "sql/04-books-with-authors",
+       "title": "Recent books and their authors"
+      },
+      {
+       "id": "sql/05-books-per-author",
+       "title": "How many books per author"
+      }
+     ]
+    },
+    {
+     "id": "sql/05-subqueries-and-ctes",
+     "title": "Subqueries and CTEs",
+     "summary": "Use the result of one query inside another, and name the steps of a long query.",
+     "exercises": [
+      {
+       "id": "sql/06-above-average",
+       "title": "Books above the average price"
+      },
+      {
+       "id": "sql/07-never-ordered",
+       "title": "Books nobody has ordered"
+      },
+      {
+       "id": "sql/08-customer-spending",
+       "title": "Who spent the most"
+      }
+     ]
+    },
+    {
+     "id": "sql/06-changing-data",
+     "title": "Changing data",
+     "summary": "Add rows, change them and remove them, without wrecking the table by accident.",
+     "exercises": [
+      {
+       "id": "sql/09-change-data",
+       "title": "Insert, update, delete"
+      }
+     ]
+    },
+    {
+     "id": "sql/07-schema-and-constraints",
+     "title": "Designing tables",
+     "summary": "Create tables with types and constraints, so that the database itself rejects bad data.",
+     "exercises": [
+      {
+       "id": "sql/10-create-tables",
+       "title": "Design two tables"
+      }
+     ]
+    },
+    {
+     "id": "sql/08-indexes-and-explain",
+     "title": "Indexes and EXPLAIN",
+     "summary": "Why a query is slow, how an index fixes it, and how to see what the database is really doing.",
+     "exercises": [
+      {
+       "id": "sql/11-indexes",
+       "title": "Add the right indexes"
+      }
+     ]
+    },
+    {
+     "id": "sql/09-transactions",
+     "title": "Transactions",
+     "summary": "Group several changes so that they all happen or none of them do.",
+     "exercises": [
+      {
+       "id": "sql/12-transactions",
+       "title": "Transfer money safely"
+      }
+     ]
+    },
+    {
+     "id": "sql/10-window-functions-and-json",
+     "title": "Window functions and JSON",
+     "summary": "Rank and compare rows without collapsing them, and query flexible JSON data in PostgreSQL.",
+     "exercises": [
+      {
+       "id": "sql/13-rank-in-genre",
+       "title": "Rank books within their genre"
+      },
+      {
+       "id": "sql/14-jsonb-logins",
+       "title": "Count logins from JSON events"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changing data · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/06-changing-data">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 6 of 10</p>
+<h1>Changing data</h1>
+<p class="lede">Add rows, change them and remove them, without wrecking the table by accident.</p>
+<h2 id="insert">INSERT</h2>
+<pre><code class="lang-sql">INSERT INTO authors (id, name, country)
+VALUES (7, 'Nina Park', 'Korea');</code></pre>
+<p>List the columns, then the values in the same order. Naming the columns means the statement keeps working if someone later adds a column to the table.</p>
+<p>Several rows at once:</p>
+<pre><code class="lang-sql">INSERT INTO authors (id, name, country)
+VALUES (8, 'Omar Haddad', 'Egypt'),
+       (9, 'Ines Costa', 'Portugal');</code></pre>
+<p>A column you leave out receives its <strong>default</strong> value, or <code>NULL</code> if it has none.</p>
+<p>You can also insert the result of a query:</p>
+<pre><code class="lang-sql">INSERT INTO cheap_books (title, price)
+SELECT title, price FROM books WHERE price &lt; 10;</code></pre>
+<h2 id="update">UPDATE</h2>
+<pre><code class="lang-sql">UPDATE books
+SET price = 13.00
+WHERE id = 1;</code></pre>
+<p>The new value may be computed from the old one, and several columns can change together:</p>
+<pre><code class="lang-sql">UPDATE books
+SET price = price * 1.10,
+    genre = 'popular science'
+WHERE genre = 'science';</code></pre>
+<h2 id="delete">DELETE</h2>
+<pre><code class="lang-sql">DELETE FROM orders
+WHERE ordered_on &lt; '2024-02-01';</code></pre>
+<h2 id="the-where-clause-is-everything">The WHERE clause is everything</h2>
+<div class="callout warn"><p><strong>Warning:</strong> <code>UPDATE</code> and <code>DELETE</code> with no <code>WHERE</code> apply to <strong>every row in the table</strong>. <code>DELETE FROM orders;</code> empties it. There is no undo once the change is committed.</p></div>
+<p>A habit that prevents disasters: write the <code>WHERE</code> as a <code>SELECT</code> first.</p>
+<pre><code class="lang-sql">SELECT * FROM orders WHERE ordered_on &lt; '2024-02-01';</code></pre>
+<p>Check that it returns exactly the rows you intend to remove. Then change <code>SELECT *</code> into <code>DELETE</code>, keeping the condition.</p>
+<p>A second safety net is to work inside a <a href="../sql/09-transactions.html">transaction</a>, which you can roll back.</p>
+<h2 id="keys-make-changes-safe">Keys make changes safe</h2>
+<p>To change one specific row, identify it by its primary key. <code>WHERE name = 'Sam'</code> might match three people. <code>WHERE id = 42</code> matches at most one.</p>
+<h2 id="foreign-keys-protect-you">Foreign keys protect you</h2>
+<p>If a table has a foreign key, the database refuses changes that would leave a row pointing at nothing:</p>
+<pre><code class="lang-sql">DELETE FROM authors WHERE id = 1;
+-- ERROR: update or delete on table "authors" violates foreign key constraint</code></pre>
+<p>Author 1 still has books. Delete or reassign the books first. That refusal is a feature: it keeps the data consistent.</p>
+<h2 id="returning">RETURNING</h2>
+<p>PostgreSQL, and recent versions of SQLite, can hand back the rows a statement touched:</p>
+<pre><code class="lang-sql">UPDATE books
+SET price = price * 1.10
+WHERE genre = 'science'
+RETURNING id, title, price;</code></pre>
+<p>It is especially useful after an <code>INSERT</code> into a table that generates its own IDs, to learn which ID the new row received.</p>
+<h2 id="insert-or-update">Insert or update</h2>
+<p>When a row may or may not exist already, PostgreSQL and SQLite can do both in one statement:</p>
+<pre><code class="lang-sql">INSERT INTO stock (book_id, quantity)
+VALUES (3, 5)
+ON CONFLICT (book_id)
+DO UPDATE SET quantity = stock.quantity + 5;</code></pre>
+<p>If inserting would break the unique rule on <code>book_id</code>, the existing row is updated instead. This is often called an <strong>upsert</strong>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>WHERE</code>.</strong></li><li><strong>Testing against the real database.</strong> Try changes on a copy, or inside a transaction.</li><li><strong>Inserting with no column list.</strong> It breaks when the table gains a column.</li><li><strong>Deleting a parent row before its children.</strong></li><li><strong><code>UPDATE ... SET a = 1 AND b = 2</code>.</strong> Separate the assignments with commas, not <code>AND</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/09-change-data">
+<h3>Insert, update, delete <span class="ex-id">sql/09-change-data</span></h3>
+<p>Write a script in <code>query.sql</code> that makes four changes to the bookshop:</p>
+<ol><li>Add an author with id <code>7</code>, name <code>Nina Park</code>, country <code>Korea</code>.</li><li>Add a book with id <code>13</code>: title <code>Tidal</code>, by that author, year <code>2024</code>, price <code>18.00</code>, genre <code>fiction</code>.</li><li>Raise the price of every <strong>science</strong> book by 10%.</li><li>Delete every order placed <strong>before 1 February 2024</strong>.</li></ol>
+<p>The checker runs your script on a fresh copy of the data and then inspects the tables.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/09-change-data</code></p>
+<p class="ex-files">Files: <code>exercises/sql/09-change-data/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/09-change-data</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/05-subqueries-and-ctes.html"><span>Previous</span>Subqueries and CTEs</a><a class="next" href="../sql/07-schema-and-constraints.html"><span>Next</span>Designing tables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

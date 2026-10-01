@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aggregates and GROUP BY · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/03-aggregates">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 3 of 10</p>
+<h1>Aggregates and GROUP BY</h1>
+<p class="lede">Count, sum and average, for the whole table or for each group of rows.</p>
+<h2 id="aggregate-functions">Aggregate functions</h2>
+<p>An aggregate function takes many rows and returns one value.</p>
+<pre><code class="lang-sql">SELECT COUNT(*)   AS books,
+       AVG(price) AS average_price,
+       MIN(price) AS cheapest,
+       MAX(price) AS dearest
+FROM books;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Result</th></tr></thead><tbody><tr><td><code>COUNT(*)</code></td><td>number of rows</td></tr><tr><td><code>COUNT(column)</code></td><td>number of rows where the column is <strong>not NULL</strong></td></tr><tr><td><code>COUNT(DISTINCT column)</code></td><td>number of different values</td></tr><tr><td><code>SUM(column)</code></td><td>total</td></tr><tr><td><code>AVG(column)</code></td><td>average</td></tr><tr><td><code>MIN(column)</code>, <code>MAX(column)</code></td><td>smallest, largest</td></tr></tbody></table></div>
+<p>Aggregates skip <code>NULL</code> values. <code>AVG(score)</code> averages only the rows that have a score.</p>
+<h2 id="group-by">GROUP BY</h2>
+<p><code>GROUP BY</code> splits the rows into groups, one for each different value, and computes the aggregates <strong>per group</strong>. The result has one row for each group.</p>
+<pre><code class="lang-sql">SELECT genre,
+       COUNT(*)   AS books,
+       AVG(price) AS average_price
+FROM books
+GROUP BY genre;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>genre</th><th>books</th><th>average_price</th></tr></thead><tbody><tr><td>fiction</td><td>5</td><td>13.4</td></tr><tr><td>science</td><td>3</td><td>24.0</td></tr><tr><td>history</td><td>2</td><td>18.5</td></tr></tbody></table></div>
+<p>The rule to remember: <strong>every column in <code>SELECT</code> must either appear in <code>GROUP BY</code> or be inside an aggregate.</strong> Each output row stands for a whole group, so a plain column like <code>title</code> has no single value to show. PostgreSQL refuses such a query. SQLite picks an arbitrary row, which is worse because it looks as if it worked.</p>
+<p>You can group by several columns: <code>GROUP BY genre, year</code> makes one group for each combination.</p>
+<h2 id="having">HAVING</h2>
+<p><code>WHERE</code> filters rows <strong>before</strong> they are grouped. <code>HAVING</code> filters groups <strong>after</strong> the aggregates are computed.</p>
+<pre><code class="lang-sql">SELECT genre, COUNT(*) AS books
+FROM books
+WHERE year &gt;= 2000            -- only recent books go into the groups
+GROUP BY genre
+HAVING COUNT(*) &gt;= 2          -- only genres with at least two such books
+ORDER BY books DESC;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Clause</th><th>Filters</th><th>Can use aggregates</th></tr></thead><tbody><tr><td><code>WHERE</code></td><td>individual rows</td><td>no</td></tr><tr><td><code>HAVING</code></td><td>groups</td><td>yes</td></tr></tbody></table></div>
+<p>If a condition does not involve an aggregate, put it in <code>WHERE</code>. Fewer rows then need to be grouped.</p>
+<h2 id="the-full-order">The full order</h2>
+<p>Written:</p>
+<pre><code class="lang-sql">SELECT ...
+FROM ...
+WHERE ...
+GROUP BY ...
+HAVING ...
+ORDER BY ...
+LIMIT ...</code></pre>
+<p>Evaluated: <code>FROM</code>, <code>WHERE</code>, <code>GROUP BY</code>, <code>HAVING</code>, <code>SELECT</code>, <code>ORDER BY</code>, <code>LIMIT</code>.</p>
+<h2 id="rounding">Rounding</h2>
+<p>Averages often come out with many decimals. Round in the query:</p>
+<pre><code class="lang-sql">SELECT genre, ROUND(AVG(price), 2) AS average_price
+FROM books
+GROUP BY genre;</code></pre>
+<h2 id="whole-number-division">Whole-number division</h2>
+<p>Dividing two integers gives an integer in SQL too. <code>7 / 2</code> is <code>3</code>. Multiply by <code>1.0</code> first when you want a fraction: <code>7 * 1.0 / 2</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Selecting a column that is neither grouped nor aggregated.</strong></li><li><strong>An aggregate in <code>WHERE</code>.</strong> <code>WHERE COUNT(*) &gt; 2</code> is an error. That is what <code>HAVING</code> is for.</li><li><strong><code>COUNT(column)</code> when you meant <code>COUNT(*)</code>.</strong> The first skips NULLs.</li><li><strong>Assuming the groups come out sorted.</strong> Add <code>ORDER BY</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/03-genre-stats">
+<h3>Statistics per genre <span class="ex-id">sql/03-genre-stats</span></h3>
+<p>For each genre that has <strong>at least two books</strong>, show:</p>
+<ul><li><code>genre</code></li><li><code>books</code>: the number of books</li><li><code>average_price</code>: the average price, rounded to 2 decimals</li></ul>
+<p>Order the rows by genre.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/03-genre-stats</code></p>
+<p class="ex-files">Files: <code>exercises/sql/03-genre-stats/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/03-genre-stats</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/02-sort-and-limit.html"><span>Previous</span>Sorting, limiting and computed columns</a><a class="next" href="../sql/04-joins.html"><span>Next</span>Joins</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

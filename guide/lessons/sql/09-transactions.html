@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transactions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/09-transactions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 9 of 10</p>
+<h1>Transactions</h1>
+<p class="lede">Group several changes so that they all happen or none of them do.</p>
+<h2 id="the-problem">The problem</h2>
+<p>Moving 40 from Alice's account to Bob's takes two statements:</p>
+<pre><code class="lang-sql">UPDATE accounts SET balance = balance - 40 WHERE name = 'alice';
+UPDATE accounts SET balance = balance + 40 WHERE name = 'bob';</code></pre>
+<p>If the program crashes between them, 40 has left Alice and never reached Bob. The money is gone.</p>
+<h2 id="begin-commit-rollback">BEGIN, COMMIT, ROLLBACK</h2>
+<p>A <strong>transaction</strong> wraps statements into one unit:</p>
+<pre><code class="lang-sql">BEGIN;
+
+UPDATE accounts SET balance = balance - 40 WHERE name = 'alice';
+UPDATE accounts SET balance = balance + 40 WHERE name = 'bob';
+
+COMMIT;</code></pre>
+<ul><li><code>BEGIN</code> starts the transaction.</li><li><code>COMMIT</code> makes all its changes permanent, together.</li><li><code>ROLLBACK</code> throws all of them away, as if nothing had happened.</li></ul>
+<p>If anything fails before <code>COMMIT</code>, whether an error, a crash or a lost connection, the database rolls the whole transaction back by itself.</p>
+<h2 id="rolling-back-on-purpose">Rolling back on purpose</h2>
+<p>A transaction is also a safety net for risky manual work:</p>
+<pre><code class="lang-sql">BEGIN;
+
+DELETE FROM orders WHERE ordered_on &lt; '2024-01-01';
+
+SELECT COUNT(*) FROM orders;     -- look at the result before deciding
+
+ROLLBACK;                        -- not what you wanted? undo it</code></pre>
+<p>Until you commit, the changes are visible only inside your own session.</p>
+<h2 id="acid">ACID</h2>
+<p>Transactions give four guarantees, known by their initials.</p>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Promise</th></tr></thead><tbody><tr><td><strong>Atomicity</strong></td><td>all of the transaction happens, or none of it</td></tr><tr><td><strong>Consistency</strong></td><td>constraints hold before and after. A transaction that would break one is rejected.</td></tr><tr><td><strong>Isolation</strong></td><td>transactions running at the same time do not see each other's unfinished work</td></tr><tr><td><strong>Durability</strong></td><td>once committed, the changes survive a crash or power cut</td></tr></tbody></table></div>
+<h2 id="constraints-and-transactions-together">Constraints and transactions together</h2>
+<p>A <code>CHECK</code> constraint can make an impossible state unrepresentable:</p>
+<pre><code class="lang-sql">CREATE TABLE accounts (
+    name     TEXT PRIMARY KEY,
+    balance  INTEGER NOT NULL CHECK (balance &gt;= 0)
+);</code></pre>
+<p>A withdrawal that would make a balance negative now fails. Inside a transaction, that failure cancels the matching deposit too. The rule lives in the schema, and the transaction makes sure it cannot be half-applied.</p>
+<p>In PostgreSQL, once a statement inside a transaction fails, every later statement is refused until you issue <code>ROLLBACK</code>.</p>
+<h2 id="every-statement-is-a-transaction">Every statement is a transaction</h2>
+<p>A single statement run outside <code>BEGIN</code> and <code>COMMIT</code> is its own small transaction, committed at once. This is called <strong>autocommit</strong>. An <code>UPDATE</code> that changes a thousand rows changes all thousand or none.</p>
+<h2 id="running-at-the-same-time">Running at the same time</h2>
+<p>When two transactions touch the same rows, the database coordinates them with <strong>locks</strong>. If both try to update the same row, the second waits until the first commits or rolls back.</p>
+<p>How much one transaction may see of others is set by the <strong>isolation level</strong>.</p>
+<div class="table-wrap"><table><thead><tr><th>Level</th><th>Behaviour</th></tr></thead><tbody><tr><td>Read committed</td><td>each statement sees data committed before that statement began. The default in PostgreSQL.</td></tr><tr><td>Repeatable read</td><td>the whole transaction sees one snapshot, taken at its start</td></tr><tr><td>Serializable</td><td>the result is the same as if the transactions had run one after another</td></tr></tbody></table></div>
+<p>Stricter levels prevent more surprises. Under them the database sometimes cancels a transaction, and the application must try it again.</p>
+<h2 id="lost-updates">Lost updates</h2>
+<p>Two people read a stock count of 5 at the same moment. Each subtracts 1 in their program and writes back 4. One sale has vanished.</p>
+<p>Let the database do the arithmetic, in one statement:</p>
+<pre><code class="lang-sql">UPDATE stock SET quantity = quantity - 1 WHERE book_id = 3;</code></pre>
+<p>Or lock the row when you read it, so that nobody else can change it until you commit:</p>
+<pre><code class="lang-sql">SELECT quantity FROM stock WHERE book_id = 3 FOR UPDATE;</code></pre>
+<h2 id="deadlocks">Deadlocks</h2>
+<p>Transaction A locks row 1 and wants row 2. Transaction B locks row 2 and wants row 1. Neither can go on. The database detects this, cancels one of them, and that one must be retried. Always locking rows in the same order, for example by ascending ID, avoids it.</p>
+<h2 id="keep-them-short">Keep them short</h2>
+<p>A transaction holds its locks until it ends. A long one blocks other work. Do not keep a transaction open while waiting for a person to click something or for a network call to return.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Related changes with no transaction.</strong></li><li><strong>Forgetting to <code>COMMIT</code>.</strong> The work disappears when the connection closes.</li><li><strong>Read, compute in the application, write back</strong>, with no lock.</li><li><strong>Long transactions.</strong></li><li><strong>Ignoring errors in the middle</strong> and carrying on.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/12-transactions">
+<h3>Transfer money safely <span class="ex-id">sql/12-transactions</span></h3>
+<p><code>seed.sql</code> creates a small bank:</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>accounts</code></td><td><code>name</code>, <code>balance</code> (never negative)</td></tr><tr><td><code>transfers</code></td><td><code>id</code>, <code>from_name</code>, <code>to_name</code>, <code>amount</code></td></tr></tbody></table></div>
+<p>Alice has 100, Bob has 50 and Carol has 0.</p>
+<p>Write a script in <code>query.sql</code> with <strong>two transactions</strong>.</p>
+<p><strong>1. A transfer that is committed.</strong> In one transaction:</p>
+<ul><li>take 40 from <code>alice</code>,</li><li>add 40 to <code>bob</code>,</li><li>record it in <code>transfers</code> with id <code>1</code>.</li></ul>
+<p><strong>2. A mistake that is rolled back.</strong> In a second transaction, delete every row from <code>transfers</code> and then from <code>accounts</code>, and then roll the transaction back, so that nothing is lost.</p>
+<p>The script must use <code>BEGIN</code>, <code>COMMIT</code> and <code>ROLLBACK</code>.</p>
+<p class="ex-files">Files: <code>exercises/sql/12-transactions/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/12-transactions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/08-indexes-and-explain.html"><span>Previous</span>Indexes and EXPLAIN</a><a class="next" href="../sql/10-window-functions-and-json.html"><span>Next</span>Window functions and JSON</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

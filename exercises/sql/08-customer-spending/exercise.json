@@ -1,0 +1,36 @@
+{
+  "title": "Who spent the most",
+  "lesson": "sql/05-subqueries-and-ctes",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "name",
+      "spent"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "Amina",
+        "96"
+      ],
+      [
+        "Emma",
+        "86"
+      ],
+      [
+        "Bruno",
+        "65.5"
+      ],
+      [
+        "Chloe",
+        "60"
+      ]
+    ]
+  },
+  "hints": [
+    "Join orders to books to get the price of each ordered book, and compute SUM(o.quantity * b.price) per customer_id.",
+    "Put that in a CTE: WITH totals AS ( ... ). Then join totals to customers for the name.",
+    "Filter on the total with WHERE t.spent > 40 in the outer query."
+  ]
+}

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Window functions and JSON · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/10-window-functions-and-json">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 10 of 10</p>
+<h1>Window functions and JSON</h1>
+<p class="lede">Rank and compare rows without collapsing them, and query flexible JSON data in PostgreSQL.</p>
+<h2 id="what-group-by-cannot-do">What GROUP BY cannot do</h2>
+<p><code>GROUP BY</code> reduces each group to a single row. Sometimes you want to keep <strong>every row</strong> and add something computed from its group: its rank, a running total, the difference from the group's average.</p>
+<p>A <strong>window function</strong> does that. It looks at a set of rows related to the current one, the <strong>window</strong>, and returns a value for each row.</p>
+<h2 id="over">OVER</h2>
+<pre><code class="lang-sql">SELECT title,
+       genre,
+       price,
+       AVG(price) OVER (PARTITION BY genre) AS genre_average
+FROM books;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>title</th><th>genre</th><th>price</th><th>genre_average</th></tr></thead><tbody><tr><td>Paper Boats</td><td>fiction</td><td>9.50</td><td>13.40</td></tr><tr><td>The Silent River</td><td>fiction</td><td>12.50</td><td>13.40</td></tr><tr><td>Counting Stars</td><td>science</td><td>22.00</td><td>24.00</td></tr></tbody></table></div>
+<p>Every book is still there, each with the average of its own genre beside it.</p>
+<ul><li><code>OVER (...)</code> turns an aggregate into a window function.</li><li><code>PARTITION BY genre</code> splits the rows into windows, as <code>GROUP BY</code> would, without merging them.</li><li><code>OVER ()</code> with nothing inside means one window: all rows.</li></ul>
+<h2 id="ranking">Ranking</h2>
+<p><code>ORDER BY</code> inside <code>OVER</code> puts the rows of each window in order, which ranking needs:</p>
+<pre><code class="lang-sql">SELECT title,
+       genre,
+       price,
+       RANK() OVER (PARTITION BY genre ORDER BY price DESC) AS position
+FROM books
+ORDER BY genre, position;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>With prices 20, 20, 15</th></tr></thead><tbody><tr><td><code>ROW_NUMBER()</code></td><td>1, 2, 3: always different, ties broken arbitrarily</td></tr><tr><td><code>RANK()</code></td><td>1, 1, 3: ties share a rank, then a gap</td></tr><tr><td><code>DENSE_RANK()</code></td><td>1, 1, 2: ties share a rank, no gap</td></tr></tbody></table></div>
+<h2 id="the-top-n-of-each-group">The top N of each group</h2>
+<p>A window function cannot be used in <code>WHERE</code>, because it is computed after <code>WHERE</code> has run. Compute it in a <a href="../sql/05-subqueries-and-ctes.html">CTE</a>, then filter:</p>
+<pre><code class="lang-sql">WITH ranked AS (
+    SELECT title, genre, price,
+           ROW_NUMBER() OVER (PARTITION BY genre ORDER BY price DESC) AS n
+    FROM books
+)
+SELECT title, genre, price
+FROM ranked
+WHERE n &lt;= 2;</code></pre>
+<p>The two most expensive books of every genre.</p>
+<h2 id="running-totals-and-neighbours">Running totals and neighbours</h2>
+<p>With <code>ORDER BY</code> in the window, an aggregate accumulates from the first row up to the current one:</p>
+<pre><code class="lang-sql">SELECT ordered_on,
+       quantity,
+       SUM(quantity) OVER (ORDER BY ordered_on, id) AS running_total
+FROM orders;</code></pre>
+<p><code>LAG</code> and <code>LEAD</code> read the previous or next row:</p>
+<pre><code class="lang-sql">SELECT ordered_on,
+       quantity,
+       quantity - LAG(quantity) OVER (ORDER BY ordered_on, id) AS change
+FROM orders;</code></pre>
+<p>The first row has no previous row, so <code>LAG</code> gives <code>NULL</code> there.</p>
+<h2 id="json-in-postgresql">JSON in PostgreSQL</h2>
+<p>Some data does not fit fixed columns: settings, events with varying fields, responses from other systems. PostgreSQL has a <code>JSONB</code> type that stores JSON in a searchable binary form.</p>
+<pre><code class="lang-sql">CREATE TABLE events (
+    id       SERIAL PRIMARY KEY,
+    payload  JSONB NOT NULL
+);
+
+INSERT INTO events (payload) VALUES
+    ('{"type": "login", "user": "ada", "device": {"os": "linux"}}'),
+    ('{"type": "purchase", "user": "ada", "total": 42.5}');</code></pre>
+<h2 id="reading-json">Reading JSON</h2>
+<div class="table-wrap"><table><thead><tr><th>Operator</th><th>Returns</th><th>Example</th></tr></thead><tbody><tr><td><code>-&gt;</code></td><td>a JSON value</td><td><code>payload -&gt; 'device'</code></td></tr><tr><td><code>-&gt;&gt;</code></td><td><strong>text</strong></td><td><code>payload -&gt;&gt; 'user'</code></td></tr><tr><td><code>#&gt;&gt;</code></td><td>text at a path</td><td><code>payload #&gt;&gt; '{device,os}'</code></td></tr><tr><td><code>@&gt;</code></td><td>true if the left side contains the right</td><td><code>payload @&gt; '{"type": "login"}'</code></td></tr><tr><td><code>?</code></td><td>true if the key exists</td><td><code>payload ? 'total'</code></td></tr></tbody></table></div>
+<pre><code class="lang-sql">SELECT payload -&gt;&gt; 'user' AS user_name,
+       payload -&gt; 'device' -&gt;&gt; 'os' AS os
+FROM events
+WHERE payload @&gt; '{"type": "login"}';</code></pre>
+<p><code>-&gt;&gt;</code> always gives text. Convert it when you need a number:</p>
+<pre><code class="lang-sql">SELECT SUM((payload -&gt;&gt; 'total')::NUMERIC)
+FROM events
+WHERE payload -&gt;&gt; 'type' = 'purchase';</code></pre>
+<p><code>::NUMERIC</code> is PostgreSQL's short form of a cast.</p>
+<p>JSON values work with everything else in SQL, including grouping:</p>
+<pre><code class="lang-sql">SELECT payload -&gt;&gt; 'user' AS user_name, COUNT(*) AS logins
+FROM events
+WHERE payload @&gt; '{"type": "login"}'
+GROUP BY payload -&gt;&gt; 'user'
+ORDER BY logins DESC, user_name;</code></pre>
+<h2 id="indexing-json">Indexing JSON</h2>
+<p>A <strong>GIN index</strong> makes containment searches fast on large tables:</p>
+<pre><code class="lang-sql">CREATE INDEX events_payload_idx ON events USING GIN (payload);</code></pre>
+<h2 id="columns-or-json">Columns or JSON?</h2>
+<div class="table-wrap"><table><thead><tr><th>Use ordinary columns when</th><th>Use JSONB when</th></tr></thead><tbody><tr><td>every row has the field</td><td>the fields vary from row to row</td></tr><tr><td>you filter, join or sort on it often</td><td>you mostly store it and read it back</td></tr><tr><td>you want constraints and types</td><td>the shape is decided by another system</td></tr></tbody></table></div>
+<p>JSON gives up the guarantees of a schema: nothing stops <code>"total"</code> from being text in one row and missing in the next. A good default is real columns for what you know, and one <code>JSONB</code> column for the rest.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You can now read and write the SQL that covers most application work: queries, joins, aggregates, schema design, indexes, transactions and window functions.</p>
+<p>To go deeper with PostgreSQL, explore <code>psql</code> (<code>\d</code> lists tables, <code>\d books</code> describes one, <code>\timing</code> shows how long queries take), read <code>EXPLAIN ANALYZE</code> plans for your own queries, and look at views, triggers and full-text search.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A window function in <code>WHERE</code>.</strong> Use a CTE or subquery.</li><li><strong>Expecting <code>PARTITION BY</code> to reduce the number of rows.</strong> It does not.</li><li><strong><code>-&gt;</code> where <code>-&gt;&gt;</code> was needed</strong>, which compares JSON with text and matches nothing.</li><li><strong>Putting everything in one JSON column.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/13-rank-in-genre">
+<h3>Rank books within their genre <span class="ex-id">sql/13-rank-in-genre</span></h3>
+<p>Show every book with its <code>title</code>, <code>genre</code>, <code>price</code> and a column called <code>position</code>: its rank by price <strong>within its own genre</strong>, where the most expensive book of a genre has position 1. Use <code>RANK()</code>.</p>
+<p>Order the rows by genre, then position, then title.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/13-rank-in-genre</code></p>
+<p class="ex-files">Files: <code>exercises/sql/13-rank-in-genre/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/13-rank-in-genre</code></pre>
+</article>
+<article class="exercise" data-ex="sql/14-jsonb-logins">
+<h3>Count logins from JSON events <span class="ex-id">sql/14-jsonb-logins</span></h3>
+<p>This exercise needs a running PostgreSQL server (<code>./setup/install.sh --stack postgres</code>).</p>
+<p>The table <code>events</code> has two columns: <code>id</code> and <code>payload</code>, which is <code>JSONB</code>. Each payload looks like one of these:</p>
+<pre><code class="lang-text">{"type": "login", "user": "ada", "device": {"os": "linux"}}
+{"type": "purchase", "user": "ada", "total": 42.5}</code></pre>
+<p>Count the <strong>login</strong> events of each user. Show two columns: <code>user_name</code> and <code>logins</code>. Order by <code>logins</code>, highest first, then by <code>user_name</code>.</p>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/14-jsonb-logins</code></p>
+<p class="ex-files">Files: <code>exercises/sql/14-jsonb-logins/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/14-jsonb-logins</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/09-transactions.html"><span>Previous</span>Transactions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

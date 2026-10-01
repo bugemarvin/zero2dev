@@ -1,0 +1,75 @@
+{
+  "title": "Insert, update, delete",
+  "lesson": "sql/06-changing-data",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "file": "query.sql",
+  "checks": [
+    {
+      "name": "author 7 is Nina Park from Korea",
+      "query": "SELECT name, country FROM authors WHERE id = 7",
+      "rows": [
+        [
+          "Nina Park",
+          "Korea"
+        ]
+      ]
+    },
+    {
+      "name": "book 13 is Tidal by author 7",
+      "query": "SELECT title, author_id, year, price, genre FROM books WHERE id = 13",
+      "rows": [
+        [
+          "Tidal",
+          7,
+          2024,
+          18,
+          "fiction"
+        ]
+      ]
+    },
+    {
+      "name": "science books cost 10% more",
+      "query": "SELECT id, ROUND(price, 2) FROM books WHERE genre = 'science' ORDER BY id",
+      "rows": [
+        [
+          3,
+          24.2
+        ],
+        [
+          4,
+          29.7
+        ],
+        [
+          10,
+          25.3
+        ]
+      ],
+      "ordered": true
+    },
+    {
+      "name": "other books keep their price",
+      "query": "SELECT ROUND(SUM(price), 2) FROM books WHERE genre <> 'science' AND id <= 12",
+      "rows": [
+        [
+          131
+        ]
+      ]
+    },
+    {
+      "name": "orders before 1 February 2024 are deleted",
+      "query": "SELECT COUNT(*), MIN(ordered_on) FROM orders",
+      "rows": [
+        [
+          12,
+          "2024-02-02"
+        ]
+      ]
+    }
+  ],
+  "hints": [
+    "Four statements, each ending with a semicolon: two INSERTs, one UPDATE, one DELETE.",
+    "UPDATE books SET price = price * 1.10 WHERE genre = 'science';",
+    "Dates compare as text in this format: WHERE ordered_on < '2024-02-01'"
+  ]
+}
