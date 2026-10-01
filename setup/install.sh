@@ -220,7 +220,7 @@ diagnose_text() {
   # Reads output on stdin, prints one line that says what went wrong in plain words.
   local text
   text="$(cat)"
-  if printf '%s' "$text" | grep -qiE 'could not resolve host|temporary failure in name resolution|network is unreachable|timed out|failed to connect|connection reset|connection refused|could not download|failed to download|unable to connect'; then
+  if printf '%s' "$text" | grep -qiE 'could not resolve host|temporary failure in name resolution|network is unreachable|timed out|failed to connect|connection reset|connection refused|could not download|failed to download|unable to connect|error sending request'; then
     echo "the download failed (network, DNS or a proxy). Check the internet connection; behind a proxy set https_proxy."
   elif printf '%s' "$text" | grep -qiE 'certificate problem|certificate verify failed|unable to get local issuer|self.signed certificate|unknown CA|bad certificate'; then
     echo "a TLS certificate was not accepted. The clock may be wrong, or a company proxy inspects traffic: install its certificate."
@@ -255,7 +255,7 @@ declare -A FALLBACK_DESC=(
 )
 stack_node_fallback()   { apt_install nodejs npm; }
 stack_java_fallback()   { apt_install default-jdk maven; }
-stack_elixir_fallback() { apt_install erlang elixir; install_hex; }
+stack_elixir_fallback() { apt_install elixir erlang-dev; install_hex; }
 stack_go_fallback()     { apt_install golang-go; }
 stack_rust_fallback()   { apt_install rustc cargo; }
 
@@ -277,16 +277,21 @@ has_fallback() {
   [ "$NOSUDO" -eq 0 ] && declare -F "stack_${1}_fallback" >/dev/null
 }
 
+ATTEMPT_RC=0
 attempt() {
   # attempt <stack> <function>: run it in a subshell with its own `set -e`, so one failing
-  # stack does not stop the rest, and keep its output for the diagnosis.
-  local s="$1" fn="$2" rc
+  # stack does not stop the rest, and keep its output for the diagnosis. The exit code goes
+  # to ATTEMPT_RC and the function itself always succeeds.
+  #
+  # Never call this as `attempt ... || something`, or inside `if`: bash switches `set -e` off
+  # for everything run in such a place, subshells included, and a failing step of a stack
+  # would then go unnoticed.
+  local s="$1" fn="$2"
   CURRENT="$s"
   set +e
   ( set -e; "$fn" ) 2>&1 | tee -a "$LOGDIR/$s.log"
-  rc="${PIPESTATUS[0]}"
+  ATTEMPT_RC="${PIPESTATUS[0]}"
   set -e
-  return "$rc"
 }
 
 stack_ok() {
@@ -296,7 +301,7 @@ stack_ok() {
 }
 
 looks_temporary() {
-  grep -qiE 'could not resolve host|temporary failure|timed out|connection reset|rate limit|could not get lock|failed to download|could not download' "$LOGDIR/$1.log" 2>/dev/null
+  grep -qiE 'could not resolve host|temporary failure|timed out|connection reset|connection refused|failed to connect|error sending request|rate limit|could not get lock|failed to download|could not download' "$LOGDIR/$1.log" 2>/dev/null
 }
 
 choose_action() {
@@ -334,17 +339,19 @@ choose_action() {
 }
 
 install_stack() {
-  # Install one stack and make sure it works. Returns 0 when it does.
+  # Install one stack and make sure it works. Adds it to FAILED when it does not.
+  # Called as a plain statement, for the reason given at attempt().
   local s="$1" rc=0 retried=0 fell_back=0 action reason
   : > "$LOGDIR/$s.log"
   : > "$LOGDIR/$s.reason"
   if [ "$USE_FALLBACK" -eq 1 ] && has_fallback "$s"; then
     info "Installing $s the other way: ${FALLBACK_DESC[$s]}"
     fell_back=1
-    attempt "$s" "stack_${s}_fallback" || rc=$?
+    attempt "$s" "stack_${s}_fallback"
   else
-    attempt "$s" "stack_${s}_install" || rc=$?
+    attempt "$s" "stack_${s}_install"
   fi
+  rc="$ATTEMPT_RC"
   while :; do
     if [ "$DRY" -eq 1 ]; then return 0; fi
     if [ "$s" = docker ] && is_wsl; then return 0; fi
@@ -361,20 +368,21 @@ install_stack() {
         retried=1
         info "Trying $s again"
         : > "$LOGDIR/$s.log"
-        rc=0
-        if [ "$fell_back" -eq 1 ]; then attempt "$s" "stack_${s}_fallback" || rc=$?
-        else attempt "$s" "stack_${s}_install" || rc=$?
-        fi ;;
+        if [ "$fell_back" -eq 1 ]; then attempt "$s" "stack_${s}_fallback"
+        else attempt "$s" "stack_${s}_install"
+        fi
+        rc="$ATTEMPT_RC" ;;
       fallback)
         fell_back=1
         info "Installing $s another way: ${FALLBACK_DESC[$s]}"
         : > "$LOGDIR/$s.log"
-        rc=0
-        attempt "$s" "stack_${s}_fallback" || rc=$? ;;
+        attempt "$s" "stack_${s}_fallback"
+        rc="$ATTEMPT_RC" ;;
       quit)
         die "stopped at stack '$s'. The log is in $LOGDIR/$s.log" ;;
       *)
-        return 1 ;;
+        FAILED+=("$s")
+        return 0 ;;
     esac
   done
 }
@@ -482,9 +490,15 @@ install_hex() {
   # Hex and rebar are the package tools of Mix projects (Phoenix and friends). Elixir itself,
   # and every exercise of the guide, works without them, so a failure here is a note, not an error.
   setup_paths
-  soft "Hex (the Elixir package manager)" mix local.hex --force \
-    || soft "Hex, from its source on GitHub" mix archive.install github hexpm/hex branch latest --force \
-    || warn "Elixir works. Only projects with dependencies need Hex. Later, try: mix local.hex --force"
+  hash -r
+  have mix || return 0
+  if ! soft "Hex (the Elixir package manager)" mix local.hex --force; then
+    if soft "Hex, from its source on GitHub" mix archive.install github hexpm/hex branch latest --force; then
+      printf '%s\n' "Hex was installed from its source on GitHub, because hex.pm could not be reached." > "$LOGDIR/$CURRENT.notes"
+    else
+      warn "Elixir works. Only projects with dependencies need Hex. Later, try: mix local.hex --force"
+    fi
+  fi
   soft "rebar (the Erlang build tool)" mix local.rebar --force || true
 }
 stack_elixir_verify() {
@@ -753,9 +767,7 @@ fi
 FAILED=()
 for s in "${ORDERED[@]}"; do
   info "Stack: $s"
-  if ! install_stack "$s"; then
-    FAILED+=("$s")
-  fi
+  install_stack "$s"
 done
 
 setup_paths
