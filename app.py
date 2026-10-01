@@ -19,9 +19,35 @@ The first ordinary start switches start-at-login on, and says so. `autostart off
 The app runs on this computer only (127.0.0.1) and uses the tools installed here.
 Standard library only.
 """
+import os
+import subprocess
 import sys
 
-from z2d import background, cli, origins, platforminfo, server
+
+def windows_handover(argv):
+    """The app runs inside Ubuntu (WSL), not in Windows itself. Started with Windows' own Python,
+    it passes the request on to Ubuntu, or says how to get there."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        found = subprocess.run(["wsl.exe", "wslpath", "-a", here.replace("\\", "/")],
+                               capture_output=True, text=True, errors="replace", timeout=60)
+        inside = found.stdout.strip() if found.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        inside = ""
+    if not inside:
+        print("zero2dev runs inside Ubuntu on Windows (WSL), and Ubuntu is not set up yet, or has never been opened.\n"
+              "In PowerShell, as Administrator, run:\n"
+              "  irm https://raw.githubusercontent.com/bugemarvin/zero2dev/main/setup/get.ps1 | iex\n"
+              "If Ubuntu is installed already: open it once from the Start menu, then try again.")
+        return 1
+    print("Starting zero2dev inside Ubuntu (WSL) ...", flush=True)
+    return subprocess.call(["wsl.exe", "--cd", inside, "--exec", "python3", "app.py"] + list(argv))
+
+
+if os.name == "nt":
+    sys.exit(windows_handover(sys.argv[1:]))
+
+from z2d import background, cli, origins, platforminfo, server  # noqa: E402
 
 
 def port_from(argv):
