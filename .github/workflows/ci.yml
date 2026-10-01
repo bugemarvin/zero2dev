@@ -116,7 +116,7 @@ jobs:
       - name: Download the package sets
         run: python3 check.py prefetch node react next
       - name: Every exercise fails with its starter and passes with its solution
-        run: python3 tools/selftest.py
+        run: python3 tools/selftest.py --strict
 
   docker-fallback:
     name: Languages and databases through Docker
