@@ -851,7 +851,7 @@
       // keep the app running
       var keep = el("section", {}, [
         el("h2", { text: "Keep the app running" }),
-        el("p", { text: "The app can start by itself when you log in, always at the same address, so this page is one bookmark away. It listens on this computer only." })
+        el("p", { text: "The app starts by itself when you log in, always at the same address, so this page is one bookmark away. It switched this on the first time it was started. It listens on this computer only, and you can switch it off here." })
       ]);
       var keepLine = el("p", { class: "st-tool", text: "Checking ..." });
       var keepBtn = button("", "", function () {

@@ -42,14 +42,16 @@ To read only, with nothing running, open `guide/index.html` in a browser. Lesson
 
 ## Keep it running
 
-The app can stay in the background, always at the same address, so it is one bookmark away:
+The first time you run `python3 app.py`, the app sets itself up to **start when you log in**, and tells you so. From then on it is always at the same address, one bookmark away, with nothing to remember.
 
 ```console
-$ python3 app.py start           # run in the background on port 4750
 $ python3 app.py status
-$ python3 app.py stop
-$ python3 app.py autostart on    # start it whenever you log in (off, status)
+$ python3 app.py stop            # stop it now
+$ python3 app.py start           # run it in the background again
+$ python3 app.py autostart off   # do not start at login any more (on, status)
 ```
+
+Not what you want? `python3 app.py autostart off` switches it off for good: it is never switched on again by itself. `python3 app.py --no-autostart` starts the app once without touching this, and so does setting `Z2D_AUTOSTART=0`.
 
 `autostart` uses what the system offers and needs no administrator rights: a systemd user service on Linux, a launch agent on macOS, and on Windows a small script in the Startup folder that runs the app inside WSL. The same switch is on the Setup page. `--port 5000` picks another port.
 
@@ -111,7 +113,7 @@ Progress is kept in your browser, and, when the app is running, also in this fol
 
 ## It uses your machine
 
-The app never installs anything behind your back, and never sends your code anywhere.
+The app never installs tools behind your back, and never sends your code anywhere. The one thing it sets up by itself is starting at login, which it announces and which one command undoes (see above).
 
 - **A tool you already have is used as it is.** Setup shows its version and says there is nothing to do.
 - **A language you do not have can run in Docker.** With Docker installed, the C, Java, Elixir, Go, Rust, Ruby, PHP and JavaScript exercises run in a container of the official image, so you can start a track without installing its toolchain.

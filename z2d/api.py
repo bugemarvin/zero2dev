@@ -416,8 +416,11 @@ def post_autostart(data):
     """Switch "start when I log in" on or off. Uses only per-user mechanisms: no administrator rights."""
     if data.get("enable"):
         ok, message = background.autostart_on()
+        if ok:
+            background.record_choice("on")
     else:
         ok, message = background.autostart_off()
+        background.record_choice("off")
     return dict(background.autostart_status(), ok=ok, message=message)
 
 
