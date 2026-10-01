@@ -129,7 +129,11 @@ Aim for three to five questions that test understanding, not memory of a sentenc
 
 ## Paths
 
-`content/paths.json` lists the career paths: an `id`, a `title`, a `blurb`, an `outcome`, the `stages` (each with a `title`, a `why` and the `tracks` in order), and `electives`: optional tracks the learner can add.
+`content/paths.json` lists the career paths: an `id`, a `title`, a `blurb`, an `outcome`, a `group` (`start`, `work` for a kind of work, or `language` for a path built around one language or framework), the `stages` (each with a `title`, a `why` and the `tracks` in order), and `electives`: optional tracks the learner can add.
+
+A stage can leave a choice to the learner: `"pick": ["python", "java", "go"]` next to (or in place of) `tracks`. The learner chooses one, the first is the default, and the ones not chosen are offered as optional tracks.
+
+A new track belongs in at least one path: as a stage, a choice, or an elective.
 
 ## Tracks
 

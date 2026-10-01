@@ -112,12 +112,23 @@ A path is a route through the tracks towards a kind of work. Everyone starts wit
 | --- | --- |
 | Start from zero | Start here, Git, Python, HTML, CSS |
 | Frontend developer | HTML, CSS, JavaScript, React, Next.js |
-| Backend developer | Python, SQL, MongoDB, Redis, JavaScript, Node.js, Docker, Microservices, DevOps |
+| Backend developer | a server language of your choice (Python, Java, Go, PHP, Elixir or Rust), SQL, MongoDB, Redis, JavaScript, Node.js, Docker, Microservices, DevOps |
 | Full-stack developer | HTML, CSS, JavaScript, React, Node.js, SQL, Next.js, Docker |
 | DevOps engineer | Bash, Python, Docker, DevOps, Microservices, SQL, Redis |
+| Database engineer | Bash, Python, SQL, MongoDB, Redis, Docker, DevOps |
 | Game developer | JavaScript, Game development, Data structures, C |
 | Systems programmer | C, Data structures, Rust, Go |
 | AI application engineer | Python, Building with LLMs, SQL, Redis, Docker |
+| Computer science foundations | a language of your choice (Python, Java, Go or JavaScript), C, Data structures, SQL |
+| Python developer | Python, Data structures, SQL, Redis, Building with LLMs, Docker |
+| Java developer | Java, Data structures, SQL, Redis, Docker, Microservices |
+| Go developer | Bash, Go, SQL, Redis, Docker, Microservices, DevOps |
+| Rust developer | C, Rust, Data structures, Bash, Docker |
+| Elixir developer | Elixir, SQL, Redis, Docker, Microservices |
+| PHP web developer | HTML, CSS, PHP, SQL, JavaScript, Docker |
+| Vue developer | HTML, CSS, JavaScript, Vue, Node.js |
+
+Where a path leaves the language open, its page asks you to choose one; the others stay available as optional tracks.
 
 ## Tracks
 
