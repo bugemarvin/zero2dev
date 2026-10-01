@@ -535,6 +535,7 @@
 
       // tracks
       var chosen = (report.profile.tracks || []).slice();
+      var saving = Promise.resolve();      // one save at a time, so quick clicks cannot overtake each other
       var trackList = el("ul", { class: "st-items" });
       report.tracks.forEach(function (track) {
         var box = el("input", { type: "checkbox" });
@@ -543,7 +544,9 @@
           var index = chosen.indexOf(track.id);
           if (box.checked && index < 0) chosen.push(track.id);
           if (!box.checked && index >= 0) chosen.splice(index, 1);
-          api("POST", "profile", { tracks: chosen });
+          var snapshot = chosen.slice();
+          saving = saving.then(function () { return api("POST", "profile", { tracks: snapshot }); })
+            .catch(function () { /* the next save carries the full list again */ });
         });
         var needs = track.needs.map(function (n) { return n.name + ": " + (BADGE[n.state] || [n.state])[0].toLowerCase(); }).join(" · ");
         trackList.appendChild(el("li", { class: "st-item" }, [
