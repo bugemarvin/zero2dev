@@ -35,8 +35,11 @@ def verify_solution(ex, sol, tmp, lang=None, files=None):
     exdir = Path(tempfile.mkdtemp(dir=tmp))
     shutil.rmtree(exdir)
     shutil.copytree(ex.dir, exdir)
-    for f in files if files is not None else [p for p in sol.iterdir() if p.is_file()]:
-        shutil.copy(f, exdir / f.name)
+    if files is None:
+        shutil.copytree(sol, exdir, dirs_exist_ok=True)      # solutions may have sub-folders (app/page.jsx)
+    else:
+        for f in files:
+            shutil.copy(f, exdir / f.name)
     results = check.run_checks(ex, exdir, lang=lang)
     if not results:
         return ["no tests ran"]

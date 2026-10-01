@@ -124,7 +124,7 @@ While a request is in flight, disable the button so that it cannot be sent twice
 
 ## In real projects
 
-Fetching by hand in an effect is worth learning, because it shows what is involved. For a real application, a data library such as TanStack Query or SWR handles caching, retries, refetching and race conditions for you. Frameworks such as Next.js go further and load data on the server before the page is sent.
+Fetching by hand in an effect is worth learning, because it shows what is involved. For a real application, a data library such as TanStack Query or SWR handles caching, retries, refetching and race conditions for you. Frameworks such as [Next.js](next/01-app-router) go further and load data on the server before the page is sent.
 
 ## Testing components that fetch
 

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building and deploying · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/08-building-and-deploying">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 8 of 8</p>
+<h1>Building and deploying</h1>
+<p class="lede">Turn the project into something that runs in production, and put it online.</p>
+<h2 id="development-and-production">Development and production</h2>
+<p><code>npm run dev</code> starts the development server. It compiles pages on demand, reloads on every change and shows detailed errors. It is slow and not meant for real visitors.</p>
+<p>For production there are two steps:</p>
+<pre><code class="lang-console">$ npm run build
+$ npm run start</code></pre>
+<p><code>build</code> compiles everything, renders the pages that can be rendered in advance, and reports what it produced:</p>
+<pre><code class="lang-text">Route (app)                    Size
+┌ ○ /                          1.2 kB
+├ ○ /about                     0.9 kB
+├ ● /blog/[slug]               1.4 kB
+└ ƒ /api/notes                 0 B
+
+○  (Static)   rendered once, at build time
+●  (SSG)      rendered at build time for known parameters
+ƒ  (Dynamic)  rendered on the server for every request</code></pre>
+<p>Read that table after every build. It tells you which pages are static, and static pages are the fastest and cheapest to serve. A page becomes dynamic when it uses something only known at request time: cookies, headers, the query string, or an uncached <code>fetch</code>.</p>
+<p>The build also runs the linter and, in a TypeScript project, the type checker. A build that fails is a bug caught before your users saw it.</p>
+<h2 id="environment-variables">Environment variables</h2>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>Used for</th><th>In Git</th></tr></thead><tbody><tr><td><code>.env.local</code></td><td>your own machine: local database, test keys</td><td>no</td></tr><tr><td>the hosting platform's settings</td><td>production values</td><td>never in the repository</td></tr></tbody></table></div>
+<pre><code class="lang-javascript">process.env.DATABASE_URL            // server only
+process.env.NEXT_PUBLIC_API_URL     // also sent to the browser</code></pre>
+<p>Anything prefixed <code>NEXT_PUBLIC_</code> ends up in the JavaScript that every visitor downloads. Never put a secret behind that prefix.</p>
+<h2 id="where-to-host">Where to host</h2>
+<p><strong>A platform that understands Next.js</strong>, such as Vercel or Netlify. Connect the Git repository, and every push is built and deployed. Each pull request gets its own preview address. This is the least work.</p>
+<p><strong>Your own server or a container.</strong> <code>npm run build</code> then <code>npm run start</code> runs anywhere Node runs. With Docker:</p>
+<pre><code class="lang-dockerfile">FROM node:22-slim AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:22-slim
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app ./
+EXPOSE 3000
+CMD ["npm", "run", "start"]</code></pre>
+<p>Setting <code>output: "standalone"</code> in <code>next.config.js</code> makes the build collect only the files it needs, for a much smaller image.</p>
+<p><strong>Static export.</strong> If no page needs a server, <code>output: "export"</code> produces plain HTML, CSS and JavaScript files that any static host can serve. Route handlers, server actions and dynamic rendering are not available in that mode.</p>
+<h2 id="before-going-live">Before going live</h2>
+<ul><li><strong>Images:</strong> use <code>next/image</code>, which resizes and compresses them.</li><li><strong>Fonts:</strong> use <code>next/font</code>, which hosts them with your site and avoids layout shift.</li><li><strong>Metadata:</strong> every page has a title and a description.</li><li><strong>Errors:</strong> <code>error.js</code> and <code>not-found.js</code> exist and look right.</li><li><strong>Secrets:</strong> none are in the repository, and none are prefixed <code>NEXT_PUBLIC_</code>.</li><li><strong>The build output:</strong> pages you expected to be static are static.</li></ul>
+<h2 id="measuring">Measuring</h2>
+<p>Open the browser's developer tools and run <strong>Lighthouse</strong> on the production build, not on the dev server. It scores loading speed, accessibility and search-engine basics, and names what to fix.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You can now build a full application with Next.js: pages and layouts, server and client components, dynamic routes, API endpoints, data loading and forms that change data.</p>
+<p>What remains is a place to keep the data and a way to ship it:</p>
+<ul><li><a href="../sql/01-select.html">SQL and PostgreSQL</a>, for a real database behind your server components and actions;</li><li>Docker, to package the app and its database so they run the same everywhere.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Deploying <code>npm run dev</code>.</strong></li><li><strong>Testing performance on the development server.</strong></li><li><strong>Committing <code>.env.local</code>.</strong></li><li><strong>A secret behind <code>NEXT_PUBLIC_</code>.</strong></li><li><strong>Ignoring the build output</strong>, and paying for dynamic rendering of pages that never change.</li></ul>
+
+<nav class="pager"><a class="prev" href="../next/07-forms-and-server-actions.html"><span>Previous</span>Forms and server actions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

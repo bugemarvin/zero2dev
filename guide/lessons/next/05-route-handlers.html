@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Route handlers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/05-route-handlers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 5 of 8</p>
+<h1>Route handlers</h1>
+<p class="lede">API endpoints inside your Next.js project, written with the web's own Request and Response.</p>
+<h2 id="route-js">route.js</h2>
+<p>A file named <code>route.js</code> in the <code>app</code> directory defines an API endpoint. It exports one function per HTTP method:</p>
+<pre><code class="lang-javascript">// app/api/hello/route.js
+export async function GET(request) {
+  return Response.json({ message: "Hello" });
+}</code></pre>
+<p><code>GET /api/hello</code> now answers with JSON. A folder contains either a <code>page.js</code> or a <code>route.js</code>, not both.</p>
+<p>The functions receive a standard <code>Request</code> and return a standard <code>Response</code>. These are the same objects <code>fetch</code> uses in the browser, so there is nothing framework-specific to learn.</p>
+<h2 id="reading-the-request">Reading the request</h2>
+<pre><code class="lang-javascript">export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const name = searchParams.get("name") ?? "world";
+  return Response.json({ message: `Hello, ${name}!` });
+}
+
+export async function POST(request) {
+  const body = await request.json();
+  return Response.json({ received: body }, { status: 201 });
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>What</th><th>How</th></tr></thead><tbody><tr><td>query string</td><td><code>new URL(request.url).searchParams.get("name")</code></td></tr><tr><td>JSON body</td><td><code>await request.json()</code></td></tr><tr><td>form data</td><td><code>await request.formData()</code></td></tr><tr><td>a header</td><td><code>request.headers.get("authorization")</code></td></tr></tbody></table></div>
+<h2 id="status-codes-and-errors">Status codes and errors</h2>
+<p>The second argument of <code>Response.json</code> sets the status:</p>
+<pre><code class="lang-javascript">export async function POST(request) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "invalid JSON" }, { status: 400 });
+  }
+  if (typeof body.text !== "string" || body.text.trim() === "") {
+    return Response.json({ error: "text is required" }, { status: 400 });
+  }
+  const note = addNote(body.text.trim());
+  return Response.json(note, { status: 201 });
+}</code></pre>
+<p>A response with no body:</p>
+<pre><code class="lang-javascript">return new Response(null, { status: 204 });</code></pre>
+<p>The conventions from the <a href="../js/08-express-api.html">Express lesson</a> apply unchanged: 201 for created, 204 for deleted, 400 for bad input, 404 for not found.</p>
+<h2 id="dynamic-segments">Dynamic segments</h2>
+<p>A handler in a <code>[id]</code> folder receives the parameters as its second argument. As in pages, <code>params</code> is a promise:</p>
+<pre><code class="lang-javascript">// app/api/notes/[id]/route.js
+export async function GET(request, { params }) {
+  const { id } = await params;
+  const note = getNote(Number(id));
+  if (!note) {
+    return Response.json({ error: "not found" }, { status: 404 });
+  }
+  return Response.json(note);
+}
+
+export async function DELETE(request, { params }) {
+  const { id } = await params;
+  if (!deleteNote(Number(id))) {
+    return Response.json({ error: "not found" }, { status: 404 });
+  }
+  return new Response(null, { status: 204 });
+}</code></pre>
+<p>A method that the file does not export gets the answer <code>405 Method Not Allowed</code> automatically.</p>
+<h2 id="keeping-the-logic-out-of-the-handler">Keeping the logic out of the handler</h2>
+<p>Put the data handling in a plain module and keep the handler thin: read the input, validate, call the module, shape the response.</p>
+<pre><code class="lang-javascript">// lib/notes.js
+const store = (globalThis.notesStore ??= { notes: [], nextId: 1 });
+
+export function listNotes() {
+  return store.notes;
+}
+
+export function addNote(text) {
+  const note = { id: store.nextId++, text };
+  store.notes.push(note);
+  return note;
+}</code></pre>
+<p>Keeping the data on <code>globalThis</code> makes it survive the reloading that the development server does when files change. It is a stand-in for a database. Real data belongs in one, such as <a href="../sql/01-select.html">PostgreSQL</a>.</p>
+<h2 id="do-you-need-an-api-at-all">Do you need an API at all?</h2>
+<p>In a Next.js app, often not.</p>
+<ul><li>A <strong>page</strong> that needs data reads it directly in a server component. No endpoint, no <code>fetch</code>.</li><li>A <strong>form</strong> that changes data calls a server action, which lesson 7 covers.</li></ul>
+<p>Write route handlers when something <strong>other than your own pages</strong> needs the data: a mobile app, another service, a webhook from a payment provider, or a client component that polls.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>await</code></strong> on <code>request.json()</code> or <code>params</code>.</li><li><strong>Returning a plain object.</strong> A handler must return a <code>Response</code>.</li><li><strong><code>page.js</code> and <code>route.js</code> in the same folder.</strong></li><li><strong>Fetching your own route handler from a server component.</strong> Call the function in <code>lib/</code> directly.</li><li><strong>200 for every outcome.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/05-notes-api">
+<h3>An API with route handlers <span class="ex-id">next/05-notes-api</span></h3>
+<p><code>lib/notes.js</code> is given, with <code>listNotes()</code>, <code>getNote(id)</code>, <code>addNote(text)</code> and <code>deleteNote(id)</code>. Ids are numbers. <code>deleteNote</code> returns <code>true</code> if it removed something.</p>
+<p>Write the two route handler files.</p>
+<h4><code>app/api/notes/route.js</code></h4>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /api/notes</code></td><td>200 and the array of notes</td></tr><tr><td><code>POST /api/notes</code> with <code>{"text": "..."}</code></td><td>201 and the new note: <code>{"id": 1, "text": "..."}</code>. The text is trimmed.</td></tr><tr><td><code>POST</code> with a missing or blank text</td><td>400 <code>{"error": "text is required"}</code></td></tr><tr><td><code>POST</code> with a body that is not JSON</td><td>400 <code>{"error": "invalid JSON"}</code></td></tr></tbody></table></div>
+<h4><code>app/api/notes/[id]/route.js</code></h4>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /api/notes/1</code></td><td>200 and the note, or 404 <code>{"error": "not found"}</code></td></tr><tr><td><code>DELETE /api/notes/1</code></td><td>204 with no body, or 404 <code>{"error": "not found"}</code></td></tr></tbody></table></div>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/05-notes-api/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/05-notes-api</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/04-dynamic-routes.html"><span>Previous</span>Dynamic routes</a><a class="next" href="../next/06-data-fetching.html"><span>Next</span>Loading data</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

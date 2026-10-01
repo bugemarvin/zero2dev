@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layouts and navigation · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/02-layouts-and-links">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 2 of 8</p>
+<h1>Layouts and navigation</h1>
+<p class="lede">Share a frame between pages, nest frames inside each other, and move between pages without a full reload.</p>
+<h2 id="layouts-wrap-pages">Layouts wrap pages</h2>
+<p>A <code>layout.js</code> wraps every page in its folder and in the folders below it. The root layout typically holds what appears on every page:</p>
+<pre><code class="lang-jsx">// app/layout.js
+import Link from "next/link";
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;
+        &lt;nav&gt;
+          &lt;Link href="/"&gt;Home&lt;/Link&gt;
+          &lt;Link href="/blog"&gt;Blog&lt;/Link&gt;
+          &lt;Link href="/about"&gt;About&lt;/Link&gt;
+        &lt;/nav&gt;
+        &lt;main&gt;{children}&lt;/main&gt;
+        &lt;footer&gt;© My site&lt;/footer&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+<p><code>children</code> is the page, or the next layout down.</p>
+<h2 id="nested-layouts">Nested layouts</h2>
+<p>A layout inside a folder applies to that section only, <strong>inside</strong> the root layout:</p>
+<pre><code class="lang-jsx">// app/blog/layout.js
+export default function BlogLayout({ children }) {
+  return (
+    &lt;div className="blog"&gt;
+      &lt;aside&gt;Blog sidebar&lt;/aside&gt;
+      &lt;section&gt;{children}&lt;/section&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<pre><code class="lang-text">/            RootLayout &gt; Home
+/about       RootLayout &gt; About
+/blog        RootLayout &gt; BlogLayout &gt; BlogIndex
+/blog/hello  RootLayout &gt; BlogLayout &gt; Post</code></pre>
+<p>When you move between two blog pages, the layouts stay mounted. Only the page part changes, so state in the layout, such as an open menu or a search box, is kept.</p>
+<h2 id="link">Link</h2>
+<p>Use the <code>Link</code> component for navigation inside the app:</p>
+<pre><code class="lang-jsx">import Link from "next/link";
+
+&lt;Link href="/about"&gt;About&lt;/Link&gt;</code></pre>
+<p>It renders an ordinary <code>&lt;a href="/about"&gt;</code>, so it works without JavaScript and for search engines. With JavaScript, clicking it swaps the page content without reloading the whole document, and Next.js fetches linked pages in advance when they scroll into view.</p>
+<p>A plain <code>&lt;a&gt;</code> also works, but triggers a full page load every time. Use <code>&lt;a&gt;</code> for links to <strong>other</strong> sites.</p>
+<h2 id="navigating-from-code">Navigating from code</h2>
+<p>Inside a client component (next lesson), the router can be driven from code:</p>
+<pre><code class="lang-jsx">"use client";
+import { useRouter, usePathname } from "next/navigation";
+
+function BackButton() {
+  const router = useRouter();
+  const pathname = usePathname();          // the current path, such as "/blog"
+  return &lt;button onClick={() =&gt; router.push("/")}&gt;Leave {pathname}&lt;/button&gt;;
+}</code></pre>
+<p><code>usePathname</code> is how a navigation bar highlights the current page.</p>
+<h2 id="metadata-per-page">Metadata per page</h2>
+<pre><code class="lang-jsx">// app/about/page.js
+export const metadata = { title: "About us" };</code></pre>
+<p>A title template in the root layout adds the site name to every page:</p>
+<pre><code class="lang-jsx">export const metadata = {
+  title: { default: "My site", template: "%s | My site" },
+};</code></pre>
+<p>The About page then gets the title <code>About us | My site</code>.</p>
+<h2 id="styling">Styling</h2>
+<p>Import a CSS file in the root layout and it applies to every page:</p>
+<pre><code class="lang-jsx">import "./globals.css";</code></pre>
+<p>For styles that belong to one component, name the file <code>Something.module.css</code>. Class names in it are made unique automatically:</p>
+<pre><code class="lang-jsx">import styles from "./Card.module.css";
+
+&lt;div className={styles.card}&gt;...&lt;/div&gt;</code></pre>
+<h2 id="route-groups">Route groups</h2>
+<p>A folder in round brackets organises files without appearing in the URL:</p>
+<pre><code class="lang-text">app/
+    (marketing)/
+        layout.js        a layout for these pages only
+        about/page.js    still served at /about
+    (shop)/
+        layout.js
+        cart/page.js     /cart</code></pre>
+<p>That gives different sections different layouts with no change to the URLs.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>{children}</code></strong> in a layout. Every page under it comes out empty.</li><li><strong><code>&lt;a&gt;</code> for internal links</strong>, causing a full reload each time.</li><li><strong><code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> in a nested layout.</strong> Only the root layout has them.</li><li><strong>Importing <code>useRouter</code> from <code>next/router</code>.</strong> In the app directory it comes from <code>next/navigation</code>.</li><li><strong>Putting page-specific content in a layout.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/02-layouts">
+<h3>A shared frame and a nested layout <span class="ex-id">next/02-layouts</span></h3>
+<p>The pages already exist: <code>/</code>, <code>/about</code> and <code>/blog</code>. Give them their frames.</p>
+<h4><code>app/layout.jsx</code>, the root layout</h4>
+<p>Around the page content, on every page:</p>
+<ul><li>a <code>&lt;nav&gt;</code> with three links made with the <code>Link</code> component from <code>next/link</code>: <code>Home</code> to <code>/</code>, <code>Blog</code> to <code>/blog</code> and <code>About</code> to <code>/about</code>;</li><li>the page itself, inside a <code>&lt;main&gt;</code>;</li><li>a <code>&lt;footer&gt;</code> with the text <code>My site</code>.</li></ul>
+<p>Keep the <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags.</p>
+<h4><code>app/blog/layout.jsx</code>, for the blog section only</h4>
+<ul><li>an <code>&lt;aside&gt;</code> with the text <code>Blog sidebar</code>;</li><li>then the page.</li></ul>
+<p>The sidebar must appear on <code>/blog</code> and must not appear on <code>/</code> or <code>/about</code>.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/02-layouts/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/02-layouts</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/01-app-router.html"><span>Previous</span>Next.js and the app router</a><a class="next" href="../next/03-server-and-client-components.html"><span>Next</span>Server and client components</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

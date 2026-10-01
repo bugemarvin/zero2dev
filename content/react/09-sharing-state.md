@@ -127,7 +127,7 @@ Often prop drilling disappears if you pass **components** down in place of data:
 
 ## Where to go next
 
-You now know the core of React: components, props, state, lists, forms, effects, data fetching, custom hooks and shared state. The natural next step is Next.js, which adds routing, server rendering and data loading on top of what you have learned here.
+You now know the core of React: components, props, state, lists, forms, effects, data fetching, custom hooks and shared state. The natural next step is [Next.js](next/01-app-router), which adds routing, server rendering and data loading on top of what you have learned here.
 
 ## Common mistakes
 

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynamic routes · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/04-dynamic-routes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 4 of 8</p>
+<h1>Dynamic routes</h1>
+<p class="lede">One page file for thousands of URLs, with the changing part passed in as a parameter.</p>
+<h2 id="a-folder-in-square-brackets">A folder in square brackets</h2>
+<p>A shop has a page for every product. You do not create a folder per product. A folder whose name is in square brackets matches <strong>any</strong> value in that position:</p>
+<pre><code class="lang-text">app/
+    products/
+        page.js          /products
+        [id]/
+            page.js      /products/1, /products/42, /products/anything</code></pre>
+<p>The page receives the matched value in its <code>params</code> prop. <code>params</code> is a promise, so <code>await</code> it:</p>
+<pre><code class="lang-jsx">// app/products/[id]/page.js
+import { getProduct } from "../../../lib/products.js";
+
+export default async function ProductPage({ params }) {
+  const { id } = await params;
+  const product = getProduct(Number(id));
+
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;{product.name}&lt;/h1&gt;
+      &lt;p&gt;{product.price} EUR&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<p>Parameters are always <strong>strings</strong>. Convert them when you need a number.</p>
+<h2 id="not-found">Not found</h2>
+<p>If no product has that id, the right answer is a 404, not a crash and not an empty page. Call <code>notFound()</code>:</p>
+<pre><code class="lang-jsx">import { notFound } from "next/navigation";
+
+export default async function ProductPage({ params }) {
+  const { id } = await params;
+  const product = getProduct(Number(id));
+  if (!product) {
+    notFound();
+  }
+  return &lt;h1&gt;{product.name}&lt;/h1&gt;;
+}</code></pre>
+<p><code>notFound()</code> stops rendering and responds with status 404. Add <code>app/not-found.js</code> to design what the visitor sees:</p>
+<pre><code class="lang-jsx">// app/not-found.js
+export default function NotFound() {
+  return &lt;h1&gt;Nothing here&lt;/h1&gt;;
+}</code></pre>
+<h2 id="linking-to-dynamic-pages">Linking to dynamic pages</h2>
+<p>Build the path with a template literal:</p>
+<pre><code class="lang-jsx">import Link from "next/link";
+
+{products.map((product) =&gt; (
+  &lt;li key={product.id}&gt;
+    &lt;Link href={`/products/${product.id}`}&gt;{product.name}&lt;/Link&gt;
+  &lt;/li&gt;
+))}</code></pre>
+<h2 id="several-parameters">Several parameters</h2>
+<pre><code class="lang-text">app/shop/[category]/[item]/page.js      /shop/books/dune</code></pre>
+<pre><code class="lang-jsx">const { category, item } = await params;</code></pre>
+<p>A folder named <code>[...path]</code> catches all remaining segments, as an array:</p>
+<pre><code class="lang-text">app/docs/[...path]/page.js      /docs/a/b/c   gives   path = ["a", "b", "c"]</code></pre>
+<h2 id="the-query-string">The query string</h2>
+<p>Values after the <code>?</code> arrive in <code>searchParams</code>, also a promise:</p>
+<pre><code class="lang-jsx">// /products?sort=price&amp;page=2
+export default async function Products({ searchParams }) {
+  const { sort = "name", page = "1" } = await searchParams;
+  ...
+}</code></pre>
+<p>Use the path for <strong>what</strong> is being shown, and the query string for <strong>how</strong>: sorting, filtering, paging.</p>
+<h2 id="a-title-per-page">A title per page</h2>
+<p>Export <code>generateMetadata</code> to compute the title from the parameter:</p>
+<pre><code class="lang-jsx">export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const product = getProduct(Number(id));
+  return { title: product ? product.name : "Not found" };
+}</code></pre>
+<h2 id="building-pages-in-advance">Building pages in advance</h2>
+<p>If the list of possible values is known when the site is built, <code>generateStaticParams</code> tells Next.js to render those pages ahead of time. They are then served as plain files, which is as fast as a page can be.</p>
+<pre><code class="lang-jsx">export function generateStaticParams() {
+  return getProducts().map((product) =&gt; ({ id: String(product.id) }));
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting to <code>await params</code>.</strong></li><li><strong>Using the parameter as a number</strong> without converting it: <code>"2" === 2</code> is false.</li><li><strong>Rendering with a missing record</strong>, which throws on <code>product.name</code>. Check, and call <code>notFound()</code>.</li><li><strong>Putting sort and filter options in the path</strong> when they belong in the query string.</li><li><strong>A folder named <code>[id].js</code>.</strong> It is a folder <code>[id]</code> containing <code>page.js</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/04-dynamic-routes">
+<h3>A page per product <span class="ex-id">next/04-dynamic-routes</span></h3>
+<p><code>lib/products.js</code> is given. It exports <code>getProducts()</code> and <code>getProduct(id)</code>, where <code>id</code> is a <strong>number</strong>. <code>getProduct</code> returns <code>undefined</code> for an unknown id.</p>
+<h4><code>app/products/page.jsx</code>, at <code>/products</code></h4>
+<p>A <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per product. Each item contains a <code>Link</code> to that product's page, <code>/products/ID</code>, with the product's name as its text.</p>
+<h4><code>app/products/[id]/page.jsx</code>, at <code>/products/1</code>, <code>/products/2</code>, ...</h4>
+<ul><li>an <code>&lt;h1&gt;</code> with the product's name;</li><li>a <code>&lt;p&gt;</code> with the text <code>Price: 49 EUR</code>, using the product's price.</li></ul>
+<p>If there is no product with that id, including when the id is not a number, call <code>notFound()</code> so that the response is a 404.</p>
+<p>Remember that <code>params</code> is a promise, and that its values are strings.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/04-dynamic-routes/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/04-dynamic-routes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/03-server-and-client-components.html"><span>Previous</span>Server and client components</a><a class="next" href="../next/05-route-handlers.html"><span>Next</span>Route handlers</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

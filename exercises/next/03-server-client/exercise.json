@@ -1,0 +1,27 @@
+{
+  "title": "A server page with a client button",
+  "lesson": "next/03-server-and-client-components",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/page.jsx",
+    "app/like-button.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "hints": [
+    "The first line of like-button.jsx is \"use client\"; followed by import { useState } from \"react\";",
+    "export default async function Page() { const products = await getProducts(); ... }",
+    "Import the data with: import { getProducts } from \"../lib/products.js\"; and the button with: import LikeButton from \"./like-button.jsx\";"
+  ]
+}

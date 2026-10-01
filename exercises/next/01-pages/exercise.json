@@ -1,0 +1,56 @@
+{
+  "title": "Two pages",
+  "lesson": "next/01-app-router",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/page.jsx",
+    "app/about/page.jsx"
+  ],
+  "start": [
+    "npx",
+    "next",
+    "dev",
+    "-p",
+    "{port}",
+    "-H",
+    "127.0.0.1"
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "start_timeout": 120,
+  "timeout": 90,
+  "requests": [
+    {
+      "name": "/ shows the heading",
+      "path": "/",
+      "status": 200,
+      "contains": "<h1>Welcome to my site</h1>"
+    },
+    {
+      "name": "/about shows its heading and paragraph",
+      "path": "/about",
+      "status": 200,
+      "contains": [
+        "<h1>About us</h1>",
+        "<p>We make things.</p>"
+      ]
+    },
+    {
+      "name": "the two pages are different",
+      "path": "/about",
+      "not_contains": "Welcome to my site"
+    },
+    {
+      "name": "an unknown path answers 404",
+      "path": "/missing",
+      "status": 404
+    }
+  ],
+  "hints": [
+    "A page is a component: export default function Home() { return <h1>Welcome to my site</h1>; }",
+    "A component returns one root element. Wrap the heading and the paragraph of the About page in <main> or <>...</>."
+  ]
+}

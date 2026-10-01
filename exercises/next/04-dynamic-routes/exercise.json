@@ -1,0 +1,78 @@
+{
+  "title": "A page per product",
+  "lesson": "next/04-dynamic-routes",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/products/page.jsx",
+    "app/products/[id]/page.jsx"
+  ],
+  "start": [
+    "npx",
+    "next",
+    "dev",
+    "-p",
+    "{port}",
+    "-H",
+    "127.0.0.1"
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "start_timeout": 120,
+  "timeout": 90,
+  "requests": [
+    {
+      "name": "/products links to every product",
+      "path": "/products",
+      "status": 200,
+      "contains": [
+        "href=\"/products/1\"",
+        "href=\"/products/2\"",
+        "href=\"/products/3\"",
+        ">Keyboard</a>",
+        ">Monitor</a>"
+      ]
+    },
+    {
+      "name": "/products/1 shows the keyboard",
+      "path": "/products/1",
+      "status": 200,
+      "contains": [
+        "<h1>Keyboard</h1>",
+        "Price: 49 EUR"
+      ]
+    },
+    {
+      "name": "/products/3 shows the monitor",
+      "path": "/products/3",
+      "status": 200,
+      "contains": [
+        "<h1>Monitor</h1>",
+        "Price: 199 EUR"
+      ]
+    },
+    {
+      "name": "/products/3 does not show another product",
+      "path": "/products/3",
+      "not_contains": "<h1>Keyboard</h1>"
+    },
+    {
+      "name": "an unknown id answers 404",
+      "path": "/products/99",
+      "status": 404
+    },
+    {
+      "name": "an id that is not a number answers 404",
+      "path": "/products/abc",
+      "status": 404
+    }
+  ],
+  "hints": [
+    "const { id } = await params; then getProduct(Number(id)).",
+    "if (!product) { notFound(); } must come before you read product.name.",
+    "Write the price as one piece of text: <p>{`Price: ${product.price} EUR`}</p>",
+    "In the list: <Link href={`/products/${product.id}`}>{product.name}</Link>"
+  ]
+}

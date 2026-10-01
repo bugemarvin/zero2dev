@@ -1352,6 +1352,96 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "next",
+   "title": "Next.js",
+   "blurb": "Full web applications with React: file-based routes, server rendering, API endpoints and server actions.",
+   "lessons": [
+    {
+     "id": "next/01-app-router",
+     "title": "Next.js and the app router",
+     "summary": "A framework on top of React where folders become pages, and pages are rendered on the server.",
+     "exercises": [
+      {
+       "id": "next/01-pages",
+       "title": "Two pages"
+      }
+     ]
+    },
+    {
+     "id": "next/02-layouts-and-links",
+     "title": "Layouts and navigation",
+     "summary": "Share a frame between pages, nest frames inside each other, and move between pages without a full reload.",
+     "exercises": [
+      {
+       "id": "next/02-layouts",
+       "title": "A shared frame and a nested layout"
+      }
+     ]
+    },
+    {
+     "id": "next/03-server-and-client-components",
+     "title": "Server and client components",
+     "summary": "Where each component runs, what each kind can do, and how to combine them.",
+     "exercises": [
+      {
+       "id": "next/03-server-client",
+       "title": "A server page with a client button"
+      }
+     ]
+    },
+    {
+     "id": "next/04-dynamic-routes",
+     "title": "Dynamic routes",
+     "summary": "One page file for thousands of URLs, with the changing part passed in as a parameter.",
+     "exercises": [
+      {
+       "id": "next/04-dynamic-routes",
+       "title": "A page per product"
+      }
+     ]
+    },
+    {
+     "id": "next/05-route-handlers",
+     "title": "Route handlers",
+     "summary": "API endpoints inside your Next.js project, written with the web's own Request and Response.",
+     "exercises": [
+      {
+       "id": "next/05-notes-api",
+       "title": "An API with route handlers"
+      }
+     ]
+    },
+    {
+     "id": "next/06-data-fetching",
+     "title": "Loading data",
+     "summary": "Fetch in server components, show progress and errors, and decide how fresh the data must be.",
+     "exercises": [
+      {
+       "id": "next/06-users-page",
+       "title": "Load data, with loading and error states"
+      }
+     ]
+    },
+    {
+     "id": "next/07-forms-and-server-actions",
+     "title": "Forms and server actions",
+     "summary": "Change data with a function that runs on the server and is called straight from a form.",
+     "exercises": [
+      {
+       "id": "next/07-server-actions",
+       "title": "Change data with server actions"
+      }
+     ]
+    },
+    {
+     "id": "next/08-building-and-deploying",
+     "title": "Building and deploying",
+     "summary": "Turn the project into something that runs in production, and put it online.",
+     "exercises": []
+    }
+   ]
   }
  ]
 };
