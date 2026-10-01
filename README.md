@@ -79,10 +79,14 @@ The `guide/` folder is a plain static site, so it can be put online, for example
 
 **Deploying on Vercel:** import this repository in Vercel and deploy. `vercel.json` already says that the site is the `guide/` folder and that there is nothing to build. Each push to `main` then updates the site.
 
-Once the app is installed, the online pages notice it and offer two things:
+The install line shown on the online site names that site (`Z2D_TRUST=https://...`). Running the line is your consent: the app on your computer then accepts that site, and after **I ran it: check** the online pages work with your machine directly. You can run exercises there, see what your computer is installing, and use its terminal, without leaving the site. Leave the `Z2D_TRUST` part out if you only want the offline app.
 
-- **Open my app**: go to `http://127.0.0.1:4750`, the copy on your own machine. This is the normal way.
-- **Use it on this page**: let the online pages run exercises with the app on your machine. Your browser opens a page **of your own app**, which names the website and asks you to allow it. A site you allow can run code on your computer, exactly as the app's own pages can, so allow only a site you trust. Nothing is allowed until you say so, and you can remove a site on the Setup page, or with:
+Be clear about what that consent means: **a site you allow can run commands on your computer**, exactly as the app's own pages can. Allow only a site you trust. Without the `Z2D_TRUST` part nothing is allowed, and the online pages offer two things instead:
+
+- **Open my app**: go to `http://127.0.0.1:4750`, the copy on your own machine.
+- **Use it on this page**: your browser opens a page **of your own app**, which names the website and asks you to allow it.
+
+You can remove a site at any time on the Setup page, or with:
 
 ```console
 $ python3 app.py trusted
@@ -90,6 +94,15 @@ $ python3 app.py untrust https://your-site.vercel.app
 ```
 
 Chrome and Edge ask whether the site may reach apps on your device: that is this connection, and without your "Allow" the site cannot even see that the app is there. Safari does not allow it at all. In both cases nothing is lost: use **Open my app**, or go to `http://127.0.0.1:4750` yourself.
+
+## A terminal in the page, and what the machine is doing
+
+With the app running, the **>_ Terminal** button in the top bar opens a drawer with two tabs.
+
+- **Terminal** is a real shell on your computer, in the project folder. The **Install** buttons on the Setup page run the install script there, so you watch every step, and when it asks for your password or offers a choice (try again, install another way, skip), you answer in the page. A password prompt hides what you type. Ctrl+C stops a command.
+- **Activity** shows what the machine is doing for the app: downloads in progress with their output, exercise apps and previews that are running, and databases running in Docker.
+
+It is a simple display, not a full terminal emulator: programs that paint the whole screen, such as `vim` or `top`, need a real terminal.
 
 ## Paths
 
@@ -182,7 +195,7 @@ $ python3 check.py prefetch react next  # download in advance, for offline use
 
 `app.py` runs your code, which is its purpose, so it is locked down: it listens on `127.0.0.1` only, refuses requests whose `Host` is not its own, refuses requests from other websites, and requires a token that only its own pages can read. Nobody else on your network can reach it. Do not put it behind a proxy that exposes it.
 
-The one exception is a website you have approved yourself (see above). It may call the API from its own address, with the token; it cannot approve other sites, and you can remove it at any time. Any website may ask one question, "is the app here?", and gets a yes with nothing else.
+The one exception is a website you have approved yourself (see above). It may call the API from its own address, with the token, and that includes the terminal: an approved site can run commands on your computer. It cannot approve other sites, and you can remove it at any time. Any website may ask one question, "is the app here?", and gets a yes with nothing else.
 
 ## Install the tools
 

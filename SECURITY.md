@@ -7,7 +7,8 @@ The zero2dev app runs code on the learner's own computer. That is its purpose, a
 - The server listens on `127.0.0.1` only. Other computers cannot reach it.
 - It refuses requests whose `Host` is not its own, and requests from other websites.
 - Every API call needs a token that only the app's own pages, or a website the learner approved on that computer, can read.
-- A website is never approved by default, and never by the website itself.
+- A website is never approved by default, and never by the website itself. It is approved on a page of the app, with `python3 app.py trust`, or by an install line that names it (`Z2D_TRUST=...`), which the learner runs themselves.
+- An approved website has the same power as the app's own pages, including the terminal. That is stated wherever a site is approved.
 - The app does not send the learner's code, progress or any other data anywhere.
 - Installing tools never asks for a password in a web page.
 
@@ -27,4 +28,4 @@ Say what you found, how to reproduce it, and what an attacker could do with it. 
 
 ## For contributors
 
-Changes to `z2d/server.py`, `z2d/api.py`, `z2d/origins.py` and anything that runs a command get a careful review. `tools/test_app.py` holds the security checks: add a check for every rule you add or change, and never weaken one to make a test pass.
+Changes to `z2d/server.py`, `z2d/api.py`, `z2d/origins.py`, `z2d/terminal.py` and anything that runs a command get a careful review. `tools/test_app.py` holds the security checks: add a check for every rule you add or change, and never weaken one to make a test pass.

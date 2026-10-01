@@ -10,6 +10,7 @@
 #
 #   Z2D_DIR=/some/folder    where to put it (default: ~/zero2dev)
 #   Z2D_NO_START=1          download only, do not start the app
+#   Z2D_TRUST=https://site  also let that website (a copy of the guide online) use the app
 set -euo pipefail
 
 REPO="https://github.com/bugemarvin/zero2dev.git"
@@ -60,6 +61,13 @@ elif [ -e "$DIR" ]; then
 else
   say "Downloading zero2dev into $DIR"
   git clone --depth 1 "$REPO" "$DIR"
+fi
+
+# The install line on a copy of the guide that is online names that site: Z2D_TRUST=https://...
+# Running the line is the learner's consent for that site to work with the app on this computer.
+if [ -n "${Z2D_TRUST:-}" ]; then
+  say "Letting $Z2D_TRUST work with the app on this computer"
+  (cd "$DIR" && python3 app.py trust "$Z2D_TRUST") || printf 'That address was not accepted. You can still approve a site later, from the site itself.\n'
 fi
 
 if [ "${Z2D_NO_START:-0}" = 1 ]; then
