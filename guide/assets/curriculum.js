@@ -34,7 +34,8 @@ window.Z2D_CURRICULUM = {
     "js",
     "bash",
     "sql"
-   ]
+   ],
+   "group": "start"
   },
   {
    "id": "frontend",
@@ -81,13 +82,14 @@ window.Z2D_CURRICULUM = {
     "node",
     "dsa",
     "llm"
-   ]
+   ],
+   "group": "work"
   },
   {
    "id": "backend",
    "title": "Backend developer",
-   "blurb": "Build what happens behind the screen: APIs, databases, authentication and services that stay up.",
-   "outcome": "You can design, build, test and ship an API with a database behind it.",
+   "blurb": "Build what happens behind the screen: APIs, databases, authentication and services that stay up. In the language you choose.",
+   "outcome": "You can design, build, test and ship an API with a database behind it, in a server language of your choice.",
    "stages": [
     {
      "title": "Foundations",
@@ -98,10 +100,16 @@ window.Z2D_CURRICULUM = {
      ]
     },
     {
-     "title": "A first language",
-     "why": "A language for thinking in before you specialise.",
-     "tracks": [
-      "python"
+     "title": "Your server language",
+     "why": "Pick one and learn it well. Python is the gentlest start. Java, Go, PHP, Elixir and Rust are all used for servers, and the others stay available as optional tracks.",
+     "tracks": [],
+     "pick": [
+      "python",
+      "java",
+      "go",
+      "php",
+      "elixir",
+      "rust"
      ]
     },
     {
@@ -115,7 +123,7 @@ window.Z2D_CURRICULUM = {
     },
     {
      "title": "Services",
-     "why": "HTTP, APIs, authentication and structure.",
+     "why": "How an API is built, secured and tested. Taught with JavaScript and Node.js; the ideas are the same in every server language.",
      "tracks": [
       "js",
       "node"
@@ -132,15 +140,11 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
-    "go",
-    "java",
-    "php",
-    "elixir",
-    "rust",
     "dsa",
     "llm",
     "bash"
-   ]
+   ],
+   "group": "work"
   },
   {
    "id": "fullstack",
@@ -198,7 +202,8 @@ window.Z2D_CURRICULUM = {
     "dsa",
     "llm",
     "php"
-   ]
+   ],
+   "group": "work"
   },
   {
    "id": "devops",
@@ -251,6 +256,61 @@ window.Z2D_CURRICULUM = {
     "c",
     "node",
     "mongodb"
+   ],
+   "group": "work"
+  },
+  {
+   "id": "data",
+   "group": "work",
+   "title": "Database engineer",
+   "blurb": "Store data so that it stays correct and comes back fast: relational, document and in-memory databases, and how to run them.",
+   "outcome": "You can design a schema, write and tune queries, choose the right store for a job, and run it in containers.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git",
+      "bash"
+     ]
+    },
+    {
+     "title": "A language to script with",
+     "why": "Loading, checking and moving data is done with small programs.",
+     "tracks": [
+      "python"
+     ]
+    },
+    {
+     "title": "Relational data",
+     "why": "SQL is the language of data. Schema design, indexes and transactions decide whether a system is correct and fast.",
+     "tracks": [
+      "sql"
+     ]
+    },
+    {
+     "title": "Documents and caches",
+     "why": "Not everything is a table. Know when a document store or an in-memory store fits better.",
+     "tracks": [
+      "mongodb",
+      "redis"
+     ]
+    },
+    {
+     "title": "Running them",
+     "why": "A database is a service that must be started, backed up and watched.",
+     "tracks": [
+      "docker",
+      "devops"
+     ]
+    }
+   ],
+   "electives": [
+    "dsa",
+    "node",
+    "go",
+    "llm"
    ]
   },
   {
@@ -295,7 +355,8 @@ window.Z2D_CURRICULUM = {
     "html",
     "css",
     "python"
-   ]
+   ],
+   "group": "work"
   },
   {
    "id": "systems",
@@ -339,7 +400,8 @@ window.Z2D_CURRICULUM = {
     "docker",
     "elixir",
     "java"
-   ]
+   ],
+   "group": "work"
   },
   {
    "id": "ai",
@@ -391,6 +453,435 @@ window.Z2D_CURRICULUM = {
     "mongodb",
     "dsa",
     "devops"
+   ],
+   "group": "work"
+  },
+  {
+   "id": "cs",
+   "group": "work",
+   "title": "Computer science foundations",
+   "blurb": "The core of a computer science course, and of technical interviews: a language, how the machine works, data structures and algorithms.",
+   "outcome": "You can reason about memory and running time, and solve algorithm problems in the language you chose.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "A language to think in",
+     "why": "Pick one. The algorithm exercises accept any of them.",
+     "tracks": [],
+     "pick": [
+      "python",
+      "java",
+      "go",
+      "js"
+     ]
+    },
+    {
+     "title": "The machine",
+     "why": "C shows what a program really does with memory. It explains the rest.",
+     "tracks": [
+      "c"
+     ]
+    },
+    {
+     "title": "Data structures and algorithms",
+     "why": "From Big-O to graphs and dynamic programming.",
+     "tracks": [
+      "dsa"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "Nearly every program stores something. SQL is asked about in most interviews.",
+     "tracks": [
+      "sql"
+     ]
+    }
+   ],
+   "electives": [
+    "rust",
+    "bash",
+    "elixir"
+   ]
+  },
+  {
+   "id": "python",
+   "group": "language",
+   "title": "Python developer",
+   "blurb": "One language for scripts, servers, data and AI. The gentlest way in, and it goes a long way.",
+   "outcome": "You can write, test and ship Python programs that use databases and language models.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "Python",
+     "why": "From the first function to classes, generators, testing and typing.",
+     "tracks": [
+      "python"
+     ]
+    },
+    {
+     "title": "Problem solving",
+     "why": "Data structures and algorithms turn knowing a language into being able to solve problems with it.",
+     "tracks": [
+      "dsa"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "Real programs keep their data in a database.",
+     "tracks": [
+      "sql",
+      "redis"
+     ]
+    },
+    {
+     "title": "Building with it",
+     "why": "Language models are where Python is used most today. Docker gets your program onto a server.",
+     "tracks": [
+      "llm",
+      "docker"
+     ]
+    }
+   ],
+   "electives": [
+    "mongodb",
+    "bash",
+    "devops",
+    "html",
+    "css"
+   ]
+  },
+  {
+   "id": "java",
+   "group": "language",
+   "title": "Java developer",
+   "blurb": "The language of large business systems, banks and Android: strict types, objects, and a huge ecosystem.",
+   "outcome": "You can design a Java program with classes, interfaces and collections, back it with a database, and package it in a container.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "Java",
+     "why": "Types, classes, interfaces, collections, generics, exceptions and streams.",
+     "tracks": [
+      "java"
+     ]
+    },
+    {
+     "title": "Data structures and algorithms",
+     "why": "Java interviews lean on them heavily. Solve the exercises in Java.",
+     "tracks": [
+      "dsa"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "Almost every Java service talks to a relational database, and often to a cache.",
+     "tracks": [
+      "sql",
+      "redis"
+     ]
+    },
+    {
+     "title": "Services",
+     "why": "How systems are packaged, split into services and kept running.",
+     "tracks": [
+      "docker",
+      "microservices"
+     ]
+    }
+   ],
+   "electives": [
+    "devops",
+    "mongodb",
+    "bash",
+    "js",
+    "go"
+   ]
+  },
+  {
+   "id": "go",
+   "group": "language",
+   "title": "Go developer",
+   "blurb": "The language of cloud software: small, fast, and built for servers and command-line tools.",
+   "outcome": "You can build a concurrent Go service with an HTTP API and a database, and ship and operate it.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git",
+      "bash"
+     ]
+    },
+    {
+     "title": "Go",
+     "why": "Slices, maps, structs, interfaces, errors, goroutines and channels, and an HTTP API.",
+     "tracks": [
+      "go"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "A service is usually a thin layer over its data.",
+     "tracks": [
+      "sql",
+      "redis"
+     ]
+    },
+    {
+     "title": "Containers and services",
+     "why": "Go and containers grew up together: Docker itself is written in Go.",
+     "tracks": [
+      "docker",
+      "microservices"
+     ]
+    },
+    {
+     "title": "Operations",
+     "why": "Pipelines, deployment and monitoring: where much Go is written.",
+     "tracks": [
+      "devops"
+     ]
+    }
+   ],
+   "electives": [
+    "dsa",
+    "c",
+    "rust",
+    "mongodb"
+   ]
+  },
+  {
+   "id": "rust",
+   "group": "language",
+   "title": "Rust developer",
+   "blurb": "The speed and control of C, with a compiler that proves your memory is used safely.",
+   "outcome": "You can write safe, fast Rust with ownership, traits and iterators, and you know what it protects you from.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "The machine",
+     "why": "Rust's rules make sense once you have seen, in C, the problems they prevent.",
+     "tracks": [
+      "c"
+     ]
+    },
+    {
+     "title": "Rust",
+     "why": "Ownership and borrowing, enums and match, Option and Result, traits, iterators.",
+     "tracks": [
+      "rust"
+     ]
+    },
+    {
+     "title": "Data structures and algorithms",
+     "why": "Building them in Rust is the real test of understanding ownership.",
+     "tracks": [
+      "dsa"
+     ]
+    },
+    {
+     "title": "Around the code",
+     "why": "Scripts and containers, to build and ship what you write.",
+     "tracks": [
+      "bash",
+      "docker"
+     ]
+    }
+   ],
+   "electives": [
+    "go",
+    "sql",
+    "elixir",
+    "gamedev"
+   ]
+  },
+  {
+   "id": "elixir",
+   "group": "language",
+   "title": "Elixir developer",
+   "blurb": "Functional programming on the Erlang virtual machine: many small processes, and systems that keep running when parts fail.",
+   "outcome": "You can write Elixir with pattern matching, processes and GenServers, and build a service that recovers from failure.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "Elixir",
+     "why": "Pattern matching, recursion, pipes, processes, GenServer, Mix and ExUnit.",
+     "tracks": [
+      "elixir"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "Elixir applications keep their state in a database and share fast data through a cache.",
+     "tracks": [
+      "sql",
+      "redis"
+     ]
+    },
+    {
+     "title": "Systems that stay up",
+     "why": "Containers, several services working together, and what to do when one of them fails.",
+     "tracks": [
+      "docker",
+      "microservices"
+     ]
+    }
+   ],
+   "electives": [
+    "dsa",
+    "html",
+    "css",
+    "js",
+    "devops"
+   ]
+  },
+  {
+   "id": "php",
+   "group": "language",
+   "title": "PHP web developer",
+   "blurb": "The language behind WordPress, Wikipedia and Laravel: pages, forms and APIs backed by a database.",
+   "outcome": "You can build a web application in PHP with forms, a JSON API and a database, and put it in a container.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "The web platform",
+     "why": "PHP produces HTML. Know what it has to produce.",
+     "tracks": [
+      "html",
+      "css"
+     ]
+    },
+    {
+     "title": "PHP",
+     "why": "Arrays, functions, classes, requests and forms, JSON APIs, and databases with PDO.",
+     "tracks": [
+      "php"
+     ]
+    },
+    {
+     "title": "Data",
+     "why": "Nearly every PHP application sits on a relational database.",
+     "tracks": [
+      "sql"
+     ]
+    },
+    {
+     "title": "In the browser",
+     "why": "JavaScript makes the pages you serve interactive.",
+     "tracks": [
+      "js"
+     ]
+    },
+    {
+     "title": "Shipping",
+     "why": "Package the application and its database so that it runs anywhere.",
+     "tracks": [
+      "docker"
+     ]
+    }
+   ],
+   "electives": [
+    "scss",
+    "vue",
+    "redis",
+    "mongodb",
+    "devops"
+   ]
+  },
+  {
+   "id": "vue",
+   "group": "language",
+   "title": "Vue developer",
+   "blurb": "Interactive applications in the browser with Vue: single-file components, reactivity and composables.",
+   "outcome": "You can build an interactive Vue application and connect it to an API.",
+   "stages": [
+    {
+     "title": "Foundations",
+     "why": "The terminal and Git are part of every job.",
+     "tracks": [
+      "start",
+      "git"
+     ]
+    },
+    {
+     "title": "The web platform",
+     "why": "Vue templates are HTML, and components are styled with CSS.",
+     "tracks": [
+      "html",
+      "css"
+     ]
+    },
+    {
+     "title": "JavaScript",
+     "why": "Vue is JavaScript. The better you know the language, the less the framework surprises you.",
+     "tracks": [
+      "js"
+     ]
+    },
+    {
+     "title": "Vue",
+     "why": "Components, reactivity, props and events, lists, forms and composables.",
+     "tracks": [
+      "vue"
+     ]
+    },
+    {
+     "title": "A server behind it",
+     "why": "An application needs an API to talk to.",
+     "tracks": [
+      "node"
+     ]
+    }
+   ],
+   "electives": [
+    "scss",
+    "sql",
+    "react",
+    "docker",
+    "gamedev"
    ]
   }
  ],
