@@ -171,10 +171,15 @@
     }
     var next = document.getElementById("continue");
     if (next) {
-      var todo = allLessons().filter(function (l) { return !lessonDone(l, read); })[0];
+      var started = passedEx > 0 || Object.keys(read).length > 0;
+      // Once exercises are being passed, "continue" means the next unfinished exercise,
+      // not an earlier reading-only lesson that was never ticked.
+      var todo = allLessons().filter(function (l) {
+        if (passedEx > 0) return l.exercises.length > 0 && !lessonDone(l, read);
+        return !lessonDone(l, read);
+      })[0];
       if (todo) {
         next.href = lessonHref(todo.id);
-        var started = passedEx > 0 || Object.keys(read).length > 0;
         next.textContent = (started ? "Continue: " : "Start: ") + todo.title;
       }
     }
@@ -264,6 +269,7 @@
       var lang = (code.className.match(/lang-(\w+)/) || [])[1] || "text";
       var raw = code.textContent;
       colour(code, lang);
+      if (lang === "text") return; // diagrams and sample output: nothing worth copying
       var btn = el("button", { class: "copy-btn", type: "button", text: "Copy" });
       btn.addEventListener("click", function () {
         var text = raw;
