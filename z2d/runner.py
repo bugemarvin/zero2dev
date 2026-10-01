@@ -862,7 +862,7 @@ def source_check(exdir, chk):
     text = re.sub(r"(?m)(^|\s)//[^\n]*", r"\1", text)
     for piece in [chk["contains"]] if isinstance(chk.get("contains"), str) else chk.get("contains", []):
         if piece not in text:
-            return f"{name} should use: {piece}"
+            return chk.get("fail", f"{name} should use: {piece}")
     for piece in [chk["not_contains"]] if isinstance(chk.get("not_contains"), str) else chk.get("not_contains", []):
         if piece in text:
             return f"{name} should not contain: {piece}"
@@ -883,8 +883,11 @@ def compile_styles(spec, run):
     `run(command)` runs a command in the folder that holds the files and returns
     (exit_code, stdout, stderr). Returns '' or the compiler's message.
     """
+    template = workspaces.config(spec["workspace"]).get("compile")
+    if not template:
+        return f"the {spec['workspace']} package set does not say how to compile"
     for source, target in spec.get("compile", {}).items():
-        code, out, err = run(["npx", "sass", "--no-source-map", "--quiet-deps", source, target])
+        code, out, err = run([part.replace("{source}", source).replace("{target}", target) for part in template])
         if code is None:
             return f"compiling {source} took too long"
         if code != 0:
@@ -917,6 +920,11 @@ def web_check(page, rules, chk):
     if "contains" in chk and not any(chk["contains"].lower() in el.text().lower() for el in found):
         return f"no `{selector}` contains the text: {chk['contains']}"
     for el in found:
+        have = el.attrs.get("class", "").split()
+        for want in chk.get("classes", []):         # a class, or a list of classes of which one is enough
+            options = [want] if isinstance(want, str) else list(want)
+            if not any(option in have for option in options):
+                return f"{el.describe()} needs the class: {' or '.join(options)}"
         for name, want in chk.get("attr", {}).items():
             got = el.attrs.get(name)
             if want is True:
@@ -967,7 +975,11 @@ def check_web(ex, exdir):
             return results + [Result(False, f"{spec.get('page', 'index.html')} exists")]
         for chk in spec["checks"]:
             try:
-                problem = source_check(exdir, chk) if "source" in chk else web_check(page, rules, chk)
+                if "source" in chk:        # a compiled file is read from where it was built
+                    built = chk["source"] in spec.get("compile", {}).values()
+                    problem = source_check(pagedir if built else exdir, chk)
+                else:
+                    problem = web_check(page, rules, chk)
             except webcheck.SelectorError as exc:
                 problem = str(exc)
             results.append(Result(not problem, chk["name"], problem if problem else ""))

@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which theme variable creates the class `bg-brand`?",
+  "options": [
+   "--brand",
+   "--bg-brand",
+   "--color-brand",
+   "--theme-brand"
+  ],
+  "answer": 2,
+  "why": "A colour variable starts with --color-, and gives every colour class: bg-, text-, border-."
+ },
+ {
+  "q": "How do you write a width of exactly 320 pixels?",
+  "options": [
+   "w-320",
+   "w-[320px]",
+   "w-(320)",
+   "width-320px"
+  ],
+  "answer": 1,
+  "why": "Arbitrary values go in square brackets."
+ },
+ {
+  "q": "What does `bg-black/50` mean?",
+  "options": [
+   "Black, at 50% opacity",
+   "Half the element is black",
+   "Black divided by 50",
+   "Shade 50 of black"
+  ],
+  "answer": 0,
+  "why": "The number after the slash is the opacity."
+ },
+ {
+  "q": "In which block do theme variables go?",
+  "accept": [
+   "@theme"
+  ],
+  "why": "Type the at-rule, with the @."
+ }
+]

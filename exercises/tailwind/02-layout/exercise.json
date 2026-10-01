@@ -1,0 +1,103 @@
+{
+  "title": "A header and a grid of cards",
+  "lesson": "tailwind/02-layout",
+  "kind": "web",
+  "workspace": "tailwind",
+  "page": "index.html",
+  "compile": {
+    "input.css": "style.css"
+  },
+  "edit": [
+    "index.html"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "the header is a flex row",
+      "select": "header",
+      "classes": [
+        "flex"
+      ]
+    },
+    {
+      "name": "the header centres its items and pushes them apart",
+      "select": "header",
+      "classes": [
+        "items-center",
+        "justify-between"
+      ]
+    },
+    {
+      "name": "the header has padding",
+      "select": "header",
+      "classes": [
+        "p-4"
+      ]
+    },
+    {
+      "name": "the nav is a flex row with a gap",
+      "select": "nav",
+      "classes": [
+        "flex",
+        [
+          "gap-4",
+          "gap-x-4"
+        ]
+      ]
+    },
+    {
+      "name": "the main column has a maximum width and is centred",
+      "select": "main",
+      "classes": [
+        "max-w-4xl",
+        "mx-auto"
+      ]
+    },
+    {
+      "name": "the main column has padding",
+      "select": "main",
+      "classes": [
+        "p-4"
+      ]
+    },
+    {
+      "name": "#cards is a grid of three columns with a gap",
+      "select": "#cards",
+      "classes": [
+        "grid",
+        "grid-cols-3",
+        "gap-6"
+      ]
+    },
+    {
+      "name": "the featured card spans two columns",
+      "select": "#featured",
+      "classes": [
+        "col-span-2"
+      ]
+    },
+    {
+      "name": "Tailwind generated the layout classes",
+      "source": "style.css",
+      "contains": [
+        ".grid-cols-3",
+        ".justify-between",
+        ".col-span-2"
+      ],
+      "regex": "\\.max-w-4xl\\s*\\{",
+      "fail": "Tailwind did not generate every class this exercise asks for. A class it does not know is silently left out: check the spelling on the page."
+    },
+    {
+      "name": "no style attributes: the styling is done with classes",
+      "select": "body *",
+      "attr": {
+        "style": false
+      }
+    }
+  ],
+  "hints": [
+    "The header: class=\"flex items-center justify-between p-4\".",
+    "The main: class=\"max-w-4xl mx-auto p-4\". The nav: class=\"flex gap-4\".",
+    "#cards: class=\"grid grid-cols-3 gap-6\", and #featured: class=\"col-span-2\"."
+  ]
+}

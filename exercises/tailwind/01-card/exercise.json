@@ -1,0 +1,88 @@
+{
+  "title": "A card, with utilities only",
+  "lesson": "tailwind/01-utility-first",
+  "kind": "web",
+  "workspace": "tailwind",
+  "page": "index.html",
+  "compile": {
+    "input.css": "style.css"
+  },
+  "edit": [
+    "index.html"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "the body has a grey background and padding",
+      "select": "body",
+      "classes": [
+        "bg-gray-100",
+        "p-8"
+      ]
+    },
+    {
+      "name": "the article has padding and a white background",
+      "select": "article",
+      "classes": [
+        "p-6",
+        "bg-white"
+      ]
+    },
+    {
+      "name": "the article has round corners and a shadow",
+      "select": "article",
+      "classes": [
+        "rounded-lg",
+        "shadow-md"
+      ]
+    },
+    {
+      "name": "the h2 is large, bold and dark",
+      "select": "h2",
+      "classes": [
+        "text-xl",
+        "font-bold",
+        "text-gray-900"
+      ]
+    },
+    {
+      "name": "the paragraph has a top margin and grey text",
+      "select": "article p",
+      "classes": [
+        "mt-2",
+        "text-gray-600"
+      ]
+    },
+    {
+      "name": "the link is blue and underlined",
+      "select": "article a",
+      "classes": [
+        "text-blue-600",
+        "underline"
+      ]
+    },
+    {
+      "name": "Tailwind generated the classes you used",
+      "source": "style.css",
+      "contains": [
+        ".p-6",
+        ".rounded-lg",
+        ".text-gray-600"
+      ],
+      "regex": "\\.shadow-md\\s*\\{",
+      "fail": "Tailwind did not generate every class this exercise asks for. A class it does not know is silently left out: check the spelling on the page."
+    },
+    {
+      "name": "no style attributes: the styling is done with classes",
+      "select": "body *",
+      "attr": {
+        "style": false
+      }
+    }
+  ],
+  "hints": [
+    "Classes go in the class attribute, separated by spaces: class=\"p-6 bg-white\".",
+    "The article: class=\"p-6 bg-white rounded-lg shadow-md\".",
+    "The h2: class=\"text-xl font-bold text-gray-900\". The paragraph: class=\"mt-2 text-gray-600\"."
+  ]
+}
