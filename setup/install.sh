@@ -604,7 +604,9 @@ stack_mongodb_install() {
   if ! have mongod || ! have mongosh; then
     # MongoDB is not in the Ubuntu or Debian archives: add the vendor's package source.
     local id codename repo key="/etc/apt/keyrings/mongodb-server-$MONGO_VERSION.gpg"
+    # shellcheck disable=SC1091
     id="$(. /etc/os-release && printf '%s' "${ID:-}")"
+    # shellcheck disable=SC1091
     codename="$(. /etc/os-release && printf '%s' "${VERSION_CODENAME:-}")"
     case "$id:$codename" in
       ubuntu:focal|ubuntu:jammy|ubuntu:noble)

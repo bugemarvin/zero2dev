@@ -1,0 +1,8 @@
+# Who must review a change. A pull request into a protected branch needs the approval of an owner.
+*                       @bugemarvin
+
+# The parts that run code on a learner's machine get the closest look.
+/z2d/                   @bugemarvin
+/setup/                 @bugemarvin
+/app.py                 @bugemarvin
+/.github/               @bugemarvin

@@ -16,14 +16,50 @@ zero2dev is open source under the [MIT licence](LICENSE), and it grows through c
 10. **Never weaken the security of the local server** (see [SECURITY.md](SECURITY.md)), and never commit secrets, keys or personal data.
 11. **Keep it friendly.** Jokes are welcome if every learner can laugh at them.
 
+## Branches, and the way a change travels
+
+| Branch | What it is | Who changes it |
+| --- | --- | --- |
+| `main` | the released guide. The website shows it, and the install line downloads it. | only a pull request from `development` (or a `hotfix/...` branch), merged by a maintainer |
+| `development` | where finished work comes together and is tried before a release | pull requests from contributors |
+| `master` | not used. The name is reserved so that nobody creates it by mistake. | nobody |
+| `feature/...`, `fix/...`, `content/...` | your work, in your fork | you |
+
+```text
+your branch  --pull request-->  development  --pull request-->  main
+                 review + CI                    maintainers, when ready to release
+```
+
+**Nobody pushes to `main`, `master` or `development` directly**, contributors with write access included. GitHub refuses it. Those branches change only through a pull request that has:
+
+- an approving review from a code owner (see `.github/CODEOWNERS`);
+- every review conversation resolved;
+- green checks from CI.
+
+They also cannot be deleted or force-pushed. Only repository administrators can step around these rules, for emergencies.
+
+### What CI checks on every pull request
+
+| Check | What it does | Must pass to merge |
+| --- | --- | --- |
+| Branch flow | a pull request into `main` comes from `development` or `hotfix/...` | yes |
+| Guide is built | `tools/build_guide.py --check`: the generated pages match the sources, and every quiz is well formed | yes |
+| App and API tests | `tools/test_app.py`: the security rules of the local server and its API | yes |
+| Lint | ShellCheck on the install scripts, and a syntax check of the Python and JavaScript | yes |
+| Exercises | `tools/selftest.py`: every starter fails and every reference solution passes | reported |
+| Installer | `setup/install.sh` for each stack on a clean machine, and the PowerShell scripts parsed on Windows | reported |
+
+Run the same things on your machine first (the three commands further down). It is quicker than waiting for CI.
+
 ## How to contribute
 
 1. Fork the repository on GitHub and clone your fork.
-2. Create a branch: `git switch -c add-vue-track`.
+2. Start from `development`: `git switch development`, then create a branch: `git switch -c feature/vue-track`.
 3. Make the change. Run the three commands below.
 4. Commit with a message that says what changed, and push the branch to your fork.
-5. Open a pull request against `main`. The template lists what a reviewer will look for.
+5. Open a pull request **into `development`**. GitHub suggests `main`: change the base branch. The template lists what a reviewer will look for.
 6. A maintainer reviews it. Expect questions and requested changes: that is normal, and not a judgement of you.
+7. Maintainers release by opening a pull request from `development` into `main`.
 
 New to Git and pull requests? The guide teaches exactly this, in [the Git track](content/git/09-pull-requests.md).
 

@@ -2,6 +2,8 @@
 
 <!-- One or two sentences. Link the issue if there is one: "Closes #12". -->
 
+> Base branch: **`development`**. Only maintainers open pull requests into `main`, from `development`.
+
 ## Kind of change
 
 - [ ] A lesson or quiz (new, or a fix)
