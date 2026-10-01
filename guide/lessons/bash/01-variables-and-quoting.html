@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Variables and quoting · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/01-variables-and-quoting">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 1 of 8</p>
+<h1>Variables and quoting</h1>
+<p class="lede">The rules that decide what your script really runs. Most Bash bugs come from getting these wrong.</p>
+<h2 id="where-this-track-starts">Where this track starts</h2>
+<p><a href="../start/06-shell-scripts.html">Shell scripts</a> in the first track showed the basics. This track makes you fluent: scripts that take options, process text, survive odd input and fail safely.</p>
+<p>Bash runs on your own machine. The app checks that it is installed and uses it as it is. Nothing needs downloading.</p>
+<h2 id="variables">Variables</h2>
+<pre><code class="lang-bash">name="Sam"
+count=3
+echo "$name has $count files"</code></pre>
+<ul><li>No spaces around <code>=</code>.</li><li><code>$name</code> reads the value. <code>${name}</code> is the same, and is needed when text follows directly: <code>"${name}_backup"</code>.</li><li>Everything is text. <code>count=3</code> stores the characters <code>3</code>.</li></ul>
+<h2 id="what-the-shell-does-to-a-line">What the shell does to a line</h2>
+<p>Before running a command, Bash rewrites the line in several steps. Two of them cause most surprises:</p>
+<ol><li><strong>Word splitting</strong>: the result of an unquoted <code>$variable</code> is cut into separate words at spaces.</li><li><strong>Filename expansion</strong>: unquoted <code>*</code> and <code>?</code> are replaced by matching file names.</li></ol>
+<pre><code class="lang-bash">file="my notes.txt"
+rm $file          # runs: rm my notes.txt     two files!
+rm "$file"        # runs: rm "my notes.txt"   one file</code></pre>
+<p><strong>Put double quotes around every variable.</strong> There are very few cases where you want the splitting.</p>
+<h2 id="the-three-kinds-of-quotes">The three kinds of quotes</h2>
+<div class="table-wrap"><table><thead><tr><th>Written</th><th>Variables expanded</th><th>Use for</th></tr></thead><tbody><tr><td><code>"double"</code></td><td>yes</td><td>almost everything</td></tr><tr><td><code>'single'</code></td><td>no: every character is literal</td><td>text with <code>$</code> or backslashes</td></tr><tr><td>none</td><td>yes, then split and matched against file names</td><td>rarely</td></tr></tbody></table></div>
+<pre><code class="lang-bash">price=5
+echo "Cost: $price"      # Cost: 5
+echo 'Cost: $price'      # Cost: $price
+echo "Cost: \$$price"    # Cost: $5</code></pre>
+<h2 id="command-substitution">Command substitution</h2>
+<p><code>$( ... )</code> runs a command and puts its output in place:</p>
+<pre><code class="lang-bash">today="$(date +%F)"
+lines="$(wc -l &lt; notes.txt)"
+echo "Today is $today and the file has $lines lines"</code></pre>
+<p>Quote it too. The output is subject to the same splitting.</p>
+<h2 id="arithmetic">Arithmetic</h2>
+<p><code>$(( ... ))</code> does whole-number arithmetic. Inside it, variables need no <code>$</code>.</p>
+<pre><code class="lang-bash">total=$((count * 2 + 1))
+count=$((count + 1))</code></pre>
+<p>There are no fractions: <code>$((7 / 2))</code> is <code>3</code>.</p>
+<h2 id="defaults-and-checks">Defaults and checks</h2>
+<p>Parameter expansion can supply a value when a variable is empty or unset:</p>
+<div class="table-wrap"><table><thead><tr><th>Form</th><th>Meaning</th></tr></thead><tbody><tr><td><code>${name:-default}</code></td><td>the value, or <code>default</code> if empty or unset</td></tr><tr><td><code>${name:=default}</code></td><td>the same, and also assigns the default</td></tr><tr><td><code>${name:?message}</code></td><td>the value, or stop the script with the message</td></tr><tr><td><code>${#name}</code></td><td>the length of the value</td></tr></tbody></table></div>
+<pre><code class="lang-bash">greeting="${1:-Hello}"
+target="${2:?usage: greet.sh GREETING NAME}"</code></pre>
+<h2 id="script-arguments">Script arguments</h2>
+<div class="table-wrap"><table><thead><tr><th>Variable</th><th>Holds</th></tr></thead><tbody><tr><td><code>$1</code>, <code>$2</code>, ...</td><td>the arguments</td></tr><tr><td><code>$#</code></td><td>how many there are</td></tr><tr><td><code>"$@"</code></td><td>all of them, each as its own word</td></tr><tr><td><code>$0</code></td><td>the name of the script</td></tr><tr><td><code>$?</code></td><td>the exit code of the last command</td></tr></tbody></table></div>
+<p>Always write <code>"$@"</code> with the quotes. It is the only form that keeps arguments containing spaces intact:</p>
+<pre><code class="lang-bash">for arg in "$@"; do
+    echo "argument: $arg"
+done</code></pre>
+<h2 id="printf">printf</h2>
+<p><code>echo</code> differs between systems when the text contains backslashes or starts with a dash. <code>printf</code> behaves the same everywhere and gives control over the format:</p>
+<pre><code class="lang-bash">printf '%s is %d years old\n' "$name" "$age"
+printf '%-10s|%5s|\n' "left" "right"</code></pre>
+<p><code>%s</code> is text, <code>%d</code> a whole number, <code>%-10s</code> pads to 10 characters on the right, and <code>\n</code> is the newline you must add yourself.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Unquoted variables.</strong> Names with spaces break the script, and an empty variable vanishes from the command.</li><li><strong>Spaces around <code>=</code>.</strong></li><li><strong>Single quotes when you wanted the variable expanded.</strong></li><li><strong><code>$*</code> or unquoted <code>$@</code></strong> in place of <code>"$@"</code>.</li><li><strong>Backticks.</strong> Wrapping a command in backtick characters is the old form of <code>$(date)</code>. It nests badly.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/01-quoting">
+<h3>A card that survives odd input <span class="ex-id">bash/01-quoting</span></h3>
+<p>Write <code>card.sh</code>. It takes a name and, optionally, a city:</p>
+<pre><code class="lang-console">$ bash card.sh "Grace Hopper" "New York"
+Name: Grace Hopper
+City: New York
+Length: 12</code></pre>
+<ul><li><code>Length</code> is the number of characters in the name.</li><li>If no city is given, print <code>City: unknown</code>.</li><li>With no arguments at all, print a usage message to standard error and exit with code 2.</li></ul>
+<p>The tests pass names with spaces and a name that is just <code>*</code>. Quote your variables and they will come through unchanged.</p>
+<p class="ex-files">Files: <code>exercises/bash/01-quoting/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/01-quoting</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/09-pull-requests.html"><span>Previous</span>The pull request workflow</a><a class="next" href="../bash/02-tests-and-conditionals.html"><span>Next</span>Tests and conditionals</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

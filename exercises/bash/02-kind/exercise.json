@@ -1,0 +1,96 @@
+{
+  "title": "What kind of thing is this path?",
+  "lesson": "bash/02-tests-and-conditionals",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "kind.sh"
+  ],
+  "cases": [
+    {
+      "name": "a text file",
+      "args": [
+        "notes.txt"
+      ],
+      "files": {
+        "notes.txt": "hello\n"
+      },
+      "stdout": "file\n"
+    },
+    {
+      "name": "the current directory",
+      "args": [
+        "."
+      ],
+      "stdout": "directory\n"
+    },
+    {
+      "name": "an empty file",
+      "args": [
+        "empty.txt"
+      ],
+      "files": {
+        "empty.txt": ""
+      },
+      "stdout": "empty file\n"
+    },
+    {
+      "name": "a script",
+      "args": [
+        "run.sh"
+      ],
+      "files": {
+        "run.sh": "echo hi\n"
+      },
+      "stdout": "script\n"
+    },
+    {
+      "name": "an empty file named like a script is still empty",
+      "args": [
+        "blank.sh"
+      ],
+      "files": {
+        "blank.sh": ""
+      },
+      "stdout": "empty file\n"
+    },
+    {
+      "name": "a missing path",
+      "args": [
+        "nope.txt"
+      ],
+      "stdout": "missing\n"
+    },
+    {
+      "name": "a name with a space",
+      "args": [
+        "my notes.txt"
+      ],
+      "files": {
+        "my notes.txt": "x\n"
+      },
+      "stdout": "file\n"
+    },
+    {
+      "name": "no argument: exit code 2",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    },
+    {
+      "name": "two arguments: exit code 2",
+      "args": [
+        "a",
+        "b"
+      ],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "Check the number of arguments first: [[ $# -ne 1 ]]",
+    "-d tests for a directory, -e for existence, -s for 'exists and is not empty'.",
+    "The order of the tests matters: check for an empty file before you look at the name.",
+    "[[ \"$path\" == *.sh ]] matches a pattern. Leave the pattern unquoted."
+  ]
+}

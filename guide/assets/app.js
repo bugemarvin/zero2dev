@@ -203,6 +203,9 @@
     bash: "if then else elif fi for while until do done case esac function in return exit local export",
     java: "abstract boolean break byte case catch char class continue default do double else enum extends final finally float for if implements import instanceof int interface long new null package private protected public record return short static super switch this throw throws try var void while true false",
     elixir: "def defp defmodule defstruct do end fn if else unless case cond with when for in and or not nil true false import alias require use receive after try rescue raise",
+    javascript: "const let var function return if else for while do break continue switch case default class extends new this super import export from as async await try catch finally throw typeof instanceof in of null undefined true false void delete yield static get set interface type enum implements readonly public private",
+    dockerfile: "FROM RUN COPY ADD CMD ENTRYPOINT WORKDIR ENV EXPOSE ARG USER VOLUME HEALTHCHECK LABEL AS",
+    yaml: "true false null",
     sql: "select from where and or not null is in like between order by group having limit offset join left right inner outer full cross on as insert into values update set delete create table primary key foreign references unique check default index drop alter add distinct union all case when then else end with over partition begin commit rollback explain analyze returning asc desc exists integer text real numeric boolean serial jsonb timestamp date using"
   };
   var COMMENTS = {
@@ -211,9 +214,12 @@
     python: "#[^\\n]*",
     elixir: "#[^\\n]*",
     bash: "(?:^|(?<=\\s))#[^\\n]*",
+    javascript: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    dockerfile: "(?:^|(?<=\\s))#[^\\n]*",
+    yaml: "(?:^|(?<=\\s))#[^\\n]*",
     sql: "--[^\\n]*"
   };
-  var STRING = "\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'";
+  var STRING = "`(?:\\\\.|[^`\\\\])*`|\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'";
 
   function span(cls, text) { return el("span", { class: cls, text: text }); }
 
@@ -232,6 +238,8 @@
   function colour(code, lang) {
     var text = code.textContent;
     if (lang === "console") { code.textContent = ""; colourConsole(code, text); return; }
+    lang = { js: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript", typescript: "javascript",
+             mjs: "javascript", sh: "bash", yml: "yaml" }[lang] || lang;
     if (!KEYWORDS[lang]) return;
     var words = {};
     KEYWORDS[lang].split(" ").forEach(function (w) { words[w] = true; });

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays and string operations · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/06-arrays-and-strings">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 6 of 8</p>
+<h1>Arrays and string operations</h1>
+<p class="lede">Hold lists safely, and cut, replace and change text without calling another program.</p>
+<h2 id="arrays">Arrays</h2>
+<p>A plain variable holds one string. An <strong>array</strong> holds a list, and keeps each element intact even when it contains spaces.</p>
+<pre><code class="lang-bash">files=("report.txt" "my notes.txt" "todo.md")
+
+echo "${files[0]}"          # report.txt
+echo "${#files[@]}"         # 3: the number of elements
+files+=("extra.txt")        # append
+
+for f in "${files[@]}"; do
+    echo "file: $f"
+done</code></pre>
+<p><code>"${files[@]}"</code>, with the quotes, expands to every element as a separate word. This is the reason arrays exist: it is the only reliable way to hold a list of file names or command arguments.</p>
+<div class="table-wrap"><table><thead><tr><th>Expression</th><th>Gives</th></tr></thead><tbody><tr><td><code>"${a[@]}"</code></td><td>all elements</td></tr><tr><td><code>"${a[0]}"</code></td><td>one element</td></tr><tr><td><code>"${#a[@]}"</code></td><td>how many</td></tr><tr><td><code>"${!a[@]}"</code></td><td>the indexes</td></tr><tr><td><code>"${a[@]:1:2}"</code></td><td>two elements starting at index 1</td></tr></tbody></table></div>
+<p>Build a command in an array when its arguments vary:</p>
+<pre><code class="lang-bash">args=(-l)
+[[ "$show_hidden" == "yes" ]] &amp;&amp; args+=(-a)
+ls "${args[@]}"</code></pre>
+<p>Read lines of input into an array with <code>mapfile</code>:</p>
+<pre><code class="lang-bash">mapfile -t lines &lt; names.txt
+echo "there are ${#lines[@]} names"</code></pre>
+<h2 id="associative-arrays">Associative arrays</h2>
+<p>A dictionary from text keys to values. It must be declared:</p>
+<pre><code class="lang-bash">declare -A age
+age[ada]=36
+age[linus]=54
+
+echo "${age[ada]}"
+
+for name in "${!age[@]}"; do
+    echo "$name is ${age[$name]}"
+done</code></pre>
+<p>The order of the keys is not defined. Sort the output if order matters.</p>
+<h2 id="parameter-expansion">Parameter expansion</h2>
+<p>Bash can edit the value of a variable while expanding it. This is faster than starting <code>sed</code> or <code>cut</code>, and has no quoting problems.</p>
+<p><strong>Removing from the ends:</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Form</th><th>Removes</th><th><code>path=/home/sam/photo.tar.gz</code> gives</th></tr></thead><tbody><tr><td><code>${path##*/}</code></td><td>longest match from the start</td><td><code>photo.tar.gz</code></td></tr><tr><td><code>${path%/*}</code></td><td>shortest match from the end</td><td><code>/home/sam</code></td></tr><tr><td><code>${path%.*}</code></td><td>shortest match from the end</td><td><code>/home/sam/photo.tar</code></td></tr><tr><td><code>${path%%.*}</code></td><td>longest match from the end</td><td><code>/home/sam/photo</code></td></tr><tr><td><code>${path#*/}</code></td><td>shortest match from the start</td><td><code>home/sam/photo.tar.gz</code></td></tr></tbody></table></div>
+<p>A way to remember: on a keyboard <code>#</code> sits to the left of <code>$</code> and trims the left end. <code>%</code> sits to the right and trims the right end. Doubling the symbol makes it greedy.</p>
+<p><strong>Replacing:</strong></p>
+<pre><code class="lang-bash">name="my file name.txt"
+echo "${name/ /_}"       # my_file name.txt   first match
+echo "${name// /_}"      # my_file_name.txt   every match
+echo "${name/%.txt/.md}" # my file name.md    only at the end</code></pre>
+<p><strong>Case, length, pieces:</strong></p>
+<pre><code class="lang-bash">word="Hello"
+echo "${word,,}"         # hello
+echo "${word^^}"         # HELLO
+echo "${#word}"          # 5
+echo "${word:1:3}"       # ell   three characters from position 1</code></pre>
+<h2 id="a-typical-use">A typical use</h2>
+<p>Change the extension of every <code>.jpeg</code> file to <code>.jpg</code>:</p>
+<pre><code class="lang-bash">for file in *.jpeg; do
+    [[ -e "$file" ]] || continue
+    mv -- "$file" "${file%.jpeg}.jpg"
+done</code></pre>
+<p>The <code>--</code> tells <code>mv</code> that what follows are file names, even if one starts with a dash.</p>
+<h2 id="splitting-a-string">Splitting a string</h2>
+<p>Set <code>IFS</code> for a single <code>read</code>:</p>
+<pre><code class="lang-bash">line="ada,36,London"
+IFS=, read -r name age city &lt;&lt;&lt; "$line"</code></pre>
+<p><code>&lt;&lt;&lt;</code> feeds a string to a command as its standard input. Into an array:</p>
+<pre><code class="lang-bash">IFS=, read -r -a parts &lt;&lt;&lt; "$line"
+echo "${parts[2]}"       # London</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>${files[@]}</code> without quotes.</strong> Elements with spaces split apart.</li><li><strong><code>$files</code> alone.</strong> That is only the first element.</li><li><strong>Forgetting <code>declare -A</code>.</strong> The array then uses numbers as indexes and every text key means element 0.</li><li><strong>Mixing up <code>#</code> and <code>%</code>.</strong> Try it on a sample in the terminal first.</li><li><strong><code>sh</code> in the shebang.</strong> Arrays and these expansions are Bash features. Use <code>#!/usr/bin/env bash</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/06-rename">
+<h3>Clean up file names <span class="ex-id">bash/06-rename</span></h3>
+<p>Write <code>rename.sh</code>. It reads file names from standard input, one per line, and prints the cleaned-up name for each:</p>
+<ol><li>everything in lower case,</li><li>every space replaced by an underscore,</li><li>the extension <code>.jpeg</code> changed to <code>.jpg</code>.</li></ol>
+<pre><code class="lang-console">$ printf 'My Photo.JPEG\nNotes 2024.txt\n' | bash rename.sh
+my_photo.jpg
+notes_2024.txt</code></pre>
+<p>It only prints names. It does not rename anything.</p>
+<p>Use Bash's own parameter expansion: <code>${name,,}</code>, <code>${name// /_}</code> and <code>${name%.jpeg}</code>. No <code>sed</code> or <code>tr</code> is needed.</p>
+<p class="ex-files">Files: <code>exercises/bash/06-rename/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/06-rename</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/05-text-processing.html"><span>Previous</span>Text processing</a><a class="next" href="../bash/07-robust-scripts.html"><span>Next</span>Robust scripts</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

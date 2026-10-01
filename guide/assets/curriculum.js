@@ -180,6 +180,101 @@ window.Z2D_CURRICULUM = {
    ]
   },
   {
+   "id": "bash",
+   "title": "Bash scripting",
+   "blurb": "Scripts that take options, process text, survive odd input and fail safely.",
+   "lessons": [
+    {
+     "id": "bash/01-variables-and-quoting",
+     "title": "Variables and quoting",
+     "summary": "The rules that decide what your script really runs. Most Bash bugs come from getting these wrong.",
+     "exercises": [
+      {
+       "id": "bash/01-quoting",
+       "title": "A card that survives odd input"
+      }
+     ]
+    },
+    {
+     "id": "bash/02-tests-and-conditionals",
+     "title": "Tests and conditionals",
+     "summary": "Decide with if, test files and strings with [[ ]], and choose between many cases.",
+     "exercises": [
+      {
+       "id": "bash/02-kind",
+       "title": "What kind of thing is this path?"
+      }
+     ]
+    },
+    {
+     "id": "bash/03-loops",
+     "title": "Loops",
+     "summary": "Repeat over arguments, files, numbers and lines of input, without the classic traps.",
+     "exercises": [
+      {
+       "id": "bash/03-stats",
+       "title": "Count, sum, smallest, largest"
+      }
+     ]
+    },
+    {
+     "id": "bash/04-functions-and-exit-codes",
+     "title": "Functions and exit codes",
+     "summary": "Split a script into named pieces, pass values in and get results out.",
+     "exercises": [
+      {
+       "id": "bash/04-functions",
+       "title": "A library of functions"
+      }
+     ]
+    },
+    {
+     "id": "bash/05-text-processing",
+     "title": "Text processing",
+     "summary": "grep, sed, awk and friends. Small tools that turn a file of text into the answer you need.",
+     "exercises": [
+      {
+       "id": "bash/05-report",
+       "title": "A salary report"
+      }
+     ]
+    },
+    {
+     "id": "bash/06-arrays-and-strings",
+     "title": "Arrays and string operations",
+     "summary": "Hold lists safely, and cut, replace and change text without calling another program.",
+     "exercises": [
+      {
+       "id": "bash/06-rename",
+       "title": "Clean up file names"
+      }
+     ]
+    },
+    {
+     "id": "bash/07-robust-scripts",
+     "title": "Robust scripts",
+     "summary": "Options, strict mode, clean-up on exit, and the checker that finds bugs before you run anything.",
+     "exercises": [
+      {
+       "id": "bash/07-backup",
+       "title": "A backup script with options"
+      }
+     ]
+    },
+    {
+     "id": "bash/08-automation",
+     "title": "Automation",
+     "summary": "Find files, act on many at once, schedule jobs, and combine everything into a useful report.",
+     "exercises": [
+      {
+       "id": "bash/08-logsum",
+       "title": "Summarise a log file"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "c",
    "title": "C",
    "blurb": "How the machine really works: memory, pointers, and building programs from several files.",

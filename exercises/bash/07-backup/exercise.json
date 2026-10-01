@@ -1,0 +1,107 @@
+{
+  "title": "A backup script with options",
+  "lesson": "bash/07-robust-scripts",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "backup.sh"
+  ],
+  "cases": [
+    {
+      "name": "copies into backup/ and prints nothing",
+      "args": [
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "A\n",
+        "b.txt": "B\n"
+      },
+      "stdout": "",
+      "then": "test \"$(cat backup/a.txt.bak)\" = A && test \"$(cat backup/b.txt.bak)\" = B && test -f a.txt",
+      "then_fail": "expected backup/a.txt.bak and backup/b.txt.bak with the same content as the originals"
+    },
+    {
+      "name": "-v prints each file",
+      "args": [
+        "-v",
+        "a.txt",
+        "b.txt"
+      ],
+      "files": {
+        "a.txt": "A\n",
+        "b.txt": "B\n"
+      },
+      "stdout": "copied a.txt\ncopied b.txt\n",
+      "then": "test -f backup/a.txt.bak && test -f backup/b.txt.bak"
+    },
+    {
+      "name": "-d chooses the directory",
+      "args": [
+        "-d",
+        "safe",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "A\n"
+      },
+      "stdout": "",
+      "then": "test -f safe/a.txt.bak && test ! -e backup",
+      "then_fail": "expected safe/a.txt.bak and no backup/ directory"
+    },
+    {
+      "name": "options can be combined",
+      "args": [
+        "-v",
+        "-d",
+        "out dir",
+        "my file.txt"
+      ],
+      "files": {
+        "my file.txt": "M\n"
+      },
+      "stdout": "copied my file.txt\n",
+      "then": "test -f 'out dir/my file.txt.bak'",
+      "then_fail": "expected 'out dir/my file.txt.bak' (names with spaces must work)"
+    },
+    {
+      "name": "a missing file: exit code 1 and nothing is copied",
+      "args": [
+        "a.txt",
+        "nope.txt"
+      ],
+      "files": {
+        "a.txt": "A\n"
+      },
+      "stdout": "",
+      "exit": 1,
+      "then": "test ! -e backup/a.txt.bak",
+      "then_fail": "a.txt was copied although another file was missing"
+    },
+    {
+      "name": "no files: exit code 2",
+      "args": [
+        "-v"
+      ],
+      "stdout": "",
+      "exit": 2
+    },
+    {
+      "name": "an unknown option: exit code 2",
+      "args": [
+        "-x",
+        "a.txt"
+      ],
+      "files": {
+        "a.txt": "A\n"
+      },
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "while getopts \"vd:\" option; do case \"$option\" in v) ... ;; d) outdir=\"$OPTARG\" ;; *) usage; exit 2 ;; esac; done, then shift $((OPTIND - 1)).",
+    "Use two loops over \"$@\": the first only checks that every file exists, the second copies.",
+    "mkdir -p \"$outdir\" then cp -- \"$file\" \"$outdir/$file.bak\"."
+  ]
+}

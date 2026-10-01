@@ -127,6 +127,15 @@ def check_program(ex, exdir, lang_override=None):
                         parts.append(block("stderr:  ", err))
                     results.append(Result(False, name, "\n".join(parts)))
                     continue
+                if "then" in case:
+                    # a follow-up command, run where the program ran: checks files it created
+                    then_code, then_out, then_err = core.run(["bash", "-c", case["then"]], cwd=rundir, timeout=30)
+                    if then_code != 0:
+                        parts.append(case.get("then_fail", "the files the program should have produced are not right"))
+                        if (then_out + then_err).strip():
+                            parts.append(block("details: ", then_out + then_err))
+                        results.append(Result(False, name, "\n".join(parts)))
+                        continue
                 if "stdout" in case and norm(out) != norm(case["stdout"]):
                     parts.append(block("expected:", norm(case["stdout"])))
                     parts.append(block("got:     ", norm(out)))
@@ -216,7 +225,7 @@ def parse_tap(text):
                 continue
             if not ok:
                 parts = [info.get("error") or info.get("message") or ""]
-                if "expected" in info and "actual" in info:
+                if info.get("expected") and info.get("actual"):
                     parts += [f"expected: {info['expected']}", f"got:      {info['actual']}"]
                 detail = "\n".join(p for p in parts if p)
         elif not ok and ": " in name:
@@ -596,8 +605,8 @@ def judge_response(req, status, headers, body):
 class App:
     """A running app for an http exercise: a dev server process, or a Compose-style up/down pair."""
 
-    def __init__(self, ex, exdir):
-        spec = ex.spec
+    def __init__(self, ex, exdir, spec=None):
+        spec = spec or ex.spec
         self.spec = spec
         self.port = free_port()
         self.proc = None

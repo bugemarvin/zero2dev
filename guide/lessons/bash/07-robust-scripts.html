@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robust scripts · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/07-robust-scripts">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 7 of 8</p>
+<h1>Robust scripts</h1>
+<p class="lede">Options, strict mode, clean-up on exit, and the checker that finds bugs before you run anything.</p>
+<h2 id="strict-mode">Strict mode</h2>
+<p>By default Bash carries on after a failed command and treats a misspelled variable as empty. In a script that deletes or overwrites things, both are dangerous. Start scripts with:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Setting</th><th>Effect</th></tr></thead><tbody><tr><td><code>-e</code></td><td>stop when a command fails</td></tr><tr><td><code>-u</code></td><td>using an unset variable is an error</td></tr><tr><td><code>-o pipefail</code></td><td>a pipeline fails if any command in it fails, not only the last</td></tr></tbody></table></div>
+<p>With <code>-u</code>, reading <code>$1</code> when no argument was given stops the script. Use <code>${1:-}</code> where a missing value is acceptable.</p>
+<p>With <code>-e</code>, a command that is allowed to fail needs to say so:</p>
+<pre><code class="lang-bash">grep -q "pattern" file || true
+if ! cp "$src" "$dst"; then
+    echo "copy failed" &gt;&amp;2
+fi</code></pre>
+<p>A command tested by <code>if</code>, <code>while</code>, <code>&amp;&amp;</code> or <code>||</code> does not trigger <code>-e</code>.</p>
+<h2 id="options-with-getopts">Options with getopts</h2>
+<p><code>getopts</code> parses short options such as <code>-v</code> and <code>-d DIR</code>:</p>
+<pre><code class="lang-bash">verbose=0
+outdir="backup"
+
+while getopts "vd:h" option; do
+    case "$option" in
+        v) verbose=1 ;;
+        d) outdir="$OPTARG" ;;
+        h) usage; exit 0 ;;
+        *) usage &gt;&amp;2; exit 2 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+# "$@" now holds only the remaining arguments</code></pre>
+<ul><li>In the string <code>"vd:h"</code>, a colon after a letter means that option takes a value, delivered in <code>OPTARG</code>.</li><li>An unknown option lands in the <code>*)</code> branch.</li><li><code>shift $((OPTIND - 1))</code> removes the options that were parsed.</li></ul>
+<h2 id="a-usage-function">A usage function</h2>
+<pre><code class="lang-bash">usage() {
+    cat &lt;&lt;END
+usage: backup.sh [-v] [-d DIR] FILE...
+  -v       print each file as it is copied
+  -d DIR   where to put the copies (default: backup)
+END
+}</code></pre>
+<p><code>&lt;&lt;END ... END</code> is a <strong>here-document</strong>: the lines up to the end marker become the standard input of the command. The marker can be any word.</p>
+<h2 id="cleaning-up-with-trap">Cleaning up with trap</h2>
+<p><code>trap</code> runs a command when the script exits, however it exits: normally, through an error, or because the user pressed Ctrl+C.</p>
+<pre><code class="lang-bash">workdir="$(mktemp -d)"
+trap 'rm -rf "$workdir"' EXIT
+
+# ... use "$workdir" freely; it is removed whatever happens</code></pre>
+<p><code>mktemp</code> creates a temporary file with a unique name, and <code>mktemp -d</code> a directory. Never invent names like <code>/tmp/myscript.tmp</code> yourself: two runs at once would collide.</p>
+<h2 id="validate-first">Validate first</h2>
+<p>Check everything you can before changing anything:</p>
+<pre><code class="lang-bash">if [[ $# -eq 0 ]]; then
+    usage &gt;&amp;2
+    exit 2
+fi
+
+for file in "$@"; do
+    if [[ ! -f "$file" ]]; then
+        echo "error: $file not found" &gt;&amp;2
+        exit 1
+    fi
+done</code></pre>
+<p>Then do the work. A script that fails half-way leaves a mess that is harder to fix than a script that refuses to start.</p>
+<h2 id="safe-file-handling">Safe file handling</h2>
+<pre><code class="lang-bash">cp -- "$file" "$outdir/"         # -- ends the options: a file named -rf is harmless
+mkdir -p "$outdir"               # no error if it exists
+rm -rf "${dir:?}/"*              # refuses to run if dir is empty, instead of deleting /*</code></pre>
+<h2 id="shellcheck">ShellCheck</h2>
+<p><code>shellcheck</code> reads a script and reports real bugs: unquoted variables, wrong tests, unreachable code.</p>
+<pre><code class="lang-console">$ shellcheck backup.sh
+In backup.sh line 12:
+cp $file $outdir
+   ^---^ SC2086: Double quote to prevent globbing and word splitting.</code></pre>
+<p>It is installed by the <code>core</code> stack of the setup script. Run it on every script you write. It teaches Bash better than any guide.</p>
+<h2 id="debugging">Debugging</h2>
+<pre><code class="lang-bash">bash -x script.sh        # print each command before it runs
+set -x                   # the same, switched on inside the script</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No <code>set -euo pipefail</code></strong>, so the script continues after a failure.</li><li><strong>Parsing options by hand</strong> with a pile of <code>if</code> statements.</li><li><strong>Temporary files that are never removed.</strong></li><li><strong><code>cd "$dir"</code> with no check.</strong> If it fails, the next commands run in the wrong folder. Under <code>set -e</code> it stops the script, which is what you want.</li><li><strong>Ignoring ShellCheck warnings.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/07-backup">
+<h3>A backup script with options <span class="ex-id">bash/07-backup</span></h3>
+<p>Write <code>backup.sh</code>:</p>
+<pre><code class="lang-text">usage: backup.sh [-v] [-d DIR] FILE...</code></pre>
+<ul><li>It copies each <code>FILE</code> to <code>DIR/FILE.bak</code>. <code>DIR</code> defaults to <code>backup</code> and is created if it does not exist.</li><li><code>-d DIR</code> chooses another directory.</li><li><code>-v</code> prints <code>copied FILE</code> for each file, in order. Without <code>-v</code> it prints nothing.</li><li>If any <code>FILE</code> does not exist, it prints <code>error: FILE not found</code> to standard error and exits with code 1 <strong>without copying anything</strong>: check all the files before you copy the first.</li><li>With no <code>FILE</code>, or with an unknown option, it prints the usage line to standard error and exits with code 2.</li></ul>
+<p>Parse the options with <code>getopts</code>, and start the script with <code>set -euo pipefail</code>.</p>
+<p class="ex-files">Files: <code>exercises/bash/07-backup/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/07-backup</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/06-arrays-and-strings.html"><span>Previous</span>Arrays and string operations</a><a class="next" href="../bash/08-automation.html"><span>Next</span>Automation</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

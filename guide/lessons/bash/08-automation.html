@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automation · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/08-automation">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 8 of 8</p>
+<h1>Automation</h1>
+<p class="lede">Find files, act on many at once, schedule jobs, and combine everything into a useful report.</p>
+<h2 id="find">find</h2>
+<p><code>find</code> walks a directory tree and prints what matches.</p>
+<pre><code class="lang-bash">find . -name "*.log"                 # by name
+find . -type f -size +10M            # files larger than 10 MB
+find . -type d -name node_modules    # directories
+find . -mtime -1                     # changed in the last 24 hours
+find /var/log -name "*.log" -mtime +30    # older than 30 days</code></pre>
+<p>Run a command on each result with <code>-exec</code>. <code>{}</code> stands for the file, and <code>+</code> passes many files in one call:</p>
+<pre><code class="lang-bash">find . -name "*.tmp" -exec rm -- {} +
+find . -name "*.sh" -exec chmod +x {} +</code></pre>
+<p>Print the list first. Add the <code>-exec</code> only when the list is right.</p>
+<h2 id="xargs">xargs</h2>
+<p><code>xargs</code> turns lines of input into arguments of a command:</p>
+<pre><code class="lang-bash">find . -name "*.txt" -print0 | xargs -0 wc -l</code></pre>
+<p><code>-print0</code> and <code>-0</code> separate names with a zero byte, which is the only safe way when names contain spaces or newlines.</p>
+<p><code>xargs -P 4</code> runs four commands at a time, an easy way to use several processor cores.</p>
+<h2 id="redirection-in-full">Redirection in full</h2>
+<div class="table-wrap"><table><thead><tr><th>Form</th><th>Effect</th></tr></thead><tbody><tr><td><code>&gt; file</code></td><td>standard output to the file, replacing it</td></tr><tr><td><code>&gt;&gt; file</code></td><td>append</td></tr><tr><td><code>2&gt; file</code></td><td>standard error to the file</td></tr><tr><td><code>&gt; file 2&gt;&amp;1</code></td><td>both to the file</td></tr><tr><td><code>2&gt;/dev/null</code></td><td>throw error messages away</td></tr><tr><td><code>&lt; file</code></td><td>read from the file</td></tr><tr><td><code>&lt;&lt;&lt; "text"</code></td><td>read from the string</td></tr><tr><td><code>cmd1 | tee file | cmd2</code></td><td>save a copy on the way through</td></tr></tbody></table></div>
+<p><code>/dev/null</code> is a file that discards everything written to it.</p>
+<h2 id="running-in-the-background">Running in the background</h2>
+<pre><code class="lang-bash">long_task &amp;             # start it and continue
+pid=$!                  # its process id
+wait "$pid"             # wait for it; the exit code becomes available</code></pre>
+<p><code>nohup command &amp;</code> keeps a job running after you close the terminal.</p>
+<h2 id="scheduling-with-cron">Scheduling with cron</h2>
+<p><code>cron</code> runs commands on a schedule. Edit your table with <code>crontab -e</code>. Each line has five time fields and a command:</p>
+<pre><code class="lang-text"># minute  hour  day-of-month  month  day-of-week   command
+  0       2     *             *      *             /home/sam/bin/backup.sh
+  */15    *     *             *      *             /home/sam/bin/check-disk.sh
+  0       9     *             *      1-5           /home/sam/bin/report.sh</code></pre>
+<p>The first runs at 02:00 every day, the second every 15 minutes, the third at 09:00 on weekdays.</p>
+<p>Jobs run with a minimal environment: a short <code>PATH</code> and no terminal. So in a script meant for cron:</p>
+<ul><li>use full paths, or set <code>PATH</code> at the top;</li><li>send output to a log file: <code>backup.sh &gt;&gt; /home/sam/backup.log 2&gt;&amp;1</code>;</li><li>test it by running it with a nearly empty environment: <code>env -i /bin/bash script.sh</code>.</li></ul>
+<h2 id="a-real-report">A real report</h2>
+<p>Everything in this track comes together in scripts like this one, which summarises a log file whose lines look like <code>2025-05-03 10:21:07 ERROR disk almost full</code>:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: $0 LOGFILE" &gt;&amp;2
+    exit 2
+fi
+log="$1"
+if [[ ! -f "$log" ]]; then
+    echo "error: $log not found" &gt;&amp;2
+    exit 1
+fi
+
+echo "lines: $(wc -l &lt; "$log")"
+for level in INFO WARN ERROR; do
+    count="$(grep -c " $level " "$log" || true)"
+    echo "$level: $count"
+done
+
+echo "most common error:"
+grep " ERROR " "$log" | cut -d' ' -f4- | sort | uniq -c | sort -rn | head -n 1</code></pre>
+<p><code>grep -c</code> exits with 1 when it counts zero matches, which under <code>set -e</code> would stop the script. <code>|| true</code> says that zero is fine.</p>
+<h2 id="when-to-stop-using-bash">When to stop using Bash</h2>
+<p>Bash is the right tool for gluing programs together: run this, then that, move these files. It becomes the wrong tool when a script needs data structures, careful error handling, arithmetic with fractions, or more than about a hundred lines. Move to Python at that point. Knowing where that line is, is part of knowing Bash.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>find ... | xargs rm</code></strong> without <code>-print0</code> and <code>-0</code>.</li><li><strong>Deleting with <code>-exec rm</code></strong> before looking at what <code>find</code> matched.</li><li><strong>Cron jobs that work in the terminal and fail silently at night</strong>, because of <code>PATH</code> or relative paths.</li><li><strong><code>2&gt;&amp;1 &gt; file</code></strong> in the wrong order. Write <code>&gt; file 2&gt;&amp;1</code>.</li><li><strong>A long Bash script</strong> that should have been a Python program.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/08-logsum">
+<h3>Summarise a log file <span class="ex-id">bash/08-logsum</span></h3>
+<p>Write <code>logsum.sh</code>. It takes the name of a log file whose lines look like this:</p>
+<pre><code class="lang-text">2025-05-03 10:01:13 ERROR disk almost full</code></pre>
+<p>That is: a date, a time, a level (<code>INFO</code>, <code>WARN</code> or <code>ERROR</code>) and a message.</p>
+<p>It prints five lines:</p>
+<pre><code class="lang-console">$ bash logsum.sh app.log
+lines: 7
+INFO: 3
+WARN: 1
+ERROR: 3
+top error: disk almost full</code></pre>
+<ul><li><code>top error</code> is the <code>ERROR</code> message that occurs most often. If two are equally frequent, print the one that comes first alphabetically. If there are no errors, print <code>top error: none</code>.</li><li>If the file does not exist, print <code>error: NAME not found</code> to standard error and exit with code 1.</li><li>With no argument, print a usage message to standard error and exit with code 2.</li></ul>
+<p>Careful with <code>set -e</code>: <code>grep -c</code> exits with 1 when the count is zero.</p>
+<p class="ex-files">Files: <code>exercises/bash/08-logsum/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/08-logsum</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/07-robust-scripts.html"><span>Previous</span>Robust scripts</a><a class="next" href="../c/01-hello.html"><span>Next</span>Hello, C</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{
+  "title": "A card that survives odd input",
+  "lesson": "bash/01-variables-and-quoting",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "card.sh"
+  ],
+  "cases": [
+    {
+      "name": "a name and a city",
+      "args": [
+        "Sam",
+        "Lagos"
+      ],
+      "stdout": "Name: Sam\nCity: Lagos\nLength: 3\n"
+    },
+    {
+      "name": "no city: unknown",
+      "args": [
+        "Sam"
+      ],
+      "stdout": "Name: Sam\nCity: unknown\nLength: 3\n"
+    },
+    {
+      "name": "spaces inside the arguments are kept",
+      "args": [
+        "Grace Hopper",
+        "New York"
+      ],
+      "stdout": "Name: Grace Hopper\nCity: New York\nLength: 12\n"
+    },
+    {
+      "name": "several spaces in a row are kept",
+      "args": [
+        "a   b"
+      ],
+      "stdout": "Name: a   b\nCity: unknown\nLength: 5\n"
+    },
+    {
+      "name": "a star is not turned into file names",
+      "args": [
+        "*"
+      ],
+      "files": {
+        "one.txt": "1",
+        "two.txt": "2"
+      },
+      "stdout": "Name: *\nCity: unknown\nLength: 1\n"
+    },
+    {
+      "name": "no arguments: exit code 2, nothing on stdout",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "Store the arguments first: name=\"$1\" and city=\"${2:-unknown}\".",
+    "Always expand them inside double quotes: printf 'Name: %s\\n' \"$name\"",
+    "${#name} is the length of the value."
+  ]
+}

@@ -16,6 +16,14 @@
     ]
   },
   {
+    "id": "bash",
+    "title": "Bash scripting",
+    "blurb": "Scripts that take options, process text, survive odd input and fail safely.",
+    "needs": [
+      "tool:bash"
+    ]
+  },
+  {
     "id": "c",
     "title": "C",
     "blurb": "How the machine really works: memory, pointers, and building programs from several files.",

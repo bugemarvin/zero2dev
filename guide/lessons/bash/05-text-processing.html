@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text processing · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/05-text-processing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 5 of 8</p>
+<h1>Text processing</h1>
+<p class="lede">grep, sed, awk and friends. Small tools that turn a file of text into the answer you need.</p>
+<h2 id="the-toolbox">The toolbox</h2>
+<div class="table-wrap"><table><thead><tr><th>Tool</th><th>Job</th></tr></thead><tbody><tr><td><code>grep</code></td><td>keep the lines that match a pattern</td></tr><tr><td><code>cut</code></td><td>keep certain columns</td></tr><tr><td><code>sort</code></td><td>sort lines</td></tr><tr><td><code>uniq</code></td><td>merge repeated neighbouring lines</td></tr><tr><td><code>tr</code></td><td>replace or delete characters</td></tr><tr><td><code>sed</code></td><td>edit text as it flows past</td></tr><tr><td><code>awk</code></td><td>compute with columns</td></tr><tr><td><code>wc</code></td><td>count lines, words, characters</td></tr></tbody></table></div>
+<p>Each reads standard input and writes standard output, so they chain with pipes.</p>
+<h2 id="grep">grep</h2>
+<pre><code class="lang-bash">grep "ERROR" app.log            # lines containing ERROR
+grep -i "error" app.log         # ignore case
+grep -v "DEBUG" app.log         # lines that do NOT match
+grep -c "ERROR" app.log         # count the matching lines
+grep -n "ERROR" app.log         # show line numbers
+grep -E "ERROR|FATAL" app.log   # extended patterns: this OR that
+grep -o "[0-9]*ms" app.log      # print only the matching part</code></pre>
+<h2 id="regular-expressions-in-brief">Regular expressions in brief</h2>
+<div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Matches</th></tr></thead><tbody><tr><td><code>.</code></td><td>any one character</td></tr><tr><td><code>^</code> and <code>$</code></td><td>start and end of the line</td></tr><tr><td><code>[abc]</code>, <code>[0-9]</code></td><td>one character from the set</td></tr><tr><td><code>*</code></td><td>the previous item, zero or more times</td></tr><tr><td><code>+</code></td><td>one or more times (with <code>grep -E</code>)</td></tr><tr><td><code>?</code></td><td>zero or one time (with <code>grep -E</code>)</td></tr><tr><td><code>a|b</code></td><td>a or b (with <code>grep -E</code>)</td></tr></tbody></table></div>
+<h2 id="cut-sort-uniq-tr">cut, sort, uniq, tr</h2>
+<pre><code class="lang-bash">cut -d, -f2 staff.csv            # second column of a comma-separated file
+sort names.txt                   # alphabetical
+sort -n numbers.txt              # numerical
+sort -t, -k3 -n -r staff.csv     # by the third comma-separated column, numbers, largest first
+sort names.txt | uniq -c         # count how often each line occurs
+tr 'a-z' 'A-Z' &lt; file            # to upper case
+tr -d '\r' &lt; windows.txt         # delete carriage returns
+tr -s ' ' &lt; file                 # squeeze repeated spaces into one</code></pre>
+<p><code>uniq</code> only merges lines that are next to each other, so sort first. The combination for "the most common values" is worth memorising:</p>
+<pre><code class="lang-bash">cut -d' ' -f1 access.log | sort | uniq -c | sort -rn | head -n 5</code></pre>
+<h2 id="sed">sed</h2>
+<p><code>sed</code> applies an editing command to each line. The one you will use most is substitution:</p>
+<pre><code class="lang-bash">sed 's/old/new/' file           # first match on each line
+sed 's/old/new/g' file          # every match
+sed -n '5,10p' file             # print only lines 5 to 10
+sed '/^#/d' file                # delete lines that start with #
+sed -E 's/([0-9]+)-([0-9]+)/\2-\1/' file    # swap two captured groups</code></pre>
+<p><code>sed</code> writes the result to standard output and leaves the file alone. <code>sed -i</code> edits the file in place. Test without <code>-i</code> first.</p>
+<h2 id="awk">awk</h2>
+<p><code>awk</code> splits every line into fields: <code>$1</code>, <code>$2</code> and so on, with <code>$0</code> the whole line and <code>NF</code> the number of fields. A program is a list of <code>condition { action }</code> pairs, run for every line.</p>
+<pre><code class="lang-bash">awk '{ print $2 }' file                  # second field of every line
+awk -F, '{ print $1, $3 }' staff.csv     # comma as the separator
+awk -F, '$3 &gt; 5000 { print $1 }' staff.csv        # only lines where field 3 is large
+awk '{ total += $1 } END { print total }' numbers.txt</code></pre>
+<ul><li><code>-F,</code> sets the field separator.</li><li><code>END { ... }</code> runs once after the last line. <code>BEGIN { ... }</code> runs before the first.</li><li>Variables start at zero or empty with no declaration.</li></ul>
+<p><code>awk</code> has dictionaries, which makes grouping a one-liner. Total salary per department:</p>
+<pre><code class="lang-bash">awk -F, '{ total[$2] += $3 } END { for (d in total) print d, total[d] }' staff.csv | sort</code></pre>
+<p>The order of <code>for (d in total)</code> is not defined, which is why the result is piped through <code>sort</code>.</p>
+<p><code>printf</code> works as in the shell:</p>
+<pre><code class="lang-bash">awk -F, '{ printf "%-10s %8.2f\n", $1, $3 }' staff.csv</code></pre>
+<h2 id="choosing-a-tool">Choosing a tool</h2>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Reach for</th></tr></thead><tbody><tr><td>find lines</td><td><code>grep</code></td></tr><tr><td>one column</td><td><code>cut</code>, or <code>awk '{print $n}'</code> when the spacing is irregular</td></tr><tr><td>replace text</td><td><code>sed</code></td></tr><tr><td>arithmetic, grouping, conditions on columns</td><td><code>awk</code></td></tr><tr><td>the logic no longer fits on one line</td><td>a real language, such as Python</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>uniq</code> without <code>sort</code>.</strong></li><li><strong><code>cut</code> on columns separated by a varying number of spaces.</strong> Use <code>awk</code>, which treats any run of spaces as one separator.</li><li><strong><code>sort</code> on numbers without <code>-n</code>.</strong> Then 10 comes before 9.</li><li><strong><code>sed -i</code> on the only copy of a file.</strong></li><li><strong>Double quotes around an awk program.</strong> The shell then expands <code>$1</code> before awk sees it. Use single quotes.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/05-report">
+<h3>A salary report <span class="ex-id">bash/05-report</span></h3>
+<p>Write <code>report.sh</code>. It reads staff records from standard input, one per line, in the form <code>name,department,salary</code>:</p>
+<pre><code class="lang-text">ada,engineering,5200
+linus,engineering,4800
+grace,research,6100</code></pre>
+<p>It prints one line per department, in alphabetical order, with the total salary and the number of people. Then a last line names the person with the highest salary:</p>
+<pre><code class="lang-console">$ bash report.sh &lt; staff.csv
+engineering 10000 2
+research 6100 1
+highest: grace 6100</code></pre>
+<p>If the input is empty, print only <code>highest: none</code>.</p>
+<p><code>awk</code> does the grouping in one line. <code>sort</code> puts the departments in order.</p>
+<p class="ex-files">Files: <code>exercises/bash/05-report/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/05-report</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/04-functions-and-exit-codes.html"><span>Previous</span>Functions and exit codes</a><a class="next" href="../bash/06-arrays-and-strings.html"><span>Next</span>Arrays and string operations</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

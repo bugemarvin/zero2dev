@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loops · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/03-loops">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 3 of 8</p>
+<h1>Loops</h1>
+<p class="lede">Repeat over arguments, files, numbers and lines of input, without the classic traps.</p>
+<h2 id="for-over-a-list">for over a list</h2>
+<pre><code class="lang-bash">for fruit in apple banana cherry; do
+    echo "I like $fruit"
+done</code></pre>
+<p>Over the script's arguments:</p>
+<pre><code class="lang-bash">for arg in "$@"; do
+    echo "got: $arg"
+done</code></pre>
+<p>Over files. Let the shell expand the pattern. Never loop over the output of <code>ls</code>, which breaks on names with spaces:</p>
+<pre><code class="lang-bash">for file in *.txt; do
+    [[ -e "$file" ]] || continue      # the pattern matched nothing
+    echo "processing $file"
+done</code></pre>
+<p>If no file matches, the pattern stays as the literal text <code>*.txt</code>. The test on the first line of the body skips that case.</p>
+<h2 id="counting">Counting</h2>
+<pre><code class="lang-bash">for i in {1..5}; do
+    echo "$i"
+done
+
+for (( i = 0; i &lt; 5; i++ )); do
+    echo "$i"
+done</code></pre>
+<p><code>{1..5}</code> cannot contain variables. For a range that depends on a variable use the second form, or <code>seq</code>: <code>for i in $(seq 1 "$n")</code>.</p>
+<h2 id="while">while</h2>
+<p>Runs as long as a command succeeds:</p>
+<pre><code class="lang-bash">count=3
+while (( count &gt; 0 )); do
+    echo "$count"
+    count=$((count - 1))
+done</code></pre>
+<p><code>until</code> is the opposite: it runs until the command succeeds.</p>
+<h2 id="reading-lines">Reading lines</h2>
+<p>The correct way to process input line by line:</p>
+<pre><code class="lang-bash">while IFS= read -r line; do
+    echo "line: $line"
+done &lt; input.txt</code></pre>
+<ul><li><code>read -r</code> keeps backslashes as they are.</li><li><code>IFS=</code> keeps leading and trailing spaces.</li><li>The file is redirected into the <strong>loop</strong>, after <code>done</code>.</li></ul>
+<p>Without <code>&lt; file</code> the loop reads standard input, so the script works in a pipeline.</p>
+<p><code>read</code> can split a line into several variables:</p>
+<pre><code class="lang-bash">while read -r name score; do
+    echo "$name scored $score"
+done &lt; scores.txt</code></pre>
+<p>With another separator, set <code>IFS</code> for that one command:</p>
+<pre><code class="lang-bash">while IFS=, read -r name dept salary; do
+    echo "$name works in $dept"
+done &lt; staff.csv</code></pre>
+<h2 id="the-pipe-trap">The pipe trap</h2>
+<p>Each part of a pipeline runs in its own subshell. A variable changed inside a piped loop is lost when the loop ends:</p>
+<pre><code class="lang-bash">total=0
+cat numbers.txt | while read -r n; do
+    total=$((total + n))
+done
+echo "$total"          # prints 0</code></pre>
+<p>Redirect the file into the loop instead, and the loop runs in the main shell:</p>
+<pre><code class="lang-bash">total=0
+while read -r n; do
+    total=$((total + n))
+done &lt; numbers.txt
+echo "$total"          # correct</code></pre>
+<h2 id="break-and-continue">break and continue</h2>
+<p><code>break</code> leaves the loop. <code>continue</code> jumps to the next round.</p>
+<pre><code class="lang-bash">for file in *.log; do
+    [[ -s "$file" ]] || continue        # skip empty files
+    if grep -q "FATAL" "$file"; then
+        echo "first fatal error is in $file"
+        break
+    fi
+done</code></pre>
+<h2 id="finding-the-smallest-and-largest">Finding the smallest and largest</h2>
+<p>A pattern that comes up constantly: keep the best value so far, starting with the first.</p>
+<pre><code class="lang-bash">min="$1"
+max="$1"
+for n in "$@"; do
+    (( n &lt; min )) &amp;&amp; min="$n"
+    (( n &gt; max )) &amp;&amp; max="$n"
+done</code></pre>
+<p>Starting from the first value, and not from 0, makes it correct for negative numbers.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>for f in $(ls)</code>.</strong> Use the pattern directly: <code>for f in *</code>.</li><li><strong>Piping into <code>while</code></strong> and expecting variables to survive.</li><li><strong><code>read</code> without <code>-r</code>.</strong></li><li><strong>A variable inside <code>{1..$n}</code>.</strong> It does not expand.</li><li><strong>A missing last line.</strong> <code>read</code> fails on a final line that has no newline. Add <code>|| [[ -n "$line" ]]</code> to the condition if the input may lack one.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/03-stats">
+<h3>Count, sum, smallest, largest <span class="ex-id">bash/03-stats</span></h3>
+<p>Write <code>stats.sh</code>. It takes any number of whole numbers as arguments and prints four lines:</p>
+<pre><code class="lang-console">$ bash stats.sh 4 9 -2 7
+count: 4
+sum: 18
+min: -2
+max: 9</code></pre>
+<p>With no arguments, print a usage message to standard error and exit with code 2.</p>
+<p class="ex-files">Files: <code>exercises/bash/03-stats/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/03-stats</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/02-tests-and-conditionals.html"><span>Previous</span>Tests and conditionals</a><a class="next" href="../bash/04-functions-and-exit-codes.html"><span>Next</span>Functions and exit codes</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
