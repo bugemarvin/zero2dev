@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your first commit · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/01-first-commit">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 1 of 9</p>
+<h1>Your first commit</h1>
+<p class="lede">Git takes snapshots of your project so you can always go back. Make a repository and save your first snapshot.</p>
+<h2 id="why-git">Why Git</h2>
+<p>Without Git, projects end up as <code>essay-final.txt</code>, <code>essay-final-2.txt</code>, <code>essay-REALLY-final.txt</code>. Git replaces that with a history of <strong>commits</strong>. Each commit is a snapshot of every file at one moment, with a message saying what changed and why.</p>
+<p>You can look at any earlier snapshot, see exactly what changed between two of them, undo a mistake, and work with other people without overwriting each other.</p>
+<h2 id="tell-git-who-you-are">Tell Git who you are</h2>
+<p>Do this once per machine. The name and email are written into every commit you make.</p>
+<pre><code class="lang-console">$ git config --global user.name "Sam Example"
+$ git config --global user.email "sam@example.com"</code></pre>
+<h2 id="make-a-repository">Make a repository</h2>
+<p>A <strong>repository</strong> (repo) is a folder that Git is tracking. Turn any folder into one with <code>git init</code>:</p>
+<pre><code class="lang-console">$ mkdir recipes
+$ cd recipes
+$ git init
+Initialized empty Git repository in /home/sam/recipes/.git/</code></pre>
+<p>Git keeps all its data in the hidden <code>.git</code> folder. Leave that folder alone, and never run <code>git init</code> inside a repo that already exists.</p>
+<h2 id="the-three-places">The three places</h2>
+<p>A file's changes move through three places:</p>
+<div class="table-wrap"><table><thead><tr><th>Place</th><th>What it is</th></tr></thead><tbody><tr><td>Working directory</td><td>the files as you see and edit them</td></tr><tr><td>Staging area</td><td>the changes you have picked for the next commit</td></tr><tr><td>Repository</td><td>the saved history of commits</td></tr></tbody></table></div>
+<p><code>git add</code> moves changes from the first to the second. <code>git commit</code> moves them from the second to the third.</p>
+<h2 id="save-a-snapshot">Save a snapshot</h2>
+<p>Create a file, then ask Git what it sees:</p>
+<pre><code class="lang-console">$ echo "# My recipes" &gt; README.md
+$ git status
+On branch main
+No commits yet
+Untracked files:
+        README.md</code></pre>
+<p><strong>Untracked</strong> means Git has noticed the file and is not saving it yet. Stage it, then commit:</p>
+<pre><code class="lang-console">$ git add README.md
+$ git commit -m "Add README"
+[main (root-commit) 4f2a9c1] Add README
+ 1 file changed, 1 insertion(+)
+$ git status
+On branch main
+nothing to commit, working tree clean</code></pre>
+<p><strong>Working tree clean</strong> means everything is saved.</p>
+<h2 id="the-loop">The loop</h2>
+<p>You will repeat this for the rest of your career:</p>
+<ol><li>Edit files.</li><li><code>git status</code> to see what changed.</li><li><code>git add</code> the changes that belong together.</li><li><code>git commit -m "message"</code>.</li></ol>
+<p><code>git add .</code> stages everything in the current folder. Check <code>git status</code> first so that you know what "everything" is.</p>
+<h2 id="good-commit-messages">Good commit messages</h2>
+<ul><li>Say <strong>what the change does</strong>: <code>Add login form</code>, <code>Fix crash when cart is empty</code>.</li><li>Start with a verb, keep the first line under about 50 characters.</li><li>One idea per commit. If the message needs the word "and", it is probably two commits.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>git add</code>.</strong> <code>git commit</code> only saves what is staged. A new file that was never added is not in the commit.</li><li><strong>Running <code>git init</code> in your home folder.</strong> Git then tries to track everything you own. Always <code>cd</code> into the project first.</li><li><strong><code>Author identity unknown</code>.</strong> You skipped the <code>git config</code> step above.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/01-first-commit">
+<h3>Make a repository and commit <span class="ex-id">git/01-first-commit</span></h3>
+<p>In your working folder:</p>
+<ol><li>Turn the folder into a Git repository.</li><li>Create <code>README.md</code> with any text in it.</li><li>Commit it.</li></ol>
+<p>When you finish, <code>git status</code> should say <code>nothing to commit, working tree clean</code>.</p>
+<p class="ex-files">Files: <code>exercises/git/01-first-commit/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/01-first-commit</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../start/07-editor.html"><span>Previous</span>Your editor and the work loop</a><a class="next" href="../git/02-history-and-diff.html"><span>Next</span>History and diff</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

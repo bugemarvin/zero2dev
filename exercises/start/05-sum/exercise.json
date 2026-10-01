@@ -1,0 +1,35 @@
+{
+  "title": "Add up numbers",
+  "lesson": "start/06-shell-scripts",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "sum.sh"
+  ],
+  "cases": [
+    {
+      "name": "adds three numbers",
+      "stdin": "1\n2\n3\n",
+      "stdout": "6\n"
+    },
+    {
+      "name": "handles negative numbers",
+      "stdin": "10\n-4\n-10\n",
+      "stdout": "-4\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "42\n",
+      "stdout": "42\n"
+    },
+    {
+      "name": "no input prints 0",
+      "stdin": "",
+      "stdout": "0\n"
+    }
+  ],
+  "hints": [
+    "Start with total=0, then loop: while read -r number; do ... done",
+    "Arithmetic: total=$((total + number))"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Rebase a branch",
+  "lesson": "git/08-rebase",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf 'base\\n' > base.txt && git add base.txt && git commit -qm 'Add base'",
+    "git checkout -q -b feature && printf 'one\\n' > f1.txt && git add f1.txt && git commit -qm 'Add f1' && printf 'two\\n' > f2.txt && git add f2.txt && git commit -qm 'Add f2'",
+    "git checkout -q main && printf 'main work\\n' > m1.txt && git add m1.txt && git commit -qm 'Add m1'"
+  ],
+  "checks": [
+    {
+      "name": "feature now sits on top of main",
+      "cmd": "git merge-base --is-ancestor main feature"
+    },
+    {
+      "name": "feature has no merge commits (history is a straight line)",
+      "cmd": "git rev-list --merges --count feature",
+      "stdout": "0"
+    },
+    {
+      "name": "feature has all 4 commits",
+      "cmd": "git rev-list --count feature",
+      "stdout": "4"
+    },
+    {
+      "name": "feature contains m1.txt, f1.txt and f2.txt",
+      "cmd": "git cat-file -e feature:m1.txt && git cat-file -e feature:f1.txt && git cat-file -e feature:f2.txt"
+    }
+  ],
+  "hints": [
+    "Be on the branch that should move: git switch feature",
+    "Then name what it should sit on: git rebase main"
+  ]
+}

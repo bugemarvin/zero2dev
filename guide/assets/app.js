@@ -1,0 +1,302 @@
+/* zero2dev guide: navigation, progress, code colouring. No dependencies, works from file:// */
+(function () {
+  "use strict";
+
+  var root = document.body.dataset.root || "";
+  var currentId = document.body.dataset.lesson || "";
+  var curriculum = window.Z2D_CURRICULUM || { tracks: [] };
+
+  // ---------- small helpers ----------
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (key) {
+      if (key === "text") node.textContent = attrs[key];
+      else if (key === "class") node.className = attrs[key];
+      else node.setAttribute(key, attrs[key]);
+    });
+    (children || []).forEach(function (child) { node.appendChild(child); });
+    return node;
+  }
+
+  // localStorage can be unavailable (private mode, blocked site data): never let it break the page.
+  function storeGet(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function storeSet(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* ignore */ }
+  }
+
+  function readSet() {
+    try { return JSON.parse(storeGet("z2d-read") || "{}") || {}; } catch (e) { return {}; }
+  }
+
+  function lessonHref(id) { return root + "lessons/" + id + ".html"; }
+
+  // ---------- progress ----------
+  function exPassed(id) {
+    var p = window.Z2D_PROGRESS;
+    return !!(p && p.passed && p.passed[id]);
+  }
+  function lessonDone(lesson, read) {
+    if (lesson.exercises.length) return lesson.exercises.every(function (e) { return exPassed(e.id); });
+    return !!read[lesson.id];
+  }
+  function allLessons() {
+    var list = [];
+    curriculum.tracks.forEach(function (t) { t.lessons.forEach(function (l) { list.push(l); }); });
+    return list;
+  }
+
+  // ---------- theme ----------
+  function initTheme() {
+    var btn = document.getElementById("theme-btn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      var html = document.documentElement;
+      var systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var now = html.dataset.theme || (systemDark ? "dark" : "light");
+      var next = now === "dark" ? "light" : "dark";
+      html.dataset.theme = next;
+      storeSet("z2d-theme", next);
+    });
+  }
+
+  // ---------- sidebar ----------
+  function renderSidebar() {
+    var nav = document.getElementById("sidebar");
+    if (!nav) return;
+    nav.textContent = "";
+    var read = readSet();
+    curriculum.tracks.forEach(function (track) {
+      var done = track.lessons.filter(function (l) { return lessonDone(l, read); }).length;
+      var isCurrent = track.lessons.some(function (l) { return l.id === currentId; });
+      var items = track.lessons.map(function (lesson) {
+        var link = el("a", { href: lessonHref(lesson.id) }, [
+          el("span", { class: "tick", text: lessonDone(lesson, read) ? "✓" : "" }),
+          el("span", { text: lesson.title })
+        ]);
+        if (lesson.id === currentId) {
+          link.className = "current";
+          link.setAttribute("aria-current", "page");
+        }
+        return el("li", {}, [link]);
+      });
+      var details = el("details", {}, [
+        el("summary", {}, [
+          el("span", { text: track.title }),
+          el("span", { class: "count", text: done + "/" + track.lessons.length })
+        ]),
+        el("ol", {}, items)
+      ]);
+      if (isCurrent) details.open = true;
+      nav.appendChild(details);
+    });
+    var current = nav.querySelector("a.current");
+    if (current && current.scrollIntoView) current.scrollIntoView({ block: "center" });
+  }
+
+  function initMenu() {
+    var btn = document.getElementById("menu-btn");
+    if (!btn) return;
+    btn.addEventListener("click", function () { document.body.classList.toggle("nav-open"); });
+    document.addEventListener("click", function (event) {
+      if (!document.body.classList.contains("nav-open")) return;
+      if (event.target.closest("#sidebar") || event.target.closest("#menu-btn")) return;
+      document.body.classList.remove("nav-open");
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") document.body.classList.remove("nav-open");
+    });
+  }
+
+  // ---------- lesson page ----------
+  function renderExerciseBadges() {
+    document.querySelectorAll(".exercise[data-ex]").forEach(function (box) {
+      var old = box.querySelector(".badge");
+      if (old) old.remove();
+      var ok = exPassed(box.dataset.ex);
+      box.classList.toggle("passed", ok);
+      if (ok) box.querySelector("h3").appendChild(el("span", { class: "badge", text: "✓ passed" }));
+    });
+  }
+
+  function initReadToggle() {
+    var pager = document.querySelector(".pager");
+    if (!currentId || !pager) return;
+    var box = el("input", { type: "checkbox" });
+    box.checked = !!readSet()[currentId];
+    box.addEventListener("change", function () {
+      var read = readSet();
+      if (box.checked) read[currentId] = 1; else delete read[currentId];
+      storeSet("z2d-read", JSON.stringify(read));
+      renderSidebar();
+    });
+    var label = el("label", { class: "read-toggle" }, [box, el("span", { text: "I have read this lesson" })]);
+    pager.parentNode.insertBefore(label, pager);
+  }
+
+  // ---------- home page ----------
+  function renderHome() {
+    var grid = document.getElementById("tracks");
+    if (!grid) return;
+    grid.textContent = "";
+    var read = readSet();
+    var totalEx = 0, passedEx = 0;
+
+    curriculum.tracks.forEach(function (track) {
+      var exercises = [];
+      track.lessons.forEach(function (l) { exercises = exercises.concat(l.exercises); });
+      var passed = exercises.filter(function (e) { return exPassed(e.id); }).length;
+      totalEx += exercises.length;
+      passedEx += passed;
+      var target = track.lessons.filter(function (l) { return !lessonDone(l, read); })[0] || track.lessons[0];
+      var fill = el("i", {});
+      fill.style.width = (exercises.length ? Math.round(100 * passed / exercises.length) : 0) + "%";
+      grid.appendChild(el("a", { class: "track", href: lessonHref(target.id) }, [
+        el("h3", { text: track.title }),
+        el("p", { text: track.blurb }),
+        el("div", { class: "meta" }, [
+          el("span", { text: track.lessons.length + " lessons" }),
+          el("span", { text: passed + "/" + exercises.length + " exercises" })
+        ]),
+        el("div", { class: "bar" }, [fill])
+      ]));
+    });
+
+    var overall = document.getElementById("overall");
+    if (overall) {
+      overall.textContent = window.Z2D_PROGRESS
+        ? passedEx + " of " + totalEx + " exercises passed"
+        : totalEx + " exercises. Progress shows here after your first check.py run.";
+    }
+    var next = document.getElementById("continue");
+    if (next) {
+      var todo = allLessons().filter(function (l) { return !lessonDone(l, read); })[0];
+      if (todo) {
+        next.href = lessonHref(todo.id);
+        var started = passedEx > 0 || Object.keys(read).length > 0;
+        next.textContent = (started ? "Continue: " : "Start: ") + todo.title;
+      }
+    }
+  }
+
+  // ---------- code colouring ----------
+  var KEYWORDS = {
+    c: "auto break case char const continue default do double else enum extern float for goto if inline int long register return short signed sizeof static struct switch typedef union unsigned void volatile while NULL size_t bool true false",
+    python: "False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield",
+    bash: "if then else elif fi for while until do done case esac function in return exit local export",
+    java: "abstract boolean break byte case catch char class continue default do double else enum extends final finally float for if implements import instanceof int interface long new null package private protected public record return short static super switch this throw throws try var void while true false",
+    elixir: "def defp defmodule defstruct do end fn if else unless case cond with when for in and or not nil true false import alias require use receive after try rescue raise",
+    sql: "select from where and or not null is in like between order by group having limit offset join left right inner outer full cross on as insert into values update set delete create table primary key foreign references unique check default index drop alter add distinct union all case when then else end with over partition begin commit rollback explain analyze returning asc desc exists integer text real numeric boolean serial jsonb timestamp date using"
+  };
+  var COMMENTS = {
+    c: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    java: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
+    python: "#[^\\n]*",
+    elixir: "#[^\\n]*",
+    bash: "(?:^|(?<=\\s))#[^\\n]*",
+    sql: "--[^\\n]*"
+  };
+  var STRING = "\"\"\"[\\s\\S]*?\"\"\"|'''[\\s\\S]*?'''|\"(?:\\\\.|[^\"\\\\\\n])*\"|'(?:\\\\.|[^'\\\\\\n])*'";
+
+  function span(cls, text) { return el("span", { class: cls, text: text }); }
+
+  function colourConsole(code, text) {
+    text.split("\n").forEach(function (line, i, lines) {
+      if (line.indexOf("$ ") === 0) {
+        code.appendChild(span("tok-prompt", "$ "));
+        code.appendChild(span("tok-cmd", line.slice(2)));
+      } else {
+        code.appendChild(span("tok-out", line));
+      }
+      if (i < lines.length - 1) code.appendChild(document.createTextNode("\n"));
+    });
+  }
+
+  function colour(code, lang) {
+    var text = code.textContent;
+    if (lang === "console") { code.textContent = ""; colourConsole(code, text); return; }
+    if (!KEYWORDS[lang]) return;
+    var words = {};
+    KEYWORDS[lang].split(" ").forEach(function (w) { words[w] = true; });
+    var pre = lang === "c" ? "|(^[ \\t]*#[ \\t]*\\w+)" : "|($^)";
+    var re;
+    try {
+      re = new RegExp("(" + STRING + ")|(" + COMMENTS[lang] + ")" + pre + "|(\\b\\d+(?:\\.\\d+)?\\b)|([A-Za-z_]\\w*)", "gm");
+    } catch (e) { return; } // very old browser without lookbehind: leave the code plain
+    code.textContent = "";
+    var last = 0, m;
+    while ((m = re.exec(text)) !== null) {
+      if (m[0] === "") { re.lastIndex++; continue; }
+      if (m.index > last) code.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var cls = null;
+      if (m[1]) cls = "tok-s";
+      else if (m[2]) cls = "tok-c";
+      else if (m[3]) cls = "tok-p";
+      else if (m[4]) cls = "tok-n";
+      else if (words[lang === "sql" ? m[5].toLowerCase() : m[5]]) cls = "tok-k";
+      code.appendChild(cls ? span(cls, m[0]) : document.createTextNode(m[0]));
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) code.appendChild(document.createTextNode(text.slice(last)));
+  }
+
+  function copyText(text, done) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+  function fallbackCopy(text, done) {
+    var area = el("textarea", {});
+    area.value = text;
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    try { if (document.execCommand("copy")) done(); } catch (e) { /* ignore */ }
+    area.remove();
+  }
+
+  function initCode() {
+    document.querySelectorAll("pre > code").forEach(function (code) {
+      var lang = (code.className.match(/lang-(\w+)/) || [])[1] || "text";
+      var raw = code.textContent;
+      colour(code, lang);
+      var btn = el("button", { class: "copy-btn", type: "button", text: "Copy" });
+      btn.addEventListener("click", function () {
+        var text = raw;
+        if (lang === "console") {
+          // copy only the commands, without the prompt or the sample output
+          var cmds = raw.split("\n").filter(function (l) { return l.indexOf("$ ") === 0; });
+          if (cmds.length) text = cmds.map(function (l) { return l.slice(2); }).join("\n");
+        }
+        copyText(text, function () {
+          btn.textContent = "Copied";
+          setTimeout(function () { btn.textContent = "Copy"; }, 1400);
+        });
+      });
+      code.parentNode.appendChild(btn);
+    });
+  }
+
+  // ---------- start ----------
+  function renderProgress() {
+    renderSidebar();
+    renderExerciseBadges();
+    renderHome();
+  }
+
+  initTheme();
+  initMenu();
+  initCode();
+  initReadToggle();
+  renderProgress();
+
+  // progress.js is written by check.py. It is absent until the first run, and that is fine.
+  var script = document.createElement("script");
+  script.src = root + "progress.js";
+  script.onload = renderProgress;
+  document.head.appendChild(script);
+})();

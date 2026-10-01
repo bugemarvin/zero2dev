@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The pull request workflow · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/09-pull-requests">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 9 of 9</p>
+<h1>The pull request workflow</h1>
+<p class="lede">How teams actually use Git. A branch per change, a review, then a merge.</p>
+<h2 id="the-shape-of-the-workflow">The shape of the workflow</h2>
+<p>On almost every team, nobody commits straight to <code>main</code>. Each change goes through the same steps:</p>
+<ol><li>Update your local <code>main</code>.</li><li>Create a branch for the change.</li><li>Commit your work on it.</li><li>Push the branch.</li><li>Open a <strong>pull request</strong> (PR): a page that shows your changes and asks for them to be merged.</li><li>Other people review, and you push fixes to the same branch.</li><li>The PR is merged into <code>main</code>.</li><li>Delete the branch and start again from step 1.</li></ol>
+<h2 id="in-commands">In commands</h2>
+<pre><code class="lang-console">$ git switch main
+$ git pull
+$ git switch -c fix/typo</code></pre>
+<p>Edit, then commit:</p>
+<pre><code class="lang-console">$ git add README.md
+$ git commit -m "Fix typo in install steps"
+$ git push -u origin fix/typo</code></pre>
+<p>Open the pull request with the GitHub CLI:</p>
+<pre><code class="lang-console">$ gh pr create --title "Fix typo in install steps" --body "The word 'the' was misspelled."</code></pre>
+<p>Or open the repository page on GitHub, where a button offers to create the PR from the branch you just pushed.</p>
+<h2 id="during-review">During review</h2>
+<p>Reviewers comment on lines. To respond, commit more changes on the same branch and push. The PR updates itself.</p>
+<pre><code class="lang-console">$ git add README.md
+$ git commit -m "Reword the sentence as suggested"
+$ git push</code></pre>
+<h2 id="after-the-merge">After the merge</h2>
+<pre><code class="lang-console">$ git switch main
+$ git pull
+$ git branch -d fix/typo</code></pre>
+<h2 id="contributing-to-a-project-you-do-not-own">Contributing to a project you do not own</h2>
+<p>You cannot push to someone else's repository. You make your own copy on GitHub, called a <strong>fork</strong>, push your branch there, and open the PR from your fork to the original.</p>
+<pre><code class="lang-console">$ gh repo fork someone/recipes --clone</code></pre>
+<h2 id="writing-a-good-pull-request">Writing a good pull request</h2>
+<ul><li><strong>Keep it small.</strong> A PR that changes 50 lines is reviewed carefully. One that changes 2,000 is skimmed.</li><li><strong>One purpose.</strong> Do not mix a bug fix with a redesign.</li><li><strong>Say why</strong> in the description. The diff already shows <em>what</em> changed.</li><li><strong>Run the tests first.</strong> Do not make a reviewer find what a test would have.</li></ul>
+<h2 id="git-commands-worth-keeping-close">Git commands worth keeping close</h2>
+<div class="table-wrap"><table><thead><tr><th>Goal</th><th>Command</th></tr></thead><tbody><tr><td>What is going on?</td><td><code>git status</code></td></tr><tr><td>What changed?</td><td><code>git diff</code>, <code>git diff --staged</code></td></tr><tr><td>History</td><td><code>git log --oneline --graph --all</code></td></tr><tr><td>New branch</td><td><code>git switch -c name</code></td></tr><tr><td>Save work</td><td><code>git add</code>, <code>git commit -m</code></td></tr><tr><td>Share work</td><td><code>git push -u origin name</code></td></tr><tr><td>Get updates</td><td><code>git pull</code></td></tr><tr><td>Undo an edit</td><td><code>git restore file</code></td></tr><tr><td>Reverse a commit</td><td><code>git revert hash</code></td></tr></tbody></table></div>
+<p>You now know the Git that covers nearly all daily work. Next, pick a language: C shows you how the machine works, Python gets you productive fastest.</p>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/09-feature-flow">
+<h3>A full feature-branch round trip <span class="ex-id">git/09-feature-flow</span></h3>
+<p><code>remote.git</code> in your working folder plays the part of the team repository. Its <code>README.md</code> has a typo: <code>teh</code>.</p>
+<p>Do what you would do on a real team, up to the point of opening the pull request:</p>
+<ol><li>Clone <code>remote.git</code> into a folder named <code>project</code>.</li><li>Create a branch named <code>fix/typo</code>.</li><li>Change <code>teh</code> to <code>the</code> in <code>README.md</code> and commit.</li><li>Push the branch to the remote with <code>-u</code>, so that it tracks <code>origin/fix/typo</code>.</li></ol>
+<p>Do not commit to <code>main</code>.</p>
+<p class="ex-files">Files: <code>exercises/git/09-feature-flow/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/09-feature-flow</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/08-rebase.html"><span>Previous</span>Rebase</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

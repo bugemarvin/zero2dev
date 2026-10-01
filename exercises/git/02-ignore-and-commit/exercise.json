@@ -1,0 +1,50 @@
+{
+  "title": "Commit a change and ignore the junk",
+  "lesson": "git/02-history-and-diff",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf 'version 1\\n' > app.txt && git add app.txt && git commit -qm 'Start app'",
+    "printf 'debug output\\n' > debug.log && mkdir build && printf 'binary' > build/output.bin"
+  ],
+  "checks": [
+    {
+      "name": "app.txt was changed in a new commit",
+      "cmd": "! git diff --quiet $(git rev-list --max-parents=0 HEAD) HEAD -- app.txt"
+    },
+    {
+      "name": ".gitignore is committed",
+      "cmd": "git ls-files --error-unmatch .gitignore"
+    },
+    {
+      "name": "debug.log is ignored",
+      "cmd": "git check-ignore -q debug.log"
+    },
+    {
+      "name": "everything in build/ is ignored",
+      "cmd": "git check-ignore -q build/output.bin"
+    },
+    {
+      "name": "debug.log and build/ are not committed",
+      "cmd": "test -z \"$(git ls-files debug.log build)\""
+    },
+    {
+      "name": "debug.log and build/output.bin still exist on disk",
+      "cmd": "test -f debug.log && test -f build/output.bin"
+    },
+    {
+      "name": "there are at least 3 commits",
+      "cmd": "git rev-list --count HEAD",
+      "min": 3
+    },
+    {
+      "name": "nothing is left uncommitted (git status is clean)",
+      "cmd": "test -z \"$(git status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "Run git status first: it lists the untracked files you need to deal with.",
+    "Two lines in .gitignore are enough: *.log and build/",
+    "Remember to add and commit .gitignore itself."
+  ]
+}

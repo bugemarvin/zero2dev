@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>History and diff · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/02-history-and-diff">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 2 of 9</p>
+<h1>History and diff</h1>
+<p class="lede">Read the history, see exactly what changed, and keep junk files out of the repository.</p>
+<h2 id="reading-history">Reading history</h2>
+<pre><code class="lang-console">$ git log
+commit 9b1d3e7c0a... (HEAD -&gt; main)
+Author: Sam Example &lt;sam@example.com&gt;
+Date:   Mon May 5 10:21:03 2025
+
+    Add pancake recipe
+
+commit 4f2a9c1e55...
+Author: Sam Example &lt;sam@example.com&gt;
+Date:   Mon May 5 10:02:47 2025
+
+    Add README</code></pre>
+<p>The newest commit is at the top. The long code is the commit's <strong>hash</strong>: its unique ID. The first seven characters are usually enough to name it.</p>
+<p>A shorter view is what you will use most:</p>
+<pre><code class="lang-console">$ git log --oneline
+9b1d3e7 Add pancake recipe
+4f2a9c1 Add README</code></pre>
+<p><code>git show 9b1d3e7</code> prints one commit: its message and the exact lines it changed.</p>
+<h2 id="what-changed">What changed?</h2>
+<p><code>git diff</code> compares versions line by line.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Compares</th></tr></thead><tbody><tr><td><code>git diff</code></td><td>working directory against the staging area: what you have <strong>not</strong> staged</td></tr><tr><td><code>git diff --staged</code></td><td>staging area against the last commit: what the next commit <strong>will</strong> contain</td></tr><tr><td><code>git diff 4f2a9c1 9b1d3e7</code></td><td>two commits</td></tr></tbody></table></div>
+<pre><code class="lang-console">$ git diff
+--- a/README.md
++++ b/README.md
+@@ -1 +1,2 @@
+ # My recipes
++Collected by Sam.</code></pre>
+<p>Lines starting with <code>+</code> were added, lines starting with <code>-</code> were removed. Lines with neither are context.</p>
+<p>Make a habit of running <code>git diff --staged</code> right before you commit. It is the last chance to catch a stray debug line.</p>
+<h2 id="ignoring-files">Ignoring files</h2>
+<p>Some files should never be committed: compiled programs, logs, editor settings, passwords. List patterns for them in a file named <code>.gitignore</code> at the top of the repo:</p>
+<pre><code class="lang-text"># compiled output
+build/
+*.o
+
+# logs
+*.log
+
+# secrets
+.env</code></pre>
+<ul><li><code>*.log</code> ignores every file ending in <code>.log</code>.</li><li><code>build/</code> ignores the whole folder.</li><li>Lines starting with <code>#</code> are comments.</li></ul>
+<p>Commit <code>.gitignore</code> itself, so everyone on the project shares it.</p>
+<pre><code class="lang-console">$ git status
+Untracked files:
+        debug.log
+$ echo "*.log" &gt; .gitignore
+$ git status
+Untracked files:
+        .gitignore</code></pre>
+<p>The log has vanished from the list, and the ignore file is now the thing to add.</p>
+<div class="callout warn"><p><strong>Warning:</strong> <code>.gitignore</code> only affects files Git is not tracking yet. If a file was already committed, ignoring it later does nothing until you remove it with <code>git rm --cached file</code>.</p></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Committing a password or API key.</strong> Deleting it in a later commit does not remove it from history. Treat it as leaked and change it.</li><li><strong>Stuck in a screen full of <code>git log</code>.</strong> It opened in a pager. Press <code>q</code>.</li><li><strong>Confusing <code>git diff</code> with <code>git diff --staged</code>.</strong> An empty <code>git diff</code> after <code>git add</code> is normal: everything is staged, so nothing is left unstaged.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/02-ignore-and-commit">
+<h3>Commit a change and ignore the junk <span class="ex-id">git/02-ignore-and-commit</span></h3>
+<p>Your working folder is a repository with one commit. It also contains a log file and a <code>build</code> folder that must never be committed.</p>
+<ol><li>Add a second line to <code>app.txt</code> and commit the change.</li><li>Create a <code>.gitignore</code> that ignores every <code>.log</code> file and the whole <code>build/</code> folder.</li><li>Commit <code>.gitignore</code>.</li></ol>
+<p>Do not delete <code>debug.log</code> or <code>build/</code>. When you finish, <code>git status</code> should be clean and <code>git log --oneline</code> should show at least three commits.</p>
+<p class="ex-files">Files: <code>exercises/git/02-ignore-and-commit/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/02-ignore-and-commit</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/01-first-commit.html"><span>Previous</span>Your first commit</a><a class="next" href="../git/03-branches.html"><span>Next</span>Branches</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

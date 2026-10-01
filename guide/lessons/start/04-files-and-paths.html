@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Files and paths · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/04-files-and-paths">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 4 of 7</p>
+<h1>Files and paths</h1>
+<p class="lede">How to name any file on the machine, read it, match many files at once, and make a script runnable.</p>
+<h2 id="paths">Paths</h2>
+<p>A <strong>path</strong> is the address of a file or folder. There are two kinds.</p>
+<p>An <strong>absolute path</strong> starts at the top of the system, written <code>/</code>, and works from anywhere:</p>
+<pre><code class="lang-text">/home/sam/zero2dev/check.py</code></pre>
+<p>A <strong>relative path</strong> starts from the folder you are in. If you are in <code>/home/sam</code>, the same file is:</p>
+<pre><code class="lang-text">zero2dev/check.py</code></pre>
+<p>Four short names are worth learning by heart:</p>
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Meaning</th></tr></thead><tbody><tr><td><code>.</code></td><td>the current folder</td></tr><tr><td><code>..</code></td><td>the folder above this one</td></tr><tr><td><code>~</code></td><td>your home folder</td></tr><tr><td><code>/</code></td><td>the top of the whole system</td></tr></tbody></table></div>
+<pre><code class="lang-console">$ cd ~/zero2dev/exercises
+$ ls ..
+check.py  content  exercises  guide  setup
+$ cd ../guide</code></pre>
+<h2 id="reading-files">Reading files</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Use it for</th></tr></thead><tbody><tr><td><code>cat file</code></td><td>print a short file</td></tr><tr><td><code>less file</code></td><td>scroll through a long file (<code>q</code> quits)</td></tr><tr><td><code>head -n 5 file</code></td><td>the first 5 lines</td></tr><tr><td><code>tail -n 5 file</code></td><td>the last 5 lines</td></tr><tr><td><code>wc -l file</code></td><td>count the lines</td></tr></tbody></table></div>
+<h2 id="wildcards">Wildcards</h2>
+<p>The shell can fill in file names for you. A <code>*</code> matches any run of characters:</p>
+<pre><code class="lang-console">$ ls
+a.txt  b.txt  notes.md  photo.png
+$ ls *.txt
+a.txt  b.txt
+$ mkdir text
+$ mv *.txt text/</code></pre>
+<p>The shell replaces <code>*.txt</code> with the matching names <strong>before</strong> the command runs, so <code>mv</code> really receives <code>mv a.txt b.txt text/</code>. When the last argument is a folder, <code>mv</code> and <code>cp</code> move or copy everything before it into that folder.</p>
+<p><code>?</code> matches exactly one character, so <code>file?.txt</code> matches <code>file1.txt</code> but not <code>file10.txt</code>.</p>
+<h2 id="hidden-files">Hidden files</h2>
+<p>Names that start with a dot are hidden from a plain <code>ls</code>. They usually hold settings.</p>
+<pre><code class="lang-console">$ ls -a
+.  ..  .bashrc  .gitconfig  Documents</code></pre>
+<h2 id="permissions">Permissions</h2>
+<p>Each file records who may <strong>r</strong>ead it, <strong>w</strong>rite it and e<strong>x</strong>ecute (run) it:</p>
+<pre><code class="lang-console">$ ls -l hello.sh
+-rw-r--r-- 1 sam sam 32 May  3 10:12 hello.sh</code></pre>
+<p>Read the letters in groups of three: the owner, the group, everyone else. Here nobody has <code>x</code>, so the file cannot be run as a program yet. Add it with <code>chmod</code>:</p>
+<pre><code class="lang-console">$ ./hello.sh
+bash: ./hello.sh: Permission denied
+$ chmod +x hello.sh
+$ ./hello.sh
+Hello!</code></pre>
+<p>The <code>./</code> matters. To run a program in the current folder you must say where it is. Typing just <code>hello.sh</code> makes the shell search only its list of system folders.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting where you are.</strong> Relative paths depend on the working directory. When in doubt, <code>pwd</code>.</li><li><strong>A wildcard that matches nothing</strong> is passed along as plain text, which gives odd errors like <code>cannot stat '*.txt'</code>.</li><li><strong>Spaces in names.</strong> Avoid them in code folders. If you must, quote the name: <code>cat "my file.txt"</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="start/02-tidy-up">
+<h3>Tidy a messy folder <span class="ex-id">start/02-tidy-up</span></h3>
+<p>Your working folder contains a mess of files. Tidy it:</p>
+<ol><li>Move every <code>.txt</code> file into a new folder named <code>text</code>.</li><li>Delete every <code>.tmp</code> file.</li><li>Rename <code>report.md</code> to <code>summary.md</code>.</li><li>Copy <code>photo.png</code> into a new folder named <code>backup</code>. The original stays where it is.</li><li>Make <code>run.sh</code> executable.</li></ol>
+<p>Run the check command once first. It creates the working folder with the files in it.</p>
+<p class="ex-files">Files: <code>exercises/start/02-tidy-up/</code></p>
+<pre><code class="lang-console">$ python3 check.py start/02-tidy-up</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../start/03-terminal.html"><span>Previous</span>The terminal</a><a class="next" href="../start/05-pipes-and-redirection.html"><span>Next</span>Pipes and redirection</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

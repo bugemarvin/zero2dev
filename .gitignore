@@ -1,0 +1,12 @@
+# learner progress (written by check.py)
+.progress.json
+guide/progress.js
+
+# build output
+__pycache__/
+*.pyc
+*.o
+*.class
+*.beam
+a.out
+.DS_Store

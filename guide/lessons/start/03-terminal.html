@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The terminal · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/03-terminal">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 3 of 7</p>
+<h1>The terminal</h1>
+<p class="lede">Type commands instead of clicking. Move around, look at files, and make folders.</p>
+<h2 id="what-you-are-looking-at">What you are looking at</h2>
+<p>When you open the terminal you see a <strong>prompt</strong>, something like this:</p>
+<pre><code class="lang-console">$ </code></pre>
+<p>Yours may show your user name and current folder before the <code>$</code>. The prompt means: <em>I am waiting for a command</em>. You type a command, press Enter, read the result, and get a new prompt.</p>
+<p>In this guide, lines that start with <code>$</code> are commands for you to type. <strong>Do not type the <code>$</code> itself.</strong> Lines without it show what the computer prints back.</p>
+<h2 id="where-am-i">Where am I?</h2>
+<p>The terminal is always "in" one folder, called the <strong>working directory</strong>. Three commands tell you where you are and let you move:</p>
+<pre><code class="lang-console">$ pwd
+/home/sam
+$ ls
+Documents  Downloads  zero2dev
+$ cd zero2dev
+$ pwd
+/home/sam/zero2dev</code></pre>
+<ul><li><code>pwd</code> prints the working directory.</li><li><code>ls</code> lists what is in it.</li><li><code>cd name</code> moves into a folder. <code>cd ..</code> moves one level up. <code>cd</code> alone takes you home.</li></ul>
+<h2 id="commands-options-arguments">Commands, options, arguments</h2>
+<p>Most commands follow one pattern:</p>
+<pre><code class="lang-text">command  -options  arguments</code></pre>
+<pre><code class="lang-console">$ ls -l Documents</code></pre>
+<p>Here <code>ls</code> is the command, <code>-l</code> is an option that means <em>long format</em>, and <code>Documents</code> is the argument: the thing to act on. Options can be combined, so <code>ls -la</code> means <code>-l</code> and <code>-a</code> (show hidden files too).</p>
+<h2 id="making-and-removing-things">Making and removing things</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>mkdir notes</code></td><td>make a folder</td></tr><tr><td><code>mkdir -p a/b/c</code></td><td>make a folder and any missing parents</td></tr><tr><td><code>touch todo.txt</code></td><td>make an empty file</td></tr><tr><td><code>cp a.txt b.txt</code></td><td>copy a file</td></tr><tr><td><code>cp -r dir1 dir2</code></td><td>copy a folder and everything in it</td></tr><tr><td><code>mv old.txt new.txt</code></td><td>rename, or move to another folder</td></tr><tr><td><code>rm file.txt</code></td><td>delete a file</td></tr><tr><td><code>rm -r folder</code></td><td>delete a folder and everything in it</td></tr></tbody></table></div>
+<div class="callout warn"><p><strong>Warning:</strong> <code>rm</code> deletes for good. There is no recycle bin in the terminal. Read the command once more before you press Enter, especially with <code>rm -r</code>.</p></div>
+<h2 id="three-habits-that-save-hours">Three habits that save hours</h2>
+<ul><li><strong>Tab completes names.</strong> Type <code>cd Doc</code> and press Tab. The terminal finishes <code>Documents/</code>. If nothing happens, press Tab twice to see the choices.</li><li><strong>Up arrow repeats.</strong> Press it to bring back earlier commands. <code>Ctrl+R</code> searches through them.</li><li><strong><code>Ctrl+C</code> stops</strong> whatever is running and gives you the prompt back.</li></ul>
+<h2 id="getting-help">Getting help</h2>
+<pre><code class="lang-console">$ man ls
+$ ls --help</code></pre>
+<p><code>man</code> opens the manual page. Move with the arrow keys, press <code>/</code> to search, and <code>q</code> to quit. Most commands also accept <code>--help</code> for a short summary.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Spaces separate arguments.</strong> <code>mkdir my project</code> makes two folders, <code>my</code> and <code>project</code>. Use <code>mkdir my-project</code>, or put quotes around the name: <code>mkdir "my project"</code>.</li><li><strong>Upper and lower case differ.</strong> <code>Notes.txt</code> and <code>notes.txt</code> are two different files on Linux.</li><li><strong><code>No such file or directory</code></strong> almost always means you are not in the folder you think you are. Run <code>pwd</code> and <code>ls</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="start/01-folders">
+<h3>Build a project folder <span class="ex-id">start/01-folders</span></h3>
+<p>Using only the terminal, create this structure inside your working folder:</p>
+<pre><code class="lang-text">project/
+    README.md
+    src/
+        main.txt
+    docs/
+        notes.txt</code></pre>
+<p>The files can be empty.</p>
+<p>Run the check command once first. It creates your working folder and tells you where it is.</p>
+<p class="ex-files">Files: <code>exercises/start/01-folders/</code></p>
+<pre><code class="lang-console">$ python3 check.py start/01-folders</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../start/02-install.html"><span>Previous</span>Install your tools</a><a class="next" href="../start/04-files-and-paths.html"><span>Next</span>Files and paths</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Branches · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/03-branches">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 3 of 9</p>
+<h1>Branches</h1>
+<p class="lede">Work on something new without touching the version that works.</p>
+<h2 id="what-a-branch-is">What a branch is</h2>
+<p>A <strong>branch</strong> is a movable label that points at a commit. That is the whole thing. Creating one is instant and costs nothing.</p>
+<p>When you commit, the label you are on moves forward to the new commit. Other labels stay where they are. So two branches can grow in different directions from the same starting point:</p>
+<pre><code class="lang-text">          main
+           |
+A --- B --- C
+       \
+        D --- E
+              |
+        feature/search</code></pre>
+<p><code>main</code> is the default branch and normally holds the version that works. You build each new piece of work on its own branch and bring it into <code>main</code> when it is ready.</p>
+<h2 id="head">HEAD</h2>
+<p><code>HEAD</code> is Git's name for <em>where you are right now</em>. Usually it points at a branch, and that branch points at a commit. <code>git status</code> and <code>git log</code> both show it:</p>
+<pre><code class="lang-console">$ git log --oneline
+c81e728 (HEAD -&gt; main) Add pancake recipe</code></pre>
+<h2 id="creating-and-switching">Creating and switching</h2>
+<pre><code class="lang-console">$ git switch -c feature/search
+Switched to a new branch 'feature/search'</code></pre>
+<p><code>-c</code> means <em>create</em>. Without it, <code>git switch name</code> moves to a branch that already exists.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>git branch</code></td><td>list branches, with <code>*</code> on the current one</td></tr><tr><td><code>git switch -c name</code></td><td>create a branch and move to it</td></tr><tr><td><code>git switch name</code></td><td>move to an existing branch</td></tr><tr><td><code>git switch -</code></td><td>go back to the branch you were on before</td></tr><tr><td><code>git branch -d name</code></td><td>delete a branch that has been merged</td></tr></tbody></table></div>
+<p>You will also see the older <code>git checkout name</code> and <code>git checkout -b name</code>. They do the same job.</p>
+<h2 id="switching-changes-your-files">Switching changes your files</h2>
+<p>When you switch branches, Git rewrites the files in your working directory to match the branch. A file that exists only on <code>feature/search</code> disappears from the folder when you go back to <code>main</code>, and returns when you switch again. Nothing is lost. It is stored in the repository.</p>
+<pre><code class="lang-console">$ git switch -c feature/search
+$ echo "search notes" &gt; search.txt
+$ git add search.txt
+$ git commit -m "Add search notes"
+$ ls
+README.md  search.txt
+$ git switch main
+$ ls
+README.md</code></pre>
+<h2 id="seeing-all-branches-at-once">Seeing all branches at once</h2>
+<pre><code class="lang-console">$ git log --oneline --graph --all
+* 7d2f1aa (feature/search) Add search notes
+* c81e728 (HEAD -&gt; main) Add pancake recipe
+* 4f2a9c1 Add README</code></pre>
+<h2 id="naming">Naming</h2>
+<p>Use short names that say what the branch is for, with a prefix for the kind of work: <code>feature/search</code>, <code>fix/login-crash</code>, <code>docs/install-guide</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Committing on the wrong branch.</strong> Run <code>git status</code> before you start. The first line tells you where you are.</li><li><strong>Switching with unsaved changes.</strong> Git either carries them along or refuses to switch. Commit first, and switching is always clean.</li><li><strong>Thinking a branch is a copy of the files.</strong> It is only a label. The commits are shared.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/03-branches">
+<h3>Work on a branch <span class="ex-id">git/03-branches</span></h3>
+<p>Your working folder is a repository with one commit on <code>main</code>.</p>
+<ol><li>Create a branch named <code>feature/greeting</code> and switch to it.</li><li>On that branch, create <code>greeting.txt</code> containing the word <code>hello</code>, and commit it.</li><li>Switch back to <code>main</code>.</li></ol>
+<p>Afterwards <code>greeting.txt</code> exists on the feature branch and not on <code>main</code>. Check with <code>ls</code> on each branch.</p>
+<p class="ex-files">Files: <code>exercises/git/03-branches/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/03-branches</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/02-history-and-diff.html"><span>Previous</span>History and diff</a><a class="next" href="../git/04-merge.html"><span>Next</span>Merging</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

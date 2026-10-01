@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your editor and the work loop · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/07-editor">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 7 of 7</p>
+<h1>Your editor and the work loop</h1>
+<p class="lede">Set up VS Code, and learn the edit, run, check loop you will repeat for every exercise.</p>
+<h2 id="open-the-project-in-vs-code">Open the project in VS Code</h2>
+<p>From the terminal, inside the project folder:</p>
+<pre><code class="lang-console">$ cd ~/zero2dev
+$ code .</code></pre>
+<p>The dot means <em>this folder</em>. On Windows with WSL, VS Code opens connected to Linux, and the bottom-left corner shows <strong>WSL: Ubuntu</strong>. If it does not, install the <strong>WSL</strong> extension and run <code>code .</code> again from the Ubuntu terminal.</p>
+<p>VS Code has its own terminal. Open it with <strong>Ctrl+`</strong> (the key under Esc). Now the code and the terminal sit in one window.</p>
+<h2 id="worth-setting-once">Worth setting once</h2>
+<ul><li><strong>Auto Save</strong>: File menu, then Auto Save. Running old code because you forgot to save is the most common beginner bug.</li><li><strong>Extensions</strong>: C/C++ and Python, both from Microsoft. The setup script installs them on Windows.</li><li><strong>Line endings</strong>: bottom right of the window. It must say <code>LF</code> for scripts.</li></ul>
+<h2 id="a-terminal-only-editor">A terminal-only editor</h2>
+<p>Sometimes you only have a terminal, for example on a server. <code>nano</code> is always there and shows its shortcuts at the bottom of the screen:</p>
+<pre><code class="lang-console">$ nano notes.txt</code></pre>
+<p><code>Ctrl+O</code> then Enter saves. <code>Ctrl+X</code> exits.</p>
+<h2 id="the-work-loop">The work loop</h2>
+<p>Every exercise in this guide goes the same way.</p>
+<p><strong>1. Find the next task.</strong></p>
+<pre><code class="lang-console">$ python3 check.py next
+Next: start/04-greet  Greet by name
+  Lesson:  guide/lessons/start/06-shell-scripts.html
+  Task:    exercises/start/04-greet/README.md
+  Check:   python3 check.py start/04-greet</code></pre>
+<p><strong>2. Read the task</strong>, then open the starter file in the exercise folder and write your code.</p>
+<p><strong>3. Run the tests.</strong></p>
+<pre><code class="lang-console">$ python3 check.py start/04-greet
+start/04-greet  Greet by name
+  ✓ has no syntax errors
+  ✓ greets the name given
+  ✗ prints usage when no name is given
+      the program exited with code 0, expected exit code 1
+  FAILED 2/3 passed</code></pre>
+<p><strong>4. Read the failure.</strong> It shows what went in, what was expected and what your program did. Fix one thing, run again.</p>
+<p><strong>5. Passed?</strong> Move on. Your progress appears on the home page of this guide.</p>
+<h2 id="checker-commands">Checker commands</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>python3 check.py next</code></td><td>the next exercise you have not passed</td></tr><tr><td><code>python3 check.py start/04</code></td><td>run one exercise (a unique start of the name is enough)</td></tr><tr><td><code>python3 check.py start</code></td><td>run a whole track</td></tr><tr><td><code>python3 check.py list</code></td><td>every exercise and its status</td></tr><tr><td><code>python3 check.py progress</code></td><td>totals per track</td></tr><tr><td><code>python3 check.py hint start/04</code></td><td>hints, when you are stuck</td></tr><tr><td><code>python3 check.py doctor</code></td><td>which languages are installed</td></tr></tbody></table></div>
+<h2 id="when-you-are-stuck">When you are stuck</h2>
+<ol><li>Read the error message again, slowly. Find the line number.</li><li>Make the problem smaller. Test one small piece on its own.</li><li>Print values to see what the program is really doing.</li><li>Ask for the hint.</li><li>Take a break. A surprising number of bugs solve themselves on a walk.</li></ol>
+<p>Next up: <a href="../git/01-first-commit.html">Git</a>, so that none of your work is ever lost.</p>
+
+<nav class="pager"><a class="prev" href="../start/06-shell-scripts.html"><span>Previous</span>Shell scripts</a><a class="next" href="../git/01-first-commit.html"><span>Next</span>Your first commit</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

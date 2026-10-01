@@ -1,0 +1,38 @@
+{
+  "title": "A full feature-branch round trip",
+  "lesson": "git/09-pull-requests",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q --bare remote.git && git --git-dir=remote.git symbolic-ref HEAD refs/heads/main",
+    "here=$PWD && tmp=$(mktemp -d) && cd \"$tmp\" && git init -q . && git symbolic-ref HEAD refs/heads/main && printf '# Project\\n\\nInstall teh tools first.\\n' > README.md && git add README.md && git commit -qm 'Add README' && git push -q \"$here/remote.git\" main && cd \"$here\" && rm -rf \"$tmp\""
+  ],
+  "checks": [
+    {
+      "name": "branch fix/typo exists on the remote",
+      "cmd": "git --git-dir=remote.git rev-parse --verify -q refs/heads/fix/typo"
+    },
+    {
+      "name": "the typo is fixed on fix/typo",
+      "cmd": "git --git-dir=remote.git show fix/typo:README.md | grep -q 'Install the tools first.'"
+    },
+    {
+      "name": "fix/typo is ahead of main on the remote",
+      "cmd": "git --git-dir=remote.git rev-list --count main..fix/typo",
+      "min": 1
+    },
+    {
+      "name": "main on the remote is untouched",
+      "cmd": "git --git-dir=remote.git rev-list --count main",
+      "stdout": "1"
+    },
+    {
+      "name": "your local fix/typo tracks origin/fix/typo",
+      "cmd": "git -C project rev-parse --abbrev-ref 'fix/typo@{upstream}'",
+      "stdout": "origin/fix/typo"
+    }
+  ],
+  "hints": [
+    "git clone remote.git project, then cd project and git switch -c fix/typo",
+    "The first push of a new branch needs: git push -u origin fix/typo"
+  ]
+}

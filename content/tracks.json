@@ -1,0 +1,4 @@
+[
+  {"id": "start", "title": "Start here", "blurb": "What a program is, the terminal, files, pipes and your first scripts."},
+  {"id": "git", "title": "Git", "blurb": "Save every step of your work, go back in time, and work with other people."}
+]

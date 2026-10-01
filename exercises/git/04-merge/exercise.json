@@ -1,0 +1,39 @@
+{
+  "title": "Merge two diverged branches",
+  "lesson": "git/04-merge",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q . && git symbolic-ref HEAD refs/heads/main",
+    "printf '# Site\\n' > README.md && git add README.md && git commit -qm 'Add README'",
+    "git checkout -q -b feature/title && printf 'My Site\\n' > title.txt && git add title.txt && git commit -qm 'Add title'",
+    "git checkout -q main && printf 'Thanks for visiting\\n' > footer.txt && git add footer.txt && git commit -qm 'Add footer'"
+  ],
+  "checks": [
+    {
+      "name": "you are on main",
+      "cmd": "git branch --show-current",
+      "stdout": "main"
+    },
+    {
+      "name": "main contains the commits of feature/title",
+      "cmd": "git merge-base --is-ancestor feature/title main"
+    },
+    {
+      "name": "main has a merge commit",
+      "cmd": "git rev-list --merges --count main",
+      "min": 1
+    },
+    {
+      "name": "title.txt and footer.txt are both present",
+      "cmd": "test -f title.txt && test -f footer.txt"
+    },
+    {
+      "name": "nothing is left uncommitted (git status is clean)",
+      "cmd": "test -z \"$(git status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "Look at the shape first: git log --oneline --graph --all",
+    "Be on the branch that receives the work (main), then git merge feature/title."
+  ]
+}

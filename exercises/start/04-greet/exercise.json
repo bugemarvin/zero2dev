@@ -1,0 +1,36 @@
+{
+  "title": "Greet by name",
+  "lesson": "start/06-shell-scripts",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "greet.sh"
+  ],
+  "cases": [
+    {
+      "name": "greets the name given",
+      "args": [
+        "Sam"
+      ],
+      "stdout": "Hello, Sam!\n"
+    },
+    {
+      "name": "keeps a name with a space in one piece",
+      "args": [
+        "Grace Hopper"
+      ],
+      "stdout": "Hello, Grace Hopper!\n"
+    },
+    {
+      "name": "with no name: prints nothing on stdout and exits with code 1",
+      "args": [],
+      "stdout": "",
+      "exit": 1
+    }
+  ],
+  "hints": [
+    "$1 is the first argument and $# is the number of arguments.",
+    "Quote it: echo \"Hello, $1!\"",
+    "Send the usage message to stderr with >&2, then exit 1."
+  ]
+}

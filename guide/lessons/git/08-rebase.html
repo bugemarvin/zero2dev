@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rebase · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="git/08-rebase">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Git · lesson 8 of 9</p>
+<h1>Rebase</h1>
+<p class="lede">Replay your commits on top of the latest work to keep history in a straight line.</p>
+<h2 id="the-problem-it-solves">The problem it solves</h2>
+<p>You started a branch from <code>main</code>. While you worked, <code>main</code> moved on:</p>
+<pre><code class="lang-text">A --- B --- E --- F  (main)
+       \
+        C --- D  (feature)</code></pre>
+<p>Merging would work, and it adds a merge commit. <strong>Rebase</strong> offers a different result: it lifts your commits off and replays them on top of the newest <code>main</code>.</p>
+<pre><code class="lang-text">A --- B --- E --- F  (main)
+                   \
+                    C' --- D'  (feature)</code></pre>
+<p>Your branch now looks as if you had started it today. History is a straight line, which is easier to read.</p>
+<h2 id="doing-it">Doing it</h2>
+<pre><code class="lang-console">$ git switch feature
+$ git rebase main
+Successfully rebased and updated refs/heads/feature.</code></pre>
+<p><em>Switch to the branch that should move, then name the branch it should sit on top of.</em></p>
+<p><code>C'</code> and <code>D'</code> contain the same changes as <code>C</code> and <code>D</code>. They are <strong>new commits with new hashes</strong>, because their parent changed.</p>
+<p>Afterwards, merging the feature into <code>main</code> is a fast-forward:</p>
+<pre><code class="lang-console">$ git switch main
+$ git merge feature
+Fast-forward</code></pre>
+<h2 id="conflicts-during-a-rebase">Conflicts during a rebase</h2>
+<p>Git replays one commit at a time. If a commit conflicts, the rebase pauses on it:</p>
+<ol><li>Fix the file, exactly as in a <a href="../git/05-conflicts.html">merge conflict</a>.</li><li><code>git add</code> the file.</li><li><code>git rebase --continue</code>.</li></ol>
+<p>To give up and return to how the branch was: <code>git rebase --abort</code>.</p>
+<h2 id="the-golden-rule">The golden rule</h2>
+<p><strong>Never rebase commits that other people already have.</strong></p>
+<p>Rebase replaces commits with new ones. If someone else built on the old ones, their history and yours no longer match. So:</p>
+<ul><li>Rebase your <strong>own, unpushed</strong> branch as much as you like.</li><li>Use <strong>merge</strong> on shared branches like <code>main</code>.</li></ul>
+<h2 id="merge-or-rebase">Merge or rebase?</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Merge</th><th>Rebase</th></tr></thead><tbody><tr><td>History</td><td>shows the true shape, with merge commits</td><td>straight line</td></tr><tr><td>Existing commits</td><td>untouched</td><td>replaced by new ones</td></tr><tr><td>Safe on shared branches</td><td>yes</td><td>no</td></tr><tr><td>Good for</td><td>bringing finished work into <code>main</code></td><td>updating your own branch before that</td></tr></tbody></table></div>
+<p>Many teams use both: rebase your branch onto the latest <code>main</code>, then merge it.</p>
+<h2 id="tidying-commits">Tidying commits</h2>
+<p><code>git rebase -i HEAD~3</code> opens a list of your last three commits. You can reorder them, reword their messages, or <strong>squash</strong> several small commits into one. It is the same operation under the same rule: only on commits you have not shared.</p>
+<p><code>git pull --rebase</code> fetches the remote's commits and replays yours on top, in place of making a merge commit.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Rebasing in the wrong direction.</strong> <code>git rebase feature</code> while on <code>main</code> rewrites <code>main</code>. Check <code>git status</code> first.</li><li><strong>Rebasing a pushed branch and then needing <code>--force</code>.</strong> If you must, use <code>git push --force-with-lease</code>, which refuses to overwrite commits you have not seen.</li><li><strong>Forgetting <code>--continue</code>.</strong> After fixing a conflict the rebase is still paused. <code>git status</code> tells you so.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="git/08-rebase">
+<h3>Rebase a branch <span class="ex-id">git/08-rebase</span></h3>
+<p><code>feature</code> has two commits. Since it was created, <code>main</code> has gained one commit of its own, so the branches have diverged.</p>
+<p>Rebase <code>feature</code> onto <code>main</code>, so that its two commits come after the newest commit of <code>main</code> and the history is a straight line. Do not use <code>git merge</code> to combine them.</p>
+<p>Compare <code>git log --oneline --graph --all</code> before and after.</p>
+<p class="ex-files">Files: <code>exercises/git/08-rebase/</code></p>
+<pre><code class="lang-console">$ python3 check.py git/08-rebase</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/07-undoing.html"><span>Previous</span>Undoing things</a><a class="next" href="../git/09-pull-requests.html"><span>Next</span>The pull request workflow</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "title": "Clone, commit, push",
+  "lesson": "git/06-remotes",
+  "kind": "sandbox",
+  "setup": [
+    "git init -q --bare remote.git && git --git-dir=remote.git symbolic-ref HEAD refs/heads/main",
+    "here=$PWD && tmp=$(mktemp -d) && cd \"$tmp\" && git init -q . && git symbolic-ref HEAD refs/heads/main && printf '# Team notes\\n' > README.md && git add README.md && git commit -qm 'Add README' && git push -q \"$here/remote.git\" main && cd \"$here\" && rm -rf \"$tmp\""
+  ],
+  "checks": [
+    {
+      "name": "mycopy is a clone of the remote",
+      "cmd": "test -d mycopy/.git && git -C mycopy remote get-url origin | grep -q 'remote.git'"
+    },
+    {
+      "name": "the remote has your new commit",
+      "cmd": "git --git-dir=remote.git rev-list --count main",
+      "min": 2
+    },
+    {
+      "name": "notes.txt is on the remote",
+      "cmd": "git --git-dir=remote.git cat-file -e main:notes.txt"
+    },
+    {
+      "name": "nothing is left to push",
+      "cmd": "test \"$(git -C mycopy rev-list --count origin/main..HEAD)\" = 0"
+    },
+    {
+      "name": "nothing is left uncommitted in mycopy",
+      "cmd": "test -z \"$(git -C mycopy status --porcelain)\""
+    }
+  ],
+  "hints": [
+    "A remote can be a folder: git clone remote.git mycopy",
+    "cd mycopy, create and commit notes.txt, then git push."
+  ]
+}

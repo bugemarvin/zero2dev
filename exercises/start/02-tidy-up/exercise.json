@@ -1,0 +1,41 @@
+{
+  "title": "Tidy a messy folder",
+  "lesson": "start/04-files-and-paths",
+  "kind": "sandbox",
+  "setup": [
+    "printf 'one\\n' > a.txt; printf 'two\\n' > b.txt; printf 'three\\n' > c.txt",
+    "printf '# Report\\n' > report.md; printf 'x' > old.tmp; printf 'y' > cache.tmp; printf 'PNG' > photo.png",
+    "printf '#!/usr/bin/env bash\\necho ok\\n' > run.sh; chmod 644 run.sh"
+  ],
+  "checks": [
+    {
+      "name": "the three .txt files are in text/",
+      "cmd": "ls text | sort | tr '\\n' ' '",
+      "stdout": "a.txt b.txt c.txt"
+    },
+    {
+      "name": "no .txt files are left outside text/",
+      "cmd": "! ls *.txt 2>/dev/null | grep -q ."
+    },
+    {
+      "name": "the .tmp files are deleted",
+      "cmd": "! ls *.tmp 2>/dev/null | grep -q ."
+    },
+    {
+      "name": "report.md is renamed to summary.md",
+      "cmd": "test -f summary.md && test ! -e report.md"
+    },
+    {
+      "name": "backup/photo.png is a copy, and photo.png is still there",
+      "cmd": "test -f backup/photo.png && test -f photo.png"
+    },
+    {
+      "name": "run.sh is executable",
+      "cmd": "test -x run.sh"
+    }
+  ],
+  "hints": [
+    "A wildcard moves many files at once: mv *.txt text/ (the folder must exist first).",
+    "mv renames, cp copies, rm deletes, chmod +x makes a file runnable."
+  ]
+}

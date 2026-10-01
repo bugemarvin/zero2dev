@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipes and redirection · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="start/05-pipes-and-redirection">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Start here · lesson 5 of 7</p>
+<h1>Pipes and redirection</h1>
+<p class="lede">Send output into files, and chain small commands together to answer real questions about data.</p>
+<h2 id="three-streams">Three streams</h2>
+<p>Every program starts with three channels already open:</p>
+<div class="table-wrap"><table><thead><tr><th>Stream</th><th>Short name</th><th>Normally connected to</th></tr></thead><tbody><tr><td>standard input</td><td><code>stdin</code></td><td>your keyboard</td></tr><tr><td>standard output</td><td><code>stdout</code></td><td>your screen</td></tr><tr><td>standard error</td><td><code>stderr</code></td><td>your screen</td></tr></tbody></table></div>
+<p>Normal results go to <code>stdout</code>. Error messages go to <code>stderr</code>. They are separate so that you can save the results and still see the errors.</p>
+<h2 id="redirection">Redirection</h2>
+<p><code>&gt;</code> sends standard output into a file instead of the screen:</p>
+<pre><code class="lang-console">$ ls &gt; files.txt
+$ cat files.txt
+a.txt
+b.txt
+files.txt</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Symbol</th><th>Effect</th></tr></thead><tbody><tr><td><code>&gt; file</code></td><td>write output to the file, <strong>replacing</strong> what was there</td></tr><tr><td><code>&gt;&gt; file</code></td><td>add output to the end of the file</td></tr><tr><td><code>&lt; file</code></td><td>read input from the file instead of the keyboard</td></tr><tr><td><code>2&gt; file</code></td><td>write error messages to the file</td></tr></tbody></table></div>
+<div class="callout warn"><p><strong>Warning:</strong> <code>&gt;</code> empties the file first, without asking. Use <code>&gt;&gt;</code> when you mean to add.</p></div>
+<h2 id="pipes">Pipes</h2>
+<p>A pipe, written <code>|</code>, connects the output of one command to the input of the next:</p>
+<pre><code class="lang-console">$ ls | wc -l
+3</code></pre>
+<p><code>ls</code> produces the names, and <code>wc -l</code> counts the lines it receives. Neither command knows about the other. That is the central idea of the Unix terminal: <strong>small tools, each doing one job, joined by pipes</strong>.</p>
+<h2 id="the-tools-you-will-pipe-most">The tools you will pipe most</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Job</th></tr></thead><tbody><tr><td><code>grep word</code></td><td>keep only lines that contain <code>word</code></td></tr><tr><td><code>grep -v word</code></td><td>keep only lines that do <strong>not</strong></td></tr><tr><td><code>grep -i word</code></td><td>ignore upper and lower case</td></tr><tr><td><code>sort</code></td><td>sort lines (<code>-n</code> numerically, <code>-r</code> reversed)</td></tr><tr><td><code>uniq</code></td><td>drop repeated lines that are next to each other (<code>-c</code> counts them)</td></tr><tr><td><code>wc -l</code></td><td>count lines</td></tr><tr><td><code>cut -d' ' -f2</code></td><td>keep field 2, splitting each line on spaces</td></tr><tr><td><code>head -n 3</code></td><td>keep the first 3 lines</td></tr></tbody></table></div>
+<h2 id="a-worked-example">A worked example</h2>
+<p>Here is a small log file. Each line has a time, a level, and a user:</p>
+<pre><code class="lang-text">10:01 INFO alice
+10:02 ERROR bob
+10:03 INFO alice
+10:04 ERROR carol
+10:05 ERROR bob</code></pre>
+<p><strong>Which lines are errors?</strong></p>
+<pre><code class="lang-console">$ grep ERROR access.log
+10:02 ERROR bob
+10:04 ERROR carol
+10:05 ERROR bob</code></pre>
+<p><strong>How many errors?</strong></p>
+<pre><code class="lang-console">$ grep ERROR access.log | wc -l
+3</code></pre>
+<p><strong>Which users appear, each one once?</strong> Take the third field, sort it, then remove repeats. <code>uniq</code> only removes repeats that are neighbours, which is why <code>sort</code> comes first.</p>
+<pre><code class="lang-console">$ cut -d' ' -f3 access.log | sort | uniq
+alice
+bob
+carol</code></pre>
+<p><strong>Save an answer</strong> by adding a redirect at the end:</p>
+<pre><code class="lang-console">$ grep ERROR access.log &gt; errors.txt</code></pre>
+<p>Build pipelines one step at a time. Run the first command and look at the output. Add <code>| next</code> and look again.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>sort | uniq</code> in the wrong order.</strong> <code>uniq</code> before <code>sort</code> leaves duplicates behind.</li><li><strong>Reading and writing the same file</strong>, like <code>sort data.txt &gt; data.txt</code>. The <code>&gt;</code> empties the file before <code>sort</code> reads it, and you lose the data. Write to a new file.</li><li><strong><code>grep</code> is case-sensitive.</strong> <code>grep error</code> does not match <code>ERROR</code> unless you add <code>-i</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="start/03-log-pipes">
+<h3>Answer questions about a log <span class="ex-id">start/03-log-pipes</span></h3>
+<p>Your working folder contains <code>access.log</code>. Each line has a time, a level and a user name:</p>
+<pre><code class="lang-text">09:00 INFO alice
+09:02 ERROR bob</code></pre>
+<p>Using pipes and redirection, create three files:</p>
+<ol><li><code>errors.txt</code>: every line that contains <code>ERROR</code>, in the original order.</li><li><code>error-count.txt</code>: just the number of <code>ERROR</code> lines.</li><li><code>users.txt</code>: every user name exactly once, sorted alphabetically.</li></ol>
+<p>Do not edit the files by hand, and do not change <code>access.log</code>.</p>
+<p class="ex-files">Files: <code>exercises/start/03-log-pipes/</code></p>
+<pre><code class="lang-console">$ python3 check.py start/03-log-pipes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../start/04-files-and-paths.html"><span>Previous</span>Files and paths</a><a class="next" href="../start/06-shell-scripts.html"><span>Next</span>Shell scripts</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
