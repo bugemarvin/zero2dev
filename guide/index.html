@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>zero2dev · learn to program, offline</title>
 <link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/studio.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="">
 <header class="topbar">
 <a class="brand" href="index.html">zero2dev</a>
+<a class="top-link" href="setup.html">Setup</a>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <main class="home">
@@ -31,13 +33,13 @@
 </li>
 <li>
 <h3>Do the exercise</h3>
-<p>At the end of a lesson, open the exercise folder in your editor and write the code.</p>
-<pre><code class="lang-console">$ python3 check.py next</code></pre>
+<p>Start the local app and write your code right in the lesson page. It runs on your own computer.</p>
+<pre><code class="lang-console">$ python3 app.py</code></pre>
 </li>
 <li>
 <h3>Run the tests</h3>
-<p>The checker runs your code and shows what passed. Your progress appears on this page.</p>
-<pre><code class="lang-console">$ python3 check.py c/01-hello</code></pre>
+<p>Press Run tests and see what passed. Prefer a terminal and your own editor? That works too.</p>
+<pre><code class="lang-console">$ python3 check.py next</code></pre>
 </li>
 </ol>
 </section>
@@ -51,5 +53,6 @@
 </main>
 <script src="assets/curriculum.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/studio.js"></script>
 </body>
 </html>

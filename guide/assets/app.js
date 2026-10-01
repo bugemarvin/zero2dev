@@ -143,7 +143,11 @@
     var read = readSet();
     var totalEx = 0, passedEx = 0;
 
-    curriculum.tracks.forEach(function (track) {
+    var chosen = (window.Z2D_PROFILE && window.Z2D_PROFILE.tracks) || [];
+    var ordered = curriculum.tracks.filter(function (t) { return chosen.indexOf(t.id) >= 0; })
+      .concat(curriculum.tracks.filter(function (t) { return chosen.indexOf(t.id) < 0; }));
+
+    ordered.forEach(function (track) {
       var exercises = [];
       track.lessons.forEach(function (l) { exercises = exercises.concat(l.exercises); });
       var passed = exercises.filter(function (e) { return exPassed(e.id); }).length;
@@ -152,7 +156,8 @@
       var target = track.lessons.filter(function (l) { return !lessonDone(l, read); })[0] || track.lessons[0];
       var fill = el("i", {});
       fill.style.width = (exercises.length ? Math.round(100 * passed / exercises.length) : 0) + "%";
-      grid.appendChild(el("a", { class: "track", href: lessonHref(target.id) }, [
+      var cls = "track" + (chosen.length && chosen.indexOf(track.id) < 0 ? " track-other" : "");
+      grid.appendChild(el("a", { class: cls, href: lessonHref(target.id) }, [
         el("h3", { text: track.title }),
         el("p", { text: track.blurb }),
         el("div", { class: "meta" }, [
@@ -174,7 +179,13 @@
       var started = passedEx > 0 || Object.keys(read).length > 0;
       // Once exercises are being passed, "continue" means the next unfinished exercise,
       // not an earlier reading-only lesson that was never ticked.
-      var todo = allLessons().filter(function (l) {
+      var pool = allLessons();
+      if (chosen.length) {
+        var mine = [];
+        ordered.forEach(function (t) { if (chosen.indexOf(t.id) >= 0) mine = mine.concat(t.lessons); });
+        pool = mine;
+      }
+      var todo = pool.filter(function (l) {
         if (passedEx > 0) return l.exercises.length > 0 && !lessonDone(l, read);
         return !lessonDone(l, read);
       })[0];
@@ -293,6 +304,9 @@
     renderExerciseBadges();
     renderHome();
   }
+
+  // hooks for studio.js (the interactive layer of the local app)
+  window.Z2D = { render: renderProgress, colour: colour };
 
   initTheme();
   initMenu();

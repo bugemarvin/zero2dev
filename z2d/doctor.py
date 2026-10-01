@@ -101,7 +101,7 @@ def report():
         "docker": tool("docker"),
         "provider": providers.mode(),
         "toolchains": [toolchain(lang) for lang in LANGS],
-        "tools": [tool(name) for name in ("bash", "git", "make", "npm")],
+        "tools": [tool(name) for name in ("git", "make", "npm")],
         "services": [services.status(name) for name in services.SERVICES],
         "workspaces": [workspace(name) for name in workspaces.available()],
         "work_root": str(core.WORK_ROOT),
