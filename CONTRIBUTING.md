@@ -46,7 +46,7 @@ They also cannot be deleted or force-pushed. Only repository administrators can 
 | Guide is built | `tools/build_guide.py --check`: the generated pages match the sources, and every quiz is well formed | yes |
 | App and API tests | `tools/test_app.py`: the security rules of the local server and its API | yes |
 | Lint | ShellCheck on the install scripts, and a syntax check of the Python and JavaScript | yes |
-| Exercises | `tools/selftest.py`: every starter fails and every reference solution passes | reported |
+| Exercises | `tools/selftest.py --strict`: every starter fails and every reference solution passes, with no exercise skipped | yes |
 | Installer | `setup/install.sh` for each stack on a clean machine, and the PowerShell scripts parsed on Windows | reported |
 
 Run the same things on your machine first (the three commands further down). It is quicker than waiting for CI.
