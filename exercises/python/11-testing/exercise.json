@@ -1,0 +1,11 @@
+{
+  "title": "Write tests that catch bugs",
+  "lesson": "python/09-testing",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "Test the boundaries: 0 percent, 100 percent, and the values just outside them.",
+    "One broken version forgets to round. Use a price and percentage whose result has more than two decimals, such as discount(9.99, 15).",
+    "To check for an exception: try the call, return in the except ValueError block, and assert False after it."
+  ]
+}

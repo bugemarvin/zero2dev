@@ -87,4 +87,4 @@ $ gh repo fork someone/recipes --clone
 | Undo an edit | `git restore file` |
 | Reverse a commit | `git revert hash` |
 
-You now know the Git that covers nearly all daily work. Next, pick a language: [C](c/01-hello) shows you how the machine works, Python gets you productive fastest.
+You now know the Git that covers nearly all daily work. Next, pick a language: [C](c/01-hello) shows you how the machine works, [Python](python/01-basics) gets you productive fastest.

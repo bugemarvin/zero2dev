@@ -1,0 +1,152 @@
+{
+  "title": "List tools",
+  "lesson": "python/02-loops-and-collections",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "evens",
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4,
+          10
+        ]
+      ],
+      "expect": [
+        2,
+        4,
+        10
+      ]
+    },
+    {
+      "call": "evens",
+      "args": [
+        [
+          1,
+          3
+        ]
+      ],
+      "expect": []
+    },
+    {
+      "call": "evens",
+      "args": [
+        []
+      ],
+      "expect": []
+    },
+    {
+      "call": "longest",
+      "args": [
+        [
+          "fig",
+          "banana",
+          "apple"
+        ]
+      ],
+      "expect": "banana"
+    },
+    {
+      "call": "longest",
+      "args": [
+        [
+          "aa",
+          "bb",
+          "c"
+        ]
+      ],
+      "expect": "aa",
+      "name": "longest: on a tie, the first one wins"
+    },
+    {
+      "call": "longest",
+      "args": [
+        []
+      ],
+      "expect": "",
+      "name": "longest([]) is the empty string"
+    },
+    {
+      "call": "running_total",
+      "args": [
+        [
+          1,
+          2,
+          3,
+          4
+        ]
+      ],
+      "expect": [
+        1,
+        3,
+        6,
+        10
+      ]
+    },
+    {
+      "call": "running_total",
+      "args": [
+        [
+          5
+        ]
+      ],
+      "expect": [
+        5
+      ]
+    },
+    {
+      "call": "running_total",
+      "args": [
+        []
+      ],
+      "expect": []
+    },
+    {
+      "call": "unique",
+      "args": [
+        [
+          3,
+          1,
+          3,
+          2,
+          1
+        ]
+      ],
+      "expect": [
+        3,
+        1,
+        2
+      ],
+      "name": "unique keeps the first occurrence, in order"
+    },
+    {
+      "call": "unique",
+      "args": [
+        [
+          "b",
+          "a",
+          "b"
+        ]
+      ],
+      "expect": [
+        "b",
+        "a"
+      ]
+    },
+    {
+      "call": "unique",
+      "args": [
+        []
+      ],
+      "expect": []
+    }
+  ],
+  "tests": "tests.py",
+  "hints": [
+    "evens: a comprehension with a condition, [n for n in numbers if ...]",
+    "running_total: keep a total variable, add each number to it, and append the total to a result list.",
+    "unique: a set does not keep order. Use a list for the result and a set to remember what you have seen."
+  ]
+}

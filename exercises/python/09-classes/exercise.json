@@ -1,0 +1,11 @@
+{
+  "title": "A bank account and a vector",
+  "lesson": "python/07-classes",
+  "kind": "pyfunc",
+  "tests": "tests.py",
+  "hints": [
+    "Store the balance in self._balance and expose it with @property.",
+    "withdraw must check two things: the amount is positive, and it is not more than the balance.",
+    "__add__ returns a new Vector. __eq__ compares x and y. __repr__ returns the text Vector(1, 2)."
+  ]
+}

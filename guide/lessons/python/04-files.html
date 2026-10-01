@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Files · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/04-files">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 4 of 10</p>
+<h1>Files</h1>
+<p class="lede">Read and write text files safely, and work with paths, CSV and JSON.</p>
+<h2 id="opening-with-with">Opening with <code>with</code></h2>
+<pre><code class="lang-python">with open("notes.txt") as f:
+    text = f.read()</code></pre>
+<p>The <code>with</code> block closes the file when the block ends, even if an error occurs inside it. Always open files this way.</p>
+<div class="table-wrap"><table><thead><tr><th>Mode</th><th>Meaning</th></tr></thead><tbody><tr><td><code>"r"</code></td><td>read (the default). The file must exist.</td></tr><tr><td><code>"w"</code></td><td>write. Creates the file, or <strong>empties</strong> it if it exists.</td></tr><tr><td><code>"a"</code></td><td>append to the end</td></tr></tbody></table></div>
+<p>Pass <code>encoding="utf-8"</code> so that the result is the same on every system:</p>
+<pre><code class="lang-python">with open("notes.txt", encoding="utf-8") as f:
+    text = f.read()</code></pre>
+<h2 id="reading">Reading</h2>
+<pre><code class="lang-python">with open("notes.txt", encoding="utf-8") as f:
+    text = f.read()               # the whole file as one string
+
+with open("notes.txt", encoding="utf-8") as f:
+    for line in f:                # one line at a time: good for large files
+        print(line.rstrip("\n"))</code></pre>
+<p>Each line read from a file still ends with its newline <code>"\n"</code>. Remove it with <code>.rstrip("\n")</code>, or <code>.strip()</code> to remove all surrounding whitespace.</p>
+<p><code>text.splitlines()</code> turns a string into a list of lines, with the newlines removed.</p>
+<h2 id="writing">Writing</h2>
+<pre><code class="lang-python">with open("report.txt", "w", encoding="utf-8") as f:
+    f.write("Total: 42\n")
+    f.write(f"Average: {3.5:.1f}\n")</code></pre>
+<p><code>write</code> does not add a newline. You add <code>"\n"</code> yourself.</p>
+<h2 id="paths">Paths</h2>
+<p><code>pathlib</code> handles paths correctly on every operating system:</p>
+<pre><code class="lang-python">from pathlib import Path
+
+folder = Path("data")
+file = folder / "scores.txt"       # joins with the right separator
+
+file.exists()                      # True or False
+file.name                          # 'scores.txt'
+file.suffix                        # '.txt'
+file.read_text(encoding="utf-8")   # shortcut for open + read
+file.write_text("hello\n", encoding="utf-8")
+
+for p in folder.glob("*.txt"):     # every .txt file in the folder
+    print(p)</code></pre>
+<h2 id="parsing-lines">Parsing lines</h2>
+<p>Much real data is one record per line, with fields separated by a comma:</p>
+<pre><code class="lang-text">ada,91
+linus,78</code></pre>
+<pre><code class="lang-python">scores = {}
+with open("scores.txt", encoding="utf-8") as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue                 # skip blank lines
+        name, score = line.split(",")
+        scores[name] = int(score)</code></pre>
+<h2 id="csv-and-json">CSV and JSON</h2>
+<p>For real CSV files, with quotes and commas inside fields, use the <code>csv</code> module instead of <code>split</code>:</p>
+<pre><code class="lang-python">import csv
+
+with open("people.csv", newline="", encoding="utf-8") as f:
+    for row in csv.DictReader(f):
+        print(row["name"], row["age"])</code></pre>
+<p>JSON stores lists and dictionaries as text, and is how most programs exchange data:</p>
+<pre><code class="lang-python">import json
+
+data = {"name": "Sam", "scores": [90, 72]}
+
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2)
+
+with open("data.json", encoding="utf-8") as f:
+    loaded = json.load(f)</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Opening with <code>"w"</code> by accident.</strong> The contents are gone the moment the file is opened.</li><li><strong>Forgetting the newline at the end of each line</strong> when comparing or converting. <code>int("42\n")</code> works, but <code>"ada\n" == "ada"</code> is false.</li><li><strong>Relative paths.</strong> <code>open("notes.txt")</code> looks in the folder you ran the program from, which may not be the folder the script is in.</li><li><strong>Reading twice.</strong> After <code>f.read()</code> the file is at its end, and a second <code>read()</code> returns an empty string.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/06-files">
+<h3>Read and write score files <span class="ex-id">python/06-files</span></h3>
+<p>Write three functions in <code>solution.py</code>.</p>
+<p><code>count_lines(path)</code> returns the number of lines in the file.</p>
+<p><code>read_scores(path)</code> reads a file where each line is <code>name,score</code> and returns a dictionary such as <code>{"ada": 91, "linus": 78}</code>, with the scores as integers. Blank lines are skipped, and spaces around a name or score are removed.</p>
+<pre><code class="lang-text">ada,91
+linus, 78
+
+grace,95</code></pre>
+<p><code>save_report(path, scores)</code> writes the dictionary to a file, one <code>name: score</code> per line, ordered by score from highest to lowest. Equal scores are ordered by name. Every line ends with a newline.</p>
+<pre><code class="lang-text">grace: 95
+ada: 91
+linus: 78</code></pre>
+<p class="ex-files">Files: <code>exercises/python/06-files/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/06-files</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/03-functions.html"><span>Previous</span>Functions in depth</a><a class="next" href="../python/05-errors.html"><span>Next</span>Errors and exceptions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

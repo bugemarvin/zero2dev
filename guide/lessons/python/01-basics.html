@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python basics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/01-basics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 1 of 10</p>
+<h1>Python basics</h1>
+<p class="lede">Values, variables, text, decisions, and your first functions.</p>
+<h2 id="running-python">Running Python</h2>
+<p>Python is interpreted: there is no compile step. Try things live in the interactive prompt:</p>
+<pre><code class="lang-console">$ python3
+&gt;&gt;&gt; 2 + 3
+5
+&gt;&gt;&gt; exit()</code></pre>
+<p>Or put code in a file and run it:</p>
+<pre><code class="lang-console">$ python3 hello.py</code></pre>
+<h2 id="variables-and-types">Variables and types</h2>
+<p>A variable is created by assigning to it. You do not declare its type. Python works it out from the value.</p>
+<pre><code class="lang-python">age = 30              # int: whole number
+price = 4.75          # float: number with a fraction
+name = "Sam"          # str: text
+is_member = True      # bool: True or False
+nothing = None        # the "no value" value</code></pre>
+<p><code>type(x)</code> tells you what a value is. Convert between types with <code>int("42")</code>, <code>float("3.5")</code> and <code>str(42)</code>.</p>
+<h2 id="numbers">Numbers</h2>
+<pre><code class="lang-python">7 + 2     # 9
+7 / 2     # 3.5   division always gives a float
+7 // 2    # 3     whole-number division
+7 % 2     # 1     remainder
+2 ** 10   # 1024  power</code></pre>
+<p>Whole numbers in Python have no size limit. They grow as large as needed.</p>
+<h2 id="text">Text</h2>
+<p>Strings use single or double quotes. An <strong>f-string</strong> places values inside text:</p>
+<pre><code class="lang-python">name = "Sam"
+age = 30
+print(f"{name} is {age} years old")     # Sam is 30 years old
+print(f"Total: {4.756:.2f}")            # Total: 4.76</code></pre>
+<p>Useful string tools:</p>
+<pre><code class="lang-python">s = "Hello, World"
+len(s)               # 12
+s.lower()            # 'hello, world'
+s.upper()            # 'HELLO, WORLD'
+s.replace("l", "L")  # 'HeLLo, WorLd'
+"World" in s         # True
+s[0]                 # 'H'    first character
+s[-1]                # 'd'    last character
+"a,b,c".split(",")   # ['a', 'b', 'c']
+"  hi  ".strip()     # 'hi'</code></pre>
+<p>Strings cannot be changed in place. Every method returns a <strong>new</strong> string.</p>
+<h2 id="decisions">Decisions</h2>
+<p>Python uses <strong>indentation</strong> to mark blocks. There are no braces. The standard is four spaces, and the colon at the end of the line is required.</p>
+<pre><code class="lang-python">if score &gt;= 90:
+    grade = "A"
+elif score &gt;= 50:
+    grade = "pass"
+else:
+    grade = "fail"</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody><tr><td><code>==</code> <code>!=</code></td><td>equal, not equal</td></tr><tr><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>comparisons</td></tr><tr><td><code>and</code> <code>or</code> <code>not</code></td><td>combine conditions</td></tr><tr><td><code>in</code></td><td>is this inside that?</td></tr></tbody></table></div>
+<p>Comparisons can be chained: <code>0 &lt;= x &lt; 10</code>.</p>
+<p>Empty things count as false: <code>0</code>, <code>""</code>, <code>[]</code>, <code>None</code>. Everything else counts as true. So <code>if name:</code> means "if the name is not empty".</p>
+<h2 id="functions">Functions</h2>
+<p>A function is a named block of code with inputs and a result:</p>
+<pre><code class="lang-python">def area(width, height):
+    return width * height
+
+print(area(3, 4))    # 12</code></pre>
+<ul><li><code>def</code> starts the definition.</li><li><code>width</code> and <code>height</code> are the <strong>parameters</strong>.</li><li><code>return</code> hands the result back to whoever called the function.</li></ul>
+<p>The exercises in this track ask you to write functions. The checker calls them with different arguments and compares what they <strong>return</strong> with the expected value.</p>
+<div class="callout warn"><p><strong>Warning:</strong> <code>print</code> shows a value on the screen. <code>return</code> gives a value back to the caller. A function that prints its answer and returns nothing hands back <code>None</code>, and the test fails.</p></div>
+<h2 id="input-and-output">Input and output</h2>
+<pre><code class="lang-python">name = input("Your name: ")     # always gives a string
+age = int(input("Your age: "))  # convert when you need a number
+print("Hello,", name)</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Mixed or wrong indentation.</strong> <code>IndentationError</code> means the spaces at the start of a line do not line up.</li><li><strong>Forgetting the colon</strong> after <code>if</code>, <code>else</code>, <code>def</code>, <code>for</code>, <code>while</code>.</li><li><strong><code>=</code> and <code>==</code>.</strong> One assigns, the other compares.</li><li><strong>Adding text and numbers.</strong> <code>"Age: " + 30</code> is an error. Use an f-string.</li><li><strong>Printing when the task says return.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/01-first-functions">
+<h3>First functions <span class="ex-id">python/01-first-functions</span></h3>
+<p>Write three functions in <code>solution.py</code>. Each one <strong>returns</strong> its answer.</p>
+<ul><li><code>greeting(name)</code> returns the text <code>Hello, NAME!</code>, for example <code>Hello, Sam!</code></li><li><code>to_fahrenheit(celsius)</code> converts a temperature: multiply by 9/5 and add 32.</li><li><code>is_even(n)</code> returns <code>True</code> when <code>n</code> is even and <code>False</code> otherwise.</li></ul>
+<p class="ex-files">Files: <code>exercises/python/01-first-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/01-first-functions</code></pre>
+</article>
+<article class="exercise" data-ex="python/02-leap-year">
+<h3>Leap years and grades <span class="ex-id">python/02-leap-year</span></h3>
+<p>Write two functions in <code>solution.py</code>.</p>
+<p><code>is_leap_year(year)</code> returns <code>True</code> or <code>False</code>:</p>
+<ul><li>a year divisible by 4 is a leap year,</li><li>except years divisible by 100, which are not,</li><li>except years divisible by 400, which are.</li></ul>
+<p><code>grade(score)</code> returns a letter for a score from 0 to 100:</p>
+<div class="table-wrap"><table><thead><tr><th>Score</th><th>Grade</th></tr></thead><tbody><tr><td>90 and above</td><td><code>A</code></td></tr><tr><td>80 to 89</td><td><code>B</code></td></tr><tr><td>70 to 79</td><td><code>C</code></td></tr><tr><td>60 to 69</td><td><code>D</code></td></tr><tr><td>below 60</td><td><code>F</code></td></tr></tbody></table></div>
+<p class="ex-files">Files: <code>exercises/python/02-leap-year/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/02-leap-year</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/12-debugging.html"><span>Previous</span>Debugging</a><a class="next" href="../python/02-loops-and-collections.html"><span>Next</span>Loops and collections</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

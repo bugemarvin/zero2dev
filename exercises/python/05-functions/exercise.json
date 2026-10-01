@@ -1,0 +1,102 @@
+{
+  "title": "Flexible functions",
+  "lesson": "python/03-functions",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "clamp",
+      "args": [
+        50
+      ],
+      "expect": 50
+    },
+    {
+      "call": "clamp",
+      "args": [
+        150
+      ],
+      "expect": 100,
+      "name": "clamp(150) uses the default range 0..100"
+    },
+    {
+      "call": "clamp",
+      "args": [
+        -5
+      ],
+      "expect": 0
+    },
+    {
+      "call": "clamp",
+      "args": [
+        7,
+        10,
+        20
+      ],
+      "expect": 10
+    },
+    {
+      "call": "clamp",
+      "args": [
+        25,
+        10,
+        20
+      ],
+      "expect": 20
+    },
+    {
+      "call": "average",
+      "args": [
+        2,
+        4,
+        9
+      ],
+      "expect": 5.0
+    },
+    {
+      "call": "average",
+      "args": [
+        7
+      ],
+      "expect": 7.0
+    },
+    {
+      "call": "average",
+      "args": [],
+      "expect": 0.0,
+      "name": "average() with no arguments is 0.0"
+    },
+    {
+      "call": "min_max",
+      "args": [
+        [
+          3,
+          9,
+          1,
+          5
+        ]
+      ],
+      "expect": [
+        1,
+        9
+      ]
+    },
+    {
+      "call": "min_max",
+      "args": [
+        [
+          4
+        ]
+      ],
+      "expect": [
+        4,
+        4
+      ]
+    }
+  ],
+  "tests": "tests.py",
+  "hints": [
+    "clamp: def clamp(x, low=0, high=100)",
+    "average: def average(*numbers). numbers is a tuple, possibly empty.",
+    "apply_twice(f, x) is f(f(x))."
+  ]
+}

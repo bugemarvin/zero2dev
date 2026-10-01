@@ -1,0 +1,82 @@
+{
+  "title": "First functions",
+  "lesson": "python/01-basics",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "greeting",
+      "args": [
+        "Sam"
+      ],
+      "expect": "Hello, Sam!"
+    },
+    {
+      "call": "greeting",
+      "args": [
+        "Ada Lovelace"
+      ],
+      "expect": "Hello, Ada Lovelace!"
+    },
+    {
+      "call": "to_fahrenheit",
+      "args": [
+        0
+      ],
+      "expect": 32.0
+    },
+    {
+      "call": "to_fahrenheit",
+      "args": [
+        100
+      ],
+      "expect": 212.0
+    },
+    {
+      "call": "to_fahrenheit",
+      "args": [
+        -40
+      ],
+      "expect": -40.0
+    },
+    {
+      "call": "to_fahrenheit",
+      "args": [
+        36.6
+      ],
+      "expect": 97.88
+    },
+    {
+      "call": "is_even",
+      "args": [
+        4
+      ],
+      "expect": true
+    },
+    {
+      "call": "is_even",
+      "args": [
+        7
+      ],
+      "expect": false
+    },
+    {
+      "call": "is_even",
+      "args": [
+        0
+      ],
+      "expect": true
+    },
+    {
+      "call": "is_even",
+      "args": [
+        -3
+      ],
+      "expect": false
+    }
+  ],
+  "hints": [
+    "An f-string builds the text: f\"Hello, {name}!\"",
+    "Fahrenheit is celsius * 9 / 5 + 32.",
+    "n % 2 == 0 is already True or False. Return it directly."
+  ]
+}

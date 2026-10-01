@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Type hints · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/10-typing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 10 of 10</p>
+<h1>Type hints</h1>
+<p class="lede">Say what types your functions expect and return, so that tools catch mistakes before the program runs.</p>
+<h2 id="what-they-are">What they are</h2>
+<p>Python does not require types, and by default it does not check them. A <strong>type hint</strong> is a note for people and for tools:</p>
+<pre><code class="lang-python">def area(width: float, height: float) -&gt; float:
+    return width * height</code></pre>
+<ul><li><code>width: float</code> says the parameter should be a float.</li><li><code>-&gt; float</code> says what the function returns.</li></ul>
+<p>Python itself ignores the hints when running. <code>area("a", "b")</code> still starts and fails in the usual way. The value comes from two places: your editor uses hints for completion and warnings, and a <strong>type checker</strong> reads the whole program and reports mismatches without running it.</p>
+<h2 id="variables">Variables</h2>
+<p>Hints on variables are needed less often, because the type is clear from the value:</p>
+<pre><code class="lang-python">count: int = 0
+name: str = "Sam"</code></pre>
+<h2 id="collections">Collections</h2>
+<p>Say what is inside:</p>
+<pre><code class="lang-python">def mean(values: list[float]) -&gt; float:
+    return sum(values) / len(values)
+
+ages: dict[str, int] = {"ada": 36}
+point: tuple[int, int] = (3, 4)
+tags: set[str] = {"new", "sale"}</code></pre>
+<h2 id="maybe-a-value-maybe-none">Maybe a value, maybe None</h2>
+<p>A function that can return <code>None</code> must say so. This is the single most useful hint, because forgetting to handle <code>None</code> is such a common bug.</p>
+<pre><code class="lang-python">def find_user(users: dict[int, str], user_id: int) -&gt; str | None:
+    return users.get(user_id)</code></pre>
+<p><code>str | None</code> means <em>a string or <code>None</code></em>. A type checker then insists that callers deal with the <code>None</code> case:</p>
+<pre><code class="lang-python">name = find_user(users, 7)
+print(name.upper())          # checker: name may be None
+
+if name is not None:
+    print(name.upper())      # fine</code></pre>
+<p>Before Python 3.10 the same thing is written <code>Optional[str]</code>, imported from <code>typing</code>. Both mean the same.</p>
+<p><code>int | str</code> means either type.</p>
+<h2 id="functions-as-arguments">Functions as arguments</h2>
+<pre><code class="lang-python">from typing import Callable
+
+def apply(f: Callable[[int], int], value: int) -&gt; int:
+    return f(value)</code></pre>
+<p><code>Callable[[int], int]</code> is a function that takes one <code>int</code> and returns an <code>int</code>.</p>
+<h2 id="classes-are-types">Classes are types</h2>
+<p>Any class can be used as a hint. Dataclasses already need hints for their fields:</p>
+<pre><code class="lang-python">from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+def distance(a: Point, b: Point) -&gt; float:
+    return ((a.x - b.x) ** 2 + (a.y - b.y) ** 2) ** 0.5</code></pre>
+<h2 id="running-a-type-checker">Running a type checker</h2>
+<p><code>mypy</code> is the best-known one. Install it in a virtual environment:</p>
+<pre><code class="lang-console">(.venv) $ python -m pip install mypy
+(.venv) $ mypy shop.py
+shop.py:12: error: Argument 1 to "area" has incompatible type "str"; expected "float"
+Found 1 error in 1 file (checked 1 source file)</code></pre>
+<p>It found the bug on line 12 without running the program.</p>
+<h2 id="how-much-to-annotate">How much to annotate</h2>
+<ul><li><strong>Function signatures</strong>: always worth it. They are the contract between pieces of code.</li><li><strong>Local variables</strong>: only when the type is not obvious.</li><li><strong>Small throwaway scripts</strong>: optional.</li></ul>
+<p>Hints do not replace tests. Types tell you that a function returns a <code>float</code>. Tests tell you it returns the <em>right</em> float.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting hints to be enforced at run time.</strong> They are not. Validate real input with code.</li><li><strong><code>list</code> with no element type.</strong> <code>list[int]</code> tells the reader, and the checker, far more.</li><li><strong>Leaving out <code>| None</code></strong> on a function that can return <code>None</code>.</li><li><strong>Using <code>list</code> in the signature when any iterable would do.</strong> For a parameter you only loop over, <code>Iterable[int]</code> from <code>collections.abc</code> accepts lists, sets and generators alike.</li></ul>
+<p>That completes the Python track. Carry on with data structures and algorithms, which you can solve in Python.</p>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/12-typing">
+<h3>Annotated functions and a dataclass <span class="ex-id">python/12-typing</span></h3>
+<p>Write the following in <code>solution.py</code>, with type hints on <strong>every parameter and every return value</strong>. The tests check both the behaviour and the hints.</p>
+<ul><li><code>mean(values: list[float]) -&gt; float</code>: the average of the values. Raises <code>ValueError</code> for an empty list.</li><li><code>find_user(users: dict[int, str], user_id: int) -&gt; str | None</code>: the name stored under <code>user_id</code>, or <code>None</code> if there is no such user.</li><li><code>lengths(words: list[str]) -&gt; dict[str, int]</code>: a dictionary mapping each word to its length.</li><li><code>Point</code>: a dataclass with two <code>float</code> fields, <code>x</code> and <code>y</code>, and a method <code>distance_to(self, other: "Point") -&gt; float</code>.</li></ul>
+<pre><code class="lang-python">mean([1.0, 2.0, 6.0])                # 3.0
+find_user({1: "ada"}, 2)             # None
+lengths(["hi", "hello"])             # {'hi': 2, 'hello': 5}
+Point(0, 0).distance_to(Point(3, 4)) # 5.0</code></pre>
+<p>On Python older than 3.10, write <code>Optional[str]</code> (from <code>typing</code>) in place of <code>str | None</code>.</p>
+<p class="ex-files">Files: <code>exercises/python/12-typing/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/12-typing</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/09-testing.html"><span>Previous</span>Testing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -20,7 +20,7 @@ $ python3 check.py progress      # how far you are
 
 Your results show up on the guide's home page.
 
-> **Status:** the tracks are being written in order. Available now: Start here, Git, C.
+> **Status:** the tracks are being written in order. Available now: Start here, Git, C, Python.
 
 | Track | What you learn |
 | --- | --- |

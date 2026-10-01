@@ -13,5 +13,10 @@
     "id": "c",
     "title": "C",
     "blurb": "How the machine really works: memory, pointers, and building programs from several files."
+  },
+  {
+    "id": "python",
+    "title": "Python",
+    "blurb": "The fastest way to get things done: from first functions to classes, generators, tests and type hints."
   }
 ]

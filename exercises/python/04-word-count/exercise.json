@@ -1,0 +1,81 @@
+{
+  "title": "Count words",
+  "lesson": "python/02-loops-and-collections",
+  "kind": "pyfunc",
+  "cases": [
+    {
+      "call": "word_count",
+      "args": [
+        "the cat and the hat"
+      ],
+      "expect": {
+        "the": 2,
+        "cat": 1,
+        "and": 1,
+        "hat": 1
+      }
+    },
+    {
+      "call": "word_count",
+      "args": [
+        "The the THE"
+      ],
+      "expect": {
+        "the": 3
+      },
+      "name": "word_count ignores upper and lower case"
+    },
+    {
+      "call": "word_count",
+      "args": [
+        "  spaced   out  "
+      ],
+      "expect": {
+        "spaced": 1,
+        "out": 1
+      }
+    },
+    {
+      "call": "word_count",
+      "args": [
+        ""
+      ],
+      "expect": {}
+    },
+    {
+      "call": "most_common",
+      "args": [
+        "the cat and the hat"
+      ],
+      "expect": "the"
+    },
+    {
+      "call": "most_common",
+      "args": [
+        "b a b a c"
+      ],
+      "expect": "a",
+      "name": "most_common: on a tie, the word that comes first alphabetically"
+    },
+    {
+      "call": "most_common",
+      "args": [
+        "Dog dog cat"
+      ],
+      "expect": "dog"
+    },
+    {
+      "call": "most_common",
+      "args": [
+        ""
+      ],
+      "expect": null,
+      "name": "most_common('') is None"
+    }
+  ],
+  "hints": [
+    "text.lower().split() gives the words, however many spaces separate them.",
+    "counts[word] = counts.get(word, 0) + 1",
+    "For most_common, look for the highest count; on equal counts prefer the alphabetically smaller word."
+  ]
+}

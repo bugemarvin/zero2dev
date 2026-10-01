@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modules, packages and virtual environments · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/06-modules-and-venv">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 6 of 10</p>
+<h1>Modules, packages and virtual environments</h1>
+<p class="lede">Use the standard library, split your code into files, and install other people's code without making a mess.</p>
+<h2 id="importing">Importing</h2>
+<p>A <strong>module</strong> is a Python file. <code>import</code> makes its contents available.</p>
+<pre><code class="lang-python">import math
+math.sqrt(16)              # 4.0
+
+from math import sqrt, pi  # bring specific names in directly
+sqrt(16)
+
+import datetime as dt      # give a module a shorter name
+dt.date.today()</code></pre>
+<p>Prefer <code>import math</code> and writing <code>math.sqrt</code>. The reader can see where each name comes from. Avoid <code>from math import *</code>, which pours every name into your file.</p>
+<h2 id="the-standard-library">The standard library</h2>
+<p>Python ships with a large library. Before you write a helper, check whether it already exists.</p>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>For</th></tr></thead><tbody><tr><td><code>math</code></td><td>square roots, trigonometry, constants</td></tr><tr><td><code>random</code></td><td>random numbers and choices</td></tr><tr><td><code>datetime</code></td><td>dates and times</td></tr><tr><td><code>pathlib</code></td><td>file paths</td></tr><tr><td><code>json</code>, <code>csv</code></td><td>data formats</td></tr><tr><td><code>collections</code></td><td><code>Counter</code>, <code>defaultdict</code>, <code>deque</code></td></tr><tr><td><code>itertools</code></td><td>tools for loops and combinations</td></tr><tr><td><code>re</code></td><td>regular expressions</td></tr><tr><td><code>sys</code>, <code>os</code></td><td>arguments, environment, the system</td></tr></tbody></table></div>
+<p>A few you will use constantly:</p>
+<pre><code class="lang-python">from collections import Counter
+
+counts = Counter(["a", "b", "a", "c", "a"])
+counts["a"]               # 3
+counts.most_common(2)     # [('a', 3), ('b', 1)]</code></pre>
+<pre><code class="lang-python">from datetime import date
+
+start = date.fromisoformat("2025-01-01")
+end = date(2025, 3, 1)
+(end - start).days        # 59</code></pre>
+<h2 id="your-own-modules">Your own modules</h2>
+<p>Any <code>.py</code> file is a module. With two files in the same folder:</p>
+<pre><code class="lang-python"># shapes.py
+def area(width, height):
+    return width * height</code></pre>
+<pre><code class="lang-python"># main.py
+import shapes
+
+print(shapes.area(3, 4))</code></pre>
+<p>A folder of modules is a <strong>package</strong>: <code>import mypackage.shapes</code>.</p>
+<h2 id="run-or-import">Run or import</h2>
+<p>When a file is run directly, the special variable <code>__name__</code> is <code>"__main__"</code>. When it is imported, <code>__name__</code> is the module's name. This lets one file be both a program and a library:</p>
+<pre><code class="lang-python">def area(width, height):
+    return width * height
+
+if __name__ == "__main__":
+    print(area(3, 4))      # runs with: python3 shapes.py
+                           # does not run on: import shapes</code></pre>
+<p>Put the code that <em>does things</em> under that <code>if</code>. Then importing the file to test its functions has no side effects.</p>
+<h2 id="installing-packages">Installing packages</h2>
+<p><code>pip</code> installs packages from the Python Package Index:</p>
+<pre><code class="lang-console">$ python3 -m pip install requests</code></pre>
+<p>Do not do that globally. Different projects need different versions of the same package, and on Linux the system itself depends on its own Python packages.</p>
+<h2 id="virtual-environments">Virtual environments</h2>
+<p>A <strong>virtual environment</strong> is a private folder of packages for one project.</p>
+<pre><code class="lang-console">$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ python -m pip install requests
+(.venv) $ deactivate</code></pre>
+<ul><li><code>python3 -m venv .venv</code> creates the environment in a folder named <code>.venv</code>. Do it once per project.</li><li><code>source .venv/bin/activate</code> switches this terminal to it. The prompt shows <code>(.venv)</code>.</li><li>While it is active, <code>python</code> and <code>pip</code> use the environment.</li><li><code>deactivate</code> switches back.</li></ul>
+<p>Add <code>.venv/</code> to <code>.gitignore</code>. The environment is never committed.</p>
+<h2 id="recording-what-a-project-needs">Recording what a project needs</h2>
+<pre><code class="lang-console">(.venv) $ python -m pip freeze &gt; requirements.txt</code></pre>
+<p>Someone else then recreates the same environment:</p>
+<pre><code class="lang-console">$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ python -m pip install -r requirements.txt</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Naming your file after a library module</strong>, such as <code>random.py</code> or <code>math.py</code>. Then <code>import random</code> imports your own file.</li><li><strong>Installing packages with no environment active.</strong></li><li><strong>Committing <code>.venv</code>.</strong> Commit <code>requirements.txt</code>.</li><li><strong>Code at the top level of a module</strong> that runs whenever it is imported. Put it under <code>if __name__ == "__main__":</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/08-stdlib">
+<h3>Use the standard library <span class="ex-id">python/08-stdlib</span></h3>
+<p>Write three functions in <code>solution.py</code>. Each one is a few lines when you import the right module.</p>
+<ul><li><code>days_between(first, second)</code> takes two dates as text in the form <code>YYYY-MM-DD</code> and returns the number of days between them. The result is never negative, whichever date is earlier. Use <code>datetime</code>.</li><li><code>top_words(words, n)</code> returns the <code>n</code> most frequent words as a list of <code>(word, count)</code> pairs, most frequent first. Words with equal counts are ordered alphabetically. Use <code>collections</code>.</li><li><code>hypotenuse(a, b)</code> returns the length of the longest side of a right-angled triangle whose other sides are <code>a</code> and <code>b</code>. Use <code>math</code>.</li></ul>
+<pre><code class="lang-python">days_between("2025-01-01", "2025-03-01")     # 59
+top_words(["a", "b", "a", "c", "b", "a"], 2) # [('a', 3), ('b', 2)]
+hypotenuse(3, 4)                             # 5.0</code></pre>
+<p class="ex-files">Files: <code>exercises/python/08-stdlib/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/08-stdlib</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/05-errors.html"><span>Previous</span>Errors and exceptions</a><a class="next" href="../python/07-classes.html"><span>Next</span>Classes</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

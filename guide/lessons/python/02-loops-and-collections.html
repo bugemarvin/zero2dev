@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loops and collections · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="python/02-loops-and-collections">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Python · lesson 2 of 10</p>
+<h1>Loops and collections</h1>
+<p class="lede">Lists, tuples, dictionaries and sets, and the loops that walk through them.</p>
+<h2 id="lists">Lists</h2>
+<p>A list is an ordered collection that can grow, shrink and change.</p>
+<pre><code class="lang-python">scores = [90, 72, 85]
+scores[0]            # 90: indexes start at 0
+scores[-1]           # 85: negative indexes count from the end
+scores.append(60)    # add to the end
+scores[1] = 75       # change an element
+len(scores)          # 4
+85 in scores         # True</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Effect</th></tr></thead><tbody><tr><td><code>a.append(x)</code></td><td>add <code>x</code> at the end</td></tr><tr><td><code>a.insert(i, x)</code></td><td>insert at position <code>i</code></td></tr><tr><td><code>a.pop()</code></td><td>remove and return the last element</td></tr><tr><td><code>a.remove(x)</code></td><td>remove the first <code>x</code></td></tr><tr><td><code>a.sort()</code></td><td>sort in place</td></tr><tr><td><code>sorted(a)</code></td><td>return a new sorted list</td></tr><tr><td><code>sum(a)</code>, <code>min(a)</code>, <code>max(a)</code></td><td>total, smallest, largest</td></tr></tbody></table></div>
+<h2 id="slicing">Slicing</h2>
+<p><code>a[start:stop]</code> takes the elements from <code>start</code> up to, and not including, <code>stop</code>.</p>
+<pre><code class="lang-python">a = [10, 20, 30, 40, 50]
+a[1:3]     # [20, 30]
+a[:2]      # [10, 20]       from the beginning
+a[2:]      # [30, 40, 50]   to the end
+a[::-1]    # [50, 40, 30, 20, 10]   reversed</code></pre>
+<p>Slicing works on strings too: <code>"hello"[1:3]</code> is <code>"el"</code>.</p>
+<h2 id="for-loops">for loops</h2>
+<p><code>for</code> takes each element in turn. No index variable is needed.</p>
+<pre><code class="lang-python">for score in scores:
+    print(score)</code></pre>
+<p><code>range</code> produces whole numbers:</p>
+<pre><code class="lang-python">for i in range(5):          # 0 1 2 3 4
+    print(i)
+
+for i in range(2, 10, 2):   # 2 4 6 8
+    print(i)</code></pre>
+<p>When you need the position as well as the value, use <code>enumerate</code>:</p>
+<pre><code class="lang-python">for i, score in enumerate(scores):
+    print(i, score)</code></pre>
+<h2 id="while-loops">while loops</h2>
+<pre><code class="lang-python">n = 3
+while n &gt; 0:
+    print(n)
+    n -= 1</code></pre>
+<p><code>break</code> leaves a loop early. <code>continue</code> jumps to the next round.</p>
+<h2 id="tuples">Tuples</h2>
+<p>A tuple is a list that cannot be changed after it is made. Use one for a small fixed group of values.</p>
+<pre><code class="lang-python">point = (3, 4)
+x, y = point          # unpacking: x is 3, y is 4</code></pre>
+<p>Unpacking also swaps two variables in one line: <code>a, b = b, a</code>.</p>
+<h2 id="dictionaries">Dictionaries</h2>
+<p>A dictionary maps <strong>keys</strong> to <strong>values</strong>. Finding a value by its key is very fast.</p>
+<pre><code class="lang-python">ages = {"ada": 36, "linus": 54}
+ages["ada"]              # 36
+ages["grace"] = 85       # add or replace
+"ada" in ages            # True: checks the keys
+ages.get("bob", 0)       # 0: a default in place of an error
+del ages["linus"]</code></pre>
+<p>Looping over one:</p>
+<pre><code class="lang-python">for name, age in ages.items():
+    print(name, age)</code></pre>
+<p>Counting things is the classic use:</p>
+<pre><code class="lang-python">counts = {}
+for word in ["a", "b", "a"]:
+    counts[word] = counts.get(word, 0) + 1
+# {'a': 2, 'b': 1}</code></pre>
+<h2 id="sets">Sets</h2>
+<p>A set holds each value at most once, in no particular order. Checking membership is very fast.</p>
+<pre><code class="lang-python">seen = {1, 2, 3}
+seen.add(2)            # no effect: already there
+len(set([1, 1, 2]))    # 2: a quick way to drop duplicates
+{1, 2} &amp; {2, 3}        # {2}        in both
+{1, 2} | {2, 3}        # {1, 2, 3}  in either</code></pre>
+<h2 id="comprehensions">Comprehensions</h2>
+<p>A comprehension builds a list from a loop in one line:</p>
+<pre><code class="lang-python">squares = [n * n for n in range(5)]            # [0, 1, 4, 9, 16]
+evens = [n for n in scores if n % 2 == 0]      # keep only some
+lengths = {w: len(w) for w in ["hi", "hello"]} # a dictionary</code></pre>
+<p>Read it as: <em>the expression, for each item, if the condition holds</em>. Use a plain loop when the logic no longer fits comfortably on one line.</p>
+<h2 id="which-one-to-use">Which one to use</h2>
+<div class="table-wrap"><table><thead><tr><th>You need</th><th>Use</th></tr></thead><tbody><tr><td>an ordered sequence that changes</td><td>list</td></tr><tr><td>a small fixed group</td><td>tuple</td></tr><tr><td>lookup by name or ID</td><td>dict</td></tr><tr><td>uniqueness, or fast "is it in here?"</td><td>set</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>IndexError</code></strong>: the index is past the end. The last element of a list of length <code>n</code> is <code>a[n - 1]</code>, or <code>a[-1]</code>.</li><li><strong><code>KeyError</code></strong>: the key is not in the dictionary. Use <code>.get()</code> or check with <code>in</code>.</li><li><strong>Changing a list while looping over it.</strong> Elements get skipped. Build a new list.</li><li><strong><code>b = a</code> does not copy a list.</strong> Both names refer to the same list. Use <code>a.copy()</code> or <code>a[:]</code>.</li><li><strong><code>a.sort()</code> returns <code>None</code>.</strong> It sorts in place. <code>sorted(a)</code> returns the new list.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="python/03-list-tools">
+<h3>List tools <span class="ex-id">python/03-list-tools</span></h3>
+<p>Write four functions in <code>solution.py</code>. None of them may change the list it is given.</p>
+<ul><li><code>evens(numbers)</code> returns a new list with only the even numbers, in the same order.</li><li><code>longest(words)</code> returns the longest word. If several are equally long, the first of them. For an empty list, return <code>""</code>.</li><li><code>running_total(numbers)</code> returns a list where each element is the sum of everything up to and including that position: <code>[1, 2, 3, 4]</code> gives <code>[1, 3, 6, 10]</code>.</li><li><code>unique(items)</code> returns the items with duplicates removed, keeping the order in which each first appeared.</li></ul>
+<p class="ex-files">Files: <code>exercises/python/03-list-tools/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/03-list-tools</code></pre>
+</article>
+<article class="exercise" data-ex="python/04-word-count">
+<h3>Count words <span class="ex-id">python/04-word-count</span></h3>
+<p>Write two functions in <code>solution.py</code>.</p>
+<p><code>word_count(text)</code> returns a dictionary that maps each word to how many times it appears. Words are separated by spaces. Upper and lower case count as the same word, and the keys are lower case.</p>
+<pre><code class="lang-python">word_count("the cat and the hat")
+# {'the': 2, 'cat': 1, 'and': 1, 'hat': 1}</code></pre>
+<p><code>most_common(text)</code> returns the word that appears most often. If several words share the highest count, return the one that comes first alphabetically. For text with no words, return <code>None</code>.</p>
+<p class="ex-files">Files: <code>exercises/python/04-word-count/</code></p>
+<pre><code class="lang-console">$ python3 check.py python/04-word-count</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../python/01-basics.html"><span>Previous</span>Python basics</a><a class="next" href="../python/03-functions.html"><span>Next</span>Functions in depth</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

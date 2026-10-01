@@ -325,6 +325,131 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "python",
+   "title": "Python",
+   "blurb": "The fastest way to get things done: from first functions to classes, generators, tests and type hints.",
+   "lessons": [
+    {
+     "id": "python/01-basics",
+     "title": "Python basics",
+     "summary": "Values, variables, text, decisions, and your first functions.",
+     "exercises": [
+      {
+       "id": "python/01-first-functions",
+       "title": "First functions"
+      },
+      {
+       "id": "python/02-leap-year",
+       "title": "Leap years and grades"
+      }
+     ]
+    },
+    {
+     "id": "python/02-loops-and-collections",
+     "title": "Loops and collections",
+     "summary": "Lists, tuples, dictionaries and sets, and the loops that walk through them.",
+     "exercises": [
+      {
+       "id": "python/03-list-tools",
+       "title": "List tools"
+      },
+      {
+       "id": "python/04-word-count",
+       "title": "Count words"
+      }
+     ]
+    },
+    {
+     "id": "python/03-functions",
+     "title": "Functions in depth",
+     "summary": "Default values, keyword arguments, several return values, scope, and passing functions around.",
+     "exercises": [
+      {
+       "id": "python/05-functions",
+       "title": "Flexible functions"
+      }
+     ]
+    },
+    {
+     "id": "python/04-files",
+     "title": "Files",
+     "summary": "Read and write text files safely, and work with paths, CSV and JSON.",
+     "exercises": [
+      {
+       "id": "python/06-files",
+       "title": "Read and write score files"
+      }
+     ]
+    },
+    {
+     "id": "python/05-errors",
+     "title": "Errors and exceptions",
+     "summary": "Read a traceback, catch the errors you can handle, and raise your own when input is wrong.",
+     "exercises": [
+      {
+       "id": "python/07-errors",
+       "title": "Handle and raise errors"
+      }
+     ]
+    },
+    {
+     "id": "python/06-modules-and-venv",
+     "title": "Modules, packages and virtual environments",
+     "summary": "Use the standard library, split your code into files, and install other people's code without making a mess.",
+     "exercises": [
+      {
+       "id": "python/08-stdlib",
+       "title": "Use the standard library"
+      }
+     ]
+    },
+    {
+     "id": "python/07-classes",
+     "title": "Classes",
+     "summary": "Bundle data with the functions that work on it, and make your own types behave like built-in ones.",
+     "exercises": [
+      {
+       "id": "python/09-classes",
+       "title": "A bank account and a vector"
+      }
+     ]
+    },
+    {
+     "id": "python/08-iterators-and-generators",
+     "title": "Iterators and generators",
+     "summary": "Produce values one at a time, only when they are asked for.",
+     "exercises": [
+      {
+       "id": "python/10-generators",
+       "title": "Write generators"
+      }
+     ]
+    },
+    {
+     "id": "python/09-testing",
+     "title": "Testing",
+     "summary": "Write code that checks your code, so you can change things without fear.",
+     "exercises": [
+      {
+       "id": "python/11-testing",
+       "title": "Write tests that catch bugs"
+      }
+     ]
+    },
+    {
+     "id": "python/10-typing",
+     "title": "Type hints",
+     "summary": "Say what types your functions expect and return, so that tools catch mistakes before the program runs.",
+     "exercises": [
+      {
+       "id": "python/12-typing",
+       "title": "Annotated functions and a dataclass"
+      }
+     ]
+    }
+   ]
   }
  ]
 };
