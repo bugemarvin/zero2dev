@@ -233,3 +233,4 @@ button.btn.in-main { border: 0; font: inherit; font-weight: 650; cursor: pointer
 .in-origin { font: 600 19px var(--mono); padding: 12px 14px; background: var(--code-bg); border-radius: 10px; overflow-wrap: anywhere; }
 .in-row { display: flex; gap: 10px; }
 .in-connect { max-width: 640px; }
+.in-small { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }

@@ -928,7 +928,7 @@
         "Open the Start menu, type PowerShell, right-click it and choose \"Run as administrator\".",
         "Paste this line and press Enter:",
         "The first time, Windows installs Ubuntu (a real Linux inside Windows) and asks you to restart. After the restart, open \"Ubuntu\" from the Start menu once, choose a user name and password, then paste the same line into PowerShell again.",
-        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+        "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
       command: "irm " + REPO_RAW + "get.ps1 | iex"
     },
@@ -938,7 +938,7 @@
         "Open a terminal: press Ctrl+Alt+T, or look for \"Terminal\" in your applications.",
         "Paste this line and press Enter:",
         "If git or Python is missing, it asks for your password to install them. Nothing shows while you type a password: that is normal.",
-        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+        "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
       command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
     },
@@ -948,7 +948,7 @@
         "Open Terminal: press Cmd+Space, type Terminal, press Enter.",
         "Paste this line and press Enter:",
         "If macOS offers to install the \"command line developer tools\", accept, wait for it to finish, and paste the line again.",
-        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+        "The app opens in your browser at http://127.0.0.1:4750. From now on it works without the internet and starts when you log in."
       ],
       command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
     }
@@ -1024,9 +1024,21 @@
         if (!info.paired) status.appendChild(connectButton(info));
         else status.appendChild(button("Use it on this page", "", function () { location.reload(); }));
       }).catch(function () {
-        status.className = "in-status st-warn";
-        status.textContent = "Not found yet. Finish the steps above, wait until the terminal says it is running, and check again. " +
-          "If your browser asks whether this site may reach apps on your device, allow it.";
+        // Either the app is not running yet, or the browser does not let this site look at this computer.
+        function explain(blocked) {
+          status.className = "in-status st-warn";
+          status.textContent = blocked
+            ? "Your browser is not letting this site look for apps on your computer, so it cannot tell. That is fine: open the app directly. "
+            : "This site cannot see the app yet. If the terminal says it is running, open it directly. If your browser asks whether this site may reach apps on your device, you can allow it. ";
+          status.appendChild(el("a", { class: "st-btn st-primary", href: LOCAL_APP, target: "_blank", rel: "noopener", text: "Open " + LOCAL_APP.replace(/\/$/, "") }));
+          status.appendChild(el("span", { class: "in-small", text: " If that page does not load, the app is not running yet: finish the steps above, or in the zero2dev folder run python3 app.py." }));
+        }
+        if (navigator.permissions && navigator.permissions.query) {
+          navigator.permissions.query({ name: "local-network-access" })
+            .then(function (p) { explain(p.state === "denied"); }, function () { explain(false); });
+        } else {
+          explain(false);
+        }
       });
     });
 
