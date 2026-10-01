@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is `self` in a method?",
+  "options": [
+   "The class",
+   "The object the method was called on",
+   "A keyword for private",
+   "The parent class"
+  ],
+  "answer": 1,
+  "why": "It is the first parameter of every method."
+ },
+ {
+  "q": "Which method runs when an object is created?",
+  "options": [
+   "__init__",
+   "__new_object__",
+   "create",
+   "__start__"
+  ],
+  "answer": 0,
+  "why": "__init__ sets up the new object."
+ },
+ {
+  "q": "What does a dataclass save you from writing?",
+  "options": [
+   "Imports",
+   "Boilerplate such as __init__ and __repr__",
+   "Tests",
+   "Type hints"
+  ],
+  "answer": 1,
+  "why": "@dataclass generates them from the field list."
+ }
+]

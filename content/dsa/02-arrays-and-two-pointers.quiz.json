@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does reading an array element by index cost?",
+  "options": [
+   "O(1)",
+   "O(n)",
+   "O(log n)",
+   "O(n²)"
+  ],
+  "answer": 0,
+  "why": "The position is computed directly."
+ },
+ {
+  "q": "The two-pointer technique on a sorted array often turns O(n²) into ...",
+  "options": [
+   "O(n)",
+   "O(n³)",
+   "O(2^n)",
+   "O(1)"
+  ],
+  "answer": 0,
+  "why": "Each pointer only moves forward, so the total is linear."
+ },
+ {
+  "q": "What do prefix sums let you compute in O(1)?",
+  "options": [
+   "The maximum",
+   "The sum of any range",
+   "The sorted order",
+   "The median"
+  ],
+  "answer": 1,
+  "why": "sum(l..r) = prefix[r+1] - prefix[l]."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a struct?",
+  "options": [
+   "A loop",
+   "A group of named values in one type",
+   "A function",
+   "A file"
+  ],
+  "answer": 1,
+  "why": "It groups related data."
+ },
+ {
+  "q": "With a pointer `p` to a struct, how do you reach its field `x`?",
+  "options": [
+   "p.x",
+   "p->x",
+   "p::x",
+   "*p.x"
+  ],
+  "answer": 1,
+  "why": "p->x is short for (*p).x."
+ },
+ {
+  "q": "What does typedef do?",
+  "options": [
+   "Allocates memory",
+   "Gives a type a new name",
+   "Defines a variable",
+   "Includes a file"
+  ],
+  "answer": 1,
+  "why": "It saves writing `struct` everywhere."
+ }
+]

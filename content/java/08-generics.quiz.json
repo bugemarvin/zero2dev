@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What do generics give you?",
+  "options": [
+   "Speed",
+   "Type checking for collections and reusable classes",
+   "Smaller files",
+   "Threads"
+  ],
+  "answer": 1,
+  "why": "A List<String> cannot receive an Integer."
+ },
+ {
+  "q": "What does `<T extends Comparable<T>>` mean?",
+  "options": [
+   "T is a number",
+   "T must be comparable with itself",
+   "T is optional",
+   "T is a string"
+  ],
+  "answer": 1,
+  "why": "A bound: only types with compareTo are accepted."
+ },
+ {
+  "q": "What does a class implement so that its objects can be sorted?",
+  "accept": [
+   "Comparable"
+  ],
+  "why": "It supplies compareTo."
+ }
+]

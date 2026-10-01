@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a server action?",
+  "options": [
+   "A cron job",
+   "A function that runs on the server and can be called from a form",
+   "A route file",
+   "A hook"
+  ],
+  "answer": 1,
+  "why": "Marked with \"use server\"."
+ },
+ {
+  "q": "Where must input be validated?",
+  "options": [
+   "Only in the browser",
+   "On the server",
+   "Nowhere",
+   "In CSS"
+  ],
+  "answer": 1,
+  "why": "Anyone can call the action with any data."
+ },
+ {
+  "q": "After an action changes data, how do pages show the new data?",
+  "options": [
+   "They never do",
+   "revalidatePath, or a redirect",
+   "A reload by the user only",
+   "A cookie"
+  ],
+  "answer": 1,
+  "why": "It tells Next.js that cached pages are out of date."
+ }
+]

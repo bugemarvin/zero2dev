@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which command undoes a commit by adding a new commit that reverses it?",
+  "options": [
+   "git reset",
+   "git revert",
+   "git restore",
+   "git clean"
+  ],
+  "answer": 1,
+  "why": "revert is safe for commits that were already shared."
+ },
+ {
+  "q": "How do you fix the message of the last commit, not yet pushed?",
+  "options": [
+   "git commit --amend",
+   "git rename",
+   "git log --edit",
+   "git push --fix"
+  ],
+  "answer": 0,
+  "why": "amend replaces the last commit."
+ },
+ {
+  "q": "What does `git reflog` give you?",
+  "options": [
+   "A list of remotes",
+   "A record of where HEAD has been: the safety net",
+   "The ignore list",
+   "File sizes"
+  ],
+  "answer": 1,
+  "why": "Commits you 'lost' can usually be found there."
+ }
+]

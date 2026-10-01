@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which of these is an absolute path?",
+  "options": [
+   "notes/todo.txt",
+   "../todo.txt",
+   "/home/sam/todo.txt",
+   "todo.txt"
+  ],
+  "answer": 2,
+  "why": "An absolute path starts at the root, with a slash."
+ },
+ {
+  "q": "What does `~` stand for in a path?",
+  "options": [
+   "The root folder",
+   "Your home folder",
+   "The current folder",
+   "The parent folder"
+  ],
+  "answer": 1,
+  "why": "The tilde is short for your home folder."
+ },
+ {
+  "q": "Which files does `*.txt` match?",
+  "options": [
+   "All files",
+   "Files whose name ends in .txt",
+   "Files named txt",
+   "Hidden files"
+  ],
+  "answer": 1,
+  "why": "The star matches any run of characters."
+ },
+ {
+  "q": "How do you list hidden files, whose names start with a dot?",
+  "options": [
+   "ls -a",
+   "ls -h",
+   "ls *",
+   "ls .."
+  ],
+  "answer": 0,
+  "why": "-a means all."
+ }
+]

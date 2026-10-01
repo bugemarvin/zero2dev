@@ -1,0 +1,31 @@
+[
+ {
+  "q": "In C, which value counts as false?",
+  "accept": [
+   "0"
+  ],
+  "why": "Zero is false. Everything else is true."
+ },
+ {
+  "q": "What is the classic mistake in `if (x = 5)`?",
+  "options": [
+   "Nothing",
+   "It assigns 5 instead of comparing",
+   "It does not compile",
+   "It compares strings"
+  ],
+  "answer": 1,
+  "why": "== compares. = assigns."
+ },
+ {
+  "q": "What does a missing `break` in a switch case cause?",
+  "options": [
+   "A compile error",
+   "Execution falls through into the next case",
+   "The loop ends",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "Each case normally ends with break."
+ }
+]

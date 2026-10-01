@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is the `key` of a list item for?",
+  "options": [
+   "Styling",
+   "Letting React tell the items apart between renders",
+   "Sorting",
+   "Security"
+  ],
+  "answer": 1,
+  "why": "Without stable keys, state can attach to the wrong item."
+ },
+ {
+  "q": "Which makes a good key?",
+  "options": [
+   "The array index",
+   "A stable id from the data",
+   "Math.random()",
+   "The text"
+  ],
+  "answer": 1,
+  "why": "Indexes change when items move."
+ },
+ {
+  "q": "How do you render a list in JSX?",
+  "options": [
+   "A for loop inside JSX",
+   "items.map(item => <li key={item.id}>...</li>)",
+   "forEach",
+   "repeat()"
+  ],
+  "answer": 1,
+  "why": "map returns the array of elements."
+ }
+]

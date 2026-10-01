@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a checked exception?",
+  "options": [
+   "One the compiler makes you handle or declare",
+   "A tested one",
+   "A runtime error",
+   "A warning"
+  ],
+  "answer": 0,
+  "why": "IOException is checked. NullPointerException is not."
+ },
+ {
+  "q": "What does try-with-resources do?",
+  "options": [
+   "Retries",
+   "Closes the resource automatically",
+   "Catches everything",
+   "Logs errors"
+  ],
+  "answer": 1,
+  "why": "Even when an exception is thrown."
+ },
+ {
+  "q": "Where should an exception be caught?",
+  "options": [
+   "Everywhere",
+   "Where something useful can be done about it",
+   "Never",
+   "In main only"
+  ],
+  "answer": 1,
+  "why": "Otherwise let it travel up."
+ }
+]

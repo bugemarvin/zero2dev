@@ -1,0 +1,31 @@
+[
+ {
+  "q": "Which directive marks a client component?",
+  "accept": [
+   "\"use client\""
+  ],
+  "why": "It goes on the first line of the file."
+ },
+ {
+  "q": "Which needs a client component?",
+  "options": [
+   "Reading a database",
+   "useState and click handlers",
+   "Fetching on the server",
+   "Static text"
+  ],
+  "answer": 1,
+  "why": "State and events exist only in the browser."
+ },
+ {
+  "q": "Why keep client components small?",
+  "options": [
+   "Tradition",
+   "Their JavaScript is sent to the browser",
+   "They are slower to write",
+   "They cannot have props"
+  ],
+  "answer": 1,
+  "why": "Server components send no JavaScript."
+ }
+]

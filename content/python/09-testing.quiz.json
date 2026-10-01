@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `assert x == 5` do when x is 4?",
+  "options": [
+   "Nothing",
+   "Raises AssertionError",
+   "Sets x to 5",
+   "Prints a warning"
+  ],
+  "answer": 1,
+  "why": "A failed assert stops the test."
+ },
+ {
+  "q": "How should you compare floating-point results?",
+  "options": [
+   "With ==",
+   "With a tolerance, such as math.isclose",
+   "As strings",
+   "Never"
+  ],
+  "answer": 1,
+  "why": "0.1 + 0.2 is not exactly 0.3."
+ },
+ {
+  "q": "What makes a good test?",
+  "options": [
+   "It tests many things at once",
+   "It is small, checks one behaviour, and has a clear name",
+   "It needs the network",
+   "It is random"
+  ],
+  "answer": 1,
+  "why": "A failing test should tell you what broke."
+ }
+]

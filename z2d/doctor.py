@@ -2,6 +2,9 @@
 import json
 import shutil
 import sys
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 from . import core, providers, services, workspaces
 from .toolchains import LANGS
@@ -16,6 +19,30 @@ TOOLS = {
 }
 
 
+# Looking at the machine means running dozens of small commands. One page load asks for the
+# same facts several times (the report, then every track), so answers are kept for a few seconds.
+_TTL = 8
+_memo = {}
+_memo_lock = threading.Lock()
+
+
+def _remember(key, compute):
+    with _memo_lock:
+        hit = _memo.get(key)
+        if hit and time.time() - hit[0] < _TTL:
+            return hit[1]
+    value = compute()
+    with _memo_lock:
+        _memo[key] = (time.time(), value)
+    return value
+
+
+def forget():
+    """Something was installed, downloaded or started: look again next time."""
+    with _memo_lock:
+        _memo.clear()
+
+
 def first_line(cmd):
     try:
         code, out, err = core.run(cmd, timeout=20)
@@ -27,6 +54,10 @@ def first_line(cmd):
 
 def toolchain(lang):
     """How a language is available here: native, docker, or missing."""
+    return dict(_remember(("toolchain", lang), lambda: _toolchain(lang)))
+
+
+def _toolchain(lang):
     info = LANGS[lang]
     base = {"id": lang, "name": info["name"], "stack": info["stack"], "image": info.get("image"),
             "install": f"setup/install.sh --stack {info['stack']}"}
@@ -48,6 +79,10 @@ def toolchain(lang):
 
 
 def tool(name):
+    return dict(_remember(("tool", name), lambda: _tool(name)))
+
+
+def _tool(name):
     info = TOOLS[name]
     if name == "browser":
         return {"id": name, "name": info["name"], "stack": None, "install": None, "state": "native", "version": None,
@@ -67,7 +102,15 @@ def tool(name):
     return dict(base, state="missing", version=None, detail=f"not installed. Install with: {base['install']}")
 
 
+def service(name):
+    return dict(_remember(("service", name), lambda: services.status(name)))
+
+
 def workspace(name):
+    return dict(_remember(("workspace", name), lambda: _workspace(name)))
+
+
+def _workspace(name):
     cfg = workspaces.config(name)
     ready = workspaces.is_ready(name)
     return {"id": name, "name": cfg["title"], "state": "native" if ready else "workspace-download",
@@ -83,14 +126,21 @@ def need(item):
     if kind == "toolchain":
         return dict(toolchain(name), kind=kind)
     if kind == "service":
-        return dict(services.status(name), kind=kind)
+        return dict(service(name), kind=kind)
     if kind == "workspace":
         return dict(workspace(name), kind=kind)
     return dict(tool(name), kind="tool")
 
 
+def warm(items):
+    """Look up many needs at once. The commands mostly wait, so threads make this several times faster."""
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(need, sorted(set(items))))
+
+
 def tracks():
     data = json.loads((core.ROOT / "content" / "tracks.json").read_text(encoding="utf-8"))
+    warm(item for track in data for item in track.get("needs", []))
     result = []
     for track in data:
         needs = [need(item) for item in track.get("needs", [])]
@@ -101,12 +151,14 @@ def tracks():
 
 
 def report():
+    warm([f"toolchain:{lang}" for lang in LANGS] + ["tool:git", "tool:make", "tool:npm", "tool:docker"]
+         + [f"service:{name}" for name in services.SERVICES] + [f"workspace:{name}" for name in workspaces.available()])
     return {
         "docker": tool("docker"),
         "provider": providers.mode(),
         "toolchains": [toolchain(lang) for lang in LANGS],
         "tools": [tool(name) for name in ("git", "make", "npm")],
-        "services": [services.status(name) for name in services.SERVICES],
+        "services": [service(name) for name in services.SERVICES],
         "workspaces": [workspace(name) for name in workspaces.available()],
         "work_root": str(core.WORK_ROOT),
     }

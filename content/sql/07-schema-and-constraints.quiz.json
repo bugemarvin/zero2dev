@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does a PRIMARY KEY guarantee?",
+  "options": [
+   "Unique and not NULL",
+   "Sorted rows",
+   "Fast inserts",
+   "Text only"
+  ],
+  "answer": 0,
+  "why": "It identifies each row."
+ },
+ {
+  "q": "Which constraint refuses a negative price?",
+  "options": [
+   "UNIQUE",
+   "CHECK (price >= 0)",
+   "NOT NULL",
+   "DEFAULT 0"
+  ],
+  "answer": 1,
+  "why": "CHECK holds any condition on the row."
+ },
+ {
+  "q": "What is the idea of normalisation?",
+  "options": [
+   "Store each fact in one place",
+   "Use fewer tables",
+   "Avoid keys",
+   "Store everything as text"
+  ],
+  "answer": 0,
+  "why": "Repeated facts drift apart."
+ }
+]

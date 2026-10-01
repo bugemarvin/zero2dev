@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is Docker Compose for?",
+  "options": [
+   "Building images faster",
+   "Describing and running several containers together, from one file",
+   "Monitoring",
+   "Kubernetes"
+  ],
+  "answer": 1,
+  "why": "compose.yaml lists the services."
+ },
+ {
+  "q": "Which command starts everything in the background?",
+  "options": [
+   "docker compose up -d",
+   "docker compose start all",
+   "docker run all",
+   "compose go"
+  ],
+  "answer": 0,
+  "why": "docker compose down stops and removes it."
+ },
+ {
+  "q": "In Compose, how does one service reach another?",
+  "options": [
+   "By IP address",
+   "By the service's name",
+   "By localhost",
+   "It cannot"
+  ],
+  "answer": 1,
+  "why": "Compose creates a network with DNS names."
+ }
+]

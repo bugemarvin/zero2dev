@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does an INNER JOIN return?",
+  "options": [
+   "All rows of both tables",
+   "Only the rows that have a match in both tables",
+   "All rows of the left table",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "Rows without a partner are left out."
+ },
+ {
+  "q": "Which join keeps every row of the first table, even without a match?",
+  "options": [
+   "INNER JOIN",
+   "LEFT JOIN",
+   "CROSS JOIN",
+   "SELF JOIN"
+  ],
+  "answer": 1,
+  "why": "The missing side is filled with NULL."
+ },
+ {
+  "q": "How do you find customers with no orders?",
+  "options": [
+   "INNER JOIN",
+   "LEFT JOIN ... WHERE orders.id IS NULL",
+   "GROUP BY",
+   "LIMIT 0"
+  ],
+  "answer": 1,
+  "why": "The rows that found no match have NULL on the right side."
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which assignment is correct in Bash?",
+  "options": [
+   "name = Sam",
+   "name=Sam",
+   "$name=Sam",
+   "set name Sam"
+  ],
+  "answer": 1,
+  "why": "No spaces around the equals sign."
+ },
+ {
+  "q": "What do single quotes do?",
+  "options": [
+   "Expand variables",
+   "Keep every character exactly as written",
+   "Run a command",
+   "Start a comment"
+  ],
+  "answer": 1,
+  "why": "Nothing is expanded inside single quotes."
+ },
+ {
+  "q": "Why write \"$file\" with double quotes?",
+  "options": [
+   "It is faster",
+   "So a name with spaces stays one word",
+   "It is required syntax",
+   "To make it upper case"
+  ],
+  "answer": 1,
+  "why": "Unquoted variables are split at spaces."
+ },
+ {
+  "q": "What does $(date) do?",
+  "options": [
+   "Prints the text date",
+   "Runs date and inserts its output",
+   "Defines a variable",
+   "Compares dates"
+  ],
+  "answer": 1,
+  "why": "This is command substitution."
+ }
+]

@@ -30,17 +30,16 @@
 <div class="install-static">
 <h4>Quick install</h4>
 <p>One command installs everything for this track. It skips what you already have.</p>
-<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
-<pre><code class="lang-console">$ ./setup/install.sh --stack mongodb</code></pre>
-<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
-<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks mongodb</code></pre>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack mongodb</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks mongodb</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
 <h4>MongoDB: by hand</h4>
-<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console"># follow https://www.mongodb.com/docs/manual/administration/install-on-linux/ for your version of Ubuntu or Debian
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console"># follow https://www.mongodb.com/docs/manual/administration/install-on-linux/ for your version of Ubuntu or Debian
 $ sudo apt-get install -y mongodb-org
-$ sudo systemctl start mongod</code></pre>
-<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew tap mongodb/brew
+$ sudo systemctl start mongod</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew tap mongodb/brew
 $ brew install mongodb-community
-$ brew services start mongodb-community</code></pre>
+$ brew services start mongodb-community</code></pre></div>
 <p>Check that it works:</p><pre><code class="lang-console">$ mongosh --eval 'db.runCommand({ping: 1})'</code></pre>
 <p>MongoDB is not in the standard Ubuntu packages: the quick install adds MongoDB's own package source first. The easiest route is Docker: the app starts a MongoDB container for you.</p>
 <p><strong>Or install nothing:</strong> with Docker running, the app runs MongoDB in the image <code>mongo:7</code> (one download).</p>

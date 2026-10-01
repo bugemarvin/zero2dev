@@ -30,14 +30,13 @@
 <div class="install-static">
 <h4>Quick install</h4>
 <p>One command installs everything for this track. It skips what you already have.</p>
-<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
-<pre><code class="lang-console">$ ./setup/install.sh --stack rust</code></pre>
-<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
-<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks rust</code></pre>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack rust</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks rust</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
 <h4>Rust (rustc and cargo): by hand</h4>
-<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-$ source "$HOME/.cargo/env"</code></pre>
-<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+$ source "$HOME/.cargo/env"</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre></div>
 <p>Check that it works:</p><pre><code class="lang-console">$ rustc --version &amp;&amp; cargo --version</code></pre>
 <p>rustup is the official installer. It puts everything in your home folder and needs no administrator rights.</p>
 <p><strong>Or install nothing:</strong> with Docker running, the app runs Rust in the image <code>rust:1-slim</code> (one download).</p>

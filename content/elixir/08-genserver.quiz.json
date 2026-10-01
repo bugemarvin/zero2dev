@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is a GenServer?",
+  "options": [
+   "A web server",
+   "A process that keeps state and answers requests",
+   "A database",
+   "A compiler"
+  ],
+  "answer": 1,
+  "why": "The standard building block for stateful processes."
+ },
+ {
+  "q": "How do call and cast differ?",
+  "options": [
+   "call waits for a reply, cast does not",
+   "cast waits, call does not",
+   "They are the same",
+   "call is deprecated"
+  ],
+  "answer": 0,
+  "why": "Use call when you need the answer."
+ },
+ {
+  "q": "How many requests does one GenServer handle at a time?",
+  "accept": [
+   "1"
+  ],
+  "why": "Its mailbox is processed one message at a time."
+ }
+]

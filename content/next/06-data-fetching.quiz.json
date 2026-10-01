@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does loading.js show?",
+  "options": [
+   "Errors",
+   "A placeholder while the page's data loads",
+   "The footer",
+   "Logs"
+  ],
+  "answer": 1,
+  "why": "It appears instantly."
+ },
+ {
+  "q": "What does error.js do?",
+  "options": [
+   "Logs to a file",
+   "Shows a fallback when rendering throws",
+   "Validates forms",
+   "Redirects"
+  ],
+  "answer": 1,
+  "why": "It must be a client component."
+ },
+ {
+  "q": "How do you load two independent pieces of data fast?",
+  "options": [
+   "One after the other",
+   "Start both, then await Promise.all",
+   "Twice",
+   "With setTimeout"
+  ],
+  "answer": 1,
+  "why": "Otherwise the second waits for the first."
+ }
+]

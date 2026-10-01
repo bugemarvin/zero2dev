@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `app.use(express.json())` do?",
+  "options": [
+   "Sends JSON",
+   "Parses JSON request bodies into req.body",
+   "Validates JSON schemas",
+   "Logs requests"
+  ],
+  "answer": 1,
+  "why": "It must come before the routes."
+ },
+ {
+  "q": "Which status fits a successful POST that created something?",
+  "options": [
+   "200",
+   "201",
+   "204",
+   "404"
+  ],
+  "answer": 1,
+  "why": "201 Created."
+ },
+ {
+  "q": "Where is the `:id` of `/todos/:id`?",
+  "options": [
+   "req.query.id",
+   "req.params.id",
+   "req.body.id",
+   "req.id"
+  ],
+  "answer": 1,
+  "why": "It is a string: convert it."
+ }
+]

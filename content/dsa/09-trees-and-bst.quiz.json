@@ -1,0 +1,35 @@
+[
+ {
+  "q": "In a binary search tree, where are the values smaller than a node?",
+  "options": [
+   "In its left subtree",
+   "In its right subtree",
+   "In its parent",
+   "Anywhere"
+  ],
+  "answer": 0,
+  "why": "Smaller left, larger right."
+ },
+ {
+  "q": "Which traversal of a BST visits the values in sorted order?",
+  "options": [
+   "Pre-order",
+   "In-order",
+   "Post-order",
+   "Level order"
+  ],
+  "answer": 1,
+  "why": "Left, node, right."
+ },
+ {
+  "q": "What is the cost of a search in a BST that has become a straight line?",
+  "options": [
+   "O(1)",
+   "O(log n)",
+   "O(n)",
+   "O(n²)"
+  ],
+  "answer": 2,
+  "why": "An unbalanced tree is no better than a list."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does Prettier do?",
+  "options": [
+   "Finds bugs",
+   "Formats code in one consistent style",
+   "Bundles files",
+   "Runs tests"
+  ],
+  "answer": 1,
+  "why": "No more arguments about style."
+ },
+ {
+  "q": "What does ESLint do?",
+  "options": [
+   "Formats",
+   "Reports likely mistakes and bad patterns",
+   "Compiles",
+   "Deploys"
+  ],
+  "answer": 1,
+  "why": "A linter reads code without running it."
+ },
+ {
+  "q": "Where do secrets such as API keys belong?",
+  "options": [
+   "In the source",
+   "In environment variables, outside Git",
+   "In package.json",
+   "In comments"
+  ],
+  "answer": 1,
+  "why": "Never commit them."
+ }
+]

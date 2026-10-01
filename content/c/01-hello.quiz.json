@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which function is where a C program starts?",
+  "options": [
+   "start",
+   "main",
+   "init",
+   "run"
+  ],
+  "answer": 1,
+  "why": "Execution begins in main."
+ },
+ {
+  "q": "What does `gcc hello.c -o hello` produce?",
+  "options": [
+   "A text file",
+   "An executable named hello",
+   "A header",
+   "A library"
+  ],
+  "answer": 1,
+  "why": "-o names the output file."
+ },
+ {
+  "q": "Why compile with -Wall -Wextra?",
+  "options": [
+   "Faster programs",
+   "The compiler warns about likely mistakes",
+   "Smaller files",
+   "It is required"
+  ],
+  "answer": 1,
+  "why": "Warnings find bugs before you run anything."
+ }
+]

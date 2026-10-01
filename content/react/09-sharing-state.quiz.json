@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Two sibling components need the same state. Where does it go?",
+  "options": [
+   "In both",
+   "In their closest common parent",
+   "In a global",
+   "In CSS"
+  ],
+  "answer": 1,
+  "why": "This is lifting state up."
+ },
+ {
+  "q": "What is prop drilling?",
+  "options": [
+   "A test method",
+   "Passing props through many layers that do not use them",
+   "A bug",
+   "A hook"
+  ],
+  "answer": 1,
+  "why": "Context or composition avoids it."
+ },
+ {
+  "q": "What is context good for?",
+  "options": [
+   "All state",
+   "Values many components need: theme, current user",
+   "Fast-changing form input",
+   "Lists"
+  ],
+  "answer": 1,
+  "why": "Use it sparingly: every consumer renders again when it changes."
+ }
+]

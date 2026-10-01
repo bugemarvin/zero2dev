@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a trie good at?",
+  "options": [
+   "Sorting numbers",
+   "Finding all words with a given prefix",
+   "Shortest paths",
+   "Hashing"
+  ],
+  "answer": 1,
+  "why": "Each node is one more letter of a prefix."
+ },
+ {
+  "q": "Looking up a word of length L in a trie costs ...",
+  "options": [
+   "O(L)",
+   "O(n)",
+   "O(log n)",
+   "O(n L)"
+  ],
+  "answer": 0,
+  "why": "It does not depend on how many words are stored."
+ },
+ {
+  "q": "Where are tries used?",
+  "options": [
+   "Autocomplete",
+   "Image compression",
+   "Video playback",
+   "Printing"
+  ],
+  "answer": 0,
+  "why": "Also spell checkers and IP routing."
+ }
+]

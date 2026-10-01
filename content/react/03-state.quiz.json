@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `useState(0)` return?",
+  "options": [
+   "A number",
+   "A pair: the current value and a function to change it",
+   "An object",
+   "A promise"
+  ],
+  "answer": 1,
+  "why": "const [count, setCount] = useState(0)"
+ },
+ {
+  "q": "Why not change an array in state with push?",
+  "options": [
+   "It is slow",
+   "React sees the same array and does not render again",
+   "push is deprecated",
+   "It throws"
+  ],
+  "answer": 1,
+  "why": "Create a new array: [...items, item]."
+ },
+ {
+  "q": "What happens when you call the setter?",
+  "options": [
+   "Nothing",
+   "React renders the component again with the new value",
+   "The page reloads",
+   "The value changes at once in this render"
+  ],
+  "answer": 1,
+  "why": "Each render sees its own snapshot of the state."
+ }
+]

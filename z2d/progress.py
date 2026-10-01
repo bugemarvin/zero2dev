@@ -64,3 +64,19 @@ def load_profile():
 
 def save_profile(profile):
     PROFILE_FILE.write_text(json.dumps(profile, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+
+
+GAME_FILE = core.ROOT / ".game.json"
+
+
+def load_game():
+    """Quiz results, streak days, the chosen path and the place the learner stopped at."""
+    try:
+        data = json.loads(GAME_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def save_game(game):
+    GAME_FILE.write_text(json.dumps(game, indent=1, sort_keys=True) + "\n", encoding="utf-8")

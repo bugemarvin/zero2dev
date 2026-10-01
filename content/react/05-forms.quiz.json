@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What is a controlled input?",
+  "options": [
+   "A disabled one",
+   "One whose value comes from state and changes through onChange",
+   "A validated one",
+   "A hidden one"
+  ],
+  "answer": 1,
+  "why": "React state is the single source of truth."
+ },
+ {
+  "q": "What must a submit handler usually call first?",
+  "options": [
+   "event.preventDefault()",
+   "event.stop()",
+   "form.reset()",
+   "return false"
+  ],
+  "answer": 0,
+  "why": "Otherwise the browser reloads the page."
+ },
+ {
+  "q": "Is validation in the browser enough?",
+  "options": [
+   "Yes",
+   "No: the server must validate again"
+  ],
+  "answer": 1,
+  "why": "The browser check is for convenience."
+ }
+]

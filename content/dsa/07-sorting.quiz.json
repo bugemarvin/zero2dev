@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What is the running time of merge sort?",
+  "options": [
+   "O(n)",
+   "O(n log n)",
+   "O(n²)",
+   "O(log n)"
+  ],
+  "answer": 1,
+  "why": "It halves the input log n times, with n work per level."
+ },
+ {
+  "q": "When is insertion sort a good choice?",
+  "options": [
+   "Huge random inputs",
+   "Small or nearly sorted inputs",
+   "Never",
+   "Only for strings"
+  ],
+  "answer": 1,
+  "why": "It is O(n) on nearly sorted data."
+ },
+ {
+  "q": "What is quicksort's worst case?",
+  "options": [
+   "O(n log n)",
+   "O(n²)",
+   "O(n)",
+   "O(2^n)"
+  ],
+  "answer": 1,
+  "why": "It happens with bad pivots, such as an already sorted input and the first element as pivot."
+ },
+ {
+  "q": "In real code, what should you usually use to sort?",
+  "options": [
+   "Your own quicksort",
+   "The language's built-in sort",
+   "Bubble sort",
+   "A hash table"
+  ],
+  "answer": 1,
+  "why": "It is fast, tested and stable where promised."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "In Compose, how does the orders service find the users service?",
+  "options": [
+   "A fixed IP",
+   "The service name as host name",
+   "localhost",
+   "A file"
+  ],
+  "answer": 1,
+  "why": "http://users:3000"
+ },
+ {
+  "q": "What must every call to another service have?",
+  "options": [
+   "A cookie",
+   "A timeout",
+   "A retry for ever",
+   "A lock"
+  ],
+  "answer": 1,
+  "why": "Otherwise one slow service freezes all its callers."
+ },
+ {
+  "q": "What is a health endpoint?",
+  "options": [
+   "A login page",
+   "A URL that says whether the service is working",
+   "A database table",
+   "A log"
+  ],
+  "answer": 1,
+  "why": "GET /health"
+ }
+]

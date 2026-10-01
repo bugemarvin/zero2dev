@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which command shows the history of commits?",
+  "options": [
+   "git status",
+   "git log",
+   "git diff",
+   "git show-all"
+  ],
+  "answer": 1,
+  "why": "git log lists commits, newest first."
+ },
+ {
+  "q": "What does `git diff` show?",
+  "options": [
+   "Commits",
+   "Changes you have not staged yet",
+   "Branches",
+   "Remote addresses"
+  ],
+  "answer": 1,
+  "why": "git diff --staged shows what is staged."
+ },
+ {
+  "q": "What is `.gitignore` for?",
+  "options": [
+   "Listing files Git should not track",
+   "Storing passwords",
+   "Listing contributors",
+   "Undoing commits"
+  ],
+  "answer": 0,
+  "why": "Build output, secrets and editor files belong in it."
+ }
+]

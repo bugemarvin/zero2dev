@@ -1,0 +1,29 @@
+[
+ {
+  "q": "Can you change a value in Elixir?",
+  "options": [
+   "Yes",
+   "No: data is immutable, you make new values"
+  ],
+  "answer": 1,
+  "why": "A variable can be bound again, but the data never changes."
+ },
+ {
+  "q": "What is `:ok`?",
+  "options": [
+   "A string",
+   "An atom",
+   "A variable",
+   "A module"
+  ],
+  "answer": 1,
+  "why": "An atom is a constant whose name is its value."
+ },
+ {
+  "q": "Which tool is the interactive Elixir shell?",
+  "accept": [
+   "iex"
+  ],
+  "why": "iex starts it."
+ }
+]

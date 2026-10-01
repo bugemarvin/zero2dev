@@ -1,0 +1,38 @@
+[
+ {
+  "q": "What is the index of the first element of an array?",
+  "accept": [
+   "0"
+  ],
+  "why": "Indexes start at 0."
+ },
+ {
+  "q": "An array has 5 elements. What is its last valid index?",
+  "accept": [
+   "4"
+  ],
+  "why": "0 to 4."
+ },
+ {
+  "q": "What happens when you write past the end of an array in C?",
+  "options": [
+   "An exception",
+   "Undefined behaviour: it may corrupt memory",
+   "The array grows",
+   "A compile error"
+  ],
+  "answer": 1,
+  "why": "C does not check bounds."
+ },
+ {
+  "q": "When an array is passed to a function, what does the function not know?",
+  "options": [
+   "Its type",
+   "Its length",
+   "Its name",
+   "Its first element"
+  ],
+  "answer": 1,
+  "why": "Pass the length as a second argument."
+ }
+]

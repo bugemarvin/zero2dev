@@ -1,0 +1,31 @@
+[
+ {
+  "q": "How do you expand every element of an array, each as its own word?",
+  "options": [
+   "$array",
+   "\"${array[@]}\"",
+   "${array}",
+   "$array[*]"
+  ],
+  "answer": 1,
+  "why": "Quoted [@] keeps each element whole."
+ },
+ {
+  "q": "What gives the number of elements of an array?",
+  "options": [
+   "${#array[@]}",
+   "${array#}",
+   "$#array",
+   "len(array)"
+  ],
+  "answer": 0,
+  "why": "The # in front counts."
+ },
+ {
+  "q": "With file=report.txt, what is ${file%.txt}?",
+  "accept": [
+   "report"
+  ],
+  "why": "% removes a matching ending."
+ }
+]

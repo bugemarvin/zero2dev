@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does Big-O describe?",
+  "options": [
+   "The exact running time in seconds",
+   "How the work grows as the input grows",
+   "The size of the source code",
+   "The number of bugs"
+  ],
+  "answer": 1,
+  "why": "It ignores constants and keeps the growth rate."
+ },
+ {
+  "q": "Two nested loops, each over n items, cost ...",
+  "options": [
+   "O(n)",
+   "O(n²)",
+   "O(log n)",
+   "O(1)"
+  ],
+  "answer": 1,
+  "why": "n times n steps."
+ },
+ {
+  "q": "Which is fastest for large n?",
+  "options": [
+   "O(n²)",
+   "O(n log n)",
+   "O(log n)",
+   "O(n)"
+  ],
+  "answer": 2,
+  "why": "A logarithm grows very slowly: about 20 steps for a million items."
+ },
+ {
+  "q": "O(2n + 5) simplifies to ...",
+  "options": [
+   "O(n)",
+   "O(2n)",
+   "O(n + 5)",
+   "O(1)"
+  ],
+  "answer": 0,
+  "why": "Constants and lower-order terms are dropped."
+ }
+]

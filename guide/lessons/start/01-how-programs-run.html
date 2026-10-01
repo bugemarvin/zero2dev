@@ -22,26 +22,9 @@
 <div class="layout">
 <nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
 <main class="lesson">
-<p class="crumb">Start here · lesson 1 of 7</p>
+<p class="crumb">Start here · lesson 2 of 8</p>
 <h1>How programs run</h1>
 <p class="lede">What a program actually is, and what happens between typing code and seeing a result.</p>
-<details class="install" id="install" data-track="start">
-<summary>Install: what this track needs</summary>
-<div class="install-static">
-<h4>Quick install</h4>
-<p>One command installs everything for this track. It skips what you already have.</p>
-<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
-<pre><code class="lang-console">$ ./setup/install.sh --stack core</code></pre>
-<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
-<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core</code></pre>
-<h4>C compiler, Make, Git and shell tools: by hand</h4>
-<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
-$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre>
-<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre>
-<p>Check that it works:</p><pre><code class="lang-console">$ gcc --version &amp;&amp; git --version</code></pre>
-<p>When the app is running, this box also shows what your machine already has.</p>
-</div>
-</details>
 <h2 id="a-program-is-a-text-file">A program is a text file</h2>
 <p>A program is a list of instructions written in a text file. That is all. You could write one in Notepad. The file is called <strong>source code</strong>.</p>
 <p>The computer's processor (the CPU) cannot read that text. It only understands numbers that mean very small steps: <em>add these two values</em>, <em>copy this value there</em>, <em>jump to that instruction</em>. Those numbers are called <strong>machine code</strong>.</p>
@@ -77,7 +60,7 @@ c/01-hello  Hello, C
 <ul><li><a href="../start/02-install.html">Install your tools</a></li><li>Learn the <a href="../start/03-terminal.html">terminal</a>, where all of this happens</li></ul>
 <section class="quiz-box" id="quiz" hidden></section>
 
-<nav class="pager"><a class="next" href="../start/02-install.html"><span>Next</span>Install your tools</a></nav>
+<nav class="pager"><a class="prev" href="../start/00-welcome.html"><span>Previous</span>Welcome: start here</a><a class="next" href="../start/02-install.html"><span>Next</span>Install your tools</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>

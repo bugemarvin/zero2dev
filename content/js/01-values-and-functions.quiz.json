@@ -1,0 +1,43 @@
+[
+ {
+  "q": "Which should you use by default to declare a variable?",
+  "options": [
+   "var",
+   "const",
+   "let always",
+   "global"
+  ],
+  "answer": 1,
+  "why": "const, and let when the variable must change."
+ },
+ {
+  "q": "Which comparison should you use?",
+  "options": [
+   "==",
+   "===",
+   "=",
+   "equals"
+  ],
+  "answer": 1,
+  "why": "=== compares without converting types."
+ },
+ {
+  "q": "Which of these is falsy?",
+  "options": [
+   "\"0\"",
+   "[]",
+   "0",
+   "{}"
+  ],
+  "answer": 2,
+  "why": "0, \"\", null, undefined, NaN and false are falsy."
+ },
+ {
+  "q": "What does this print?",
+  "accept": [
+   "12"
+  ],
+  "why": "With a string, + joins text.",
+  "code": "console.log(\"1\" + 2)"
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a lambda?",
+  "options": [
+   "A class",
+   "A short anonymous function",
+   "A loop",
+   "A file"
+  ],
+  "answer": 1,
+  "why": "x -> x * 2"
+ },
+ {
+  "q": "Which stream operation keeps the elements that pass a test?",
+  "options": [
+   "map",
+   "filter",
+   "collect",
+   "reduce"
+  ],
+  "answer": 1,
+  "why": "map transforms. filter selects."
+ },
+ {
+  "q": "What is Optional for?",
+  "options": [
+   "Speed",
+   "A value that may be absent, without using null",
+   "Optional parameters",
+   "Lazy loading"
+  ],
+  "answer": 1,
+  "why": "It makes 'no value' visible in the type."
+ }
+]

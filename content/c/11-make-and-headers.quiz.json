@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What goes in a header file (.h)?",
+  "options": [
+   "Function bodies",
+   "Declarations that other files need",
+   "The main function",
+   "Test data"
+  ],
+  "answer": 1,
+  "why": "Definitions go in .c files."
+ },
+ {
+  "q": "What is an include guard for?",
+  "options": [
+   "Security",
+   "Stopping a header from being included twice",
+   "Speed",
+   "Comments"
+  ],
+  "answer": 1,
+  "why": "#ifndef, #define, #endif."
+ },
+ {
+  "q": "What does `make` decide for you?",
+  "options": [
+   "Which language to use",
+   "Which files need rebuilding, from their timestamps",
+   "The program's name",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "Only what changed is rebuilt."
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which tool finds the lines that match a pattern?",
+  "options": [
+   "grep",
+   "cut",
+   "sort",
+   "tr"
+  ],
+  "answer": 0,
+  "why": "grep prints matching lines."
+ },
+ {
+  "q": "How do you count how often each line occurs?",
+  "options": [
+   "uniq -c alone",
+   "sort | uniq -c",
+   "wc -l",
+   "cut -c"
+  ],
+  "answer": 1,
+  "why": "uniq only joins neighbouring lines, so sort first."
+ },
+ {
+  "q": "Which tool is best for columns and sums?",
+  "options": [
+   "tr",
+   "awk",
+   "head",
+   "tee"
+  ],
+  "answer": 1,
+  "why": "awk splits each line into fields and can calculate."
+ },
+ {
+  "q": "What does `sed 's/cat/dog/'` do?",
+  "options": [
+   "Deletes lines with cat",
+   "Replaces the first cat on each line with dog",
+   "Counts cats",
+   "Sorts"
+  ],
+  "answer": 1,
+  "why": "Add g at the end to replace every occurrence."
+ }
+]

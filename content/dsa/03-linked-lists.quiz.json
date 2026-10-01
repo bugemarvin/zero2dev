@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does each node of a singly linked list hold?",
+  "options": [
+   "A value and a pointer to the next node",
+   "Only a value",
+   "An index",
+   "Two values"
+  ],
+  "answer": 0,
+  "why": "The list is a chain of nodes."
+ },
+ {
+  "q": "Reaching the k-th element of a linked list costs ...",
+  "options": [
+   "O(1)",
+   "O(k)",
+   "O(log k)",
+   "O(k²)"
+  ],
+  "answer": 1,
+  "why": "You must walk from the head."
+ },
+ {
+  "q": "Where is a linked list better than an array?",
+  "options": [
+   "Random access",
+   "Inserting or removing at a known position without shifting",
+   "Sorting",
+   "Memory use"
+  ],
+  "answer": 1,
+  "why": "Only pointers change. An array must shift elements."
+ }
+]

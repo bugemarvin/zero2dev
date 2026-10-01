@@ -1,0 +1,33 @@
+[
+ {
+  "q": "Which HTTP method should only read, and never change anything?",
+  "options": [
+   "POST",
+   "GET",
+   "DELETE",
+   "PATCH"
+  ],
+  "answer": 1,
+  "why": "GET must be safe to repeat."
+ },
+ {
+  "q": "What does a status code starting with 4 mean?",
+  "options": [
+   "Success",
+   "The client made a mistake",
+   "The server failed",
+   "A redirect"
+  ],
+  "answer": 1,
+  "why": "5xx is the server's fault."
+ },
+ {
+  "q": "Does fetch reject on a 404?",
+  "options": [
+   "Yes",
+   "No: check response.ok"
+  ],
+  "answer": 1,
+  "why": "fetch rejects only when the network fails."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does a min-heap give you quickly?",
+  "options": [
+   "The largest item",
+   "The smallest item",
+   "The median",
+   "Sorted order"
+  ],
+  "answer": 1,
+  "why": "The smallest is always at the top."
+ },
+ {
+  "q": "What does pushing onto a heap cost?",
+  "options": [
+   "O(1)",
+   "O(log n)",
+   "O(n)",
+   "O(n log n)"
+  ],
+  "answer": 1,
+  "why": "The new item sifts up at most the height of the tree."
+ },
+ {
+  "q": "In the array form of a heap, where are the children of index i?",
+  "options": [
+   "i+1 and i+2",
+   "2i+1 and 2i+2",
+   "i/2",
+   "i-1 and i+1"
+  ],
+  "answer": 1,
+  "why": "With indexes starting at 0."
+ }
+]

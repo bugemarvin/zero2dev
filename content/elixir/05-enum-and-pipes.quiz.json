@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which function transforms every element?",
+  "options": [
+   "Enum.filter",
+   "Enum.map",
+   "Enum.reduce",
+   "Enum.sum"
+  ],
+  "answer": 1,
+  "why": "map returns a list of the same length."
+ },
+ {
+  "q": "Which function can build any result from a list?",
+  "options": [
+   "Enum.reduce",
+   "Enum.count",
+   "Enum.sort",
+   "Enum.take"
+  ],
+  "answer": 0,
+  "why": "map and filter can be written with reduce."
+ },
+ {
+  "q": "How do Streams differ from Enum?",
+  "options": [
+   "They are faster always",
+   "They are lazy: work happens only when the result is needed",
+   "They sort",
+   "They are parallel"
+  ],
+  "answer": 1,
+  "why": "Good for large or endless sequences."
+ }
+]

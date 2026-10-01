@@ -1,0 +1,33 @@
+[
+ {
+  "q": "Which command builds the production version?",
+  "options": [
+   "next dev",
+   "next build",
+   "next make",
+   "npm test"
+  ],
+  "answer": 1,
+  "why": "next start then serves it."
+ },
+ {
+  "q": "Which environment variables reach the browser?",
+  "options": [
+   "All",
+   "Those starting with NEXT_PUBLIC_",
+   "None",
+   "Those in upper case"
+  ],
+  "answer": 1,
+  "why": "Everything else stays on the server."
+ },
+ {
+  "q": "Should a secret key have the NEXT_PUBLIC_ prefix?",
+  "options": [
+   "Yes",
+   "No: it would be sent to every visitor"
+  ],
+  "answer": 1,
+  "why": "Anything public is public."
+ }
+]

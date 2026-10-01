@@ -1,0 +1,33 @@
+[
+ {
+  "q": "Which file defines an API endpoint?",
+  "options": [
+   "page.js",
+   "route.js",
+   "api.js",
+   "handler.js"
+  ],
+  "answer": 1,
+  "why": "It exports functions named GET, POST and so on."
+ },
+ {
+  "q": "How do you return JSON with a status?",
+  "options": [
+   "Response.json(data, { status: 201 })",
+   "res.send",
+   "return data",
+   "print"
+  ],
+  "answer": 0,
+  "why": "Route handlers use the standard Response."
+ },
+ {
+  "q": "A server component needs data from your database. Does it need an API route?",
+  "options": [
+   "Yes, always",
+   "No: it can read the data directly"
+  ],
+  "answer": 1,
+  "why": "It already runs on the server."
+ }
+]

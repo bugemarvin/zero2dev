@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What stops a recursion?",
+  "options": [
+   "A loop",
+   "The base case",
+   "A timeout",
+   "A global"
+  ],
+  "answer": 1,
+  "why": "The case that is answered without another call."
+ },
+ {
+  "q": "How many permutations do 4 different items have?",
+  "accept": [
+   "24"
+  ],
+  "why": "4 × 3 × 2 × 1."
+ },
+ {
+  "q": "What is pruning in backtracking?",
+  "options": [
+   "Sorting the input",
+   "Abandoning a branch as soon as it cannot lead to a solution",
+   "Removing duplicates",
+   "Using less memory"
+  ],
+  "answer": 1,
+  "why": "It cuts away large parts of the search."
+ }
+]

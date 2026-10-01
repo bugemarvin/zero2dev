@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What is the source code of a program?",
+  "options": [
+   "A secret key",
+   "Text files with instructions, written by people",
+   "The computer's memory",
+   "A kind of processor"
+  ],
+  "answer": 1,
+  "why": "Programs start as plain text that a person writes."
+ },
+ {
+  "q": "What does a compiler do?",
+  "options": [
+   "Runs the program line by line",
+   "Translates source code into a program the machine can run",
+   "Deletes old files",
+   "Connects to the internet"
+  ],
+  "answer": 1,
+  "why": "A compiler translates the whole program before it runs. An interpreter runs it directly."
+ },
+ {
+  "q": "Python is usually run by ...",
+  "options": [
+   "a compiler that produces an executable",
+   "an interpreter that reads and runs the code",
+   "the web browser",
+   "the keyboard"
+  ],
+  "answer": 1,
+  "why": "Python code is run by the Python interpreter."
+ },
+ {
+  "q": "What manages files, memory and running programs on a computer?",
+  "options": [
+   "The editor",
+   "The operating system",
+   "The compiler",
+   "The terminal"
+  ],
+  "answer": 1,
+  "why": "Linux, Windows and macOS are operating systems."
+ }
+]

@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `git clone` do?",
+  "options": [
+   "Copies a remote repository to your machine, with its history",
+   "Deletes a branch",
+   "Creates an empty repository",
+   "Uploads commits"
+  ],
+  "answer": 0,
+  "why": "You get every commit, not just the latest files."
+ },
+ {
+  "q": "What does `git push` do?",
+  "options": [
+   "Downloads commits",
+   "Uploads your commits to the remote",
+   "Merges branches",
+   "Shows history"
+  ],
+  "answer": 1,
+  "why": "push sends, pull receives."
+ },
+ {
+  "q": "Your push is rejected because the remote has new commits. What do you do?",
+  "options": [
+   "Force push",
+   "Pull first, then push",
+   "Delete the remote",
+   "Create a new repository"
+  ],
+  "answer": 1,
+  "why": "Bring in the others' work, then push."
+ }
+]

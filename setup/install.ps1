@@ -144,6 +144,27 @@ if ($localScript) {
     $command = "curl -fsSL $RawBase/install.sh -o /tmp/z2d-install.sh && bash /tmp/z2d-install.sh $flagText"
 }
 wsl.exe -d $Distro -- bash -c $command
-if ($LASTEXITCODE -ne 0) { throw "install.sh reported problems (exit $LASTEXITCODE). Scroll up for details." }
+$installExit = $LASTEXITCODE
 
-Write-Ok 'All done. Open Windows Terminal, pick the Ubuntu profile, and start with the guide.'
+Write-Host ''
+if ($installExit -ne 0) {
+    Write-Warn 'Some stacks were not installed. The summary above says why for each one, and what to try next.'
+    Write-Host '  - Run this script again to retry: it skips everything that is already installed.'
+    Write-Host '  - Or carry on without them: the learning app can run a missing language in Docker.'
+} else {
+    Write-Ok 'All stacks are installed.'
+}
+
+Write-Host ''
+Write-Host 'Start learning:' -ForegroundColor Cyan
+Write-Host "  1. Open '$Distro' (Windows Terminal, or the Start menu)."
+if ($localScript) {
+    $projectWin = Split-Path -Parent $PSScriptRoot
+    $projectWsl = (& wsl.exe -d $Distro -- wslpath -a ($projectWin -replace '\\', '/')).Trim()
+    Write-Host "  2. cd '$projectWsl'"
+} else {
+    Write-Host '  2. git clone https://github.com/bugemarvin/zero2dev.git; cd zero2dev'
+}
+Write-Host '  3. python3 app.py'
+Write-Host '  The app opens in your Windows browser at http://127.0.0.1:4750'
+if ($installExit -ne 0) { exit 1 }

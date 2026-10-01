@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Inside the app container, what is the database's host name?",
+  "options": [
+   "localhost",
+   "The name of the database service",
+   "127.0.0.1",
+   "db.local always"
+  ],
+  "answer": 1,
+  "why": "localhost would be the app container itself."
+ },
+ {
+  "q": "Why does the app need to wait or retry at start-up?",
+  "options": [
+   "Docker is slow",
+   "The database container may not be ready yet",
+   "Ports are random",
+   "It does not"
+  ],
+  "answer": 1,
+  "why": "Started is not the same as ready."
+ },
+ {
+  "q": "What keeps the database's data between runs?",
+  "options": [
+   "The image",
+   "A named volume",
+   "The network",
+   "Environment variables"
+  ],
+  "answer": 1,
+  "why": "docker compose down -v would delete it."
+ }
+]

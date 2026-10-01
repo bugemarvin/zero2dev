@@ -1,0 +1,33 @@
+[
+ {
+  "q": "A function receives an int argument and changes it. Does the caller's variable change?",
+  "options": [
+   "Yes",
+   "No: arguments are copies"
+  ],
+  "answer": 1,
+  "why": "C passes arguments by value."
+ },
+ {
+  "q": "What is a function prototype for?",
+  "options": [
+   "Speed",
+   "Telling the compiler a function's types before it is used",
+   "Documentation only",
+   "Linking libraries"
+  ],
+  "answer": 1,
+  "why": "The compiler must know a function before a call to it."
+ },
+ {
+  "q": "What must every recursive function have?",
+  "options": [
+   "A loop",
+   "A base case that stops the recursion",
+   "A global variable",
+   "Two parameters"
+  ],
+  "answer": 1,
+  "why": "Without a base case it never ends."
+ }
+]

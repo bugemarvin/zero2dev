@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What does `argc` hold?",
+  "options": [
+   "The arguments",
+   "The number of command-line arguments",
+   "The program's exit code",
+   "The file size"
+  ],
+  "answer": 1,
+  "why": "argv holds the arguments themselves."
+ },
+ {
+  "q": "What does fopen return when it cannot open the file?",
+  "options": [
+   "0 bytes",
+   "NULL",
+   "-1",
+   "An exception"
+  ],
+  "answer": 1,
+  "why": "Always check for NULL."
+ },
+ {
+  "q": "Which function must you call when you are done with a file?",
+  "accept": [
+   "fclose"
+  ],
+  "why": "It flushes buffers and releases the file."
+ }
+]

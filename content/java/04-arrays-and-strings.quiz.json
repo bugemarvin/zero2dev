@@ -1,0 +1,35 @@
+[
+ {
+  "q": "How do you get the length of an array `a`?",
+  "options": [
+   "a.length()",
+   "a.length",
+   "a.size()",
+   "len(a)"
+  ],
+  "answer": 1,
+  "why": "A field, with no brackets. Strings use length()."
+ },
+ {
+  "q": "Why use StringBuilder in a loop?",
+  "options": [
+   "It is required",
+   "Strings cannot change, so + creates a new string each time",
+   "It sorts",
+   "It saves disk space"
+  ],
+  "answer": 1,
+  "why": "StringBuilder appends in place."
+ },
+ {
+  "q": "What happens when you call a method on null?",
+  "options": [
+   "It returns null",
+   "NullPointerException",
+   "Nothing",
+   "A compile error"
+  ],
+  "answer": 1,
+  "why": "Check for null, or avoid it."
+ }
+]

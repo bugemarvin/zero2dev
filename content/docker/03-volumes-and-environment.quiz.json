@@ -1,0 +1,33 @@
+[
+ {
+  "q": "What happens to files written inside a container when it is removed?",
+  "options": [
+   "They are kept",
+   "They are gone"
+  ],
+  "answer": 1,
+  "why": "Use a volume for data that must last."
+ },
+ {
+  "q": "What does `-p 8080:80` mean?",
+  "options": [
+   "Container port 8080 to host port 80",
+   "Host port 8080 to container port 80",
+   "Two containers",
+   "A range"
+  ],
+  "answer": 1,
+  "why": "Host first, container second."
+ },
+ {
+  "q": "How do you pass configuration to a container?",
+  "options": [
+   "Edit the image",
+   "Environment variables: -e NAME=value",
+   "A keyboard",
+   "Rebuild each time"
+  ],
+  "answer": 1,
+  "why": "The same image then runs anywhere."
+ }
+]

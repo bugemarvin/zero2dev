@@ -30,14 +30,13 @@
 <div class="install-static">
 <h4>Quick install</h4>
 <p>One command installs everything for this track. It skips what you already have.</p>
-<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
-<pre><code class="lang-console">$ ./setup/install.sh --stack core</code></pre>
-<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
-<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core</code></pre>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack core</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
 <h4>C compiler, Make, Git and shell tools: by hand</h4>
-<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
-$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre>
-<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre>
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
+$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre></div>
 <p>Check that it works:</p><pre><code class="lang-console">$ gcc --version &amp;&amp; git --version</code></pre>
 <p><strong>Or install nothing:</strong> with Docker running, the app runs C in the image <code>gcc:14</code> (one download).</p>
 <p>When the app is running, this box also shows what your machine already has.</p>

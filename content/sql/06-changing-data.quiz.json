@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What does `DELETE FROM books;` with no WHERE do?",
+  "options": [
+   "Nothing",
+   "Deletes every row",
+   "Deletes one row",
+   "Asks for confirmation"
+  ],
+  "answer": 1,
+  "why": "Run the WHERE as a SELECT first."
+ },
+ {
+  "q": "Which statement changes existing rows?",
+  "options": [
+   "INSERT",
+   "UPDATE",
+   "ALTER",
+   "CHANGE"
+  ],
+  "answer": 1,
+  "why": "UPDATE table SET column = value WHERE ..."
+ },
+ {
+  "q": "What does a foreign key stop?",
+  "options": [
+   "Slow queries",
+   "A row that points at a row which does not exist",
+   "Duplicates",
+   "NULLs"
+  ],
+  "answer": 1,
+  "why": "The database refuses an order for an unknown customer."
+ }
+]

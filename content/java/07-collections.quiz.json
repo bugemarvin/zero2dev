@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which collection maps keys to values?",
+  "options": [
+   "ArrayList",
+   "HashMap",
+   "HashSet",
+   "ArrayDeque"
+  ],
+  "answer": 1,
+  "why": "A Map."
+ },
+ {
+  "q": "Why `List<Integer>` and not `List<int>`?",
+  "options": [
+   "A typo",
+   "Generics need object types, so primitives use wrappers",
+   "int is slower",
+   "Integer is shorter"
+  ],
+  "answer": 1,
+  "why": "Integer is the wrapper of int."
+ },
+ {
+  "q": "Which keeps unique values?",
+  "options": [
+   "List",
+   "Set",
+   "Queue",
+   "Array"
+  ],
+  "answer": 1,
+  "why": "A Set holds each value at most once."
+ }
+]

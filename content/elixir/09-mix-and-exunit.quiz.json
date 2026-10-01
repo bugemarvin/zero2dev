@@ -1,0 +1,31 @@
+[
+ {
+  "q": "What is Mix?",
+  "options": [
+   "A test library",
+   "Elixir's build tool: projects, dependencies, tasks",
+   "A database",
+   "An editor"
+  ],
+  "answer": 1,
+  "why": "mix new, mix test, mix deps.get."
+ },
+ {
+  "q": "Which command runs the tests?",
+  "accept": [
+   "mix test"
+  ],
+  "why": "ExUnit comes with Elixir."
+ },
+ {
+  "q": "What is a doctest?",
+  "options": [
+   "A medical check",
+   "An example in the documentation that is run as a test",
+   "A slow test",
+   "A mock"
+  ],
+  "answer": 1,
+  "why": "The documentation cannot go out of date unnoticed."
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does `if` test in Bash?",
+  "options": [
+   "A boolean value",
+   "The exit code of a command",
+   "A number",
+   "A string length"
+  ],
+  "answer": 1,
+  "why": "Exit code 0 counts as true."
+ },
+ {
+  "q": "Which test is true when a file exists and is a regular file?",
+  "options": [
+   "[[ -f path ]]",
+   "[[ -d path ]]",
+   "[[ -z path ]]",
+   "[[ -n path ]]"
+  ],
+  "answer": 0,
+  "why": "-d tests for a directory."
+ },
+ {
+  "q": "What does `cmd1 && cmd2` do?",
+  "options": [
+   "Runs both always",
+   "Runs cmd2 only if cmd1 succeeded",
+   "Runs cmd2 only if cmd1 failed",
+   "Runs them at the same time"
+  ],
+  "answer": 1,
+  "why": "|| runs the second only if the first failed."
+ },
+ {
+  "q": "Which operator compares numbers for 'less than' inside [[ ]]?",
+  "options": [
+   "<",
+   "-lt",
+   "lt",
+   "=<"
+  ],
+  "answer": 1,
+  "why": "-lt, -gt, -eq compare numbers. < compares text."
+ }
+]

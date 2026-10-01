@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which command searches a folder tree for files?",
+  "options": [
+   "find",
+   "grep",
+   "ls",
+   "locate-all"
+  ],
+  "answer": 0,
+  "why": "find walks the tree and tests each entry."
+ },
+ {
+  "q": "In cron, what does `0 2 * * *` mean?",
+  "options": [
+   "Every 2 minutes",
+   "At 02:00 every day",
+   "Twice a day",
+   "On the 2nd of each month"
+  ],
+  "answer": 1,
+  "why": "Minute 0, hour 2, every day."
+ },
+ {
+  "q": "Why do cron jobs often fail though they work in your terminal?",
+  "options": [
+   "Cron is slower",
+   "Cron runs with a minimal environment and PATH",
+   "Cron needs root",
+   "Cron ignores scripts"
+  ],
+  "answer": 1,
+  "why": "Use full paths, or set PATH in the script."
+ },
+ {
+  "q": "When should you move from Bash to a language like Python?",
+  "options": [
+   "Never",
+   "When the script needs data structures, careful error handling, or grows long",
+   "After 5 lines",
+   "When it uses pipes"
+  ],
+  "answer": 1,
+  "why": "Bash is glue. Larger logic belongs elsewhere."
+ }
+]

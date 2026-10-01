@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which command shows the folder you are in?",
+  "options": [
+   "ls",
+   "pwd",
+   "cd",
+   "whoami"
+  ],
+  "answer": 1,
+  "why": "pwd: print working directory."
+ },
+ {
+  "q": "Which command lists the files in a folder?",
+  "options": [
+   "ls",
+   "cd",
+   "mkdir",
+   "pwd"
+  ],
+  "answer": 0,
+  "why": "ls lists. cd changes folder. mkdir makes one."
+ },
+ {
+  "q": "What does `cd ..` do?",
+  "options": [
+   "Goes to the home folder",
+   "Goes one folder up",
+   "Deletes the folder",
+   "Lists hidden files"
+  ],
+  "answer": 1,
+  "why": "Two dots mean the parent folder."
+ },
+ {
+  "q": "Which key completes a file name for you?",
+  "options": [
+   "Enter",
+   "Tab",
+   "Esc",
+   "Shift"
+  ],
+  "answer": 1,
+  "why": "Tab completion saves typing and prevents typos."
+ }
+]

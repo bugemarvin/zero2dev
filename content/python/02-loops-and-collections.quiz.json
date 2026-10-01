@@ -1,0 +1,43 @@
+[
+ {
+  "q": "What does this print?",
+  "accept": [
+   "3"
+  ],
+  "why": "Negative indexes count from the end.",
+  "code": "print([1, 2, 3][-1])"
+ },
+ {
+  "q": "Which collection maps keys to values?",
+  "options": [
+   "list",
+   "tuple",
+   "dict",
+   "set"
+  ],
+  "answer": 2,
+  "why": "A dictionary: {\"name\": \"Sam\"}."
+ },
+ {
+  "q": "What does range(3) produce?",
+  "options": [
+   "1, 2, 3",
+   "0, 1, 2",
+   "0, 1, 2, 3",
+   "3"
+  ],
+  "answer": 1,
+  "why": "It starts at 0 and stops before 3."
+ },
+ {
+  "q": "What is special about a set?",
+  "options": [
+   "It is ordered",
+   "Each value appears at most once",
+   "It cannot change",
+   "It holds only numbers"
+  ],
+  "answer": 1,
+  "why": "Sets are for uniqueness and fast membership tests."
+ }
+]

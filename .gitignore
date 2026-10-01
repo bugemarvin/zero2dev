@@ -11,3 +11,4 @@ __pycache__/
 *.beam
 a.out
 .DS_Store
+.game.json

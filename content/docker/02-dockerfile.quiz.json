@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which instruction sets the base image?",
+  "options": [
+   "BASE",
+   "FROM",
+   "IMAGE",
+   "START"
+  ],
+  "answer": 1,
+  "why": "Every Dockerfile begins with FROM."
+ },
+ {
+  "q": "Why copy package.json and install before copying the rest of the code?",
+  "options": [
+   "Alphabetical order",
+   "The slow install layer is reused when only the code changes",
+   "It is required",
+   "For security"
+  ],
+  "answer": 1,
+  "why": "Layers are cached until an earlier one changes."
+ },
+ {
+  "q": "What is .dockerignore for?",
+  "options": [
+   "Ignoring errors",
+   "Keeping files out of the build, such as node_modules and .git",
+   "Hiding images",
+   "Logging"
+  ],
+  "answer": 1,
+  "why": "Builds are faster and secrets stay out."
+ }
+]

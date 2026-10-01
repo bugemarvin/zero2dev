@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which block handles an exception?",
+  "options": [
+   "catch",
+   "except",
+   "rescue",
+   "error"
+  ],
+  "answer": 1,
+  "why": "try ... except."
+ },
+ {
+  "q": "Why avoid a bare `except:`?",
+  "options": [
+   "It is slow",
+   "It hides every error, including bugs you did not expect",
+   "It does not compile",
+   "It is deprecated"
+  ],
+  "answer": 1,
+  "why": "Catch only the exceptions you can handle."
+ },
+ {
+  "q": "Which statement raises an exception?",
+  "options": [
+   "throw",
+   "raise",
+   "error",
+   "fail"
+  ],
+  "answer": 1,
+  "why": "raise ValueError(\"message\")."
+ },
+ {
+  "q": "Where do you read a traceback to find the cause?",
+  "options": [
+   "The first line",
+   "The last lines: the error type and the line that failed",
+   "The middle",
+   "Nowhere"
+  ],
+  "answer": 1,
+  "why": "The last line names the error. Just above it is the line of your code."
+ }
+]

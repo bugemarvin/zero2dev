@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which printf format prints an int?",
+  "options": [
+   "%s",
+   "%d",
+   "%f",
+   "%c"
+  ],
+  "answer": 1,
+  "why": "%d for int, %f for double, %s for strings, %c for a char."
+ },
+ {
+  "q": "What is 7 / 2 in C, with two ints?",
+  "accept": [
+   "3"
+  ],
+  "why": "Integer division drops the fraction."
+ },
+ {
+  "q": "Why does scanf need `&x`?",
+  "options": [
+   "For speed",
+   "It needs the address of x to store the value there",
+   "To print x",
+   "It is optional"
+  ],
+  "answer": 1,
+  "why": "scanf writes into the variable, so it needs its address."
+ },
+ {
+  "q": "What happens when a signed int goes past its maximum?",
+  "options": [
+   "It stays at the maximum",
+   "Undefined behaviour",
+   "An exception",
+   "It becomes a long"
+  ],
+  "answer": 1,
+  "why": "Signed overflow is undefined in C: anything may happen."
+ }
+]

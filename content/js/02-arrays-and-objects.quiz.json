@@ -1,0 +1,35 @@
+[
+ {
+  "q": "Which method returns a new array with each element transformed?",
+  "options": [
+   "forEach",
+   "map",
+   "filter",
+   "push"
+  ],
+  "answer": 1,
+  "why": "map keeps the length."
+ },
+ {
+  "q": "What does `const b = a` do when a is an array?",
+  "options": [
+   "Copies the array",
+   "Makes b refer to the same array",
+   "Freezes a",
+   "Fails"
+  ],
+  "answer": 1,
+  "why": "Use [...a] for a copy."
+ },
+ {
+  "q": "What does `user?.address?.city` return when address is missing?",
+  "options": [
+   "An error",
+   "undefined",
+   "null",
+   "\"\""
+  ],
+  "answer": 1,
+  "why": "Optional chaining stops and gives undefined."
+ }
+]

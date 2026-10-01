@@ -12,11 +12,12 @@ import hmac
 import json
 import mimetypes
 import secrets
+import signal
 import sys
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import api, core, providers, workspaces
+from . import api, background, core, platforminfo, providers, workspaces
 
 MAX_BODY = 2_000_000
 
@@ -41,8 +42,11 @@ def make_handler(token, port):
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Cross-Origin-Resource-Policy", "same-origin")
             self.send_header("Referrer-Policy", "no-referrer")
-            self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.end_headers()
+                self.wfile.write(body)
+            except (BrokenPipeError, ConnectionResetError):
+                pass                        # the page was closed or reloaded before the answer arrived
 
         def json(self, status, data):
             self.send(status, json.dumps(data).encode(), "application/json; charset=utf-8")
@@ -158,14 +162,22 @@ def create(port=4750, tries=20):
     raise SystemExit(f"could not open a port near {port}: {last_error}")
 
 
-def serve(port=4750, open_browser=True):
-    server, _token, port = create(port)
+def serve(port=4750, open_browser=True, exact=False):
+    """Run until stopped. With `exact`, use this port or fail: a background app must be where it was promised."""
+    server, _token, port = create(port, tries=1 if exact else 20)
     url = f"http://127.0.0.1:{port}/"
+    background.write_state(port)
+
+    def on_term(_signum, _frame):       # `app.py stop`, systemd, a logout: finish cleanly
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGTERM, on_term)
     print(f"zero2dev is running at {url}")
     print("It uses the tools on this machine. Only this computer can reach it. Press Ctrl+C to stop.")
-    if open_browser:
-        import webbrowser
-        webbrowser.open(url)
+    where = platforminfo.detect()
+    if where["os"] == "wsl":
+        print(f"You are on {where['name']}: use your Windows browser. The address above works there.")
+    if open_browser and not platforminfo.open_url(url):
+        print(f"Could not open a browser. Open this address yourself: {url}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -173,6 +185,7 @@ def serve(port=4750, open_browser=True):
     finally:
         api.stop_all_apps()
         server.server_close()
+        background.clear_state()
     return 0
 
 

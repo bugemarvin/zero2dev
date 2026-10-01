@@ -15,7 +15,7 @@ import sys
 import tempfile
 import threading
 
-from . import core, doctor, jobs, progress as prog, providers, runner, services, workspaces
+from . import background, core, doctor, jobs, platforminfo, progress as prog, providers, runner, services, workspaces
 from .core import Skip
 from .toolchains import LANGS
 
@@ -174,6 +174,7 @@ def get_state(_data):
         "profile": prog.load_profile(),
         "exercises": [{"id": e.id, "title": e.title, "track": e.track, "kind": e.kind} for e in exercises],
         "work_root": str(core.WORK_ROOT),
+        "platform": platforminfo.detect(),
     }
 
 
@@ -371,6 +372,12 @@ def stop_all_apps():
 def post_open(data):
     """Open the exercise folder in VS Code, if the `code` command exists."""
     ex = exercise(data)
+    if data.get("with") == "files":
+        target = ex.sandbox if ex.kind == "sandbox" and ex.sandbox.exists() else ex.dir
+        shown = platforminfo.windows_path(target) or str(target)
+        if platforminfo.open_folder(target):
+            return {"opened": True, "path": shown}
+        return {"opened": False, "error": "Open this folder yourself: " + shown}
     if shutil.which("code") is None:
         return {"opened": False, "error": "the `code` command was not found. Open this folder yourself: "
                                           + str(ex.sandbox if ex.kind == "sandbox" else ex.dir)}
@@ -380,11 +387,15 @@ def post_open(data):
     return {"opened": True, "path": str(target)}
 
 
-def get_doctor(_data):
+def get_doctor(data):
+    if data.get("fresh"):
+        doctor.forget()
     report = doctor.report()
     report["tracks"] = doctor.tracks()
     report["profile"] = prog.load_profile()
     report["can_sudo"] = can_sudo()
+    report["platform"] = platforminfo.detect()
+    report["fallback_stacks"] = sorted(FALLBACK_STACKS)
     return report
 
 
@@ -392,8 +403,35 @@ def get_track(data):
     """What one track needs and whether this machine has it, for the install box of its first lesson."""
     for track in doctor.tracks():
         if track["id"] == data.get("id"):
-            return dict(track, can_sudo=can_sudo(), user_stacks=sorted(USER_STACKS))
+            return dict(track, can_sudo=can_sudo(), user_stacks=sorted(USER_STACKS),
+                        fallback_stacks=sorted(FALLBACK_STACKS), platform=platforminfo.detect())
     raise ApiError("unknown track", 404)
+
+
+def get_autostart(_data):
+    return dict(background.autostart_status(), running=background.status())
+
+
+def post_autostart(data):
+    """Switch "start when I log in" on or off. Uses only per-user mechanisms: no administrator rights."""
+    if data.get("enable"):
+        ok, message = background.autostart_on()
+    else:
+        ok, message = background.autostart_off()
+    return dict(background.autostart_status(), ok=ok, message=message)
+
+
+def get_game(_data):
+    return {"game": prog.load_game()}
+
+
+def post_game(data):
+    """Store the learner's quiz results, streak and place. The page owns the format; the server keeps it."""
+    game = data.get("game")
+    if not isinstance(game, dict) or len(json.dumps(game)) > 400_000:
+        raise ApiError("game must be an object of a sensible size")
+    prog.save_game(game)
+    return {"saved": True}
 
 
 def post_profile(data):
@@ -410,6 +448,7 @@ def post_service(data):
     if name not in services.SERVICES:
         raise ApiError("unknown service", 404)
     action = data.get("action")
+    doctor.forget()
     if action == "down":
         return {"service": services.down(name, purge=bool(data.get("purge")))}
     if action != "up":
@@ -427,6 +466,8 @@ def post_service(data):
 # Stacks whose install needs no administrator rights: they go into the user's home folder.
 USER_STACKS = {"node", "java", "go", "rust", "elixir"}
 ALL_STACKS = USER_STACKS | {"core", "python", "ruby", "php", "postgres", "sqlite", "redis", "mongodb", "docker"}
+# Stacks that install.sh can also install another way (from the system packages), with --fallback.
+FALLBACK_STACKS = {"node", "java", "go", "rust", "elixir"}
 
 
 def can_sudo():
@@ -472,7 +513,17 @@ def post_job(data):
         if name not in ALL_STACKS:
             raise ApiError("unknown stack", 404)
         script = core.ROOT / "setup" / "install.sh"
-        if name in USER_STACKS:
+        if not platforminfo.detect()["installer"]:
+            raise ApiError("the install script needs Ubuntu or Debian (apt). On this system install the tool "
+                           "with your own package manager, or let Docker run it.", 409)
+        if data.get("fallback"):
+            if name not in FALLBACK_STACKS:
+                raise ApiError(f"{name} has only one way of installing")
+            if not can_sudo():
+                raise ApiError("installing from the system packages needs your password. Run this in a terminal: "
+                               f"./setup/install.sh --stack {name} --fallback", 409)
+            cmd = ["bash", str(script), "--yes", "--fallback", "--stack", name]
+        elif name in USER_STACKS:
             cmd = ["bash", str(script), "--yes", "--no-sudo", "--stack", name]
         elif can_sudo():
             cmd = ["bash", str(script), "--yes", "--stack", name]
@@ -496,10 +547,12 @@ def get_job(data):
     job = jobs.get(str(data.get("id", "")))
     if job is None:
         raise ApiError("unknown job", 404)
+    if job.as_dict().get("state") != "running":
+        doctor.forget()         # something was installed or downloaded: look at the machine again
     return job.as_dict()
 
 
-GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track}
+GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track, "game": get_game, "autostart": get_autostart}
 POST = {"save": post_save, "lang": post_lang, "run": post_run, "reset": post_reset, "show": post_show,
         "shell": post_shell, "sandbox": post_sandbox, "app": post_app, "open": post_open,
-        "profile": post_profile, "service": post_service, "job": post_job}
+        "profile": post_profile, "service": post_service, "job": post_job, "game": post_game, "autostart": post_autostart}

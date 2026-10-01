@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does `>` do?",
+  "options": [
+   "Compares two numbers",
+   "Sends a command's output into a file, replacing it",
+   "Appends to a file",
+   "Runs two commands"
+  ],
+  "answer": 1,
+  "why": "> replaces the file. >> appends to it."
+ },
+ {
+  "q": "What does the pipe `|` do?",
+  "options": [
+   "Writes to a file",
+   "Feeds the output of one command into the next",
+   "Runs a command in the background",
+   "Stops a command"
+  ],
+  "answer": 1,
+  "why": "A pipe connects standard output to the next command's standard input."
+ },
+ {
+  "q": "Which command counts lines?",
+  "options": [
+   "wc -l",
+   "ls -l",
+   "cat -n",
+   "head -c"
+  ],
+  "answer": 0,
+  "why": "wc counts. -l counts lines."
+ },
+ {
+  "q": "Where do error messages normally go?",
+  "options": [
+   "Standard input",
+   "Standard output",
+   "Standard error",
+   "A log file"
+  ],
+  "answer": 2,
+  "why": "Errors go to standard error, so they are not mixed into the data."
+ }
+]
