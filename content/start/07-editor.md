@@ -38,14 +38,14 @@ Every exercise in this guide goes the same way, and there are two places to do i
 
 ### In the app
 
-Start it once with `python3 app.py`. At the end of each lesson, under **Test yourself**:
+Start it once with `python3 app.py`. A lesson that has exercises opens with a **workspace** panel on the right: the lesson stays on the left, and the editor, the Run button and the results sit beside it. Drag the panel's left edge to resize it, widen it to the full page with the arrow button, or close it and bring it back with the Workspace tab at the right edge.
 
-1. Read the task.
-2. Write your code in the editor on the page. It is saved into the exercise folder, so the same file is there for VS Code.
+1. Read the task, in the lesson or at the top of the panel.
+2. Write your code in the editor. It is saved into the exercise folder, so the same file is there for VS Code.
 3. Press **Run tests**, or Ctrl+Enter. Each test shows a tick or a cross, with what was expected and what your program did.
 4. Fix one thing and run again. **Hint** reveals a hint, and **Reset** brings the starter back.
 
-Exercises on Git and the shell have a command line on the page in place of an editor: type a command, press Enter, and then **Check my work**.
+Exercises on Git and the shell have a command line in the panel in place of an editor: type a command, press Enter, and then **Check my work**.
 
 ### In a terminal, with your own editor
 

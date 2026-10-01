@@ -18,7 +18,7 @@ $ python3 app.py
 That opens the app at `http://127.0.0.1:4750`. It needs only Python 3. No account, no cloud: everything runs on your computer and stays there.
 
 1. Open **Setup** to see what your machine already has, and tick the tracks you want.
-2. Open a lesson. At the end, each exercise has an editor and a **Run tests** button.
+2. Open a lesson. The lesson is on the left, and a workspace panel on the right holds the editor, the command line, **Run tests** and the results. Resize it, make it full width, or close it.
 3. Your progress shows on the home page.
 
 Prefer a terminal and your own editor? The same checker works from the command line:
