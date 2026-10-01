@@ -1,0 +1,56 @@
+{
+  "title": "Add the right indexes",
+  "lesson": "sql/08-indexes-and-explain",
+  "kind": "sql",
+  "engine": "postgres",
+  "seed": "seed.sql",
+  "file": "query.sql",
+  "checks": [
+    {
+      "name": "orders has an index on customer_id",
+      "query": "SELECT COUNT(*) >= 1 FROM pg_indexes WHERE tablename = 'orders' AND indexdef ~ '\\(customer_id\\)'",
+      "rows": [
+        [
+          true
+        ]
+      ]
+    },
+    {
+      "name": "books has an index on (genre, price), in that order",
+      "query": "SELECT COUNT(*) >= 1 FROM pg_indexes WHERE tablename = 'books' AND indexdef ~ '\\(genre, price\\)'",
+      "rows": [
+        [
+          true
+        ]
+      ]
+    },
+    {
+      "name": "authors has a unique index on name",
+      "query": "SELECT COUNT(*) >= 1 FROM pg_indexes WHERE tablename = 'authors' AND indexdef ~ '^CREATE UNIQUE INDEX' AND indexdef ~ '\\(name\\)'",
+      "rows": [
+        [
+          true
+        ]
+      ]
+    },
+    {
+      "name": "a second author with an existing name is now rejected",
+      "query": "INSERT INTO authors (id, name, country) VALUES (99, 'Mara Lind', 'Norway')",
+      "error": true
+    },
+    {
+      "name": "the planner can use the index on orders",
+      "query": "SET enable_seqscan = off; SELECT COUNT(*) FROM orders WHERE customer_id = 3;",
+      "rows": [
+        [
+          3
+        ]
+      ]
+    }
+  ],
+  "hints": [
+    "CREATE INDEX some_name ON orders (customer_id);",
+    "A two-column index lists both columns in the brackets. The order matters: (genre, price).",
+    "CREATE UNIQUE INDEX ... makes the index enforce uniqueness as well."
+  ]
+}

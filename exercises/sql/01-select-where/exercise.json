@@ -1,0 +1,31 @@
+{
+  "title": "Cheap fiction",
+  "lesson": "sql/01-select",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title",
+      "price"
+    ],
+    "ordered": false,
+    "rows": [
+      [
+        "The Silent River",
+        "12.5"
+      ],
+      [
+        "Night Trains",
+        "14"
+      ],
+      [
+        "Paper Boats",
+        "9.5"
+      ]
+    ]
+  },
+  "hints": [
+    "Start with SELECT title, price FROM books; and look at the result with the show command.",
+    "Add a WHERE with two conditions joined by AND. Text goes in single quotes: genre = 'fiction'"
+  ]
+}

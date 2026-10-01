@@ -1,0 +1,89 @@
+{
+  "title": "Design two tables",
+  "lesson": "sql/07-schema-and-constraints",
+  "kind": "sql",
+  "file": "query.sql",
+  "checks": [
+    {
+      "name": "a valid member can be inserted",
+      "query": "INSERT INTO members (id, email, name) VALUES (1, 'ada@example.org', 'Ada'); SELECT COUNT(*) FROM members;",
+      "rows": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "name": "joined_on is filled in by default",
+      "query": "SELECT COUNT(*) FROM members WHERE id = 1 AND joined_on IS NOT NULL",
+      "rows": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "name": "a member with no email is rejected",
+      "query": "INSERT INTO members (id, email, name) VALUES (2, NULL, 'Bob')",
+      "error": true
+    },
+    {
+      "name": "a member with no name is rejected",
+      "query": "INSERT INTO members (id, email, name) VALUES (2, 'bob@example.org', NULL)",
+      "error": true
+    },
+    {
+      "name": "a duplicate email is rejected",
+      "query": "INSERT INTO members (id, email, name) VALUES (3, 'ada@example.org', 'Other Ada')",
+      "error": true
+    },
+    {
+      "name": "a duplicate id is rejected",
+      "query": "INSERT INTO members (id, email, name) VALUES (1, 'new@example.org', 'New')",
+      "error": true
+    },
+    {
+      "name": "a valid loan can be inserted",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (1, 1, 'Dune', 14); SELECT COUNT(*) FROM loans;",
+      "rows": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "name": "loans of 1 day and of 30 days are allowed",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (2, 1, 'Emma', 1), (3, 1, 'Ulysses', 30); SELECT COUNT(*) FROM loans;",
+      "rows": [
+        [
+          3
+        ]
+      ]
+    },
+    {
+      "name": "a loan for an unknown member is rejected",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (4, 999, 'Dune', 14)",
+      "error": true
+    },
+    {
+      "name": "a loan of 0 days is rejected",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (5, 1, 'Dune', 0)",
+      "error": true
+    },
+    {
+      "name": "a loan of 31 days is rejected",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (6, 1, 'Dune', 31)",
+      "error": true
+    },
+    {
+      "name": "a loan with no book title is rejected",
+      "query": "INSERT INTO loans (id, member_id, book_title, days) VALUES (7, 1, NULL, 7)",
+      "error": true
+    }
+  ],
+  "hints": [
+    "Every column that must have a value needs NOT NULL. email also needs UNIQUE.",
+    "joined_on DATE NOT NULL DEFAULT CURRENT_DATE",
+    "member_id INTEGER NOT NULL REFERENCES members(id), and days INTEGER NOT NULL CHECK (days BETWEEN 1 AND 30)"
+  ]
+}

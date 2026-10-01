@@ -1,0 +1,63 @@
+{
+  "title": "Transfer money safely",
+  "lesson": "sql/09-transactions",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "file": "query.sql",
+  "require": [
+    "begin",
+    "commit",
+    "rollback"
+  ],
+  "checks": [
+    {
+      "name": "alice has 60 and bob has 90",
+      "query": "SELECT name, balance FROM accounts WHERE name IN ('alice', 'bob') ORDER BY name",
+      "rows": [
+        [
+          "alice",
+          60
+        ],
+        [
+          "bob",
+          90
+        ]
+      ],
+      "ordered": true
+    },
+    {
+      "name": "the transfer is recorded once",
+      "query": "SELECT from_name, to_name, amount FROM transfers",
+      "rows": [
+        [
+          "alice",
+          "bob",
+          40
+        ]
+      ]
+    },
+    {
+      "name": "no money appeared or vanished",
+      "query": "SELECT SUM(balance) FROM accounts",
+      "rows": [
+        [
+          150
+        ]
+      ]
+    },
+    {
+      "name": "the rolled-back delete left all three accounts in place",
+      "query": "SELECT COUNT(*) FROM accounts",
+      "rows": [
+        [
+          3
+        ]
+      ]
+    }
+  ],
+  "hints": [
+    "The first transaction is BEGIN; two UPDATEs and one INSERT; COMMIT;",
+    "The second is BEGIN; DELETE FROM transfers; DELETE FROM accounts; ROLLBACK;",
+    "transfers refers to accounts, so the transfers rows must be deleted before the accounts rows."
+  ]
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Designing tables · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/07-schema-and-constraints">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 7 of 10</p>
+<h1>Designing tables</h1>
+<p class="lede">Create tables with types and constraints, so that the database itself rejects bad data.</p>
+<h2 id="create-table">CREATE TABLE</h2>
+<pre><code class="lang-sql">CREATE TABLE members (
+    id         INTEGER PRIMARY KEY,
+    email      TEXT NOT NULL UNIQUE,
+    name       TEXT NOT NULL,
+    joined_on  DATE NOT NULL DEFAULT CURRENT_DATE
+);</code></pre>
+<p>Each line is a column: its name, its type and its constraints.</p>
+<h2 id="types">Types</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Holds</th></tr></thead><tbody><tr><td><code>INTEGER</code>, <code>BIGINT</code></td><td>whole numbers</td></tr><tr><td><code>NUMERIC(10, 2)</code></td><td>exact decimals. Use this for money.</td></tr><tr><td><code>REAL</code>, <code>DOUBLE PRECISION</code></td><td>floating point: fast and inexact</td></tr><tr><td><code>TEXT</code>, <code>VARCHAR(n)</code></td><td>text</td></tr><tr><td><code>BOOLEAN</code></td><td>true or false</td></tr><tr><td><code>DATE</code>, <code>TIMESTAMP</code></td><td>a day, a moment in time</td></tr></tbody></table></div>
+<p>Never store money in a floating-point column. <code>0.1 + 0.2</code> is not exactly <code>0.3</code> there.</p>
+<p>PostgreSQL enforces types strictly. SQLite is relaxed and will store text in an <code>INTEGER</code> column, so do not rely on it to catch type mistakes.</p>
+<h2 id="constraints">Constraints</h2>
+<p>A constraint is a rule the database enforces on <strong>every</strong> insert and update, whichever program sends it. Rules in application code can be bypassed or forgotten. Rules in the schema cannot.</p>
+<div class="table-wrap"><table><thead><tr><th>Constraint</th><th>Rule</th></tr></thead><tbody><tr><td><code>PRIMARY KEY</code></td><td>identifies the row: unique and never NULL</td></tr><tr><td><code>NOT NULL</code></td><td>a value is required</td></tr><tr><td><code>UNIQUE</code></td><td>no two rows may share this value</td></tr><tr><td><code>DEFAULT value</code></td><td>used when no value is given</td></tr><tr><td><code>CHECK (condition)</code></td><td>the condition must hold</td></tr><tr><td><code>REFERENCES table(column)</code></td><td>a foreign key: the value must exist in the other table</td></tr></tbody></table></div>
+<pre><code class="lang-sql">CREATE TABLE loans (
+    id          INTEGER PRIMARY KEY,
+    member_id   INTEGER NOT NULL REFERENCES members(id),
+    book_title  TEXT NOT NULL,
+    days        INTEGER NOT NULL CHECK (days BETWEEN 1 AND 30)
+);</code></pre>
+<p>With that in place:</p>
+<pre><code class="lang-sql">INSERT INTO loans (id, member_id, book_title, days) VALUES (1, 999, 'Dune', 14);
+-- rejected: there is no member 999
+
+INSERT INTO loans (id, member_id, book_title, days) VALUES (2, 1, 'Dune', 90);
+-- rejected: days must be between 1 and 30</code></pre>
+<h2 id="primary-keys">Primary keys</h2>
+<p>Every table should have one. The usual choice is an ID that the database generates:</p>
+<pre><code class="lang-sql">id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY    -- PostgreSQL
+id INTEGER PRIMARY KEY                                 -- SQLite assigns one automatically</code></pre>
+<p>A generated ID never needs to change. Real-world values such as email addresses do change, which makes them poor primary keys. Give them a <code>UNIQUE</code> constraint.</p>
+<h2 id="relationships">Relationships</h2>
+<p><strong>One to many:</strong> an author has many books. The "many" side holds the foreign key: <code>books.author_id</code>.</p>
+<p><strong>Many to many:</strong> a student takes many courses, and a course has many students. This needs a third table with one row for each pairing:</p>
+<pre><code class="lang-sql">CREATE TABLE enrolments (
+    student_id  INTEGER NOT NULL REFERENCES students(id),
+    course_id   INTEGER NOT NULL REFERENCES courses(id),
+    PRIMARY KEY (student_id, course_id)
+);</code></pre>
+<p>The two-column primary key prevents enrolling the same student in the same course twice.</p>
+<h2 id="normalisation-in-three-rules">Normalisation in three rules</h2>
+<p>Normalisation means organising tables so that each fact is stored <strong>once</strong>.</p>
+<ol><li><strong>One value per cell.</strong> No lists in a column. <code>phones = '555-1234, 555-9876'</code> should be a separate table of phone numbers.</li><li><strong>No repeated groups.</strong> Columns named <code>book1</code>, <code>book2</code>, <code>book3</code> are a "many" relationship trying to get out. Make a table.</li><li><strong>Each column depends on the key, and only the key.</strong> If <code>orders</code> stores both <code>customer_id</code> and <code>customer_city</code>, the city is a fact about the customer, not about the order. It belongs in <code>customers</code>.</li></ol>
+<p>Duplicated facts drift apart. One copy gets updated, the other does not, and nobody knows which is right.</p>
+<h2 id="changing-a-table-later">Changing a table later</h2>
+<pre><code class="lang-sql">ALTER TABLE members ADD COLUMN phone TEXT;
+ALTER TABLE members RENAME COLUMN name TO full_name;
+DROP TABLE loans;</code></pre>
+<p>On a real project, schema changes are written as numbered <strong>migration</strong> files and committed to Git, so that every copy of the database goes through the same changes in the same order.</p>
+<h2 id="what-to-do-when-a-parent-row-is-deleted">What to do when a parent row is deleted</h2>
+<p>A foreign key can say what happens to the children:</p>
+<pre><code class="lang-sql">member_id INTEGER NOT NULL REFERENCES members(id) ON DELETE CASCADE</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Effect when the parent row is deleted</th></tr></thead><tbody><tr><td>default</td><td>the delete is refused</td></tr><tr><td><code>ON DELETE CASCADE</code></td><td>the child rows are deleted too</td></tr><tr><td><code>ON DELETE SET NULL</code></td><td>the foreign key in the children becomes NULL</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No primary key.</strong></li><li><strong>Everything nullable.</strong> Add <code>NOT NULL</code> unless "unknown" really is a valid state.</li><li><strong>Floating point for money.</strong></li><li><strong>Lists inside a column.</strong></li><li><strong>Validating only in application code.</strong> Put the rule in the schema too.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/10-create-tables">
+<h3>Design two tables <span class="ex-id">sql/10-create-tables</span></h3>
+<p>A small library needs two tables. Write the <code>CREATE TABLE</code> statements in <code>query.sql</code>.</p>
+<p><strong><code>members</code></strong></p>
+<div class="table-wrap"><table><thead><tr><th>Column</th><th>Rules</th></tr></thead><tbody><tr><td><code>id</code></td><td>whole number, the primary key</td></tr><tr><td><code>email</code></td><td>text, required, no two members may share one</td></tr><tr><td><code>name</code></td><td>text, required</td></tr><tr><td><code>joined_on</code></td><td>a date, required, defaults to today's date</td></tr></tbody></table></div>
+<p><strong><code>loans</code></strong></p>
+<div class="table-wrap"><table><thead><tr><th>Column</th><th>Rules</th></tr></thead><tbody><tr><td><code>id</code></td><td>whole number, the primary key</td></tr><tr><td><code>member_id</code></td><td>required, must refer to an existing member</td></tr><tr><td><code>book_title</code></td><td>text, required</td></tr><tr><td><code>days</code></td><td>whole number, required, from 1 to 30 inclusive</td></tr></tbody></table></div>
+<p>The checker creates your tables and then tries to insert good and bad rows. The good ones must be accepted and the bad ones rejected.</p>
+<p class="ex-files">Files: <code>exercises/sql/10-create-tables/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/10-create-tables</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/06-changing-data.html"><span>Previous</span>Changing data</a><a class="next" href="../sql/08-indexes-and-explain.html"><span>Next</span>Indexes and EXPLAIN</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

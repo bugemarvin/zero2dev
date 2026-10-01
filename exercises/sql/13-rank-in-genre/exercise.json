@@ -1,0 +1,94 @@
+{
+  "title": "Rank books within their genre",
+  "lesson": "sql/10-window-functions-and-json",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title",
+      "genre",
+      "price",
+      "position"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "The Glass Orchard",
+        "fiction",
+        "16",
+        "1"
+      ],
+      [
+        "The Last Ferry",
+        "fiction",
+        "15",
+        "2"
+      ],
+      [
+        "Night Trains",
+        "fiction",
+        "14",
+        "3"
+      ],
+      [
+        "The Silent River",
+        "fiction",
+        "12.5",
+        "4"
+      ],
+      [
+        "Paper Boats",
+        "fiction",
+        "9.5",
+        "5"
+      ],
+      [
+        "Empire of Tea",
+        "history",
+        "20",
+        "1"
+      ],
+      [
+        "Salt Roads",
+        "history",
+        "17",
+        "2"
+      ],
+      [
+        "Small Hours",
+        "poetry",
+        "8",
+        "1"
+      ],
+      [
+        "The Quiet Atom",
+        "science",
+        "27",
+        "1"
+      ],
+      [
+        "Deep Field",
+        "science",
+        "23",
+        "2"
+      ],
+      [
+        "Counting Stars",
+        "science",
+        "22",
+        "3"
+      ],
+      [
+        "Northern Lines",
+        "travel",
+        "19",
+        "1"
+      ]
+    ]
+  },
+  "hints": [
+    "RANK() OVER (PARTITION BY genre ORDER BY price DESC) AS position",
+    "PARTITION BY restarts the ranking for each genre. Every book stays in the result.",
+    "The ORDER BY at the end of the query sorts the output: genre, position, title."
+  ]
+}

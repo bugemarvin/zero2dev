@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tables and SELECT · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/01-select">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 1 of 10</p>
+<h1>Tables and SELECT</h1>
+<p class="lede">What a relational database is, and how to ask it for exactly the rows and columns you want.</p>
+<h2 id="tables">Tables</h2>
+<p>A relational database stores data in <strong>tables</strong>. A table has named <strong>columns</strong>, each with a type, and any number of <strong>rows</strong>. It looks like a spreadsheet, with stricter rules.</p>
+<p>The exercises in this track use a small bookshop. Here is part of its <code>books</code> table:</p>
+<div class="table-wrap"><table><thead><tr><th>id</th><th>title</th><th>author_id</th><th>year</th><th>price</th><th>genre</th></tr></thead><tbody><tr><td>1</td><td>The Silent River</td><td>1</td><td>1998</td><td>12.50</td><td>fiction</td></tr><tr><td>2</td><td>Night Trains</td><td>1</td><td>2005</td><td>14.00</td><td>fiction</td></tr><tr><td>3</td><td>Counting Stars</td><td>2</td><td>2012</td><td>22.00</td><td>science</td></tr></tbody></table></div>
+<p><strong>SQL</strong> is the language for working with tables. You describe <strong>what</strong> you want, and the database works out how to get it.</p>
+<h2 id="sql-and-postgresql">SQL and PostgreSQL</h2>
+<p>SQL is a standard, and every database speaks its own dialect of it. <strong>PostgreSQL</strong> is a free, powerful database server used in a great many production systems. <strong>SQLite</strong> is a tiny database that lives in a single file, with no server.</p>
+<p>Almost everything in this track is standard SQL and runs on both. Most exercises are checked with SQLite, which is built into Python, so they need nothing installed. Two later exercises use features specific to PostgreSQL and need a running server:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack postgres</code></pre>
+<h2 id="select">SELECT</h2>
+<pre><code class="lang-sql">SELECT title, price
+FROM books;</code></pre>
+<ul><li><code>SELECT</code> lists the columns you want.</li><li><code>FROM</code> names the table.</li><li>The semicolon ends the statement.</li></ul>
+<p><code>SELECT *</code> means every column. It is handy for exploring and best avoided in real code, where naming the columns keeps things clear and stable.</p>
+<p>Keywords are not case-sensitive. Writing them in capitals is a convention that makes queries easier to read.</p>
+<h2 id="where">WHERE</h2>
+<p><code>WHERE</code> keeps only the rows for which a condition is true.</p>
+<pre><code class="lang-sql">SELECT title, price
+FROM books
+WHERE genre = 'fiction' AND price &lt; 15;</code></pre>
+<p>Text values go in <strong>single quotes</strong>. Double quotes mean something else in SQL: they name columns and tables.</p>
+<div class="table-wrap"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody><tr><td><code>=</code></td><td>equal (one <code>=</code>, unlike most programming languages)</td></tr><tr><td><code>&lt;&gt;</code> or <code>!=</code></td><td>not equal</td></tr><tr><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>comparisons</td></tr><tr><td><code>AND</code> <code>OR</code> <code>NOT</code></td><td>combine conditions</td></tr><tr><td><code>BETWEEN 10 AND 20</code></td><td>from 10 to 20, both included</td></tr><tr><td><code>IN ('a', 'b')</code></td><td>equal to any value in the list</td></tr><tr><td><code>LIKE 'Th%'</code></td><td>text pattern: <code>%</code> is any run of characters, <code>_</code> is exactly one</td></tr></tbody></table></div>
+<pre><code class="lang-sql">SELECT title FROM books WHERE year BETWEEN 2000 AND 2010;
+SELECT title FROM books WHERE genre IN ('science', 'history');
+SELECT title FROM books WHERE title LIKE 'The %';</code></pre>
+<p><code>AND</code> binds more tightly than <code>OR</code>. When you mix them, use brackets:</p>
+<pre><code class="lang-sql">WHERE (genre = 'fiction' OR genre = 'poetry') AND price &lt; 15</code></pre>
+<h2 id="null">NULL</h2>
+<p><code>NULL</code> means "no value": unknown, or does not apply. It is not zero and not an empty string.</p>
+<p><code>NULL</code> is never equal to anything, not even to another <code>NULL</code>. So <code>WHERE city = NULL</code> matches <strong>no rows at all</strong>. Test for it with <code>IS NULL</code> and <code>IS NOT NULL</code>:</p>
+<pre><code class="lang-sql">SELECT name FROM customers WHERE city IS NULL;</code></pre>
+<h2 id="trying-queries">Trying queries</h2>
+<p>Each SQL exercise has a file named <code>query.sql</code> where you write your answer, and a <code>seed.sql</code> that creates the sample tables. To see what your query returns, without judging it:</p>
+<pre><code class="lang-console">$ python3 check.py show sql/01-select-where
+sql/01-select-where  result of query.sql
+  title | price
+  The Silent River | 12.5
+  (1 row)</code></pre>
+<p>When it looks right, check it:</p>
+<pre><code class="lang-console">$ python3 check.py sql/01-select-where</code></pre>
+<p>To explore the data freely, load the seed file into a database shell:</p>
+<pre><code class="lang-console">$ sqlite3 shop.db &lt; exercises/sql/01-select-where/seed.sql
+$ sqlite3 shop.db
+sqlite&gt; SELECT * FROM books;</code></pre>
+<p>With PostgreSQL the shell is <code>psql</code>, and <code>\i seed.sql</code> runs a file.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Double quotes around text.</strong> Use <code>'fiction'</code>, not <code>"fiction"</code>.</li><li><strong><code>= NULL</code>.</strong> It is always <code>IS NULL</code>.</li><li><strong><code>==</code></strong> in place of <code>=</code>.</li><li><strong>Forgetting that text comparison is case-sensitive.</strong> <code>'Fiction'</code> does not match <code>'fiction'</code>.</li><li><strong>Mixing <code>AND</code> and <code>OR</code> with no brackets.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/01-select-where">
+<h3>Cheap fiction <span class="ex-id">sql/01-select-where</span></h3>
+<p>List the <strong>title</strong> and <strong>price</strong> of every fiction book that costs less than 15.</p>
+<p>The result has two columns, <code>title</code> and <code>price</code>. The order of the rows does not matter.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/01-select-where</code></p>
+<p class="ex-files">Files: <code>exercises/sql/01-select-where/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/01-select-where</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../dsa/17-segment-trees.html"><span>Previous</span>Segment trees</a><a class="next" href="../sql/02-sort-and-limit.html"><span>Next</span>Sorting, limiting and computed columns</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

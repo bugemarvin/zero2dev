@@ -1,0 +1,33 @@
+{
+  "title": "Count logins from JSON events",
+  "lesson": "sql/10-window-functions-and-json",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "user_name",
+      "logins"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "ada",
+        "3"
+      ],
+      [
+        "linus",
+        "2"
+      ],
+      [
+        "grace",
+        "1"
+      ]
+    ]
+  },
+  "hints": [
+    "payload ->> 'user' reads the user as text.",
+    "Keep only logins: WHERE payload @> '{\"type\": \"login\"}' or WHERE payload ->> 'type' = 'login'",
+    "GROUP BY the same expression you select: GROUP BY payload ->> 'user'"
+  ],
+  "engine": "postgres"
+}

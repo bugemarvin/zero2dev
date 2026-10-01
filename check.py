@@ -10,6 +10,7 @@
     python3 check.py hint <id>       show the hints for an exercise
     python3 check.py start <id> [--lang java]   create a starter file or sandbox
     python3 check.py reset <id>      recreate the sandbox of a git/shell exercise
+    python3 check.py show <id>       SQL exercises: run your query and print its result
 
 Standard library only. Works offline.
 """
@@ -581,22 +582,39 @@ def sql_table(columns, rows):
 
 
 def split_sql(text):
-    """Split a script into statements (SQLite's own parser decides where they end)."""
-    statements, current = [], ""
-    for line in text.split("\n"):
-        current += line + "\n"
-        if sqlite3.complete_statement(current):
-            if re.sub(r"--[^\n]*|\s|;", "", current):
-                statements.append(current.strip())
-            current = ""
-    if re.sub(r"--[^\n]*|\s|;", "", current):
-        statements.append(current.strip())
-    return statements
+    """Split a script into statements at semicolons, ignoring those inside quotes and comments."""
+    statements, current = [], []
+    i, n = 0, len(text)
+    while i < n:
+        ch = text[i]
+        if ch in "'\"":                                   # quoted text: copy up to the closing quote
+            j = i + 1
+            while j < n and text[j] != ch:
+                j += 1
+            current.append(text[i:j + 1])
+            i = j + 1
+        elif text.startswith("--", i):                    # comment to the end of the line
+            j = text.find("\n", i)
+            i = n if j < 0 else j
+        elif text.startswith("/*", i):                    # block comment
+            j = text.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+        elif ch == ";":
+            statements.append("".join(current).strip())
+            current = []
+            i += 1
+        else:
+            current.append(ch)
+            i += 1
+    statements.append("".join(current).strip())
+    return [st for st in statements if st]
 
 
 class SqliteDb:
     def __init__(self):
-        self.conn = sqlite3.connect(":memory:")
+        # isolation_level=None: no implicit transactions, so the learner's own
+        # BEGIN / COMMIT / ROLLBACK behave as they do in a database shell.
+        self.conn = sqlite3.connect(":memory:", isolation_level=None)
         self.conn.execute("PRAGMA foreign_keys = ON")
 
     def script(self, text):
@@ -607,7 +625,6 @@ class SqliteDb:
             if cur.description:
                 columns = [d[0] for d in cur.description]
                 rows = [[sql_value(v) for v in r] for r in cur.fetchall()]
-        self.conn.commit()
         return columns, rows
 
     def close(self):
@@ -644,7 +661,9 @@ class PostgresDb:
         return table[0], table[1:]
 
     def close(self):
-        self._psql("postgres", f'DROP DATABASE IF EXISTS "{self.name}" WITH (FORCE)')
+        code, _, _ = self._psql("postgres", f'DROP DATABASE IF EXISTS "{self.name}" WITH (FORCE)')
+        if code != 0:  # PostgreSQL 12 and older have no FORCE option
+            self._psql("postgres", f'DROP DATABASE IF EXISTS "{self.name}"')
 
 
 def check_sql(ex, exdir):
@@ -667,6 +686,12 @@ def check_sql(ex, exdir):
         except sqlite3.Error as exc:
             return [Result(False, f"{fname} runs without errors", str(exc))]
         results.append(Result(True, f"{fname} runs without errors"))
+
+        plain = re.sub(r"--[^\n]*", "", text).lower()
+        for word in spec.get("require", []):
+            found = re.search(r"\b" + re.escape(word.lower()) + r"\b", plain) is not None
+            results.append(Result(found, f"uses {word.upper()}",
+                                  "" if found else f"{fname} must use {word.upper()} for this exercise"))
 
         expect = spec.get("expect")
         if expect:
@@ -944,6 +969,34 @@ def cmd_start(selector, lang):
     return 0
 
 
+def cmd_show(selector):
+    """Run a SQL exercise's query against its sample data and print the result, without judging it."""
+    for ex in resolve(selector, load_exercises()):
+        if ex.kind != "sql":
+            print(f"{ex.id}: 'show' is for SQL exercises")
+            continue
+        spec = ex.spec
+        fname = spec.get("file", "query.sql")
+        print(bold(ex.id) + f"  result of {fname}")
+        try:
+            db = PostgresDb() if spec.get("engine") == "postgres" else SqliteDb()
+        except Skip as skip:
+            print(f"  {yellow(SKIP_MARK)} {skip}")
+            continue
+        try:
+            if spec.get("seed"):
+                db.script((ex.dir / spec["seed"]).read_text(encoding="utf-8"))
+            columns, rows = db.script((ex.dir / fname).read_text(encoding="utf-8"))
+            for line in clip(sql_table(columns, rows), 40, 4000).split("\n"):
+                print("  " + line)
+            print(dim(f"  ({len(rows)} row{'s' if len(rows) != 1 else ''})"))
+        except sqlite3.Error as exc:
+            print("  " + red("error: ") + str(exc))
+        finally:
+            db.close()
+    return 0
+
+
 def cmd_reset(selector):
     for ex in resolve(selector, load_exercises()):
         if ex.kind != "sandbox":
@@ -1009,13 +1062,15 @@ def main(argv):
     simple = {"list": cmd_list, "progress": cmd_progress, "next": cmd_next, "doctor": cmd_doctor}
     if command in simple:
         return simple[command]()
-    if command in ("hint", "reset", "start"):
+    if command in ("hint", "reset", "start", "show"):
         if not rest:
             sys.exit(f"Usage: python3 check.py {command} <exercise>")
         if command == "hint":
             return cmd_hint(rest[0])
         if command == "reset":
             return cmd_reset(rest[0])
+        if command == "show":
+            return cmd_show(rest[0])
         return cmd_start(rest[0], lang)
     return cmd_run(argv, lang)
 

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting, limiting and computed columns · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/02-sort-and-limit">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 2 of 10</p>
+<h1>Sorting, limiting and computed columns</h1>
+<p class="lede">Put rows in order, take the first few, remove duplicates, and calculate new columns.</p>
+<h2 id="rows-have-no-order">Rows have no order</h2>
+<p>A table is a set of rows. Without <code>ORDER BY</code>, the database may return them in any order, and that order can change from one run to the next. If the order matters to you, say so.</p>
+<h2 id="order-by">ORDER BY</h2>
+<pre><code class="lang-sql">SELECT title, price
+FROM books
+ORDER BY price;</code></pre>
+<p>The default is ascending: smallest first. Add <code>DESC</code> for the opposite.</p>
+<pre><code class="lang-sql">ORDER BY price DESC</code></pre>
+<p>Sort by several columns. The second is used only where the first is equal:</p>
+<pre><code class="lang-sql">SELECT title, genre, price
+FROM books
+ORDER BY genre, price DESC;</code></pre>
+<p>That lists the genres alphabetically, and within each genre the most expensive book first.</p>
+<p>A complete ordering needs a <strong>tie-breaker</strong>. If two books cost the same, <code>ORDER BY price</code> leaves their relative order undefined. <code>ORDER BY price DESC, title</code> settles it.</p>
+<h2 id="limit">LIMIT</h2>
+<pre><code class="lang-sql">SELECT title, price
+FROM books
+ORDER BY price DESC
+LIMIT 3;</code></pre>
+<p>The three most expensive books. <code>LIMIT</code> is applied after sorting, so <code>ORDER BY</code> decides <strong>which</strong> rows you get. <code>LIMIT</code> without <code>ORDER BY</code> returns some arbitrary rows.</p>
+<p><code>OFFSET</code> skips rows first, which is how paging works:</p>
+<pre><code class="lang-sql">LIMIT 10 OFFSET 20      -- rows 21 to 30</code></pre>
+<h2 id="distinct">DISTINCT</h2>
+<p><code>DISTINCT</code> removes duplicate rows from the result:</p>
+<pre><code class="lang-sql">SELECT DISTINCT genre
+FROM books;</code></pre>
+<p>With several columns it applies to the combination.</p>
+<h2 id="computed-columns-and-aliases">Computed columns and aliases</h2>
+<p>A column in the result can be an expression. <code>AS</code> gives it a name:</p>
+<pre><code class="lang-sql">SELECT title,
+       price,
+       price * 1.2 AS price_with_tax
+FROM books;</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Result</th></tr></thead><tbody><tr><td><code>ROUND(x, 2)</code></td><td><code>x</code> rounded to 2 decimals</td></tr><tr><td><code>UPPER(s)</code>, <code>LOWER(s)</code></td><td>text in upper or lower case</td></tr><tr><td><code>LENGTH(s)</code></td><td>number of characters</td></tr><tr><td><code>a || b</code></td><td>the two texts joined together</td></tr><tr><td><code>COALESCE(x, y)</code></td><td><code>x</code>, or <code>y</code> if <code>x</code> is NULL</td></tr></tbody></table></div>
+<pre><code class="lang-sql">SELECT name, COALESCE(city, 'unknown') AS city
+FROM customers;</code></pre>
+<h2 id="case">CASE</h2>
+<p><code>CASE</code> is SQL's if/else. It produces a value:</p>
+<pre><code class="lang-sql">SELECT title,
+       CASE
+           WHEN price &lt; 12 THEN 'cheap'
+           WHEN price &lt; 20 THEN 'medium'
+           ELSE 'expensive'
+       END AS band
+FROM books;</code></pre>
+<p>The conditions are tried from the top, and the first one that holds wins.</p>
+<h2 id="the-order-of-the-clauses">The order of the clauses</h2>
+<p>The clauses must be <strong>written</strong> in this order:</p>
+<pre><code class="lang-sql">SELECT ...
+FROM ...
+WHERE ...
+ORDER BY ...
+LIMIT ...</code></pre>
+<p>The database <strong>evaluates</strong> them in a different order: <code>FROM</code>, then <code>WHERE</code>, then <code>SELECT</code>, then <code>ORDER BY</code>, then <code>LIMIT</code>. One consequence: an alias created in <code>SELECT</code> does not exist yet when <code>WHERE</code> runs, so you cannot use it there. You can use it in <code>ORDER BY</code>.</p>
+<pre><code class="lang-sql">SELECT title, price * 1.2 AS gross
+FROM books
+WHERE price * 1.2 &gt; 20        -- the alias gross is not available here
+ORDER BY gross;               -- and here it is</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Relying on order with no <code>ORDER BY</code>.</strong></li><li><strong><code>LIMIT</code> with no <code>ORDER BY</code></strong>, when you meant "the top few".</li><li><strong>No tie-breaker</strong>, so equal rows come out in a different order on different runs.</li><li><strong>Using a <code>SELECT</code> alias inside <code>WHERE</code>.</strong></li><li><strong>Where NULLs sort.</strong> PostgreSQL puts them last in ascending order, SQLite puts them first. Say <code>NULLS FIRST</code> or <code>NULLS LAST</code> when it matters.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/02-top-three">
+<h3>The three most expensive books <span class="ex-id">sql/02-top-three</span></h3>
+<p>List the <strong>title</strong> and <strong>price</strong> of the three most expensive books, the most expensive first.</p>
+<p>The order of the rows matters.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/02-top-three</code></p>
+<p class="ex-files">Files: <code>exercises/sql/02-top-three/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/02-top-three</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/01-select.html"><span>Previous</span>Tables and SELECT</a><a class="next" href="../sql/03-aggregates.html"><span>Next</span>Aggregates and GROUP BY</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

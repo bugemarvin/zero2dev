@@ -1,0 +1,36 @@
+{
+  "title": "Statistics per genre",
+  "lesson": "sql/03-aggregates",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "genre",
+      "books",
+      "average_price"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "fiction",
+        "5",
+        "13.4"
+      ],
+      [
+        "history",
+        "2",
+        "18.5"
+      ],
+      [
+        "science",
+        "3",
+        "24"
+      ]
+    ]
+  },
+  "hints": [
+    "GROUP BY genre gives one row per genre. COUNT(*) and AVG(price) are computed for each.",
+    "The condition 'at least two books' is about a group, so it goes in HAVING, not WHERE.",
+    "Name the columns with AS: COUNT(*) AS books"
+  ]
+}

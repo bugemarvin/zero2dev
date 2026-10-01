@@ -1,0 +1,43 @@
+{
+  "title": "Books above the average price",
+  "lesson": "sql/05-subqueries-and-ctes",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title",
+      "price"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "The Quiet Atom",
+        "27"
+      ],
+      [
+        "Deep Field",
+        "23"
+      ],
+      [
+        "Counting Stars",
+        "22"
+      ],
+      [
+        "Empire of Tea",
+        "20"
+      ],
+      [
+        "Northern Lines",
+        "19"
+      ],
+      [
+        "Salt Roads",
+        "17"
+      ]
+    ]
+  },
+  "hints": [
+    "The average is one value: (SELECT AVG(price) FROM books)",
+    "Compare each book's price with that subquery in the WHERE clause."
+  ]
+}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indexes and EXPLAIN · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/08-indexes-and-explain">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 8 of 10</p>
+<h1>Indexes and EXPLAIN</h1>
+<p class="lede">Why a query is slow, how an index fixes it, and how to see what the database is really doing.</p>
+<h2 id="the-problem">The problem</h2>
+<pre><code class="lang-sql">SELECT * FROM orders WHERE customer_id = 42;</code></pre>
+<p>With no help, the database reads <strong>every row</strong> of <code>orders</code> and tests each one. That is a <strong>sequential scan</strong>: O(n). With a hundred rows nobody notices. With fifty million, the query takes seconds.</p>
+<h2 id="what-an-index-is">What an index is</h2>
+<p>An index is a separate structure that keeps the values of a column in sorted order, each with a pointer to its row. It works like the index at the back of a book: look the word up, then go straight to the page.</p>
+<p>PostgreSQL's default index is a <strong>B-tree</strong>, a wide, balanced <a href="../dsa/09-trees-and-bst.html">search tree</a>. Finding a value in it takes O(log n) steps. For fifty million rows that is around four or five steps.</p>
+<pre><code class="lang-sql">CREATE INDEX orders_customer_id_idx ON orders (customer_id);</code></pre>
+<p>The query above now finds its rows directly.</p>
+<p>A B-tree index serves equality (<code>=</code>), ranges (<code>&lt;</code>, <code>&gt;</code>, <code>BETWEEN</code>), sorting (<code>ORDER BY</code>) and prefix patterns (<code>LIKE 'abc%'</code>).</p>
+<h2 id="indexes-you-already-have">Indexes you already have</h2>
+<p>A <code>PRIMARY KEY</code> or <code>UNIQUE</code> constraint creates an index automatically. That is how the database checks uniqueness quickly.</p>
+<p><strong>Foreign key columns are not indexed automatically</strong> in PostgreSQL. They are joined and filtered on all the time, so index them yourself.</p>
+<p>A unique index doubles as a rule:</p>
+<pre><code class="lang-sql">CREATE UNIQUE INDEX authors_name_idx ON authors (name);</code></pre>
+<h2 id="indexes-on-several-columns">Indexes on several columns</h2>
+<pre><code class="lang-sql">CREATE INDEX books_genre_price_idx ON books (genre, price);</code></pre>
+<p>The entries are sorted by genre first, and by price within each genre, like a phone book sorted by surname and then first name.</p>
+<div class="table-wrap"><table><thead><tr><th>Query condition</th><th>Can it use the index?</th></tr></thead><tbody><tr><td><code>genre = 'fiction'</code></td><td>yes</td></tr><tr><td><code>genre = 'fiction' AND price &lt; 15</code></td><td>yes, fully</td></tr><tr><td><code>price &lt; 15</code></td><td>no: price is not the leading column</td></tr></tbody></table></div>
+<p>The order of the columns matters. Put the column you test with <code>=</code> first.</p>
+<h2 id="explain">EXPLAIN</h2>
+<p><code>EXPLAIN</code> shows the plan the database has chosen, without running the query:</p>
+<pre><code class="lang-sql">EXPLAIN SELECT * FROM orders WHERE customer_id = 42;</code></pre>
+<p>Before the index:</p>
+<pre><code class="lang-text">Seq Scan on orders  (cost=0.00..1693.00 rows=10 width=24)
+  Filter: (customer_id = 42)</code></pre>
+<p>After:</p>
+<pre><code class="lang-text">Index Scan using orders_customer_id_idx on orders  (cost=0.29..8.47 rows=10 width=24)
+  Index Cond: (customer_id = 42)</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody><tr><td><code>Seq Scan</code></td><td>reads the whole table</td></tr><tr><td><code>Index Scan</code></td><td>uses an index to find the rows</td></tr><tr><td><code>Index Only Scan</code></td><td>answers from the index alone, never touching the table</td></tr><tr><td><code>cost</code></td><td>the planner's estimate, in its own units. Lower is better.</td></tr><tr><td><code>rows</code></td><td>how many rows the planner expects</td></tr></tbody></table></div>
+<p><code>EXPLAIN ANALYZE</code> <strong>runs</strong> the query and adds the real times and row counts. Use it to compare before and after. Be careful with <code>EXPLAIN ANALYZE</code> on an <code>UPDATE</code> or <code>DELETE</code>: it really performs the change.</p>
+<h2 id="why-not-index-everything">Why not index everything</h2>
+<ul><li><strong>Writes get slower.</strong> Every <code>INSERT</code>, <code>UPDATE</code> and <code>DELETE</code> must update every index on the table.</li><li><strong>They take disk space and memory.</strong></li><li><strong>Small tables do not need them.</strong> Scanning 200 rows is faster than using an index, and the planner knows it. On a tiny table you will see <code>Seq Scan</code> even when an index exists.</li><li><strong>Unselective columns gain little.</strong> An index on a column with two possible values rarely helps.</li></ul>
+<h2 id="what-to-index">What to index</h2>
+<ol><li>Columns used in <code>WHERE</code> on large tables.</li><li>Foreign key columns used in joins.</li><li>Columns used in <code>ORDER BY</code> together with <code>LIMIT</code>.</li></ol>
+<p>Measure first. Find the slow query, read its plan, add one index, and read the plan again.</p>
+<h2 id="what-defeats-an-index">What defeats an index</h2>
+<div class="table-wrap"><table><thead><tr><th>Condition</th><th>Problem</th></tr></thead><tbody><tr><td><code>WHERE LOWER(email) = 'a@b.c'</code></td><td>a function is applied to the column</td></tr><tr><td><code>WHERE price * 2 &gt; 30</code></td><td>arithmetic on the column. Write <code>price &gt; 15</code>.</td></tr><tr><td><code>WHERE name LIKE '%son'</code></td><td>the pattern starts with a wildcard</td></tr></tbody></table></div>
+<p>For the first, PostgreSQL can index the expression itself: <code>CREATE INDEX ON members (LOWER(email));</code></p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Indexing before measuring.</strong></li><li><strong>Wrong column order</strong> in a multi-column index.</li><li><strong>Forgetting foreign keys.</strong></li><li><strong>Wrapping the indexed column in a function</strong> in the <code>WHERE</code> clause.</li><li><strong>Never removing unused indexes.</strong> They slow down every write.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/11-indexes">
+<h3>Add the right indexes <span class="ex-id">sql/11-indexes</span></h3>
+<p>This exercise needs a running PostgreSQL server (<code>./setup/install.sh --stack postgres</code>).</p>
+<p>The bookshop is growing. Write the statements in <code>query.sql</code> that create three indexes:</p>
+<ol><li>An index on <code>orders</code> that speeds up <code>WHERE customer_id = ...</code>.</li><li>One index on <code>books</code> that serves queries filtering on <code>genre</code> and then on <code>price</code>, such as <code>WHERE genre = 'fiction' AND price &lt; 15</code>.</li><li>A <strong>unique</strong> index on the <code>name</code> of <code>authors</code>, so that no two authors can share a name.</li></ol>
+<p>You may name the indexes as you like.</p>
+<p>To look at a query plan yourself, load <code>seed.sql</code> into a database with <code>psql</code> and run <code>EXPLAIN SELECT * FROM orders WHERE customer_id = 3;</code> before and after. With so few rows PostgreSQL may still choose a sequential scan, which is the right choice for a tiny table.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/11-indexes</code></p>
+<p class="ex-files">Files: <code>exercises/sql/11-indexes/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/11-indexes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/07-schema-and-constraints.html"><span>Previous</span>Designing tables</a><a class="next" href="../sql/09-transactions.html"><span>Next</span>Transactions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

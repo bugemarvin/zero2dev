@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subqueries and CTEs · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="sql/05-subqueries-and-ctes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">SQL and PostgreSQL · lesson 5 of 10</p>
+<h1>Subqueries and CTEs</h1>
+<p class="lede">Use the result of one query inside another, and name the steps of a long query.</p>
+<h2 id="a-query-inside-a-query">A query inside a query</h2>
+<p>A <strong>subquery</strong> is a <code>SELECT</code> in brackets, used inside another statement.</p>
+<h3 id="a-single-value">A single value</h3>
+<p>A subquery that returns one row and one column can stand wherever a value can:</p>
+<pre><code class="lang-sql">SELECT title, price
+FROM books
+WHERE price &gt; (SELECT AVG(price) FROM books);</code></pre>
+<p>The inner query runs first and yields one number. The outer query compares each book against it.</p>
+<h3 id="a-list-of-values">A list of values</h3>
+<p>With <code>IN</code>, a subquery supplies the list:</p>
+<pre><code class="lang-sql">SELECT name
+FROM customers
+WHERE id IN (SELECT customer_id FROM orders);</code></pre>
+<p>Customers who have placed at least one order.</p>
+<h3 id="exists">EXISTS</h3>
+<p><code>EXISTS</code> is true when the subquery returns at least one row. The subquery normally refers to the current row of the outer query, which makes it a <strong>correlated</strong> subquery:</p>
+<pre><code class="lang-sql">SELECT c.name
+FROM customers AS c
+WHERE EXISTS (
+    SELECT 1
+    FROM orders AS o
+    WHERE o.customer_id = c.id
+);</code></pre>
+<p><code>NOT EXISTS</code> finds rows with <strong>no</strong> match:</p>
+<pre><code class="lang-sql">SELECT c.name
+FROM customers AS c
+WHERE NOT EXISTS (
+    SELECT 1 FROM orders AS o WHERE o.customer_id = c.id
+);</code></pre>
+<h3 id="the-trap-in-not-in">The trap in NOT IN</h3>
+<p><code>NOT IN</code> behaves badly when the list contains a <code>NULL</code>: the whole condition becomes unknown, and the query returns <strong>no rows</strong>. <code>NOT EXISTS</code> has no such problem. Prefer it for "has no matching row" questions.</p>
+<h2 id="subqueries-in-from">Subqueries in FROM</h2>
+<p>A subquery can act as a temporary table. It needs an alias.</p>
+<pre><code class="lang-sql">SELECT genre, average_price
+FROM (
+    SELECT genre, AVG(price) AS average_price
+    FROM books
+    GROUP BY genre
+) AS per_genre
+WHERE average_price &gt; 15;</code></pre>
+<h2 id="common-table-expressions">Common table expressions</h2>
+<p>Nested subqueries become hard to read. A <strong>CTE</strong>, written with <code>WITH</code>, gives a subquery a name and puts it first, so the query reads from top to bottom:</p>
+<pre><code class="lang-sql">WITH per_genre AS (
+    SELECT genre, AVG(price) AS average_price
+    FROM books
+    GROUP BY genre
+)
+SELECT genre, average_price
+FROM per_genre
+WHERE average_price &gt; 15;</code></pre>
+<p>Several CTEs are separated by commas, and each can use the ones above it:</p>
+<pre><code class="lang-sql">WITH order_totals AS (
+    SELECT o.customer_id, SUM(o.quantity * b.price) AS spent
+    FROM orders AS o
+    JOIN books AS b ON b.id = o.book_id
+    GROUP BY o.customer_id
+),
+big_spenders AS (
+    SELECT customer_id, spent
+    FROM order_totals
+    WHERE spent &gt; 50
+)
+SELECT c.name, s.spent
+FROM big_spenders AS s
+JOIN customers AS c ON c.id = s.customer_id
+ORDER BY s.spent DESC;</code></pre>
+<p>Each step has a name and can be tested on its own, by running <code>SELECT * FROM order_totals</code> in place of the last part.</p>
+<h2 id="subquery-join-or-cte">Subquery, join or CTE?</h2>
+<p>Often all three can express the same question.</p>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Usually clearest</th></tr></thead><tbody><tr><td>compare with one computed value</td><td>scalar subquery</td></tr><tr><td>"has at least one" or "has none"</td><td><code>EXISTS</code>, <code>NOT EXISTS</code></td></tr><tr><td>need columns from both tables</td><td>join</td></tr><tr><td>several steps that build on each other</td><td>CTE</td></tr></tbody></table></div>
+<p>Write the version that is easiest to read. The database's planner is good at finding an efficient way to run it.</p>
+<h2 id="recursive-ctes">Recursive CTEs</h2>
+<p>A CTE can refer to itself, which lets SQL walk a hierarchy such as a company's management chain or a category tree:</p>
+<pre><code class="lang-sql">WITH RECURSIVE numbers(n) AS (
+    SELECT 1
+    UNION ALL
+    SELECT n + 1 FROM numbers WHERE n &lt; 5
+)
+SELECT n FROM numbers;</code></pre>
+<p>The first <code>SELECT</code> is the starting point. The second is applied again and again to the rows produced so far, until it yields nothing new.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A scalar subquery that returns more than one row.</strong> That is an error at run time.</li><li><strong><code>NOT IN</code> over a column that can be NULL.</strong></li><li><strong>A subquery in <code>FROM</code> with no alias.</strong></li><li><strong>Deep nesting.</strong> Three levels of brackets are a sign to switch to CTEs.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="sql/06-above-average">
+<h3>Books above the average price <span class="ex-id">sql/06-above-average</span></h3>
+<p>Show the <code>title</code> and <code>price</code> of every book that costs more than the average price of all books.</p>
+<p>Order by price, highest first, then by title.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/06-above-average</code></p>
+<p class="ex-files">Files: <code>exercises/sql/06-above-average/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/06-above-average</code></pre>
+</article>
+<article class="exercise" data-ex="sql/07-never-ordered">
+<h3>Books nobody has ordered <span class="ex-id">sql/07-never-ordered</span></h3>
+<p>Show the <code>title</code> of every book that does not appear in any order. Order by title.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/07-never-ordered</code></p>
+<p class="ex-files">Files: <code>exercises/sql/07-never-ordered/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/07-never-ordered</code></pre>
+</article>
+<article class="exercise" data-ex="sql/08-customer-spending">
+<h3>Who spent the most <span class="ex-id">sql/08-customer-spending</span></h3>
+<p>The cost of an order is its <code>quantity</code> multiplied by the <code>price</code> of the book.</p>
+<p>Show each customer's <code>name</code> and their total spending in a column called <code>spent</code>, for customers who spent <strong>more than 40</strong> in total. Order by <code>spent</code>, highest first.</p>
+<p>This needs <code>orders</code>, <code>books</code> and <code>customers</code>. A CTE that computes the total per customer keeps it readable.</p>
+<p>The bookshop has four tables. <code>seed.sql</code> in the exercise folder creates them.</p>
+<div class="table-wrap"><table><thead><tr><th>Table</th><th>Columns</th></tr></thead><tbody><tr><td><code>authors</code></td><td><code>id</code>, <code>name</code>, <code>country</code></td></tr><tr><td><code>books</code></td><td><code>id</code>, <code>title</code>, <code>author_id</code>, <code>year</code>, <code>price</code>, <code>genre</code></td></tr><tr><td><code>customers</code></td><td><code>id</code>, <code>name</code>, <code>city</code></td></tr><tr><td><code>orders</code></td><td><code>id</code>, <code>customer_id</code>, <code>book_id</code>, <code>quantity</code>, <code>ordered_on</code></td></tr></tbody></table></div>
+<p>Write your answer in <code>query.sql</code>. To see what it returns: <code>python3 check.py show sql/08-customer-spending</code></p>
+<p class="ex-files">Files: <code>exercises/sql/08-customer-spending/</code></p>
+<pre><code class="lang-console">$ python3 check.py sql/08-customer-spending</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../sql/04-joins.html"><span>Previous</span>Joins</a><a class="next" href="../sql/06-changing-data.html"><span>Next</span>Changing data</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -23,5 +23,10 @@
     "id": "dsa",
     "title": "Data structures and algorithms",
     "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language."
+  },
+  {
+    "id": "sql",
+    "title": "SQL and PostgreSQL",
+    "blurb": "Ask a database questions, design tables that reject bad data, and keep queries fast."
   }
 ]

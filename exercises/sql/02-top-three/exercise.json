@@ -1,0 +1,31 @@
+{
+  "title": "The three most expensive books",
+  "lesson": "sql/02-sort-and-limit",
+  "kind": "sql",
+  "seed": "seed.sql",
+  "expect": {
+    "columns": [
+      "title",
+      "price"
+    ],
+    "ordered": true,
+    "rows": [
+      [
+        "The Quiet Atom",
+        "27"
+      ],
+      [
+        "Deep Field",
+        "23"
+      ],
+      [
+        "Counting Stars",
+        "22"
+      ]
+    ]
+  },
+  "hints": [
+    "ORDER BY price DESC puts the most expensive first.",
+    "LIMIT 3 keeps the first three rows after sorting."
+  ]
+}
