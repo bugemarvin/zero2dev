@@ -1,0 +1,18 @@
+{
+  "title": "Recursion over lists",
+  "lesson": "elixir/04-lists-and-recursion",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "Every function needs a clause for [] and a clause for [head | tail].",
+    "sum with an accumulator: def sum(list), do: sum(list, 0), then defp sum([], acc), do: acc and defp sum([head | tail], acc), do: sum(tail, acc + head)",
+    "reverse: carry a second list and put each head on the front of it: reverse(tail, [head | acc])"
+  ]
+}

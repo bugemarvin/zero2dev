@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elixir basics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/01-basics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 1 of 9</p>
+<h1>Elixir basics</h1>
+<p class="lede">A functional language where data never changes. Values, the interactive shell, and your first module.</p>
+<h2 id="what-is-different-about-elixir">What is different about Elixir</h2>
+<p>Elixir is a <strong>functional</strong> language. Three ideas shape everything in it:</p>
+<ul><li><strong>Data is immutable.</strong> A value never changes after it is created. Functions return new values.</li><li><strong>Functions transform data.</strong> Programs are chains of small functions, each taking a value and returning a new one.</li><li><strong>Processes are cheap.</strong> Elixir runs on the Erlang virtual machine (the BEAM), built for systems that run millions of small tasks at the same time and keep running when some of them fail.</li></ul>
+<p>Install it with <code>./setup/install.sh --stack elixir</code>.</p>
+<h2 id="the-interactive-shell">The interactive shell</h2>
+<pre><code class="lang-console">$ iex
+iex(1)&gt; 1 + 2
+3
+iex(2)&gt; String.upcase("hello")
+"HELLO"</code></pre>
+<p>Leave with <code>Ctrl+C</code> twice. <code>h String.upcase</code> shows the documentation of a function.</p>
+<h2 id="values">Values</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Examples</th><th>Notes</th></tr></thead><tbody><tr><td>integer</td><td><code>42</code>, <code>1_000_000</code></td><td>no size limit</td></tr><tr><td>float</td><td><code>3.14</code></td><td></td></tr><tr><td>boolean</td><td><code>true</code>, <code>false</code></td><td></td></tr><tr><td>atom</td><td><code>:ok</code>, <code>:error</code>, <code>:north</code></td><td>a constant whose name is its value</td></tr><tr><td>string</td><td><code>"hello"</code></td><td>double quotes, UTF-8</td></tr><tr><td>list</td><td><code>[1, 2, 3]</code></td><td>a linked list</td></tr><tr><td>tuple</td><td><code>{:ok, 42}</code></td><td>a fixed number of elements</td></tr><tr><td>map</td><td><code>%{name: "Sam", age: 30}</code></td><td>keys and values</td></tr><tr><td>nil</td><td><code>nil</code></td><td>"no value"</td></tr></tbody></table></div>
+<p><strong>Atoms</strong> are everywhere in Elixir. They label things: <code>:ok</code> and <code>:error</code> mark results, and <code>true</code>, <code>false</code> and <code>nil</code> are atoms too.</p>
+<h2 id="operators">Operators</h2>
+<pre><code class="lang-elixir">7 + 2          # 9
+7 / 2          # 3.5   division always gives a float
+div(7, 2)      # 3     whole-number division
+rem(7, 2)      # 1     remainder
+"ab" &lt;&gt; "cd"   # "abcd"   join strings
+[1, 2] ++ [3]  # [1, 2, 3]   join lists
+1 == 1.0       # true
+1 === 1.0      # false: strict, the types differ
+true and false # false   also: or, not</code></pre>
+<h2 id="strings">Strings</h2>
+<pre><code class="lang-elixir">name = "Sam"
+"Hello, #{name}!"            # "Hello, Sam!"   interpolation
+String.length("hello")       # 5
+String.upcase("hello")       # "HELLO"
+String.split("a b c")        # ["a", "b", "c"]
+String.trim("  hi  ")        # "hi"
+String.to_integer("42")      # 42
+Integer.to_string(42)        # "42"</code></pre>
+<p><code>#{...}</code> inside a string inserts the value of any expression.</p>
+<h2 id="variables-and-immutability">Variables and immutability</h2>
+<pre><code class="lang-elixir">x = 1
+x = x + 1      # x is now 2</code></pre>
+<p>This <strong>rebinds the name</strong> <code>x</code> to a new value. The value 1 itself was not altered. The difference shows with collections:</p>
+<pre><code class="lang-elixir">list = [1, 2, 3]
+List.delete(list, 2)    # [1, 3]
+list                    # still [1, 2, 3]</code></pre>
+<p><code>List.delete</code> returned a <strong>new</strong> list. To keep the result, bind it: <code>list = List.delete(list, 2)</code>. Nothing in Elixir changes a value in place.</p>
+<h2 id="modules-and-functions">Modules and functions</h2>
+<p>Functions live in <strong>modules</strong>.</p>
+<pre><code class="lang-elixir">defmodule Greeter do
+  def hello(name) do
+    "Hello, #{name}!"
+  end
+end
+
+Greeter.hello("Sam")     # "Hello, Sam!"</code></pre>
+<ul><li><code>defmodule ... do ... end</code> defines a module. Module names start with a capital letter.</li><li><code>def</code> defines a public function.</li><li><strong>The last expression is the return value.</strong> There is no <code>return</code> keyword.</li><li>Brackets around arguments are optional, and normally written.</li></ul>
+<p>A short function fits on one line:</p>
+<pre><code class="lang-elixir">def double(n), do: n * 2</code></pre>
+<p>A function is identified by its name <strong>and</strong> its number of arguments, called its <strong>arity</strong>. <code>hello/1</code> is the <code>hello</code> that takes one argument. <code>hello/0</code> would be a different function.</p>
+<h2 id="printing">Printing</h2>
+<pre><code class="lang-elixir">IO.puts("Hello")              # prints text and a newline
+IO.inspect([1, 2, 3])         # prints any value, as it looks in code</code></pre>
+<p><code>IO.inspect</code> returns its argument, so you can put it in the middle of an expression to see what is flowing through.</p>
+<h2 id="running-files">Running files</h2>
+<p>A file ending in <code>.exs</code> is a script:</p>
+<pre><code class="lang-console">$ elixir hello.exs</code></pre>
+<h2 id="the-exercises">The exercises</h2>
+<p>Each exercise has a <code>solution.ex</code> for your module and a <code>tests.exs</code> written with ExUnit, Elixir's test framework. You can read the tests. They show exactly what is expected.</p>
+<pre><code class="lang-console">$ python3 check.py elixir/01-hello</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Expecting a function to change its argument.</strong> It returns a new value. Bind it.</li><li><strong>Single quotes for strings.</strong> <code>'hello'</code> is a different type, a list of character codes. Use double quotes.</li><li><strong><code>/</code> for whole-number division.</strong> It always gives a float. Use <code>div</code>.</li><li><strong>Forgetting <code>end</code>.</strong> Every <code>do</code> needs one.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/01-hello">
+<h3>A first module <span class="ex-id">elixir/01-hello</span></h3>
+<p>Complete the module <code>Hello</code> in <code>solution.ex</code>.</p>
+<ul><li><code>greet/0</code> returns <code>"Hello, world!"</code></li><li><code>greet/1</code> takes a name and returns <code>"Hello, NAME!"</code></li><li><code>shout/1</code> takes a string and returns it in upper case with an exclamation mark added: <code>shout("hi")</code> is <code>"HI!"</code></li><li><code>sum_and_product/2</code> takes two numbers and returns a tuple of their sum and their product: <code>sum_and_product(3, 4)</code> is <code>{7, 12}</code></li><li><code>halve/1</code> takes an integer and returns half of it as an integer, rounding down: <code>halve(7)</code> is <code>3</code></li></ul>
+<p>The functions return their result. They do not print.</p>
+<p class="ex-files">Files: <code>exercises/elixir/01-hello/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/01-hello</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/10-files-and-streams.html"><span>Previous</span>Files, lambdas and streams</a><a class="next" href="../elixir/02-pattern-matching.html"><span>Next</span>Pattern matching</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

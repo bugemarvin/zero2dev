@@ -1,0 +1,18 @@
+{
+  "title": "A stack server",
+  "lesson": "elixir/08-genserver",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "push: GenServer.cast(pid, {:push, item}) with def handle_cast({:push, item}, stack), do: {:noreply, [item | stack]}",
+    "pop needs two handle_call clauses: one matching the state [top | rest], and one matching [].",
+    "A handle_call clause returns {:reply, what_the_caller_gets, new_state}."
+  ]
+}

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mix and ExUnit · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/09-mix-and-exunit">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 9 of 9</p>
+<h1>Mix and ExUnit</h1>
+<p class="lede">Create a real project, add dependencies, and test your code the way Elixir developers do.</p>
+<h2 id="mix">Mix</h2>
+<p><code>mix</code> is Elixir's build tool. It creates projects, compiles them, runs tests and manages dependencies.</p>
+<pre><code class="lang-console">$ mix new shop
+$ cd shop</code></pre>
+<p>That creates:</p>
+<pre><code class="lang-text">shop/
+    mix.exs              project settings and dependencies
+    lib/
+        shop.ex          your code
+    test/
+        shop_test.exs    your tests
+        test_helper.exs
+    .formatter.exs
+    README.md</code></pre>
+<p>Files in <code>lib/</code> end in <code>.ex</code> and are compiled. Tests end in <code>.exs</code> and are run as scripts.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>What it does</th></tr></thead><tbody><tr><td><code>mix compile</code></td><td>compile the project</td></tr><tr><td><code>mix test</code></td><td>run all tests</td></tr><tr><td><code>mix test test/shop_test.exs:12</code></td><td>run the test at line 12</td></tr><tr><td><code>mix format</code></td><td>format every file in the standard style</td></tr><tr><td><code>iex -S mix</code></td><td>open the shell with your project loaded</td></tr><tr><td><code>mix deps.get</code></td><td>download dependencies</td></tr></tbody></table></div>
+<p>Run <code>mix format</code> before you commit. The whole Elixir world uses the one style, and nobody argues about layout.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p>Packages come from <a href="https://hex.pm" rel="noopener">hex.pm</a>. List them in <code>mix.exs</code>:</p>
+<pre><code class="lang-elixir">defp deps do
+  [
+    {:jason, "~&gt; 1.4"}
+  ]
+end</code></pre>
+<p><code>"~&gt; 1.4"</code> accepts 1.4 and later, below 2.0. Then run <code>mix deps.get</code>. The exact versions are recorded in <code>mix.lock</code>, which you commit so that everyone builds with the same ones.</p>
+<h2 id="exunit">ExUnit</h2>
+<p>ExUnit is the test framework that ships with Elixir.</p>
+<pre><code class="lang-elixir">defmodule ShopTest do
+  use ExUnit.Case
+
+  test "an empty cart costs nothing" do
+    assert Shop.total([]) == 0
+  end
+
+  test "adds up the prices" do
+    assert Shop.total([2.5, 1.25]) == 3.75
+  end
+end</code></pre>
+<pre><code class="lang-console">$ mix test
+..
+Finished in 0.02 seconds
+2 tests, 0 failures</code></pre>
+<p><code>assert</code> takes any expression. When it fails, ExUnit shows both sides:</p>
+<pre><code class="lang-text">  1) test adds up the prices (ShopTest)
+     test/shop_test.exs:8
+     Assertion with == failed
+     code:  assert Shop.total([2.5, 1.25]) == 3.75
+     left:  3.5
+     right: 3.75</code></pre>
+<h2 id="the-assertions-you-need">The assertions you need</h2>
+<pre><code class="lang-elixir">assert Shop.total([1]) == 1
+refute Shop.empty?([1])                           # must be false or nil
+assert {:ok, user} = Accounts.find(1)             # a pattern match
+assert_raise ArgumentError, fn -&gt; Shop.total(nil) end
+assert_in_delta 0.1 + 0.2, 0.3, 0.0001            # floats, within a tolerance
+assert_receive {:done, _}, 500                    # a message, within 500 ms</code></pre>
+<p>Asserting on a match, as in the third line, is very common: it checks the shape and binds <code>user</code> for the lines that follow.</p>
+<h2 id="organising-tests">Organising tests</h2>
+<pre><code class="lang-elixir">defmodule AccountTest do
+  use ExUnit.Case, async: true
+
+  setup do
+    {:ok, account: Account.new("Sam")}
+  end
+
+  describe "deposit/2" do
+    test "adds to the balance", %{account: account} do
+      assert Account.deposit(account, 50).balance == 50
+    end
+
+    test "rejects negative amounts", %{account: account} do
+      assert_raise ArgumentError, fn -&gt; Account.deposit(account, -1) end
+    end
+  end
+end</code></pre>
+<ul><li><code>describe</code> groups the tests of one function.</li><li><code>setup</code> runs before each test, and what it returns is handed to the test.</li><li><code>async: true</code> runs this module's tests concurrently with other modules. It is safe because data is immutable.</li></ul>
+<h2 id="doctests">Doctests</h2>
+<p>Examples in documentation can be run as tests, so the documentation cannot go out of date:</p>
+<pre><code class="lang-elixir">defmodule Shop do
+  @doc """
+  Adds up a list of prices.
+
+      iex&gt; Shop.total([1, 2, 3])
+      6
+  """
+  def total(prices), do: Enum.sum(prices)
+end</code></pre>
+<pre><code class="lang-elixir">defmodule ShopTest do
+  use ExUnit.Case
+  doctest Shop
+end</code></pre>
+<h2 id="without-a-project">Without a project</h2>
+<p>The exercises in this track are single files, with no Mix project. The same framework runs as a script, and you can run it yourself:</p>
+<pre><code class="lang-console">$ elixir -r solution.ex tests.exs</code></pre>
+<p><code>-r</code> loads your module first. Open <code>tests.exs</code> in any exercise to see how the tests are written.</p>
+<h2 id="what-to-test">What to test</h2>
+<p>The advice is the same in every language: the normal case, the empty case, the boundaries, and invalid input. For functions that return <code>{:ok, _}</code> or <code>{:error, _}</code>, test both.</p>
+<p>Pure functions, which only turn arguments into a result, are the easiest code there is to test: no setup and nothing to clean up. Elixir's style produces a lot of them. Keep the logic in pure functions and the processes thin, and most of your tests stay simple.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You have the core of Elixir: pattern matching, recursion, <code>Enum</code> and pipes, structs, processes, GenServer, and the tooling. From here, look at <strong>Phoenix</strong> for web applications, <strong>Ecto</strong> for databases, and the <strong>OTP</strong> design principles that go deeper into supervision.</p>
+<p>For more practice, solve the <a href="../dsa/01-big-o.html">data structures and algorithms</a> exercises in Elixir: <code>python3 check.py start dsa/01-max-of-list --lang elixir</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Putting tests in <code>.ex</code> files, or code in <code>.exs</code>.</strong></li><li><strong>Testing private functions.</strong> Test the public ones that use them.</li><li><strong>Tests that depend on each other's leftovers.</strong></li><li><strong>Comparing floats with <code>==</code>.</strong> Use <code>assert_in_delta</code>.</li><li><strong>Not committing <code>mix.lock</code>.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/09-roman">
+<h3>Roman numerals <span class="ex-id">elixir/09-roman</span></h3>
+<p>A final exercise that puts pattern matching and recursion to work. Open <code>tests.exs</code> first and read the tests: they are the specification.</p>
+<p>Write the module <code>Roman</code> in <code>solution.ex</code>.</p>
+<ul><li><code>Roman.to_roman(n)</code> converts an integer from 1 to 3999 to a Roman numeral string.</li><li><code>Roman.from_roman(text)</code> converts a Roman numeral string back to an integer.</li></ul>
+<div class="table-wrap"><table><thead><tr><th>Value</th><th>Numeral</th><th></th><th>Value</th><th>Numeral</th></tr></thead><tbody><tr><td>1000</td><td>M</td><td></td><td>40</td><td>XL</td></tr><tr><td>900</td><td>CM</td><td></td><td>10</td><td>X</td></tr><tr><td>500</td><td>D</td><td></td><td>9</td><td>IX</td></tr><tr><td>400</td><td>CD</td><td></td><td>5</td><td>V</td></tr><tr><td>100</td><td>C</td><td></td><td>4</td><td>IV</td></tr><tr><td>90</td><td>XC</td><td></td><td>1</td><td>I</td></tr><tr><td>50</td><td>L</td><td></td><td></td><td></td></tr></tbody></table></div>
+<p><code>to_roman(1994)</code> is <code>"MCMXCIV"</code>: 1000 + 900 + 90 + 4.</p>
+<p>For <code>to_roman</code>, repeatedly take the largest value in the table that still fits. For <code>from_roman</code>, read the text from the left: a letter that is smaller than the one after it is subtracted, as in <code>IV</code>.</p>
+<p>You can run the tests directly as well: <code>elixir -r solution.ex tests.exs</code></p>
+<p class="ex-files">Files: <code>exercises/elixir/09-roman/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/09-roman</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/08-genserver.html"><span>Previous</span>GenServer</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

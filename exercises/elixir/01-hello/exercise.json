@@ -1,0 +1,18 @@
+{
+  "title": "A first module",
+  "lesson": "elixir/01-basics",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "Interpolate with \"Hello, #{name}!\".",
+    "String.upcase(text) <> \"!\" joins two strings.",
+    "The / operator always gives a float. div(n, 2) gives an integer."
+  ]
+}

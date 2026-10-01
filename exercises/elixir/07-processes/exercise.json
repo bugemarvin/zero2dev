@@ -1,0 +1,18 @@
+{
+  "title": "A counter process and a parallel map",
+  "lesson": "elixir/07-processes",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "Counter.start: spawn(fn -> loop(initial) end), where loop is a private function with a receive that calls loop again.",
+    "For value, send {:value, self()} to the counter, then receive the reply. The counter sends the number back to the pid it was given.",
+    "Parallel.map: first start a Task.async for every item, and only then Task.await each of them. Awaiting inside the first map would run them one at a time."
+  ]
+}

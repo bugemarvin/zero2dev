@@ -922,6 +922,112 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "elixir",
+   "title": "Elixir",
+   "blurb": "Functional programming on the BEAM: pattern matching, recursion, pipelines, processes and GenServer.",
+   "lessons": [
+    {
+     "id": "elixir/01-basics",
+     "title": "Elixir basics",
+     "summary": "A functional language where data never changes. Values, the interactive shell, and your first module.",
+     "exercises": [
+      {
+       "id": "elixir/01-hello",
+       "title": "A first module"
+      }
+     ]
+    },
+    {
+     "id": "elixir/02-pattern-matching",
+     "title": "Pattern matching",
+     "summary": "The equals sign does not assign. It matches shapes, and takes values apart as it does so.",
+     "exercises": [
+      {
+       "id": "elixir/02-matching",
+       "title": "Take data apart"
+      }
+     ]
+    },
+    {
+     "id": "elixir/03-functions-and-modules",
+     "title": "Functions and modules",
+     "summary": "Several clauses per function, guards, private helpers, anonymous functions and the pipe operator.",
+     "exercises": [
+      {
+       "id": "elixir/03-functions",
+       "title": "Clauses, guards and functions as values"
+      }
+     ]
+    },
+    {
+     "id": "elixir/04-lists-and-recursion",
+     "title": "Lists and recursion",
+     "summary": "There are no loops. Repetition is a function that calls itself, and lists are built for exactly that.",
+     "exercises": [
+      {
+       "id": "elixir/04-recursion",
+       "title": "Recursion over lists"
+      }
+     ]
+    },
+    {
+     "id": "elixir/05-enum-and-pipes",
+     "title": "Enum, pipes and comprehensions",
+     "summary": "The standard tools for collections. Map, filter, reduce, and pipelines that read like a description.",
+     "exercises": [
+      {
+       "id": "elixir/05-pipelines",
+       "title": "Enum and pipelines"
+      }
+     ]
+    },
+    {
+     "id": "elixir/06-maps-and-structs",
+     "title": "Maps, keyword lists and structs",
+     "summary": "Key-value data in three forms, how to \"update\" what cannot change, and your own named data types.",
+     "exercises": [
+      {
+       "id": "elixir/06-structs",
+       "title": "A struct and a map"
+      }
+     ]
+    },
+    {
+     "id": "elixir/07-processes",
+     "title": "Processes and messages",
+     "summary": "Elixir's model of concurrency. Lightweight processes that share nothing and talk by sending messages.",
+     "exercises": [
+      {
+       "id": "elixir/07-processes",
+       "title": "A counter process and a parallel map"
+      }
+     ]
+    },
+    {
+     "id": "elixir/08-genserver",
+     "title": "GenServer",
+     "summary": "The standard way to write a process that holds state and answers requests.",
+     "exercises": [
+      {
+       "id": "elixir/08-genserver",
+       "title": "A stack server"
+      }
+     ]
+    },
+    {
+     "id": "elixir/09-mix-and-exunit",
+     "title": "Mix and ExUnit",
+     "summary": "Create a real project, add dependencies, and test your code the way Elixir developers do.",
+     "exercises": [
+      {
+       "id": "elixir/09-roman",
+       "title": "Roman numerals"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

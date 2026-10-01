@@ -1,0 +1,18 @@
+{
+  "title": "Take data apart",
+  "lesson": "elixir/02-pattern-matching",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "def swap({a, b}), do: {b, a}",
+    "Two clauses for first: one for [head | _] and one for [].",
+    "second: the pattern [_, second | _] matches any list with at least two elements. Add a catch-all clause after it."
+  ]
+}
