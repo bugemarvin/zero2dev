@@ -1,0 +1,17 @@
+@use "sass:math";
+@use "tokens";
+
+body {
+  color: tokens.$text;
+}
+
+h1 {
+  color: tokens.$brand;
+  margin-bottom: tokens.$space;
+}
+
+.button {
+  background-color: tokens.$brand;
+  color: white;
+  padding: math.div(tokens.$space, 2) tokens.$space;
+}

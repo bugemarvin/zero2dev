@@ -99,6 +99,16 @@
     ]
   },
   {
+    "id": "scss",
+    "title": "Sass (SCSS)",
+    "blurb": "CSS with variables, nesting, modules, mixins and loops: write less, repeat nothing, keep big stylesheets in order.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:sass",
+      "tool:browser"
+    ]
+  },
+  {
     "id": "java",
     "title": "Java",
     "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",

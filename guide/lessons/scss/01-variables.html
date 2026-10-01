@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Sass is, and variables · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="scss/01-variables">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Sass (SCSS) · lesson 1 of 5</p>
+<h1>What Sass is, and variables</h1>
+<p class="lede">A language that compiles to CSS, and the first thing it gives you: names for your values.</p>
+<details class="install" id="install" data-track="scss">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<div data-os="linux wsl"><p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p><pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre><p>If something does not install, the script says why and offers to try again or to install it another way.</p></div>
+<div data-os="windows"><p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL and Ubuntu first if needed):</p><pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre></div>
+<div data-os="macos"><p>macOS has no quick install script. Use the Homebrew commands below, or let Docker run what is missing.</p></div>
+<h4>Node.js and npm: by hand</h4>
+<div data-os="linux wsl"><p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre></div>
+<div data-os="macos"><p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre></div>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>The <strong>sass</strong> packages come from npm, once: press <strong>Download packages</strong> on the Setup page, or run <code>python3 check.py prefetch sass</code>.</p>
+<p>A <strong>web browser</strong>: you are using one now. Nothing to install.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<p>This track builds on <a href="../css/01-selectors-and-cascade.html">CSS</a>.</p>
+<h2 id="the-problem">The problem</h2>
+<p>A real stylesheet has thousands of lines. The same blue appears in forty places, the same media query in sixty, and the button styles are copied with small changes for every kind of button. CSS, for most of its history, had no way to say "this value has a name" or "this block is used again over there".</p>
+<p><strong>Sass</strong> is a language that adds those things. You write Sass, a program turns it into ordinary CSS, and the browser only ever sees CSS.</p>
+<pre><code class="lang-text">style.scss  --sass--&gt;  style.css  --&gt;  browser</code></pre>
+<h2 id="two-syntaxes">Two syntaxes</h2>
+<p>Sass has two ways of writing. This track uses <strong>SCSS</strong>, the common one: it looks like CSS with extras, and <strong>every valid CSS file is already valid SCSS</strong>. You can rename a <code>.css</code> file to <code>.scss</code> and start from there.</p>
+<h2 id="compiling">Compiling</h2>
+<pre><code class="lang-console">$ npm install --save-dev sass
+$ npx sass style.scss style.css
+$ npx sass --watch style.scss style.css       # compile again on every save</code></pre>
+<p>In a project built with Vite, Next.js or similar, you install <code>sass</code>, import a <code>.scss</code> file, and the build tool compiles it for you. In the exercises of this track, <strong>Run tests</strong> compiles your file.</p>
+<h2 id="variables">Variables</h2>
+<p>A variable starts with <code>$</code>:</p>
+<pre><code class="lang-scss">$brand: #1a73e8;
+$radius: 8px;
+$space: 16px;
+
+.button {
+  background-color: $brand;
+  border-radius: $radius;
+  padding: $space;
+}
+
+.card {
+  border: 1px solid $brand;
+  border-radius: $radius;
+}</code></pre>
+<p>The compiled CSS has the values filled in:</p>
+<pre><code class="lang-css">.button {
+  background-color: #1a73e8;
+  border-radius: 8px;
+  padding: 16px;
+}</code></pre>
+<p>Change <code>$brand</code> in one place, compile, and every use follows.</p>
+<h2 id="arithmetic">Arithmetic</h2>
+<p>Sass can calculate with numbers that have units:</p>
+<pre><code class="lang-scss">$space: 16px;
+
+.card {
+  padding: $space * 2;          // 32px
+  margin-bottom: $space + 4px;  // 20px
+}</code></pre>
+<h2 id="comments">Comments</h2>
+<pre><code class="lang-scss">// A line comment. It is NOT copied into the CSS.
+/* A block comment. It is copied into the CSS. */</code></pre>
+<h2 id="sass-variables-and-css-custom-properties">Sass variables and CSS custom properties</h2>
+<p>CSS now has its own variables, the custom properties from <a href="../css/03-colours-fonts-units.html">the CSS track</a>: <code>--brand: #1a73e8</code> and <code>var(--brand)</code>. They are not the same thing.</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>Sass <code>$variable</code></th><th>CSS <code>--property</code></th></tr></thead><tbody><tr><td>exists</td><td>only while compiling</td><td>in the browser, at run time</td></tr><tr><td>can change on the page</td><td>no</td><td>yes: with a class, a media query, JavaScript</td></tr><tr><td>can be used in Sass arithmetic, loops, functions</td><td>yes</td><td>no</td></tr></tbody></table></div>
+<p>Use a custom property for anything that changes while the page is open, such as a light and a dark theme. Use a Sass variable for values that are fixed when you build: breakpoints, a spacing scale, things you calculate with. They combine well:</p>
+<pre><code class="lang-scss">$brand: #1a73e8;
+
+:root {
+  --brand: #{$brand};
+}</code></pre>
+<p><code>#{ }</code> is <strong>interpolation</strong>: it puts a Sass value into a place where Sass would otherwise leave the text alone.</p>
+<h2 id="scope">Scope</h2>
+<p>A variable declared at the top of the file is available everywhere below. One declared inside a rule exists only in that rule.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Linking the <code>.scss</code> file from HTML.</strong> The browser cannot read it. Link the compiled <code>.css</code>.</li><li><strong>Editing the compiled <code>.css</code>.</strong> The next compile overwrites it.</li><li><strong>Expecting a Sass variable to change at run time.</strong></li><li><strong>The same value typed in many places</strong> in place of one variable.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="scss/01-variables">
+<h3>A theme with Sass variables <span class="ex-id">scss/01-variables</span></h3>
+<p>Write <code>style.scss</code> for the page in <code>index.html</code>.</p>
+<p>Declare three variables at the top:</p>
+<ul><li><code>$brand</code> is <code>#1a73e8</code></li><li><code>$radius</code> is <code>8px</code></li><li><code>$space</code> is <code>16px</code></li></ul>
+<p>Then use them. Do not type the values again.</p>
+<ul><li>The <code>h1</code> has the colour <code>$brand</code>.</li><li><code>.button</code> has <code>background-color: $brand</code>, <code>color: white</code>, <code>border-radius: $radius</code> and <code>padding: $space</code>.</li><li><code>.card</code> has a border of <code>1px solid $brand</code>, <code>border-radius: $radius</code>, and a padding of <strong>twice</strong> <code>$space</code>: let Sass calculate it.</li></ul>
+<p>Edit the <code>.scss</code> file. <strong>Run tests</strong> compiles it to CSS and checks the page. <strong>Open preview</strong> shows the page with your compiled styles, and recompiles when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/scss/01-variables/</code></p>
+<pre><code class="lang-console">$ python3 check.py scss/01-variables</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../css/06-responsive.html"><span>Previous</span>Responsive design</a><a class="next" href="../scss/02-nesting.html"><span>Next</span>Nesting and the parent selector</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

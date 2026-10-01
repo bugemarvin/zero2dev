@@ -1,0 +1,114 @@
+{
+  "title": "Utility classes from a map and a loop",
+  "lesson": "scss/05-maps-and-loops",
+  "kind": "web",
+  "workspace": "sass",
+  "page": "index.html",
+  "compile": {
+    "style.scss": "style.css"
+  },
+  "edit": [
+    "style.scss"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "a map, @each and @for are used, with interpolation",
+      "source": "style.scss",
+      "contains": [
+        "$colors:",
+        "@each",
+        "@for",
+        "#{"
+      ]
+    },
+    {
+      "name": "the class names are generated, not written out",
+      "source": "style.scss",
+      "not_contains": [
+        ".text-primary",
+        ".text-danger",
+        ".text-success",
+        ".bg-danger",
+        ".mt-1",
+        ".mt-3",
+        ".mt-4"
+      ]
+    },
+    {
+      "name": ".text-primary is blue",
+      "select": ".text-primary",
+      "style": {
+        "color": "#1a73e8"
+      }
+    },
+    {
+      "name": ".text-danger is red",
+      "select": ".text-danger",
+      "style": {
+        "color": "#b42318"
+      }
+    },
+    {
+      "name": ".text-success is green",
+      "select": ".text-success",
+      "style": {
+        "color": "#15803d"
+      }
+    },
+    {
+      "name": ".bg-primary has the blue background",
+      "select": ".bg-primary",
+      "style": {
+        "background-color": "#1a73e8"
+      }
+    },
+    {
+      "name": ".bg-danger has the red background",
+      "select": ".bg-danger",
+      "style": {
+        "background-color": "#b42318"
+      }
+    },
+    {
+      "name": ".bg-success has the green background",
+      "select": ".bg-success",
+      "style": {
+        "background-color": "#15803d"
+      }
+    },
+    {
+      "name": ".mt-1 is 4px",
+      "select": ".mt-1",
+      "style": {
+        "margin-top": "4px"
+      }
+    },
+    {
+      "name": ".mt-2 is 8px",
+      "select": ".mt-2",
+      "style": {
+        "margin-top": "8px"
+      }
+    },
+    {
+      "name": ".mt-3 is 12px",
+      "select": ".mt-3",
+      "style": {
+        "margin-top": "12px"
+      }
+    },
+    {
+      "name": ".mt-4 is 16px: the loop includes the last number",
+      "select": ".mt-4",
+      "style": {
+        "margin-top": "16px"
+      }
+    }
+  ],
+  "hints": [
+    "$colors: (\"primary\": #1a73e8, \"danger\": #b42318, \"success\": #15803d);",
+    "@each $name, $color in $colors { .text-#{$name} { color: $color; } .bg-#{$name} { background-color: $color; } }",
+    "@for $i from 1 through 4 { .mt-#{$i} { margin-top: $i * 4px; } }. `through` includes 4."
+  ]
+}

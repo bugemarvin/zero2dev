@@ -75,6 +75,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "scss",
     "vue",
     "gamedev",
     "node",
@@ -189,6 +190,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "scss",
     "vue",
     "mongodb",
     "redis",
@@ -1732,6 +1734,73 @@ window.Z2D_CURRICULUM = {
       {
        "id": "css/06-responsive-layout",
        "title": "Mobile first"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scss",
+   "title": "Sass (SCSS)",
+   "blurb": "CSS with variables, nesting, modules, mixins and loops: write less, repeat nothing, keep big stylesheets in order.",
+   "lessons": [
+    {
+     "id": "scss/01-variables",
+     "title": "What Sass is, and variables",
+     "summary": "A language that compiles to CSS, and the first thing it gives you: names for your values.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "scss/01-variables",
+       "title": "A theme with Sass variables"
+      }
+     ]
+    },
+    {
+     "id": "scss/02-nesting",
+     "title": "Nesting and the parent selector",
+     "summary": "Write rules inside rules, the way the HTML is nested, without overdoing it.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "scss/02-nesting",
+       "title": "A navigation bar and a card, nested"
+      }
+     ]
+    },
+    {
+     "id": "scss/03-modules",
+     "title": "Partials and modules",
+     "summary": "Split a stylesheet into files, and say exactly what each file uses from the others.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "scss/03-modules",
+       "title": "Tokens in their own file"
+      }
+     ]
+    },
+    {
+     "id": "scss/04-mixins-and-functions",
+     "title": "Mixins and functions",
+     "summary": "Reuse whole blocks of declarations, and calculate values of your own.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "scss/04-mixins",
+       "title": "Buttons, a breakpoint and a function"
+      }
+     ]
+    },
+    {
+     "id": "scss/05-maps-and-loops",
+     "title": "Maps, loops and conditions",
+     "summary": "Generate families of classes from data, and decide with @if.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "scss/05-loops",
+       "title": "Utility classes from a map and a loop"
       }
      ]
     }

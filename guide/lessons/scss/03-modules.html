@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partials and modules · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="scss/03-modules">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Sass (SCSS) · lesson 3 of 5</p>
+<h1>Partials and modules</h1>
+<p class="lede">Split a stylesheet into files, and say exactly what each file uses from the others.</p>
+<h2 id="one-file-is-not-enough">One file is not enough</h2>
+<p>A stylesheet for a real site in one file is a scroll bar and a search box. Sass lets you split it into small files and build one CSS file from them.</p>
+<h2 id="partials">Partials</h2>
+<p>A file whose name starts with an underscore is a <strong>partial</strong>. Sass does not compile it to a CSS file of its own. It exists to be used by other files.</p>
+<pre><code class="lang-text">styles/
+  style.scss          the entry point: this is what gets compiled
+  _tokens.scss        colours, spacing, breakpoints
+  _buttons.scss
+  _card.scss</code></pre>
+<h2 id="use">@use</h2>
+<p><code>@use</code> loads another file. Its variables, mixins and functions become available under a <strong>namespace</strong>, the file's name:</p>
+<pre><code class="lang-scss">// _tokens.scss
+$brand: #1a73e8;
+$space: 16px;</code></pre>
+<pre><code class="lang-scss">// style.scss
+@use "tokens";
+
+.button {
+  background-color: tokens.$brand;
+  padding: tokens.$space;
+}</code></pre>
+<ul><li>You write <code>"tokens"</code>: no underscore, no extension.</li><li><code>tokens.$brand</code> says where the variable comes from. In a project with thirty files, that is worth a great deal.</li><li><code>@use</code> rules go at the <strong>top</strong> of the file, before any other rule.</li><li>A file is loaded <strong>once</strong>, however many files <code>@use</code> it. Its CSS is not duplicated.</li></ul>
+<p>Change the namespace, or drop it:</p>
+<pre><code class="lang-scss">@use "tokens" as t;          // t.$brand
+@use "tokens" as *;          // $brand, with no prefix</code></pre>
+<p>Use <code>as *</code> sparingly: it brings back the problem of not knowing where a name comes from.</p>
+<h2 id="private-members">Private members</h2>
+<p>A name that starts with <code>-</code> or <code>_</code> is private to its file:</p>
+<pre><code class="lang-scss">// _tokens.scss
+$_base: 4px;                 // not visible outside
+$space: $_base * 4;</code></pre>
+<h2 id="forward">@forward</h2>
+<p>A folder often has one file that gathers the others, so users need a single <code>@use</code>:</p>
+<pre><code class="lang-scss">// tokens/_index.scss
+@forward "colors";
+@forward "spacing";</code></pre>
+<pre><code class="lang-scss">@use "tokens";               // loads tokens/_index.scss</code></pre>
+<p><code>@forward</code> passes a file's members on to whoever uses this one.</p>
+<h2 id="import-is-the-old-way">@import is the old way</h2>
+<p>Older projects use <code>@import "tokens";</code>. It makes everything global: every variable of every imported file lands in one shared space, names collide, and you cannot tell where anything comes from. <code>@import</code> is deprecated in Sass and will be removed. Write <code>@use</code>.</p>
+<h2 id="built-in-modules">Built-in modules</h2>
+<p>Sass ships modules of functions, loaded the same way:</p>
+<pre><code class="lang-scss">@use "sass:math";
+@use "sass:color";
+
+.third {
+  width: math.div(100%, 3);
+}
+
+.button:hover {
+  background-color: color.adjust(#1a73e8, $lightness: -10%);
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Has</th></tr></thead><tbody><tr><td><code>sass:math</code></td><td><code>math.div</code>, <code>math.round</code>, <code>math.max</code>, <code>math.percentage</code></td></tr><tr><td><code>sass:color</code></td><td><code>color.adjust</code>, <code>color.scale</code>, <code>color.mix</code></td></tr><tr><td><code>sass:map</code></td><td><code>map.get</code>, <code>map.merge</code>, <code>map.keys</code></td></tr><tr><td><code>sass:string</code>, <code>sass:list</code></td><td>functions for text and lists</td></tr></tbody></table></div>
+<p>Division is <code>math.div(a, b)</code>. The <code>/</code> sign means too many things in CSS to be used for division.</p>
+<h2 id="a-structure-that-works">A structure that works</h2>
+<pre><code class="lang-text">styles/
+  style.scss          only @use lines
+  abstracts/          tokens, mixins, functions: no CSS output
+  base/               reset, typography
+  components/         _button.scss, _card.scss, ...
+  layout/             _header.scss, _grid.scss, ...</code></pre>
+<p>One component per file. The entry file reads like a table of contents.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>@import</code></strong> in new code.</li><li><strong>Writing the underscore or the extension</strong> in <code>@use</code>.</li><li><strong><code>@use</code> below other rules.</strong> It must come first.</li><li><strong>Forgetting the namespace</strong>: <code>$brand</code> is not found, <code>tokens.$brand</code> is.</li><li><strong>A partial that outputs CSS and is used from many files</strong>, in the belief that it will be repeated. It is included once.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="scss/03-modules">
+<h3>Tokens in their own file <span class="ex-id">scss/03-modules</span></h3>
+<p>Two files to edit.</p>
+<h4><code>_tokens.scss</code></h4>
+<p>Declare three variables:</p>
+<ul><li><code>$brand</code> is <code>#1a73e8</code></li><li><code>$text</code> is <code>#222222</code></li><li><code>$space</code> is <code>16px</code></li></ul>
+<h4><code>style.scss</code></h4>
+<ul><li>Load the tokens with <code>@use</code>. Do not use <code>@import</code>.</li><li><code>body</code> has the colour <code>tokens.$text</code>.</li><li><code>h1</code> has the colour <code>tokens.$brand</code> and a bottom margin of <code>tokens.$space</code>.</li><li><code>.button</code> has <code>background-color: tokens.$brand</code>, <code>color: white</code>, and a padding of half the space top and bottom and the full space left and right. Calculate the half with <code>math.div</code> from the built-in module <code>sass:math</code>.</li></ul>
+<p><code>style.scss</code> must not contain the colour values themselves: they live in the tokens file.</p>
+<p>Edit the <code>.scss</code> file. <strong>Run tests</strong> compiles it to CSS and checks the page. <strong>Open preview</strong> shows the page with your compiled styles, and recompiles when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/scss/03-modules/</code></p>
+<pre><code class="lang-console">$ python3 check.py scss/03-modules</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../scss/02-nesting.html"><span>Previous</span>Nesting and the parent selector</a><a class="next" href="../scss/04-mixins-and-functions.html"><span>Next</span>Mixins and functions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

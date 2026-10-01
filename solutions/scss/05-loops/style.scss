@@ -1,0 +1,21 @@
+$colors: (
+  "primary": #1a73e8,
+  "danger": #b42318,
+  "success": #15803d,
+);
+
+@each $name, $color in $colors {
+  .text-#{$name} {
+    color: $color;
+  }
+
+  .bg-#{$name} {
+    background-color: $color;
+  }
+}
+
+@for $i from 1 through 4 {
+  .mt-#{$i} {
+    margin-top: $i * 4px;
+  }
+}

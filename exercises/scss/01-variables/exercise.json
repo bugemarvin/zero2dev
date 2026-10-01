@@ -1,0 +1,84 @@
+{
+  "title": "A theme with Sass variables",
+  "lesson": "scss/01-variables",
+  "kind": "web",
+  "workspace": "sass",
+  "page": "index.html",
+  "compile": {
+    "style.scss": "style.css"
+  },
+  "edit": [
+    "style.scss"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "three variables are declared",
+      "source": "style.scss",
+      "contains": [
+        "$brand:",
+        "$radius:",
+        "$space:"
+      ]
+    },
+    {
+      "name": "the brand colour is typed only once",
+      "source": "style.scss",
+      "count_of": "(?i)#1a73e8",
+      "min_count": 1,
+      "max_count": 1,
+      "fail": "#1a73e8 should appear once, where $brand is declared. Everywhere else use $brand."
+    },
+    {
+      "name": "the h1 has the brand colour",
+      "select": "h1",
+      "style": {
+        "color": "#1a73e8"
+      }
+    },
+    {
+      "name": ".button has the brand background and white text",
+      "select": ".button",
+      "style": {
+        "background-color": "#1a73e8",
+        "color": "white"
+      }
+    },
+    {
+      "name": ".button has the radius and the space",
+      "select": ".button",
+      "style": {
+        "border-radius": "8px",
+        "padding-top": "16px",
+        "padding-left": "16px"
+      }
+    },
+    {
+      "name": ".card has a brand-coloured border and the radius",
+      "select": ".card",
+      "style": {
+        "border": "1px solid #1a73e8",
+        "border-radius": "8px"
+      }
+    },
+    {
+      "name": ".card has twice the space as padding",
+      "select": ".card",
+      "style": {
+        "padding-top": "32px",
+        "padding-right": "32px"
+      }
+    },
+    {
+      "name": "the doubling is calculated by Sass",
+      "source": "style.scss",
+      "regex": "\\$space\\s*\\*\\s*2|2\\s*\\*\\s*\\$space",
+      "fail": "Write the padding of .card as $space * 2, and let Sass work out 32px."
+    }
+  ],
+  "hints": [
+    "A variable: $brand: #1a73e8; and its use: color: $brand;",
+    "Sass calculates with units: padding: $space * 2; compiles to padding: 32px;",
+    "border: 1px solid $brand; works: a variable can be one part of a value."
+  ]
+}

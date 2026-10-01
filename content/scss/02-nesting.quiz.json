@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Inside `a { ... }`, what does `&:hover` compile to?",
+  "options": [
+   "a :hover",
+   "a:hover",
+   ":hover a",
+   "&:hover"
+  ],
+  "answer": 1,
+  "why": "& is the parent selector, joined with no space."
+ },
+ {
+  "q": "Inside `.card { ... }`, what does `&__title` compile to?",
+  "options": [
+   ".card .__title",
+   ".card__title",
+   ".card &__title",
+   "__title"
+  ],
+  "answer": 1,
+  "why": "& can be the start of a longer class name."
+ },
+ {
+  "q": "What is a sensible limit for nesting depth?",
+  "options": [
+   "None",
+   "About three levels",
+   "Ten levels",
+   "One level only"
+  ],
+  "answer": 1,
+  "why": "Deep nesting gives long, fragile, highly specific selectors."
+ },
+ {
+  "q": "Where does a media query nested inside a rule end up in the CSS?",
+  "options": [
+   "It is removed",
+   "At the top level, wrapping that rule's selector",
+   "Inside the rule",
+   "In a separate file"
+  ],
+  "answer": 1,
+  "why": "Sass lifts it out for you."
+ }
+]

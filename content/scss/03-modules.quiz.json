@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does the underscore in `_tokens.scss` mean?",
+  "options": [
+   "It is private",
+   "It is a partial: not compiled to its own CSS file",
+   "It is a backup",
+   "It is a comment"
+  ],
+  "answer": 1,
+  "why": "Partials exist to be used by other files."
+ },
+ {
+  "q": "After `@use \"tokens\";`, how do you read its variable $brand?",
+  "options": [
+   "$brand",
+   "tokens.$brand",
+   "tokens::brand",
+   "@tokens.brand"
+  ],
+  "answer": 1,
+  "why": "Members are reached through the namespace."
+ },
+ {
+  "q": "Why not use @import?",
+  "options": [
+   "It is slower",
+   "It makes everything global, and it is deprecated",
+   "It needs a plugin",
+   "It only works in CSS"
+  ],
+  "answer": 1,
+  "why": "@use gives namespaces and loads each file once."
+ },
+ {
+  "q": "How do you divide in Sass?",
+  "options": [
+   "a / b",
+   "math.div(a, b)",
+   "div(a, b)",
+   "a ÷ b"
+  ],
+  "answer": 1,
+  "why": "From the built-in module sass:math."
+ }
+]

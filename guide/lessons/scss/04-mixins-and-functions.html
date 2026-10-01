@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mixins and functions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="scss/04-mixins-and-functions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Sass (SCSS) · lesson 4 of 5</p>
+<h1>Mixins and functions</h1>
+<p class="lede">Reuse whole blocks of declarations, and calculate values of your own.</p>
+<h2 id="mixins">Mixins</h2>
+<p>A <strong>mixin</strong> is a named block of declarations that you can include anywhere:</p>
+<pre><code class="lang-scss">@mixin card {
+  padding: 16px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+}
+
+.product {
+  @include card;
+}
+
+.comment {
+  @include card;
+  background: #fafafa;
+}</code></pre>
+<p><code>@mixin</code> defines it, <code>@include</code> uses it. The declarations are copied into each place.</p>
+<h2 id="arguments">Arguments</h2>
+<p>A mixin can take arguments, with default values:</p>
+<pre><code class="lang-scss">@mixin button($background, $text: white) {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  background-color: $background;
+  color: $text;
+}
+
+.button-primary {
+  @include button(#1a73e8);
+}
+
+.button-warning {
+  @include button(#f6ad55, $text: #222222);
+}</code></pre>
+<p>One definition, any number of variations, and a change to the padding happens in one place.</p>
+<h2 id="content-pass-a-block-in">@content: pass a block in</h2>
+<p>A mixin can receive a whole block of styles, and decide where it goes. This is the classic use, a media query with a name:</p>
+<pre><code class="lang-scss">@mixin from($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @include from(700px) {
+    grid-template-columns: 2fr 1fr;
+  }
+}</code></pre>
+<p><code>@content</code> is replaced by what the caller wrote between the braces. The breakpoint is defined once, and every use reads as "from 700 pixels".</p>
+<h2 id="functions">Functions</h2>
+<p>A mixin produces <strong>declarations</strong>. A function produces a <strong>value</strong>:</p>
+<pre><code class="lang-scss">@use "sass:math";
+
+@function rem($pixels) {
+  @return math.div($pixels, 16px) * 1rem;
+}
+
+h1 {
+  font-size: rem(32px);         // 2rem
+  margin-bottom: rem(24px);     // 1.5rem
+}</code></pre>
+<p><code>@return</code> gives the result. A function is used wherever a value is expected.</p>
+<h2 id="extend-and-placeholders">@extend and placeholders</h2>
+<p><code>@extend</code> makes one selector share the rules of another. A <strong>placeholder</strong>, written with <code>%</code>, exists only to be extended and produces no CSS by itself:</p>
+<pre><code class="lang-scss">%message {
+  padding: 12px;
+  border: 1px solid;
+}
+
+.success { @extend %message; color: green; }
+.error   { @extend %message; color: red; }</code></pre>
+<p>It compiles to a <strong>grouped selector</strong>: <code>.success, .error { padding: 12px; ... }</code>. The CSS is smaller than with a mixin, which copies the declarations into each rule.</p>
+<p>Prefer mixins. <code>@extend</code> moves selectors around in ways that surprise people, cannot take arguments, and does not work across media queries. Use it for a handful of closely related classes, or not at all.</p>
+<h2 id="which-tool">Which tool?</h2>
+<div class="table-wrap"><table><thead><tr><th>You want</th><th>Use</th></tr></thead><tbody><tr><td>a value with a name</td><td>a variable</td></tr><tr><td>a value that is calculated</td><td>a function</td></tr><tr><td>a block of declarations, perhaps with options</td><td>a mixin</td></tr><tr><td>styles wrapped around a block you pass in</td><td>a mixin with <code>@content</code></td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A mixin for one declaration.</strong> A variable is enough.</li><li><strong>A mixin used once.</strong> It adds a level of indirection for nothing.</li><li><strong>Expecting a function to output declarations</strong>, or a mixin to return a value.</li><li><strong><code>@extend</code> across files and media queries.</strong></li><li><strong>Twenty arguments on one mixin.</strong> It is doing too much.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="scss/04-mixins">
+<h3>Buttons, a breakpoint and a function <span class="ex-id">scss/04-mixins</span></h3>
+<p>Write three reusable pieces in <code>style.scss</code>, and use them.</p>
+<h4>A mixin <code>button($background)</code></h4>
+<p>It sets <code>display: inline-block</code>, <code>padding: 8px 16px</code>, <code>border-radius: 6px</code>, <code>color: white</code> and <code>background-color: $background</code>.</p>
+<ul><li><code>.button-primary</code> includes it with <code>#1a73e8</code>.</li><li><code>.button-danger</code> includes it with <code>#b42318</code>.</li></ul>
+<h4>A mixin <code>from($width)</code></h4>
+<p>It wraps the block it is given in <code>@media (min-width: $width)</code>. Use <code>@content</code>.</p>
+<ul><li><code>.layout</code> is a grid with <code>grid-template-columns: 1fr</code>.</li><li>From <code>700px</code> it has <code>grid-template-columns: 2fr 1fr</code>. Write that with <code>@include from(700px) { ... }</code> inside <code>.layout</code>.</li></ul>
+<h4>A function <code>rem($pixels)</code></h4>
+<p>It returns the size in <code>rem</code>, with 16px as the base: <code>rem(32px)</code> is <code>2rem</code>. Use <code>math.div</code>.</p>
+<ul><li>The <code>h1</code> has <code>font-size: rem(32px)</code>.</li><li><code>.lead</code> has <code>font-size: rem(20px)</code>.</li></ul>
+<p>Edit the <code>.scss</code> file. <strong>Run tests</strong> compiles it to CSS and checks the page. <strong>Open preview</strong> shows the page with your compiled styles, and recompiles when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/scss/04-mixins/</code></p>
+<pre><code class="lang-console">$ python3 check.py scss/04-mixins</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../scss/03-modules.html"><span>Previous</span>Partials and modules</a><a class="next" href="../scss/05-maps-and-loops.html"><span>Next</span>Maps, loops and conditions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

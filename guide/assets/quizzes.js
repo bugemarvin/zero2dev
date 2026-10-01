@@ -3935,6 +3935,220 @@ window.Z2D_QUIZZES = {
 "why": "Let the content decide: resize the window until it breaks."
 }
 ],
+"scss/01-variables": [
+{
+"q": "What does the browser load?",
+"options": [
+"The .scss file",
+"The compiled .css file",
+"Both",
+"Neither"
+],
+"answer": 1,
+"why": "Browsers do not understand Sass. It is compiled to CSS first."
+},
+{
+"q": "Is every valid CSS file also valid SCSS?",
+"options": [
+"Yes",
+"No"
+],
+"answer": 0,
+"why": "SCSS is CSS with additions."
+},
+{
+"q": "With $space: 16px, what does `padding: $space * 2` compile to?",
+"accept": [
+"32px"
+],
+"why": "Sass does the arithmetic and keeps the unit."
+},
+{
+"q": "Which can change while the page is open?",
+"options": [
+"A Sass $variable",
+"A CSS --custom-property"
+],
+"answer": 1,
+"why": "Sass variables are gone after compiling."
+}
+],
+"scss/02-nesting": [
+{
+"q": "Inside `a { ... }`, what does `&:hover` compile to?",
+"options": [
+"a :hover",
+"a:hover",
+":hover a",
+"&:hover"
+],
+"answer": 1,
+"why": "& is the parent selector, joined with no space."
+},
+{
+"q": "Inside `.card { ... }`, what does `&__title` compile to?",
+"options": [
+".card .__title",
+".card__title",
+".card &__title",
+"__title"
+],
+"answer": 1,
+"why": "& can be the start of a longer class name."
+},
+{
+"q": "What is a sensible limit for nesting depth?",
+"options": [
+"None",
+"About three levels",
+"Ten levels",
+"One level only"
+],
+"answer": 1,
+"why": "Deep nesting gives long, fragile, highly specific selectors."
+},
+{
+"q": "Where does a media query nested inside a rule end up in the CSS?",
+"options": [
+"It is removed",
+"At the top level, wrapping that rule's selector",
+"Inside the rule",
+"In a separate file"
+],
+"answer": 1,
+"why": "Sass lifts it out for you."
+}
+],
+"scss/03-modules": [
+{
+"q": "What does the underscore in `_tokens.scss` mean?",
+"options": [
+"It is private",
+"It is a partial: not compiled to its own CSS file",
+"It is a backup",
+"It is a comment"
+],
+"answer": 1,
+"why": "Partials exist to be used by other files."
+},
+{
+"q": "After `@use \"tokens\";`, how do you read its variable $brand?",
+"options": [
+"$brand",
+"tokens.$brand",
+"tokens::brand",
+"@tokens.brand"
+],
+"answer": 1,
+"why": "Members are reached through the namespace."
+},
+{
+"q": "Why not use @import?",
+"options": [
+"It is slower",
+"It makes everything global, and it is deprecated",
+"It needs a plugin",
+"It only works in CSS"
+],
+"answer": 1,
+"why": "@use gives namespaces and loads each file once."
+},
+{
+"q": "How do you divide in Sass?",
+"options": [
+"a / b",
+"math.div(a, b)",
+"div(a, b)",
+"a ÷ b"
+],
+"answer": 1,
+"why": "From the built-in module sass:math."
+}
+],
+"scss/04-mixins-and-functions": [
+{
+"q": "Which pair defines and uses a mixin?",
+"options": [
+"@function and @return",
+"@mixin and @include",
+"@use and @forward",
+"@extend and %"
+],
+"answer": 1,
+"why": "@mixin defines, @include uses."
+},
+{
+"q": "What does @content stand for inside a mixin?",
+"options": [
+"The mixin's arguments",
+"The block of styles the caller passed in",
+"The file's content",
+"A comment"
+],
+"answer": 1,
+"why": "It is how a mixin wraps something around the caller's styles."
+},
+{
+"q": "What does a function give back?",
+"options": [
+"A block of declarations",
+"A value",
+"A selector",
+"A file"
+],
+"answer": 1,
+"why": "A mixin produces declarations. A function produces a value."
+},
+{
+"q": "With a base of 16px, what is rem(24px)?",
+"accept": [
+"1.5rem"
+],
+"why": "24 divided by 16."
+}
+],
+"scss/05-maps-and-loops": [
+{
+"q": "What does `#{$name}` do in `.text-#{$name}`?",
+"options": [
+"Starts a comment",
+"Puts the variable's value into the selector",
+"Declares a variable",
+"Calls a mixin"
+],
+"answer": 1,
+"why": "This is interpolation."
+},
+{
+"q": "How many classes does `@for $i from 1 through 4` generate, with one class per round?",
+"accept": [
+"4"
+],
+"why": "through includes the last number. `to` would give 3."
+},
+{
+"q": "Which loop goes over the entries of a map?",
+"options": [
+"@for",
+"@each",
+"@while only",
+"@if"
+],
+"answer": 1,
+"why": "@each $key, $value in $map."
+},
+{
+"q": "What is the risk of generating classes with loops?",
+"options": [
+"Slower compiling",
+"Shipping many classes that the page never uses",
+"Syntax errors",
+"None"
+],
+"answer": 1,
+"why": "Every generated class is downloaded by every visitor."
+}
+],
 "java/01-hello-jvm": [
 {
 "q": "What does `javac` produce?",
