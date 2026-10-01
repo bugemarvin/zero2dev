@@ -1,0 +1,180 @@
+"""The local web server: serves the guide and the JSON API on 127.0.0.1 only.
+
+This server runs the learner's code, so it is locked down:
+  - it listens on the loopback interface and nowhere else;
+  - the Host header must name this server (blocks DNS rebinding);
+  - a request that says it comes from another site is refused (Origin / Sec-Fetch-Site);
+  - every API call other than /api/session needs the session token, which only a
+    page served from this origin can read;
+  - no CORS headers are ever sent.
+"""
+import hmac
+import json
+import mimetypes
+import secrets
+import sys
+import urllib.parse
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+from . import api, core, providers, workspaces
+
+MAX_BODY = 2_000_000
+
+
+def make_handler(token, port):
+    hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
+    origins = {f"http://{h}" for h in hosts}
+
+    class Handler(BaseHTTPRequestHandler):
+        server_version = "zero2dev"
+        protocol_version = "HTTP/1.1"
+
+        def log_message(self, *args):       # keep the terminal quiet
+            pass
+
+        # ---- responses
+        def send(self, status, body, content_type):
+            self.send_response(status)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+            self.send_header("Referrer-Policy", "no-referrer")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def json(self, status, data):
+            self.send(status, json.dumps(data).encode(), "application/json; charset=utf-8")
+
+        def refuse(self, status, message):
+            self.json(status, {"error": message})
+
+        # ---- checks
+        def trusted(self):
+            if self.headers.get("Host") not in hosts:
+                self.refuse(403, "this server only answers on 127.0.0.1")
+                return False
+            origin = self.headers.get("Origin")
+            if origin is not None and origin not in origins:
+                self.refuse(403, "requests from other sites are not accepted")
+                return False
+            if self.headers.get("Sec-Fetch-Site", "same-origin") not in ("same-origin", "none"):
+                self.refuse(403, "requests from other sites are not accepted")
+                return False
+            return True
+
+        def has_token(self):
+            given = self.headers.get("X-Z2D-Token", "")
+            if hmac.compare_digest(given, token):
+                return True
+            self.refuse(401, "missing or wrong session token")
+            return False
+
+        def call(self, handler, data):
+            try:
+                self.json(200, handler(data))
+            except api.ApiError as exc:
+                self.refuse(exc.status, str(exc))
+            except core.Skip as skip:
+                self.refuse(409, str(skip))
+            except Exception as exc:        # report it to the page; never take the server down
+                self.refuse(500, f"{type(exc).__name__}: {exc}")
+
+        # ---- methods
+        def do_GET(self):
+            if not self.trusted():
+                return
+            url = urllib.parse.urlsplit(self.path)
+            if url.path == "/api/session":
+                self.json(200, {"token": token})
+                return
+            if url.path.startswith("/api/"):
+                handler = api.GET.get(url.path[5:])
+                if handler is None:
+                    self.refuse(404, "no such endpoint")
+                elif self.has_token():
+                    self.call(handler, dict(urllib.parse.parse_qsl(url.query)))
+                return
+            self.static(url.path)
+
+        def do_POST(self):
+            if not self.trusted():
+                return
+            url = urllib.parse.urlsplit(self.path)
+            handler = api.POST.get(url.path[5:]) if url.path.startswith("/api/") else None
+            if handler is None:
+                self.refuse(404, "no such endpoint")
+                return
+            if not self.has_token():
+                return
+            if not self.headers.get("Content-Type", "").startswith("application/json"):
+                self.refuse(415, "send JSON")
+                return
+            length = int(self.headers.get("Content-Length") or 0)
+            if length > MAX_BODY:
+                self.refuse(413, "request too large")
+                return
+            try:
+                data = json.loads(self.rfile.read(length) or b"{}")
+            except ValueError:
+                self.refuse(400, "invalid JSON")
+                return
+            if not isinstance(data, dict):
+                self.refuse(400, "send a JSON object")
+                return
+            self.call(handler, data)
+
+        def static(self, path):
+            if path.endswith("/"):
+                path += "index.html"
+            target = (core.GUIDE / urllib.parse.unquote(path).lstrip("/")).resolve()
+            if core.GUIDE.resolve() not in target.parents or not target.is_file():
+                self.send(404, b"not found", "text/plain; charset=utf-8")
+                return
+            kind = mimetypes.guess_type(target.name)[0] or "application/octet-stream"
+            if kind.startswith("text/") or kind in ("application/javascript", "application/json"):
+                kind += "; charset=utf-8"
+            self.send(200, target.read_bytes(), kind)
+
+    return Handler
+
+
+def create(port=4750, tries=20):
+    """Bind to the first free port from `port` upwards. Returns (server, token, port)."""
+    token = secrets.token_urlsafe(32)
+    last_error = None
+    for candidate in range(port, port + tries):
+        try:
+            server = ThreadingHTTPServer(("127.0.0.1", candidate), make_handler(token, candidate))
+        except OSError as exc:
+            last_error = exc
+            continue
+        server.daemon_threads = True
+        return server, token, candidate
+    raise SystemExit(f"could not open a port near {port}: {last_error}")
+
+
+def serve(port=4750, open_browser=True):
+    # A request must never hang for minutes on a download: the page offers a button instead.
+    providers.AUTO_PULL = False
+    workspaces.AUTO_INSTALL = False
+    server, _token, port = create(port)
+    url = f"http://127.0.0.1:{port}/"
+    print(f"zero2dev is running at {url}")
+    print("It uses the tools on this machine. Only this computer can reach it. Press Ctrl+C to stop.")
+    if open_browser:
+        import webbrowser
+        webbrowser.open(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nstopping ...")
+    finally:
+        api.stop_all_apps()
+        server.server_close()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(serve())

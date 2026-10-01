@@ -13,6 +13,7 @@ import uuid
 from . import core
 
 SOURCE = core.CATALOG / "workspaces"
+AUTO_INSTALL = True    # the web app sets this to False and offers a Download button
 _locks = {}
 _guard = threading.Lock()
 
@@ -55,6 +56,10 @@ def ensure(name, log=None):
         dst = root(name)
         if is_ready(name):
             return dst
+        if not AUTO_INSTALL and log is None:
+            raise core.NeedsDownload("workspace", name,
+                                     f"the {cfg['title']} packages are not downloaded yet (one time, needs internet). "
+                                     f"Download them with: python3 check.py prefetch {name}")
         for tool in cfg.get("needs", []):
             if shutil.which(tool) is None:
                 raise core.Skip(f"the {cfg['title']} workspace needs {tool}. "

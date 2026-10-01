@@ -1,0 +1,259 @@
+{
+ "c/01-hello": {
+  "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
+ },
+ "c/02-rectangle": {
+  "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
+ },
+ "c/03-average": {
+  "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
+ },
+ "c/04-fizzbuzz": {
+  "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
+ },
+ "c/05-collatz": {
+  "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
+ },
+ "c/06-functions": {
+  "mathx.c": "#include \"mathx.h\"\n\nint gcd(int a, int b) {\n    return 0;\n}\n\nint is_prime(int n) {\n    return 0;\n}\n\nlong factorial(int n) {\n    return 0;\n}\n\nint fib(int n) {\n    return 0;\n}\n"
+ },
+ "c/07-arrays": {
+  "arrays.c": "#include \"arrays.h\"\n\nlong sum_of(const int a[], int n) {\n    return -1;\n}\n\nint max_of(const int a[], int n) {\n    return 0;\n}\n\nint count_even(const int a[], int n) {\n    return -1;\n}\n\nvoid reverse(int a[], int n) {\n}\n"
+ },
+ "c/08-strings": {
+  "strs.c": "#include \"strs.h\"\n\nint my_strlen(const char s[]) {\n    return -1;\n}\n\nint count_char(const char s[], char c) {\n    return -1;\n}\n\nvoid to_upper(char s[]) {\n}\n\nint is_palindrome(const char s[]) {\n    return -1;\n}\n"
+ },
+ "c/09-pointers": {
+  "ptrs.c": "#include <stddef.h>\n#include \"ptrs.h\"\n\nvoid swap(int *a, int *b) {\n}\n\nvoid min_max(const int *a, int n, int *min, int *max) {\n}\n\nint *find(int *a, int n, int target) {\n    return NULL;\n}\n"
+ },
+ "c/10-heap": {
+  "heap.c": "#include <stdlib.h>\n#include <string.h>\n#include \"heap.h\"\n\nint *range(int n) {\n    return NULL;\n}\n\nchar *repeat(const char *s, int times) {\n    return NULL;\n}\n\nint *filter_even(const int *a, int n, int *out_n) {\n    return NULL;\n}\n"
+ },
+ "c/11-structs": {
+  "shapes.c": "#include <math.h>\n#include <stddef.h>\n#include \"shapes.h\"\n\ndouble distance(Point a, Point b) {\n    return -1.0;\n}\n\nvoid translate(Point *p, double dx, double dy) {\n}\n\nPoint midpoint(Point a, Point b) {\n    Point m = {-1.0, -1.0};\n    return m;\n}\n\nconst Student *best_student(const Student *s, int n) {\n    return NULL;\n}\n"
+ },
+ "c/12-wc": {
+  "main.c": "#include <stdio.h>\n\nint main(int argc, char *argv[]) {\n    /* argv[1] is the file name */\n    return 0;\n}\n"
+ },
+ "c/14-fix-the-bugs": {
+  "main.c": "#include <stdio.h>\n#include <stdlib.h>\n\n/* Returns a new array holding the n values of a in reverse order.\n   The caller frees it. */\nint *reversed(const int *a, int n) {\n    int *out = malloc((n + 1) * sizeof(int));\n    for (int i = 0; i <= n; i++) {\n        out[i] = a[n - i];\n    }\n    return out;\n}\n\nint main(void) {\n    int n;\n    if (scanf(\"%d\", &n) != 1 || n < 0) {\n        return 1;\n    }\n    int *a = malloc((n > 0 ? n : 1) * sizeof(int));\n    for (int i = 0; i < n; i++) {\n        if (scanf(\"%d\", &a[i]) != 1) {\n            return 1;\n        }\n    }\n\n    int *r = reversed(a, n);\n    long sum;\n    for (int i = 0; i < n; i++) {\n        printf(i == 0 ? \"%d\" : \" %d\", r[i]);\n        sum += r[i];\n    }\n    printf(\"\\nsum: %ld\\n\", sum);\n\n    free(a);\n    return 0;\n}\n"
+ },
+ "dsa/01-max-of-list": {
+  "solution.py": "import sys\n\n\ndef largest(numbers):\n    # Return the largest value in the list.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    numbers = [int(x) for x in data[1:1 + n]]\n    print(largest(numbers))\n\n\nmain()\n"
+ },
+ "dsa/02-pair-with-sum": {
+  "solution.py": "import sys\n\n\ndef pair_with_sum(numbers, target):\n    # numbers is sorted in increasing order.\n    # Return a tuple (a, b) with a < b and a + b == target, or None.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, target = int(data[0]), int(data[1])\n    numbers = [int(x) for x in data[2:2 + n]]\n    pair = pair_with_sum(numbers, target)\n    if pair is None:\n        print(\"none\")\n    else:\n        print(pair[0], pair[1])\n\n\nmain()\n"
+ },
+ "dsa/03-linked-list": {
+  "solution.py": "import sys\n\n\nclass Node:\n    def __init__(self, value, next=None):\n        self.value = value\n        self.next = next\n\n\nclass LinkedList:\n    def __init__(self):\n        self.head = None\n\n    def push_front(self, value):\n        pass\n\n    def push_back(self, value):\n        pass\n\n    def pop_front(self):\n        # Remove the first node and return its value, or None if the list is empty.\n        pass\n\n    def reverse(self):\n        pass\n\n    def to_list(self):\n        # Return the values as a Python list, front to back.\n        return []\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    q = int(lines[0])\n    items = LinkedList()\n    out = []\n    for line in lines[1:1 + q]:\n        parts = line.split()\n        command = parts[0]\n        if command == \"push_front\":\n            items.push_front(int(parts[1]))\n        elif command == \"push_back\":\n            items.push_back(int(parts[1]))\n        elif command == \"pop_front\":\n            value = items.pop_front()\n            out.append(\"empty\" if value is None else str(value))\n        elif command == \"reverse\":\n            items.reverse()\n        elif command == \"print\":\n            values = items.to_list()\n            out.append(\" \".join(str(v) for v in values) if values else \"empty\")\n    print(\"\\n\".join(out))\n\n\nmain()\n"
+ },
+ "dsa/04-balanced-brackets": {
+  "solution.py": "import sys\n\n\ndef balanced(text):\n    # Return True if the brackets in text are balanced.\n    pass\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    t = int(lines[0])\n    for line in lines[1:1 + t]:\n        print(\"yes\" if balanced(line) else \"no\")\n\n\nmain()\n"
+ },
+ "dsa/05-rpn": {
+  "solution.py": "import sys\n\n\ndef evaluate(tokens):\n    # tokens is a list of strings such as [\"3\", \"4\", \"+\", \"2\", \"*\"].\n    # Return the value of the expression as an integer.\n    pass\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    t = int(lines[0])\n    for line in lines[1:1 + t]:\n        print(evaluate(line.split()))\n\n\nmain()\n"
+ },
+ "dsa/06-two-sum": {
+  "solution.py": "import sys\n\n\ndef two_sum(numbers, target):\n    # Return the two positions (i, j), with i < j, whose numbers add up to target.\n    return (0, 0)\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, target = int(data[0]), int(data[1])\n    numbers = [int(x) for x in data[2:2 + n]]\n    i, j = two_sum(numbers, target)\n    print(i, j)\n\n\nmain()\n"
+ },
+ "dsa/07-anagram-groups": {
+  "solution.py": "import sys\n\n\ndef anagram_groups(words):\n    # Return a tuple: (number of groups, size of the largest group).\n    return (0, 0)\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    groups, largest = anagram_groups(data[1:1 + n])\n    print(groups, largest)\n\n\nmain()\n"
+ },
+ "dsa/08-permutations": {
+  "solution.py": "import sys\n\n\ndef permutations(n):\n    # Return a list of all permutations of 1..n in dictionary order.\n    # Each permutation is a list, for example [1, 3, 2].\n    return []\n\n\ndef main():\n    n = int(sys.stdin.read().split()[0])\n    for p in permutations(n):\n        print(\" \".join(str(x) for x in p))\n\n\nmain()\n"
+ },
+ "dsa/09-n-queens": {
+  "solution.py": "import sys\n\n\ndef count_queens(n):\n    # Return the number of ways to place n queens.\n    pass\n\n\ndef main():\n    n = int(sys.stdin.read().split()[0])\n    print(count_queens(n))\n\n\nmain()\n"
+ },
+ "dsa/10-sort-by-score": {
+  "solution.py": "import sys\n\n\ndef ranking(students):\n    # students is a list of (name, score) tuples.\n    # Return the names, best score first; equal scores in alphabetical order.\n    return []\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    n = int(lines[0])\n    students = []\n    for line in lines[1:1 + n]:\n        name, score = line.split()\n        students.append((name, int(score)))\n    for name in ranking(students):\n        print(name)\n\n\nmain()\n"
+ },
+ "dsa/11-count-inversions": {
+  "solution.py": "import sys\n\n\ndef count_inversions(numbers):\n    # Return the number of pairs i < j with numbers[i] > numbers[j].\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    numbers = [int(x) for x in data[1:1 + n]]\n    print(count_inversions(numbers))\n\n\nmain()\n"
+ },
+ "dsa/12-lower-bound": {
+  "solution.py": "import sys\n\n\ndef lower_bound(numbers, x):\n    # numbers is sorted. Return the first index i with numbers[i] >= x,\n    # or len(numbers) if there is none.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, q = int(data[0]), int(data[1])\n    numbers = [int(x) for x in data[2:2 + n]]\n    queries = [int(x) for x in data[2 + n:2 + n + q]]\n    print(\"\\n\".join(str(lower_bound(numbers, x)) for x in queries))\n\n\nmain()\n"
+ },
+ "dsa/13-ship-capacity": {
+  "solution.py": "import sys\n\n\ndef min_capacity(weights, days):\n    # Return the smallest capacity that ships everything within the given days.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, days = int(data[0]), int(data[1])\n    weights = [int(x) for x in data[2:2 + n]]\n    print(min_capacity(weights, days))\n\n\nmain()\n"
+ },
+ "dsa/14-bst": {
+  "solution.py": "import sys\n\n\nclass Node:\n    def __init__(self, value):\n        self.value = value\n        self.left = None\n        self.right = None\n\n\nclass BST:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, value):\n        pass\n\n    def contains(self, value):\n        return False\n\n    def minimum(self):\n        # Return the smallest value, or None if the tree is empty.\n        return None\n\n    def maximum(self):\n        return None\n\n    def height(self):\n        return 0\n\n    def in_order(self):\n        # Return the values as a sorted Python list.\n        return []\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    q = int(lines[0])\n    tree = BST()\n    out = []\n    for line in lines[1:1 + q]:\n        parts = line.split()\n        command = parts[0]\n        if command == \"insert\":\n            tree.insert(int(parts[1]))\n        elif command == \"contains\":\n            out.append(\"yes\" if tree.contains(int(parts[1])) else \"no\")\n        elif command == \"min\":\n            value = tree.minimum()\n            out.append(\"empty\" if value is None else str(value))\n        elif command == \"max\":\n            value = tree.maximum()\n            out.append(\"empty\" if value is None else str(value))\n        elif command == \"height\":\n            out.append(str(tree.height()))\n        elif command == \"inorder\":\n            values = tree.in_order()\n            out.append(\" \".join(str(v) for v in values) if values else \"empty\")\n    print(\"\\n\".join(out))\n\n\nmain()\n"
+ },
+ "dsa/15-priority-queue": {
+  "solution.py": "import sys\n\n\nclass MinHeap:\n    def __init__(self):\n        self.items = []\n\n    def push(self, value):\n        pass\n\n    def pop(self):\n        # Remove and return the smallest value, or None if the heap is empty.\n        return None\n\n    def peek(self):\n        return None\n\n    def size(self):\n        return 0\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    q = int(lines[0])\n    heap = MinHeap()\n    out = []\n    for line in lines[1:1 + q]:\n        parts = line.split()\n        command = parts[0]\n        if command == \"push\":\n            heap.push(int(parts[1]))\n        elif command == \"pop\":\n            value = heap.pop()\n            out.append(\"empty\" if value is None else str(value))\n        elif command == \"peek\":\n            value = heap.peek()\n            out.append(\"empty\" if value is None else str(value))\n        elif command == \"size\":\n            out.append(str(heap.size()))\n    print(\"\\n\".join(out))\n\n\nmain()\n"
+ },
+ "dsa/16-grid-path": {
+  "solution.py": "import sys\n\n\ndef shortest_path(grid, rows, cols):\n    # grid is a list of strings. Return the number of steps from S to G, or -1.\n    pass\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    rows, cols = (int(x) for x in lines[0].split())\n    grid = lines[1:1 + rows]\n    print(shortest_path(grid, rows, cols))\n\n\nmain()\n"
+ },
+ "dsa/17-components": {
+  "solution.py": "import sys\n\n\ndef count_components(n, edges):\n    # Nodes are numbered 1..n. edges is a list of (a, b) pairs.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, m = int(data[0]), int(data[1])\n    edges = [(int(data[2 + 2 * i]), int(data[3 + 2 * i])) for i in range(m)]\n    print(count_components(n, edges))\n\n\nmain()\n"
+ },
+ "dsa/18-dijkstra": {
+  "solution.py": "import sys\n\n\ndef shortest_distances(n, edges):\n    # edges is a list of (a, b, w): a road from a to b with cost w.\n    # Return a list of n numbers: the distance from node 1 to nodes 1..n, -1 if unreachable.\n    return []\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, m = int(data[0]), int(data[1])\n    edges = [(int(data[2 + 3 * i]), int(data[3 + 3 * i]), int(data[4 + 3 * i])) for i in range(m)]\n    print(\" \".join(str(d) for d in shortest_distances(n, edges)))\n\n\nmain()\n"
+ },
+ "dsa/19-coin-change": {
+  "solution.py": "import sys\n\n\ndef min_coins(coins, amount):\n    # Return the fewest coins that add up to amount, or -1.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, amount = int(data[0]), int(data[1])\n    coins = [int(x) for x in data[2:2 + n]]\n    print(min_coins(coins, amount))\n\n\nmain()\n"
+ },
+ "dsa/20-lcs": {
+  "solution.py": "import sys\n\n\ndef lcs(a, b):\n    # Return the length of the longest common subsequence of a and b.\n    pass\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    print(lcs(lines[0], lines[1] if len(lines) > 1 else \"\"))\n\n\nmain()\n"
+ },
+ "dsa/21-meetings": {
+  "solution.py": "import sys\n\n\ndef max_meetings(meetings):\n    # meetings is a list of (start, end) pairs.\n    pass\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n = int(data[0])\n    meetings = [(int(data[1 + 2 * i]), int(data[2 + 2 * i])) for i in range(n)]\n    print(max_meetings(meetings))\n\n\nmain()\n"
+ },
+ "dsa/22-prefix-count": {
+  "solution.py": "import sys\n\n\ndef count_prefixes(words, prefixes):\n    # Return a list with, for each prefix, the number of words that start with it.\n    return []\n\n\ndef main():\n    data = sys.stdin.read().split()\n    n, q = int(data[0]), int(data[1])\n    words = data[2:2 + n]\n    prefixes = data[2 + n:2 + n + q]\n    print(\"\\n\".join(str(c) for c in count_prefixes(words, prefixes)))\n\n\nmain()\n"
+ },
+ "dsa/23-union-find": {
+  "solution.py": "import sys\n\n\nclass UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n\n    def find(self, x):\n        # Return the root of the group containing x.\n        return x\n\n    def union(self, a, b):\n        pass\n\n    def same(self, a, b):\n        return False\n\n    def count(self):\n        # Return the number of groups.\n        return 0\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    n, q = (int(x) for x in lines[0].split())\n    groups = UnionFind(n)\n    out = []\n    for line in lines[1:1 + q]:\n        parts = line.split()\n        if parts[0] == \"union\":\n            groups.union(int(parts[1]), int(parts[2]))\n        elif parts[0] == \"same\":\n            out.append(\"yes\" if groups.same(int(parts[1]), int(parts[2])) else \"no\")\n        elif parts[0] == \"count\":\n            out.append(str(groups.count()))\n    print(\"\\n\".join(out))\n\n\nmain()\n"
+ },
+ "dsa/24-range-sum": {
+  "solution.py": "import sys\n\n\nclass RangeSum:\n    def __init__(self, data):\n        self.data = data\n\n    def update(self, index, value):\n        # Set the number at position index to value.\n        pass\n\n    def total(self, left, right):\n        # Return the sum of positions left..right, both included.\n        return 0\n\n\ndef main():\n    lines = sys.stdin.read().split(\"\\n\")\n    n, q = (int(x) for x in lines[0].split())\n    tree = RangeSum([int(x) for x in lines[1].split()][:n])\n    out = []\n    for line in lines[2:2 + q]:\n        parts = line.split()\n        if parts[0] == \"sum\":\n            out.append(str(tree.total(int(parts[1]), int(parts[2]))))\n        elif parts[0] == \"set\":\n            tree.update(int(parts[1]), int(parts[2]))\n    print(\"\\n\".join(out))\n\n\nmain()\n"
+ },
+ "elixir/01-hello": {
+  "solution.ex": "defmodule Hello do\n  def greet do\n    nil\n  end\n\n  def greet(_name) do\n    nil\n  end\n\n  def shout(_text) do\n    nil\n  end\n\n  def sum_and_product(_a, _b) do\n    nil\n  end\n\n  def halve(_n) do\n    nil\n  end\nend\n"
+ },
+ "elixir/02-matching": {
+  "solution.ex": "defmodule Match do\n  def swap(_pair) do\n    nil\n  end\n\n  def first(_list) do\n    nil\n  end\n\n  def second(_list) do\n    :todo\n  end\n\n  def describe(_result) do\n    nil\n  end\n\n  def area(_shape) do\n    nil\n  end\nend\n"
+ },
+ "elixir/03-functions": {
+  "solution.ex": "defmodule Calc do\n  def sign(_n) do\n    nil\n  end\n\n  def fizzbuzz(_n) do\n    nil\n  end\n\n  def greet(_name, _greeting \\\\ nil) do\n    nil\n  end\n\n  def apply_n(_fun, _n, _value) do\n    nil\n  end\n\n  def compose(_f, _g) do\n    fn _x -> nil end\n  end\nend\n"
+ },
+ "elixir/04-recursion": {
+  "solution.ex": "defmodule Rec do\n  def sum(_list) do\n    nil\n  end\n\n  def count(_list) do\n    nil\n  end\n\n  def reverse(_list) do\n    nil\n  end\n\n  def map(_list, _fun) do\n    nil\n  end\n\n  def largest(_list) do\n    :todo\n  end\nend\n"
+ },
+ "elixir/05-pipelines": {
+  "solution.ex": "defmodule Pipes do\n  def sum_of_even_squares(_numbers) do\n    nil\n  end\n\n  def initials(_name) do\n    nil\n  end\n\n  def word_frequencies(_text) do\n    nil\n  end\n\n  def top_words(_text, _n) do\n    nil\n  end\nend\n"
+ },
+ "elixir/06-structs": {
+  "solution.ex": "defmodule User do\n  defstruct [:name]\n\n  def new(_name, _age) do\n    nil\n  end\n\n  def birthday(_user) do\n    nil\n  end\n\n  def adult?(_user) do\n    nil\n  end\n\n  def promote(_user) do\n    nil\n  end\nend\n\ndefmodule Inventory do\n  def add(_inventory, _item, _quantity) do\n    nil\n  end\n\n  def remove(_inventory, _item, _quantity) do\n    nil\n  end\n\n  def total(_inventory) do\n    nil\n  end\nend\n"
+ },
+ "elixir/07-processes": {
+  "solution.ex": "defmodule Counter do\n  def start(_initial) do\n    spawn(fn -> :ok end)\n  end\n\n  def increment(_pid) do\n    :ok\n  end\n\n  def value(_pid) do\n    nil\n  end\nend\n\ndefmodule Parallel do\n  def map(_list, _fun) do\n    nil\n  end\nend\n"
+ },
+ "elixir/08-genserver": {
+  "solution.ex": "defmodule Stack do\n  use GenServer\n\n  # ---- client API ----\n\n  def start_link(initial \\\\ []) do\n    GenServer.start_link(__MODULE__, initial)\n  end\n\n  def push(_pid, _item) do\n    :todo\n  end\n\n  def pop(_pid) do\n    :todo\n  end\n\n  def peek(_pid) do\n    :todo\n  end\n\n  def size(_pid) do\n    :todo\n  end\n\n  # ---- server callbacks ----\n\n  @impl true\n  def init(initial) do\n    {:ok, initial}\n  end\nend\n"
+ },
+ "elixir/09-roman": {
+  "solution.ex": "defmodule Roman do\n  def to_roman(_n) do\n    nil\n  end\n\n  def from_roman(_text) do\n    nil\n  end\nend\n"
+ },
+ "java/01-hello": {
+  "Main.java": "public class Main {\n    public static void main(String[] args) {\n        // print the greeting here\n    }\n}\n"
+ },
+ "java/02-number-stats": {
+  "Main.java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        // read the numbers with in.hasNextInt() and in.nextInt()\n    }\n}\n"
+ },
+ "java/03-methods": {
+  "MathUtil.java": "public class MathUtil {\n    public static int gcd(int a, int b) {\n        return 0;\n    }\n\n    public static boolean isPrime(int n) {\n        return false;\n    }\n\n    public static long factorial(int n) {\n        return 0;\n    }\n\n    public static int sumDigits(long n) {\n        return 0;\n    }\n}\n"
+ },
+ "java/04-arrays-strings": {
+  "TextUtil.java": "public class TextUtil {\n    public static boolean isPalindrome(String s) {\n        return false;\n    }\n\n    public static int countVowels(String s) {\n        return -1;\n    }\n\n    public static String capitalize(String sentence) {\n        return null;\n    }\n\n    public static int[] rotate(int[] a, int k) {\n        return null;\n    }\n}\n"
+ },
+ "java/05-bank-account": {
+  "BankAccount.java": "public class BankAccount {\n    public BankAccount(String owner) {\n    }\n\n    public void deposit(long amount) {\n    }\n\n    public void withdraw(long amount) {\n    }\n\n    public long getBalance() {\n        return -1;\n    }\n\n    public String getOwner() {\n        return null;\n    }\n}\n"
+ },
+ "java/06-shapes": {
+  "Circle.java": "public class Circle implements Shape {\n    public Circle(double radius) {\n    }\n\n    @Override\n    public double area() {\n        return 0;\n    }\n\n    @Override\n    public double perimeter() {\n        return 0;\n    }\n\n    @Override\n    public String name() {\n        return \"\";\n    }\n}\n",
+  "Rectangle.java": "public class Rectangle implements Shape {\n    public Rectangle(double width, double height) {\n    }\n\n    @Override\n    public double area() {\n        return 0;\n    }\n\n    @Override\n    public double perimeter() {\n        return 0;\n    }\n\n    @Override\n    public String name() {\n        return \"\";\n    }\n}\n",
+  "Shapes.java": "import java.util.List;\n\npublic class Shapes {\n    public static double totalArea(List<Shape> shapes) {\n        return -1;\n    }\n\n    public static Shape largest(List<Shape> shapes) {\n        return null;\n    }\n}\n",
+  "Square.java": "// Make this class extend Rectangle.\npublic class Square implements Shape {\n    public Square(double side) {\n    }\n\n    @Override\n    public double area() {\n        return 0;\n    }\n\n    @Override\n    public double perimeter() {\n        return 0;\n    }\n\n    @Override\n    public String name() {\n        return \"\";\n    }\n}\n"
+ },
+ "java/07-word-count": {
+  "Main.java": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        // read the words, count them in a Map, sort and print\n    }\n}\n"
+ },
+ "java/08-generics": {
+  "ArrayStack.java": "public class ArrayStack<T> {\n    public void push(T item) {\n    }\n\n    public T pop() {\n        return null;\n    }\n\n    public T peek() {\n        return null;\n    }\n\n    public boolean isEmpty() {\n        return true;\n    }\n\n    public int size() {\n        return 0;\n    }\n}\n",
+  "Util.java": "import java.util.List;\n\npublic class Util {\n    public static <T extends Comparable<T>> T max(List<T> items) {\n        return null;\n    }\n}\n"
+ },
+ "java/09-exceptions": {
+  "InvalidAgeException.java": "// Change this into a checked exception.\npublic class InvalidAgeException extends RuntimeException {\n    public InvalidAgeException(String message) {\n        super(message);\n    }\n}\n",
+  "Parser.java": "import java.util.List;\n\npublic class Parser {\n    public static int parseAge(String text) {\n        return -1;\n    }\n\n    public static int sumValid(List<String> items) {\n        return -1;\n    }\n}\n"
+ },
+ "java/10-streams": {
+  "Stats.java": "import java.io.IOException;\nimport java.nio.file.Path;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.Optional;\n\npublic class Stats {\n    public static List<String> longNames(List<String> names, int minLength) {\n        return null;\n    }\n\n    public static int sumOfEvenSquares(List<Integer> numbers) {\n        return -1;\n    }\n\n    public static Map<Character, Long> countByFirstLetter(List<String> words) {\n        return null;\n    }\n\n    public static Optional<String> longest(List<String> words) {\n        return null;\n    }\n\n    public static long countNonBlankLines(Path path) throws IOException {\n        return -1;\n    }\n}\n"
+ },
+ "python/01-first-functions": {
+  "solution.py": "def greeting(name):\n    pass\n\n\ndef to_fahrenheit(celsius):\n    pass\n\n\ndef is_even(n):\n    pass\n"
+ },
+ "python/02-leap-year": {
+  "solution.py": "def is_leap_year(year):\n    pass\n\n\ndef grade(score):\n    pass\n"
+ },
+ "python/03-list-tools": {
+  "solution.py": "def evens(numbers):\n    pass\n\n\ndef longest(words):\n    pass\n\n\ndef running_total(numbers):\n    pass\n\n\ndef unique(items):\n    pass\n"
+ },
+ "python/04-word-count": {
+  "solution.py": "def word_count(text):\n    pass\n\n\ndef most_common(text):\n    pass\n"
+ },
+ "python/05-functions": {
+  "solution.py": "def clamp(x):\n    pass\n\n\ndef average():\n    pass\n\n\ndef min_max(numbers):\n    pass\n\n\ndef apply_twice(f, x):\n    pass\n"
+ },
+ "python/06-files": {
+  "solution.py": "def count_lines(path):\n    pass\n\n\ndef read_scores(path):\n    pass\n\n\ndef save_report(path, scores):\n    pass\n"
+ },
+ "python/07-errors": {
+  "solution.py": "def safe_divide(a, b):\n    pass\n\n\ndef parse_age(text):\n    pass\n\n\ndef first_valid(items):\n    pass\n"
+ },
+ "python/08-stdlib": {
+  "solution.py": "def days_between(first, second):\n    pass\n\n\ndef top_words(words, n):\n    pass\n\n\ndef hypotenuse(a, b):\n    pass\n"
+ },
+ "python/09-classes": {
+  "solution.py": "class BankAccount:\n    pass\n\n\nclass Vector:\n    pass\n"
+ },
+ "python/10-generators": {
+  "solution.py": "def countdown(n):\n    pass\n\n\ndef fibonacci():\n    pass\n\n\ndef chunks(items, size):\n    pass\n\n\ndef take(n, iterable):\n    pass\n"
+ },
+ "python/11-testing": {
+  "solution.py": "def test_quarter_off(discount):\n    assert discount(200, 25) == 150.0\n\n\n# Add more test functions below. Each takes `discount` as its parameter.\n"
+ },
+ "python/12-typing": {
+  "solution.py": "def mean(values):\n    pass\n\n\ndef find_user(users, user_id):\n    pass\n\n\ndef lengths(words):\n    pass\n\n\nclass Point:\n    pass\n"
+ },
+ "sql/01-select-where": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/02-top-three": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/03-genre-stats": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/04-books-with-authors": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/05-books-per-author": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/06-above-average": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/07-never-ordered": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/08-customer-spending": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/09-change-data": {
+  "query.sql": "-- Write your statements here, each ending with a semicolon.\n"
+ },
+ "sql/10-create-tables": {
+  "query.sql": "-- Write your CREATE TABLE statements here.\n"
+ },
+ "sql/11-indexes": {
+  "query.sql": "-- Write your CREATE INDEX statements here.\n"
+ },
+ "sql/12-transactions": {
+  "query.sql": "-- Write your two transactions here.\n"
+ },
+ "sql/13-rank-in-genre": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "sql/14-jsonb-logins": {
+  "query.sql": "-- Write your query here.\n"
+ },
+ "start/04-greet": {
+  "greet.sh": "#!/usr/bin/env bash\n# Print \"Hello, NAME!\" where NAME is the first argument.\n# With no argument: print a usage message to stderr and exit with code 1.\n"
+ },
+ "start/05-sum": {
+  "sum.sh": "#!/usr/bin/env bash\n# Read one number per line from standard input and print the total.\n"
+ }
+}

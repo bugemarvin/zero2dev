@@ -249,6 +249,22 @@ def render_practice(exercises, inline):
     return "\n".join(parts)
 
 
+def starters():
+    """The original content of every file a learner edits, for the app's Reset button."""
+    sys.path.insert(0, str(ROOT))
+    from z2d import core, runner
+    data = {}
+    for ex in core.load_exercises():
+        files = {}
+        for name in runner.editable_files(ex):
+            path = ex.dir / name
+            if path.is_file():
+                files[name] = path.read_text(encoding="utf-8")
+        if files:
+            data[ex.id] = files
+    return json.dumps(data, indent=1, sort_keys=True, ensure_ascii=False) + "\n"
+
+
 def build():
     """Return {path: content} for every generated file."""
     tracks = json.loads((CONTENT / "tracks.json").read_text(encoding="utf-8"))
@@ -299,6 +315,7 @@ def build():
             "exercises": [{"id": e["id"], "title": e["title"]} for e in exercises.get(l["id"], [])],
         } for l in lessons if l["track"] is t],
     } for t in tracks]}
+    outputs[ROOT / "catalog" / "starters.json"] = starters()
     outputs[GUIDE / "assets" / "curriculum.js"] = (
         "window.Z2D_CURRICULUM = " + json.dumps(curriculum, indent=1, ensure_ascii=False) + ";\n")
     return outputs
@@ -331,7 +348,7 @@ def main(argv):
             written += 1
     for path in stale:
         path.unlink()
-    print(f"guide: {len(outputs) - 1} lessons, {written} files written, {len(stale)} removed")
+    print(f"guide: {len(outputs) - 2} lessons, {written} files written, {len(stale)} removed")
     return 0
 
 

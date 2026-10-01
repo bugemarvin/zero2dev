@@ -25,5 +25,11 @@
     "Store the constructor arguments in private final fields.",
     "public class Square extends Rectangle, with a constructor that calls super(side, side); and only name() overridden.",
     "largest: keep the best shape so far, and replace it only when the next area is strictly greater."
+  ],
+  "edit": [
+    "Circle.java",
+    "Rectangle.java",
+    "Square.java",
+    "Shapes.java"
   ]
 }

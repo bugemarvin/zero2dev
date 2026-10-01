@@ -17,6 +17,19 @@ class Skip(Exception):
     """The exercise cannot be checked on this machine right now (something is missing)."""
 
 
+class NeedsDownload(Skip):
+    """Something must be downloaded first: a Docker image or a package workspace.
+
+    The terminal downloads on the spot. The web app shows a Download button instead,
+    so that a request never hangs for minutes.
+    """
+
+    def __init__(self, kind, name, message):
+        super().__init__(message)
+        self.kind = kind
+        self.name = name
+
+
 class Result:
     def __init__(self, ok, name, detail=""):
         self.ok = ok
