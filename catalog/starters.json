@@ -526,6 +526,22 @@
  "rust/07-iterators": {
   "solution.rs": "pub fn sum_of_even_squares(numbers: &[i64]) -> i64 {\n    0\n}\n\npub fn initials(names: &[&str]) -> String {\n    String::new()\n}\n\npub fn long_words(text: &str, min: usize) -> Vec<String> {\n    Vec::new()\n}\n\npub fn apply_n<F: Fn(i64) -> i64>(f: F, times: u32, start: i64) -> i64 {\n    start\n}\n\npub fn running_total(numbers: &[i64]) -> Vec<i64> {\n    Vec::new()\n}\n"
  },
+ "scss/01-variables": {
+  "style.scss": "// Declare $brand, $radius and $space here, then use them below.\n"
+ },
+ "scss/02-nesting": {
+  "style.scss": ".nav {\n  display: flex;\n}\n\n.card {\n  padding: 16px;\n}\n"
+ },
+ "scss/03-modules": {
+  "_tokens.scss": "// Declare $brand, $text and $space.\n",
+  "style.scss": "// Load the tokens here, then write the rules.\n"
+ },
+ "scss/04-mixins": {
+  "style.scss": "@use \"sass:math\";\n\n// @mixin button($background) { ... }\n\n// @mixin from($width) { ... }\n\n// @function rem($pixels) { ... }\n"
+ },
+ "scss/05-loops": {
+  "style.scss": "// $colors: ( ... );\n\n// @each ...\n\n// @for ...\n"
+ },
  "sql/01-select-where": {
   "query.sql": "-- Write your query here.\n"
  },

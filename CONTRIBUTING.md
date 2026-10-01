@@ -105,7 +105,7 @@ Text with `code`, **bold** and a [link to another lesson](c/08-memory).
 
 Supported: `##` and `###` headings, paragraphs, `-` and `1.` lists (one level), fenced code blocks with a language, `>` callouts (start with `**Warning:**` for the warning style), pipe tables (write `\|` for a pipe inside a cell), `` `code` ``, `**bold**`, `*italic*`, links.
 
-Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html` (also `vue`), `css`, `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
+Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html` (also `vue`), `css` (also `scss`), `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
 
 A section that applies to one system only says so in its heading: `## Windows {os=windows}`, `## Ubuntu or Debian Linux {os=linux wsl}`, `## macOS {os=macos}`. The page shows the sections for the learner's system and tucks the others behind a button. The marker is removed from the title, and the section ends at the next `##` heading.
 
@@ -247,7 +247,20 @@ For HTML and CSS. The page is parsed and the cascade applied by the checker itse
 - `{"doctype": true}` and `{"valid": true}` test the doctype and that every element is closed in the right order.
 - Values are compared as written, after light normalisation (case, spaces, `#fff` and `#ffffff`, `0px` and `0`). Of the shorthands only `margin`, `padding` and a one-colour `background` are expanded, so name in the task the property you test.
 
-The app gives every web exercise an **Open preview** button.
+- `{"source": "style.scss", ...}` tests the text the learner wrote, with comments removed, for things a compiler erases: `contains` and `not_contains` (a text or a list), `regex`, and `count_of` (a regular expression) with `min_count` and `max_count`. `fail` is the message shown.
+
+Styles that are compiled first (Sass) name a package set and what to compile. The exercise is copied into the package set, compiled there, and the checks run on the result. A compiler error is shown to the learner as the first failed check.
+
+```json
+{"kind": "web", "workspace": "sass", "compile": {"style.scss": "style.css"}, "page": "index.html",
+ "edit": ["style.scss", "_tokens.scss"],
+ "checks": [
+   {"name": "the tokens are loaded with @use", "source": "style.scss", "regex": "@use\\s+[\"']tokens[\"']"},
+   {"name": ".button has the brand background", "select": ".button", "style": {"background-color": "#1a73e8"}}
+ ]}
+```
+
+The app gives every web exercise an **Open preview** button. For a compiled exercise the preview compiles on start and again on every save.
 
 ### kind: mongo
 

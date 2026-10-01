@@ -1,0 +1,110 @@
+{
+  "title": "Buttons, a breakpoint and a function",
+  "lesson": "scss/04-mixins-and-functions",
+  "kind": "web",
+  "workspace": "sass",
+  "page": "index.html",
+  "compile": {
+    "style.scss": "style.css"
+  },
+  "edit": [
+    "style.scss"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "the two mixins and the function are defined",
+      "source": "style.scss",
+      "contains": [
+        "@mixin button(",
+        "@mixin from(",
+        "@function rem(",
+        "@content",
+        "@return"
+      ]
+    },
+    {
+      "name": "the buttons are built with @include",
+      "source": "style.scss",
+      "min_count": 2,
+      "count_of": "@include\\s+button\\s*\\(",
+      "fail": "Use @include button(...) in both .button-primary and .button-danger."
+    },
+    {
+      "name": ".button-primary has the shared button styles",
+      "select": ".button-primary",
+      "style": {
+        "display": "inline-block",
+        "padding-top": "8px",
+        "padding-left": "16px",
+        "border-radius": "6px",
+        "color": "white"
+      }
+    },
+    {
+      "name": ".button-primary is blue",
+      "select": ".button-primary",
+      "style": {
+        "background-color": "#1a73e8"
+      }
+    },
+    {
+      "name": ".button-danger has the same shape, in red",
+      "select": ".button-danger",
+      "style": {
+        "display": "inline-block",
+        "padding-top": "8px",
+        "border-radius": "6px",
+        "background-color": "#b42318"
+      }
+    },
+    {
+      "name": ".layout is a one-column grid",
+      "select": ".layout",
+      "style": {
+        "display": "grid",
+        "grid-template-columns": "1fr"
+      }
+    },
+    {
+      "name": "from 700px, .layout has two columns",
+      "select": ".layout",
+      "media": "min-width: 700px",
+      "style": {
+        "grid-template-columns": "2fr 1fr"
+      }
+    },
+    {
+      "name": "the breakpoint is written with the from mixin",
+      "source": "style.scss",
+      "regex": "@include\\s+from\\s*\\(\\s*700px\\s*\\)\\s*\\{",
+      "fail": "Inside .layout write: @include from(700px) { grid-template-columns: 2fr 1fr; }"
+    },
+    {
+      "name": "the h1 is rem(32px), which is 2rem",
+      "select": "h1",
+      "style": {
+        "font-size": "2rem"
+      }
+    },
+    {
+      "name": ".lead is rem(20px), which is 1.25rem",
+      "select": ".lead",
+      "style": {
+        "font-size": "1.25rem"
+      }
+    },
+    {
+      "name": "the sizes are calculated by the function",
+      "source": "style.scss",
+      "min_count": 2,
+      "count_of": "font-size:\\s*rem\\(",
+      "fail": "Write the font sizes as rem(32px) and rem(20px), not as 2rem and 1.25rem."
+    }
+  ],
+  "hints": [
+    "@mixin button($background) { display: inline-block; ...; background-color: $background; } and then .button-primary { @include button(#1a73e8); }",
+    "@mixin from($width) { @media (min-width: $width) { @content; } }",
+    "@function rem($pixels) { @return math.div($pixels, 16px) * 1rem; }"
+  ]
+}

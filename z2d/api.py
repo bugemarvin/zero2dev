@@ -136,7 +136,10 @@ def app_spec(ex):
         return ex.spec
     if ex.kind == "web":
         # a static file server, so the learner sees the page as a browser shows it
-        return {"lang": "python", "start": [sys.executable, "-m", "http.server", "{port}", "--bind", "127.0.0.1"]}
+        spec = {"lang": "python", "start": [sys.executable, "-m", "http.server", "{port}", "--bind", "127.0.0.1"]}
+        if ex.spec.get("compile"):        # Sass: served from a copy in the package set, compiled there
+            spec.update(workspace=ex.spec["workspace"], compile=ex.spec["compile"])
+        return spec
     if ex.spec.get("preview") == "static":
         return {"lang": "python", "start": [sys.executable, "-m", "http.server", "{port}", "--bind", "127.0.0.1"]}
     if "preview" in ex.spec:
@@ -162,6 +165,8 @@ def save_files(ex, lang, files):
             copy = app.cwd / name
             copy.parent.mkdir(parents=True, exist_ok=True)
             copy.write_text(content, encoding="utf-8")
+            if app.spec.get("compile"):
+                app.compile()           # the preview shows the new styles after a reload
 
 
 # ---------------------------------------------------------------- handlers

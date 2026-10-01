@@ -1,0 +1,20 @@
+$brand: #1a73e8;
+$radius: 8px;
+$space: 16px;
+
+h1 {
+  color: $brand;
+}
+
+.button {
+  background-color: $brand;
+  color: white;
+  border-radius: $radius;
+  padding: $space;
+}
+
+.card {
+  border: 1px solid $brand;
+  border-radius: $radius;
+  padding: $space * 2;
+}

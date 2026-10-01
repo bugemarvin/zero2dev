@@ -273,7 +273,7 @@
     if (lang === "console") { code.textContent = ""; colourConsole(code, text); return; }
     if (MARKUP[lang]) { try { colourMarkup(code, text, MARKUP[lang]); } catch (e) { code.textContent = text; } return; }
     lang = { js: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript", typescript: "javascript",
-             mjs: "javascript", json: "javascript", sh: "bash", yml: "yaml", vue: "html" }[lang] || lang;
+             mjs: "javascript", json: "javascript", sh: "bash", yml: "yaml", vue: "html", scss: "css" }[lang] || lang;
     if (!KEYWORDS[lang]) return;
     var words = {};
     KEYWORDS[lang].split(" ").forEach(function (w) { words[w] = true; });

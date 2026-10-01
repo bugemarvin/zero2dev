@@ -1,0 +1,44 @@
+@use "sass:math";
+
+@mixin button($background) {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 6px;
+  color: white;
+  background-color: $background;
+}
+
+@mixin from($width) {
+  @media (min-width: $width) {
+    @content;
+  }
+}
+
+@function rem($pixels) {
+  @return math.div($pixels, 16px) * 1rem;
+}
+
+.button-primary {
+  @include button(#1a73e8);
+}
+
+.button-danger {
+  @include button(#b42318);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  @include from(700px) {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+h1 {
+  font-size: rem(32px);
+}
+
+.lead {
+  font-size: rem(20px);
+}

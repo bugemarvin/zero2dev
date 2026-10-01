@@ -1,0 +1,6 @@
+{
+  "title": "Sass",
+  "needs": ["node", "npm"],
+  "stack": "node",
+  "setup": [["npm", "ci", "--no-audit", "--no-fund"]]
+}
