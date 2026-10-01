@@ -1,0 +1,163 @@
+{
+  "title": "A todo API with Express",
+  "lesson": "js/08-express-api",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "node",
+  "edit": [
+    "server.mjs"
+  ],
+  "start": [
+    "node",
+    "server.mjs"
+  ],
+  "start_timeout": 30,
+  "requests": [
+    {
+      "name": "GET /todos starts as an empty list",
+      "path": "/todos",
+      "status": 200,
+      "json": []
+    },
+    {
+      "name": "POST /todos creates a todo and answers 201",
+      "method": "POST",
+      "path": "/todos",
+      "body": {
+        "title": "Buy milk"
+      },
+      "status": 201,
+      "json": {
+        "id": 1,
+        "title": "Buy milk",
+        "done": false
+      }
+    },
+    {
+      "name": "POST /todos gives the next id",
+      "method": "POST",
+      "path": "/todos",
+      "body": {
+        "title": "  Walk the dog  "
+      },
+      "status": 201,
+      "json": {
+        "id": 2,
+        "title": "Walk the dog",
+        "done": false
+      }
+    },
+    {
+      "name": "POST /todos without a title answers 400",
+      "method": "POST",
+      "path": "/todos",
+      "body": {},
+      "status": 400,
+      "json_contains": {
+        "error": "title is required"
+      }
+    },
+    {
+      "name": "POST /todos with an empty title answers 400",
+      "method": "POST",
+      "path": "/todos",
+      "body": {
+        "title": "   "
+      },
+      "status": 400
+    },
+    {
+      "name": "GET /todos lists both",
+      "path": "/todos",
+      "status": 200,
+      "json": [
+        {
+          "id": 1,
+          "title": "Buy milk",
+          "done": false
+        },
+        {
+          "id": 2,
+          "title": "Walk the dog",
+          "done": false
+        }
+      ]
+    },
+    {
+      "name": "GET /todos/2 returns one todo",
+      "path": "/todos/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "title": "Walk the dog",
+        "done": false
+      }
+    },
+    {
+      "name": "GET /todos/99 answers 404",
+      "path": "/todos/99",
+      "status": 404,
+      "json_contains": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "PATCH /todos/1 marks it done",
+      "method": "PATCH",
+      "path": "/todos/1",
+      "body": {
+        "done": true
+      },
+      "status": 200,
+      "json": {
+        "id": 1,
+        "title": "Buy milk",
+        "done": true
+      }
+    },
+    {
+      "name": "PATCH /todos/99 answers 404",
+      "method": "PATCH",
+      "path": "/todos/99",
+      "body": {
+        "done": true
+      },
+      "status": 404
+    },
+    {
+      "name": "DELETE /todos/1 answers 204",
+      "method": "DELETE",
+      "path": "/todos/1",
+      "status": 204
+    },
+    {
+      "name": "the deleted todo is gone",
+      "path": "/todos/1",
+      "status": 404
+    },
+    {
+      "name": "DELETE /todos/1 again answers 404",
+      "method": "DELETE",
+      "path": "/todos/1",
+      "status": 404
+    },
+    {
+      "name": "the other todo is still there",
+      "path": "/todos",
+      "status": 200,
+      "json": [
+        {
+          "id": 2,
+          "title": "Walk the dog",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "app.use(express.json()) must come before the routes, or req.body is undefined.",
+    "Convert the id: const id = Number(req.params.id); then todos.find((t) => t.id === id).",
+    "Return right after sending an error: return res.status(404).json({ error: \"not found\" });",
+    "201 for a created todo: res.status(201).json(todo). 204 with no body: res.status(204).end()."
+  ]
+}

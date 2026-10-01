@@ -1,0 +1,62 @@
+{
+  "title": "A word counter for the command line",
+  "lesson": "js/06-node-and-npm",
+  "kind": "program",
+  "lang": "javascript",
+  "sources": [
+    "wc.mjs"
+  ],
+  "timeout": 20,
+  "cases": [
+    {
+      "name": "a two-line file",
+      "args": [
+        "notes.txt"
+      ],
+      "files": {
+        "notes.txt": "hello world\nthis is node\n"
+      },
+      "stdout": "2 5 25\n"
+    },
+    {
+      "name": "extra spaces and a blank line",
+      "args": [
+        "messy.txt"
+      ],
+      "files": {
+        "messy.txt": "one\n\n  two   three  \nfour"
+      },
+      "stdout": "3 4 25\n"
+    },
+    {
+      "name": "an empty file",
+      "args": [
+        "empty.txt"
+      ],
+      "files": {
+        "empty.txt": ""
+      },
+      "stdout": "0 0 0\n"
+    },
+    {
+      "name": "a missing file: exit code 1 and nothing on stdout",
+      "args": [
+        "nope.txt"
+      ],
+      "stdout": "",
+      "exit": 1
+    },
+    {
+      "name": "no argument: exit code 2 and nothing on stdout",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "The real arguments start at process.argv[2].",
+    "readFileSync(file, \"utf8\") gives the text. Wrap it in try/catch for the missing file.",
+    "Lines: count the \"\\n\" characters. Words: text.split(/\\s+/).filter(Boolean).length. Characters: text.length.",
+    "console.error for messages, then process.exit(1) or process.exit(2)."
+  ]
+}

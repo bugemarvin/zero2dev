@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Node and npm · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/06-node-and-npm">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 6 of 11</p>
+<h1>Node and npm</h1>
+<p class="lede">Files, arguments and exit codes in Node, and the package manager that the whole JavaScript world shares.</p>
+<h2 id="a-command-line-program">A command-line program</h2>
+<pre><code class="lang-javascript">import { readFileSync } from "node:fs";
+
+const [file] = process.argv.slice(2);
+
+if (!file) {
+  console.error("usage: node count.mjs FILE");
+  process.exit(2);
+}
+
+const text = readFileSync(file, "utf8");
+console.log(text.split("\n").length);</code></pre>
+<ul><li><code>process.argv</code> holds the command line. The first two entries are the path to <code>node</code> and the path to the script, so the real arguments start at index 2.</li><li><code>console.log</code> writes to standard output, <code>console.error</code> to standard error.</li><li><code>process.exit(code)</code> ends the program with an exit code. 0 means success.</li><li><code>process.env.HOME</code> reads an environment variable.</li></ul>
+<h2 id="files">Files</h2>
+<pre><code class="lang-javascript">import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFile, writeFile } from "node:fs/promises";
+
+const text = readFileSync("notes.txt", "utf8");       // waits; simple, fine for scripts
+writeFileSync("out.txt", "hello\n");
+
+const later = await readFile("notes.txt", "utf8");    // asynchronous; use this in servers</code></pre>
+<p>Reading a file that does not exist throws an error whose <code>code</code> is <code>"ENOENT"</code>:</p>
+<pre><code class="lang-javascript">try {
+  const text = readFileSync(file, "utf8");
+} catch (error) {
+  if (error.code === "ENOENT") {
+    console.error(`error: ${file} not found`);
+    process.exit(1);
+  }
+  throw error;
+}</code></pre>
+<p>Build paths with <code>node:path</code>, which uses the right separator on every system:</p>
+<pre><code class="lang-javascript">import path from "node:path";
+const full = path.join("data", "2025", "report.txt");</code></pre>
+<h2 id="npm">npm</h2>
+<p><strong>npm</strong> is the package manager that comes with Node. A project is a folder with a <code>package.json</code>:</p>
+<pre><code class="lang-console">$ mkdir shop &amp;&amp; cd shop
+$ npm init -y
+$ npm install express</code></pre>
+<pre><code class="lang-text">{
+  "name": "shop",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>File or folder</th><th>What it is</th><th>In Git?</th></tr></thead><tbody><tr><td><code>package.json</code></td><td>the project's name, scripts and the packages it needs</td><td>yes</td></tr><tr><td><code>package-lock.json</code></td><td>the exact version of every package that was installed</td><td>yes</td></tr><tr><td><code>node_modules/</code></td><td>the downloaded packages</td><td><strong>no</strong>: add it to <code>.gitignore</code></td></tr></tbody></table></div>
+<p>Anyone who clones the project runs <code>npm install</code> and gets the same packages.</p>
+<p><code>"type": "module"</code> makes <code>.js</code> files in the project ES modules, so the <code>.mjs</code> ending is no longer needed.</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>npm install</code></td><td>install everything listed in <code>package.json</code></td></tr><tr><td><code>npm install name</code></td><td>add a package</td></tr><tr><td><code>npm install -D name</code></td><td>add a tool needed only during development</td></tr><tr><td><code>npm run start</code></td><td>run the script named <code>start</code></td></tr><tr><td><code>npm test</code></td><td>run the script named <code>test</code></td></tr><tr><td><code>npx name</code></td><td>run a tool from <code>node_modules</code>, or download and run it once</td></tr><tr><td><code>npm ci</code></td><td>install exactly what the lock file says, for automated builds</td></tr></tbody></table></div>
+<h2 id="version-ranges">Version ranges</h2>
+<p>Versions have three parts: <code>major.minor.patch</code>. A major version may break things, a minor one adds features, a patch fixes bugs.</p>
+<p><code>"^5.1.0"</code> accepts any version from 5.1.0 up to, and not including, 6.0.0. The lock file records which one you actually have.</p>
+<h2 id="testing-with-node">Testing with Node</h2>
+<p>Node has a test runner built in. It is what checks the exercises of this track:</p>
+<pre><code class="lang-javascript">import test from "node:test";
+import assert from "node:assert/strict";
+import { total } from "./cart.mjs";
+
+test("an empty cart costs nothing", () =&gt; {
+  assert.equal(total([]), 0);
+});
+
+test("adds up the prices", () =&gt; {
+  assert.deepEqual(total([{ price: 2 }, { price: 3 }]), 5);
+});</code></pre>
+<pre><code class="lang-console">$ node --test</code></pre>
+<p><code>assert.equal</code> compares simple values with <code>===</code>. <code>assert.deepEqual</code> compares arrays and objects by their contents. <code>assert.throws(() =&gt; f())</code> checks that an error is thrown, and <code>await assert.rejects(promise)</code> that a promise rejects.</p>
+<h2 id="how-this-guide-uses-npm">How this guide uses npm</h2>
+<p>Exercises that need packages share one folder of dependencies per stack, installed once, so you do not download Express or React for every exercise. The app's Setup page shows whether a package set is ready, and downloads it when you ask. That one download needs the internet. After it, everything works offline.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Committing <code>node_modules</code>.</strong></li><li><strong>Not committing <code>package-lock.json</code>.</strong></li><li><strong>Installing globally with <code>npm install -g</code></strong> what should be a project dependency.</li><li><strong>Reading <code>process.argv[0]</code></strong> as the first argument. Start at index 2.</li><li><strong>Synchronous file calls in a server</strong>, which block every other request while they run.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/06-cli">
+<h3>A word counter for the command line <span class="ex-id">js/06-cli</span></h3>
+<p>Write <code>wc.mjs</code>, a small version of the <code>wc</code> command.</p>
+<pre><code class="lang-console">$ node wc.mjs notes.txt
+2 5 25</code></pre>
+<p>It takes one file name and prints three numbers separated by spaces: the number of lines (count the newline characters), the number of words (separated by any whitespace), and the number of characters.</p>
+<ul><li>If the file does not exist, print a message to standard error and exit with code 1.</li><li>With no argument, print a usage message to standard error and exit with code 2.</li></ul>
+<p>In both error cases nothing goes to standard output.</p>
+<p class="ex-files">Files: <code>exercises/js/06-cli/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/06-cli</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/05-classes-and-closures.html"><span>Previous</span>Classes, closures and errors</a><a class="next" href="../js/07-http-and-servers.html"><span>Next</span>HTTP and a server from scratch</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

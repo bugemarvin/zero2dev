@@ -1,0 +1,26 @@
+{
+  "title": "Change a page with the DOM",
+  "lesson": "js/10-the-browser-and-dom",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "dom.js"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 90,
+  "hints": [
+    "renderList: container.replaceChildren(ul) after building a ul with one li per item. Set li.textContent, never innerHTML.",
+    "setupCounter: keep let count = 0 in the function, and in the click listener do count += 1 and output.textContent = String(count).",
+    "setupFilter: on the input event, loop over the list's children and set item.hidden when the text does not include the typed value (compare in lower case)."
+  ]
+}

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTP and a server from scratch · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/07-http-and-servers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 7 of 11</p>
+<h1>HTTP and a server from scratch</h1>
+<p class="lede">How browsers and servers talk, and a working server with nothing but Node.</p>
+<h2 id="http-in-one-page">HTTP in one page</h2>
+<p>Every web page, API call and file download is an <strong>HTTP</strong> exchange: a client sends a <strong>request</strong>, a server sends back a <strong>response</strong>.</p>
+<p>A request has:</p>
+<ul><li>a <strong>method</strong>: what to do;</li><li>a <strong>path</strong>: which resource, with an optional query string after <code>?</code>;</li><li><strong>headers</strong>: extra information;</li><li>sometimes a <strong>body</strong>: the data being sent.</li></ul>
+<pre><code class="lang-text">POST /todos?notify=yes HTTP/1.1
+Host: localhost:3000
+Content-Type: application/json
+
+{"title": "Buy milk"}</code></pre>
+<p>A response has a <strong>status code</strong>, headers and a body:</p>
+<pre><code class="lang-text">HTTP/1.1 201 Created
+Content-Type: application/json
+
+{"id": 1, "title": "Buy milk", "done": false}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Meaning</th></tr></thead><tbody><tr><td><code>GET</code></td><td>read. Must not change anything.</td></tr><tr><td><code>POST</code></td><td>create</td></tr><tr><td><code>PUT</code>, <code>PATCH</code></td><td>replace, or change part of</td></tr><tr><td><code>DELETE</code></td><td>remove</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Status</th><th>Meaning</th></tr></thead><tbody><tr><td>200 OK</td><td>it worked</td></tr><tr><td>201 Created</td><td>something new was made</td></tr><tr><td>204 No Content</td><td>it worked, and there is nothing to send back</td></tr><tr><td>400 Bad Request</td><td>the client sent something wrong</td></tr><tr><td>401, 403</td><td>not logged in, not allowed</td></tr><tr><td>404 Not Found</td><td>no such resource</td></tr><tr><td>500 Internal Server Error</td><td>the server has a bug</td></tr></tbody></table></div>
+<p>The first digit tells the story: 2xx success, 4xx the client's mistake, 5xx the server's.</p>
+<h2 id="fetch-being-the-client">fetch: being the client</h2>
+<pre><code class="lang-javascript">const response = await fetch("http://localhost:3000/todos");
+if (!response.ok) {                      // ok is true for 2xx
+  throw new Error(`request failed: ${response.status}`);
+}
+const todos = await response.json();</code></pre>
+<p>Sending data:</p>
+<pre><code class="lang-javascript">const response = await fetch("http://localhost:3000/todos", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ title: "Buy milk" }),
+});</code></pre>
+<p><code>fetch</code> only rejects when the network itself fails. A 404 or 500 is a normal response as far as <code>fetch</code> is concerned, so check <code>response.ok</code>.</p>
+<h2 id="a-server-with-node-http">A server with node:http</h2>
+<pre><code class="lang-javascript">import { createServer } from "node:http";
+
+const server = createServer((req, res) =&gt; {
+  const url = new URL(req.url, "http://localhost");
+
+  if (req.method === "GET" &amp;&amp; url.pathname === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
+
+  res.writeHead(404, { "Content-Type": "application/json" });
+  res.end(JSON.stringify({ error: "not found" }));
+});
+
+const port = process.env.PORT || 3000;
+server.listen(port, () =&gt; console.log(`listening on ${port}`));</code></pre>
+<ul><li>The function runs once for every request.</li><li><code>req.method</code> and <code>req.url</code> say what was asked.</li><li><code>new URL(...)</code> splits the path from the query: <code>url.pathname</code> and <code>url.searchParams.get("name")</code>.</li><li><code>res.writeHead(status, headers)</code> then <code>res.end(body)</code> sends the response.</li><li><strong>Read the port from the <code>PORT</code> environment variable.</strong> Whoever runs your server decides the port: a hosting platform, Docker, or the tests of this guide.</li></ul>
+<p>A small helper removes the repetition:</p>
+<pre><code class="lang-javascript">function sendJson(res, status, data) {
+  res.writeHead(status, { "Content-Type": "application/json" });
+  res.end(JSON.stringify(data));
+}</code></pre>
+<h2 id="reading-a-request-body">Reading a request body</h2>
+<p>The body arrives in pieces. Collect them, then parse:</p>
+<pre><code class="lang-javascript">async function readJson(req) {
+  let text = "";
+  for await (const chunk of req) {
+    text += chunk;
+  }
+  return JSON.parse(text);
+}</code></pre>
+<p><code>JSON.parse</code> throws on invalid input. That is the client's mistake, so answer with 400, not a crash:</p>
+<pre><code class="lang-javascript">let body;
+try {
+  body = await readJson(req);
+} catch {
+  sendJson(res, 400, { error: "invalid JSON" });
+  return;
+}</code></pre>
+<h2 id="trying-it">Trying it</h2>
+<pre><code class="lang-console">$ node server.mjs
+$ curl -i http://localhost:3000/health
+$ curl -X POST -H "Content-Type: application/json" -d '{"a": 1}' http://localhost:3000/echo</code></pre>
+<p>In the app, <strong>Start app</strong> runs your server and gives you a link to open.</p>
+<h2 id="why-frameworks-exist">Why frameworks exist</h2>
+<p>A real API has dozens of routes, and each needs the same things: matching paths with parameters, parsing bodies, handling errors. Writing that by hand with <code>if</code> statements gets repetitive quickly. The next lesson uses Express, which does it for you. Having built one without it, you will know what it is doing.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A hard-coded port.</strong> Read <code>process.env.PORT</code>.</li><li><strong>Forgetting <code>res.end()</code>.</strong> The client waits for ever.</li><li><strong>Always answering 200</strong>, even for errors.</li><li><strong>Not setting <code>Content-Type</code>.</strong> Clients then do not know the body is JSON.</li><li><strong>Letting an exception escape the handler</strong>, which takes the whole server down.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/07-http-server">
+<h3>A server with node:http <span class="ex-id">js/07-http-server</span></h3>
+<p>Complete <code>server.mjs</code>, using only <code>node:http</code>. Every response is JSON, with the header <code>Content-Type: application/json</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /health</code></td><td>200 <code>{"status": "ok"}</code></td></tr><tr><td><code>GET /hello?name=Sam</code></td><td>200 <code>{"message": "Hello, Sam!"}</code></td></tr><tr><td><code>GET /hello</code></td><td>200 <code>{"message": "Hello, world!"}</code></td></tr><tr><td><code>POST /echo</code> with a JSON body</td><td>200 and the same JSON back</td></tr><tr><td><code>POST /echo</code> with a body that is not valid JSON</td><td>400 <code>{"error": "invalid JSON"}</code></td></tr><tr><td>anything else</td><td>404 <code>{"error": "not found"}</code></td></tr></tbody></table></div>
+<p>The server must listen on the port given in the <code>PORT</code> environment variable.</p>
+<p>In the app, <strong>Start app</strong> runs your server so you can open it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/js/07-http-server/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/07-http-server</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/06-node-and-npm.html"><span>Previous</span>Node and npm</a><a class="next" href="../js/08-express-api.html"><span>Next</span>A REST API with Express</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

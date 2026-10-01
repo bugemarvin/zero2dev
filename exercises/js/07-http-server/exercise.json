@@ -1,0 +1,105 @@
+{
+  "title": "A server with node:http",
+  "lesson": "js/07-http-and-servers",
+  "kind": "http",
+  "lang": "javascript",
+  "edit": [
+    "server.mjs"
+  ],
+  "start": [
+    "node",
+    "server.mjs"
+  ],
+  "start_timeout": 20,
+  "requests": [
+    {
+      "name": "GET /health answers 200 with JSON",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok"
+      },
+      "header": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "name": "GET /hello?name=Sam greets by name",
+      "path": "/hello?name=Sam",
+      "status": 200,
+      "json": {
+        "message": "Hello, Sam!"
+      }
+    },
+    {
+      "name": "GET /hello without a name greets the world",
+      "path": "/hello",
+      "status": 200,
+      "json": {
+        "message": "Hello, world!"
+      }
+    },
+    {
+      "name": "POST /echo sends the JSON body back",
+      "method": "POST",
+      "path": "/echo",
+      "body": {
+        "a": 1,
+        "list": [
+          "x",
+          "y"
+        ]
+      },
+      "status": 200,
+      "json": {
+        "a": 1,
+        "list": [
+          "x",
+          "y"
+        ]
+      }
+    },
+    {
+      "name": "POST /echo with invalid JSON answers 400",
+      "method": "POST",
+      "path": "/echo",
+      "headers": {
+        "Content-Type": "text/plain"
+      },
+      "raw": "{not json",
+      "status": 400,
+      "json_contains": {
+        "error": "invalid JSON"
+      }
+    },
+    {
+      "name": "an unknown path answers 404 with JSON",
+      "path": "/nope",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      },
+      "header": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "name": "the wrong method on a known path answers 404",
+      "method": "POST",
+      "path": "/health",
+      "body": {},
+      "status": 404
+    },
+    {
+      "name": "the server is still running after the errors",
+      "path": "/health",
+      "status": 200
+    }
+  ],
+  "hints": [
+    "Listen on process.env.PORT. The tests choose the port.",
+    "const url = new URL(req.url, \"http://localhost\"); then url.pathname and url.searchParams.get(\"name\").",
+    "Read the body with: let text = \"\"; for await (const chunk of req) text += chunk;",
+    "Wrap JSON.parse in try/catch and answer 400 with { error: \"invalid JSON\" }."
+  ]
+}

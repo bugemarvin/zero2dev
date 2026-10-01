@@ -196,6 +196,36 @@
  "java/10-streams": {
   "Stats.java": "import java.io.IOException;\nimport java.nio.file.Path;\nimport java.util.List;\nimport java.util.Map;\nimport java.util.Optional;\n\npublic class Stats {\n    public static List<String> longNames(List<String> names, int minLength) {\n        return null;\n    }\n\n    public static int sumOfEvenSquares(List<Integer> numbers) {\n        return -1;\n    }\n\n    public static Map<Character, Long> countByFirstLetter(List<String> words) {\n        return null;\n    }\n\n    public static Optional<String> longest(List<String> words) {\n        return null;\n    }\n\n    public static long countNonBlankLines(Path path) throws IOException {\n        return -1;\n    }\n}\n"
  },
+ "js/01-functions": {
+  "solution.mjs": "export function greet(name) {\n}\n\nexport function isAdult(age) {\n}\n\nexport function fizzbuzz(n) {\n}\n\nexport function sum() {\n}\n"
+ },
+ "js/02-collections": {
+  "solution.mjs": "export function total(prices) {\n}\n\nexport function names(users) {\n}\n\nexport function adults(users) {\n}\n\nexport function byId(users) {\n}\n\nexport function withDefaults(options) {\n}\n"
+ },
+ "js/03-modules": {
+  "cart.mjs": "// Export TAX_RATE, addItem, removeItem and total by name, and summary as the default.\n"
+ },
+ "js/04-async": {
+  "solution.mjs": "export function delay(ms, value) {\n}\n\nexport async function fetchAll(ids, fetchOne) {\n}\n\nexport async function retry(fn, times) {\n}\n\nexport function withTimeout(promise, ms) {\n}\n"
+ },
+ "js/05-classes": {
+  "solution.mjs": "export class EmptyStackError extends Error {\n}\n\nexport class Stack {\n}\n\nexport function counter(start = 0) {\n}\n"
+ },
+ "js/06-cli": {
+  "wc.mjs": "import { readFileSync } from \"node:fs\";\n\n// The file name is in process.argv[2].\n"
+ },
+ "js/07-http-server": {
+  "server.mjs": "import { createServer } from \"node:http\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\nconst server = createServer(async (req, res) => {\n  // route the request here\n  sendJson(res, 404, { error: \"not found\" });\n});\n\nserver.listen(3000);\n"
+ },
+ "js/08-todo-api": {
+  "server.mjs": "import express from \"express\";\n\nconst app = express();\napp.use(express.json());\n\nlet todos = [];\nlet nextId = 1;\n\napp.get(\"/todos\", (req, res) => {\n  res.json(todos);\n});\n\n// add the other routes here\n\nconst port = process.env.PORT || 3000;\napp.listen(port, () => console.log(`listening on ${port}`));\n"
+ },
+ "js/09-typescript": {
+  "solution.ts": "export interface User {\n  id: number;\n  name: string;\n}\n\nexport type Shape = { kind: \"circle\"; radius: number };\n\nexport function displayName(user: User): string {\n  return \"\";\n}\n\nexport function parsePort(value: string | number): number {\n  return 0;\n}\n\nexport function first<T>(items: T[]): T | undefined {\n  return undefined;\n}\n\nexport function area(shape: Shape): number {\n  return 0;\n}\n"
+ },
+ "js/10-dom": {
+  "dom.js": "export function renderList(container, items) {\n}\n\nexport function setupCounter(button, output) {\n}\n\nexport function setupFilter(input, list) {\n}\n"
+ },
  "python/01-first-functions": {
   "solution.py": "def greeting(name):\n    pass\n\n\ndef to_fahrenheit(celsius):\n    pass\n\n\ndef is_even(n):\n    pass\n"
  },

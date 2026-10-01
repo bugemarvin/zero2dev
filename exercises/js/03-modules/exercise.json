@@ -1,0 +1,22 @@
+{
+  "title": "A cart module",
+  "lesson": "js/03-modules",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "cart.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "export const TAX_RATE = 0.2; and export function addItem(cart, item) { return [...cart, item]; }",
+    "removeItem is a filter: keep the items whose id is different.",
+    "Round with Math.round(n * 100) / 100. Use toFixed(2) only for the text in summary.",
+    "export default function summary(cart) { ... }"
+  ]
+}

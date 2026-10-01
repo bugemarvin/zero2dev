@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypeScript basics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/09-typescript-basics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 9 of 11</p>
+<h1>TypeScript basics</h1>
+<p class="lede">JavaScript with types. Mistakes that used to appear when the program ran are caught while you type.</p>
+<h2 id="what-typescript-is">What TypeScript is</h2>
+<p>TypeScript is JavaScript plus <strong>type annotations</strong>. A tool called the compiler, <code>tsc</code>, reads the annotations and reports mismatches. The annotations are then removed, and what runs is plain JavaScript.</p>
+<pre><code class="lang-typescript">function area(width: number, height: number): number {
+  return width * height;
+}
+
+area(3, "4");
+// error: Argument of type 'string' is not assignable to parameter of type 'number'.</code></pre>
+<p>The error appears in your editor as you type, and when <code>tsc</code> runs. Nothing has to execute.</p>
+<p>Files end in <code>.ts</code>. Recent versions of Node can run a <code>.ts</code> file directly by stripping the types, with no checking. Checking is the job of <code>tsc</code>:</p>
+<pre><code class="lang-console">$ npx tsc --noEmit --strict app.ts</code></pre>
+<h2 id="basic-types">Basic types</h2>
+<pre><code class="lang-typescript">const name: string = "Sam";
+let count: number = 0;
+const done: boolean = false;
+const tags: string[] = ["a", "b"];
+const point: [number, number] = [3, 4];</code></pre>
+<p>TypeScript <strong>infers</strong> types from values, so most annotations on variables are unnecessary. <code>const name = "Sam"</code> is already known to be a string. Annotate function parameters and return values. That is where the contract between pieces of code lives.</p>
+<h2 id="object-types">Object types</h2>
+<pre><code class="lang-typescript">interface User {
+  id: number;
+  name: string;
+  email?: string;          // optional: may be missing
+}
+
+function displayName(user: User): string {
+  return user.email ? `${user.name} &lt;${user.email}&gt;` : user.name;
+}</code></pre>
+<p>An <code>interface</code> describes the shape of an object. A value fits if it has the required properties with the right types.</p>
+<p><code>type</code> gives a name to any type, and is what you use for the combinations below:</p>
+<pre><code class="lang-typescript">type Id = number | string;</code></pre>
+<h2 id="union-types-and-narrowing">Union types and narrowing</h2>
+<p>A <strong>union</strong> says a value is one of several types:</p>
+<pre><code class="lang-typescript">function parsePort(value: string | number): number {
+  if (typeof value === "number") {
+    return value;                    // TypeScript knows: number
+  }
+  return Number(value);              // and here: string
+}</code></pre>
+<p>Inside the <code>if</code>, TypeScript has <strong>narrowed</strong> the type. It follows <code>typeof</code>, <code>===</code>, <code>in</code>, <code>instanceof</code> and truthiness checks.</p>
+<p>This is what makes <code>undefined</code> safe. An optional property has type <code>string | undefined</code>, and you cannot call a string method on it until you have ruled <code>undefined</code> out:</p>
+<pre><code class="lang-typescript">function emailDomain(user: User): string | undefined {
+  if (!user.email) {
+    return undefined;
+  }
+  return user.email.split("@")[1];
+}</code></pre>
+<h2 id="literal-types-and-discriminated-unions">Literal types and discriminated unions</h2>
+<p>A type can be one specific value. Combined with a union, that describes "exactly one of these shapes":</p>
+<pre><code class="lang-typescript">type Shape =
+  | { kind: "circle"; radius: number }
+  | { kind: "rect"; width: number; height: number };
+
+function area(shape: Shape): number {
+  switch (shape.kind) {
+    case "circle":
+      return Math.PI * shape.radius ** 2;
+    case "rect":
+      return shape.width * shape.height;
+  }
+}</code></pre>
+<p>In each <code>case</code> TypeScript knows which shape it has, and which properties exist. Add a third kind to <code>Shape</code>, and the compiler points at every <code>switch</code> that does not handle it yet.</p>
+<h2 id="generics">Generics</h2>
+<p>A <strong>generic</strong> function works for any type while keeping track of which one:</p>
+<pre><code class="lang-typescript">function first&lt;T&gt;(items: T[]): T | undefined {
+  return items[0];
+}
+
+const n = first([1, 2, 3]);        // number | undefined
+const s = first(["a", "b"]);       // string | undefined</code></pre>
+<p><code>T</code> is filled in from the argument. You have already used generics: <code>string[]</code> is short for <code>Array&lt;string&gt;</code>, and <code>Promise&lt;User&gt;</code> is a promise of a user.</p>
+<h2 id="any-and-unknown">any and unknown</h2>
+<p><code>any</code> switches type checking off for a value. It spreads: everything computed from an <code>any</code> is <code>any</code> too. Avoid it.</p>
+<p><code>unknown</code> is the safe alternative for values you know nothing about, such as parsed JSON. You must narrow it before use:</p>
+<pre><code class="lang-typescript">function lengthOf(value: unknown): number {
+  if (typeof value === "string") {
+    return value.length;
+  }
+  return 0;
+}</code></pre>
+<h2 id="strict-mode">Strict mode</h2>
+<p>Always use <code>--strict</code>, or <code>"strict": true</code> in <code>tsconfig.json</code>. Without it, <code>null</code> and <code>undefined</code> are allowed everywhere and much of the benefit is lost.</p>
+<p>A project's settings live in <code>tsconfig.json</code>, created with <code>npx tsc --init</code>.</p>
+<h2 id="what-types-do-not-do">What types do not do</h2>
+<p>Types disappear before the program runs. They cannot check data that arrives from outside: a request body, a file, an API response. Declaring that <code>req.body</code> is a <code>User</code> does not make it one. Validate such data with real code.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>any</code> to make an error go away.</strong></li><li><strong>Annotating everything.</strong> Let inference work.</li><li><strong>Trusting a type for outside data.</strong></li><li><strong>Ignoring the <code>undefined</code> half</strong> of an optional value with <code>!</code>.</li><li><strong>Expecting Node to report type errors</strong> when it runs a <code>.ts</code> file. Only <code>tsc</code> checks.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/09-typescript">
+<h3>Typed functions <span class="ex-id">js/09-typescript</span></h3>
+<p>Complete <code>solution.ts</code>. The checker first runs the TypeScript compiler in strict mode on your file together with <code>usage.ts</code>, then runs the tests.</p>
+<p><code>usage.ts</code> uses your functions the way a caller would. It also contains lines marked <code>@ts-expect-error</code>: calls that <strong>must be rejected</strong> by the compiler. If your types are too loose, for example <code>any</code>, those lines stop being errors and the compile step fails. Do not edit <code>usage.ts</code>.</p>
+<ul><li><code>interface User</code> has <code>id: number</code>, <code>name: string</code> and an optional <code>email: string</code>.</li><li><code>displayName(user: User): string</code> returns the name, followed by the email in angle brackets if there is one: <code>Ada &lt;ada@example.org&gt;</code>.</li><li><code>parsePort(value: string | number): number</code> returns the port as a number. It throws an <code>Error</code> unless the result is a whole number from 1 to 65535.</li><li><code>first&lt;T&gt;(items: T[]): T | undefined</code> returns the first element, or <code>undefined</code> for an empty array.</li><li><code>type Shape</code> is either <code>{ kind: "circle"; radius: number }</code> or <code>{ kind: "rect"; width: number; height: number }</code>.</li><li><code>area(shape: Shape): number</code> returns the area. Use <code>Math.PI</code>.</li></ul>
+<p>This exercise uses the TypeScript compiler from the Node package set, downloaded once from Setup.</p>
+<p class="ex-files">Files: <code>exercises/js/09-typescript/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/09-typescript</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/08-express-api.html"><span>Previous</span>A REST API with Express</a><a class="next" href="../js/10-the-browser-and-dom.html"><span>Next</span>The browser and the DOM</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

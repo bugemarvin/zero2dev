@@ -196,6 +196,29 @@ def _yaml_lite(lines):
     return info
 
 
+ANSI = re.compile(r"\x1b\[[0-9;]*m")
+
+
+def _diagnosis(body):
+    """The useful part of a TAP diagnostic block: the message, and expected/actual when they are simple."""
+    text = ANSI.sub("", "\n".join(body))
+    quoted = re.search(r'^\s*message:\s*"((?:[^"\\]|\\.)*)"', text, re.M | re.S)     # Vitest
+    info = _yaml_lite(body)
+    if quoted:
+        message = quoted.group(1).replace('\\"', '"').replace("\\n", "\n")
+    else:
+        message = ANSI.sub("", info.get("error") or info.get("message") or "")
+    parts = [message.strip()]
+    values = {}
+    for key in ("expected", "actual"):
+        found = re.search(r"^\s*" + key + r":\s*(\S.*)$", text, re.M)
+        if found and found.group(1) not in ("|-", "|", ">-", ">"):
+            values[key] = found.group(1).strip().strip("'\"")
+    if len(values) == 2 and values["expected"] not in message:
+        parts += [f"expected: {values['expected']}", f"got:      {values['actual']}"]
+    return "\n".join(p for p in parts if p)
+
+
 def parse_tap(text):
     """Turn `ok - name` / `not ok 3 - name` lines into results.
 
@@ -220,19 +243,15 @@ def parse_tap(text):
                 body.append(lines[i])
                 i += 1
             i += 1
-            info = _yaml_lite(body)
-            if info.get("type") == "suite":
+            if _yaml_lite(body).get("type") == "suite":
                 continue
             if not ok:
-                parts = [info.get("error") or info.get("message") or ""]
-                if info.get("expected") and info.get("actual"):
-                    parts += [f"expected: {info['expected']}", f"got:      {info['actual']}"]
-                detail = "\n".join(p for p in parts if p)
+                detail = _diagnosis(body)
         elif not ok and ": " in name:
             name, _, detail = name.partition(": ")
         if " > " in name:                      # Vitest prefixes the file name
             name = name.split(" > ", 1)[1]
-        results.append(Result(ok, name.strip(), clip(detail.strip(), 12, 900)))
+        results.append(Result(ok, name.strip(), clip(detail.strip(), 14, 1100)))
     return results
 
 
@@ -263,8 +282,8 @@ def check_harness(ex, exdir):
                 code, out, err = env.run(fill(ex.spec["build"]), cwd=cwd, timeout=180)
                 if code != 0:
                     return [Result(False, "compiles", clip((err + out).strip() or describe_exit(code), 25, 3000))]
-            code, out, err = env.run(fill(ex.spec["run"]), cwd=cwd, timeout=ex.timeout,
-                                     env=ex.spec.get("env"))
+            run_env = dict({"NO_COLOR": "1", "FORCE_COLOR": "0", "CI": "1"}, **ex.spec.get("env", {}))
+            code, out, err = env.run(fill(ex.spec["run"]), cwd=cwd, timeout=ex.timeout, env=run_env)
         finally:
             env.close()
             if workspace:
@@ -562,7 +581,9 @@ def json_contains(got, want):
 def http_request(port, req, timeout):
     data = None
     headers = dict(req.get("headers", {}))
-    if "body" in req:
+    if "raw" in req:                       # a body sent exactly as written, for testing bad input
+        data = req["raw"].encode()
+    elif "body" in req:
         data = json.dumps(req["body"]).encode()
         headers.setdefault("Content-Type", "application/json")
     request = urllib.request.Request(f"http://127.0.0.1:{port}{req['path']}", data=data,
@@ -598,7 +619,11 @@ def judge_response(req, status, headers, body):
             if "json_contains" in req and not json_contains(parsed, req["json_contains"]):
                 problems.append(f"the JSON should include: {json.dumps(req['json_contains'])}")
     if problems:
-        problems.append(block("response:", f"{status} {body}", 10, 600))
+        shown = body
+        if re.match(r"\s*<(!doctype|html)", body, re.I):
+            # an HTML error page: show its text on one line, not the markup
+            shown = "(an HTML page) " + " ".join(re.sub(r"<[^>]+>", " ", body).split())
+        problems.append(block("response:", f"{status} {shown}", 10, 600))
     return "\n".join(problems)
 
 
