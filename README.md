@@ -258,6 +258,7 @@ zero2dev is free and open source under the [MIT licence](LICENSE): you may use i
 The short version of the rules:
 
 - What you contribute is under the MIT licence too, and must be your own work or work you are allowed to reuse, with its source named.
+- Work on a branch and send a pull request into `development`. Nobody pushes to `main`, `master` or `development` directly: those branches accept only reviewed pull requests with green checks.
 - Keep pull requests small, and open an issue before starting something big such as a new stack.
 - Every exercise comes with a reference solution, and its starter must fail the tests. Every lesson comes with a quiz.
 - Write for a beginner whose first language may not be English.
