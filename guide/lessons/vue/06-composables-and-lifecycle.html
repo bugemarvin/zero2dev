@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lifecycle, data and composables · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="vue/06-composables-and-lifecycle">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Vue · lesson 6 of 6</p>
+<h1>Lifecycle, data and composables</h1>
+<p class="lede">Run code when a component appears, load data from a server, and share logic between components.</p>
+<h2 id="lifecycle-hooks">Lifecycle hooks</h2>
+<p>A component is created, put on the page (<strong>mounted</strong>), updated, and removed (<strong>unmounted</strong>). You can run code at those moments:</p>
+<pre><code class="lang-javascript">import { onMounted, onUnmounted } from "vue";
+
+onMounted(() =&gt; {
+  console.log("the component is on the page");
+});
+
+onUnmounted(() =&gt; {
+  console.log("the component is gone");
+});</code></pre>
+<p>Whatever you start in <code>onMounted</code>, stop in <code>onUnmounted</code>: timers, event listeners, subscriptions.</p>
+<pre><code class="lang-javascript">let timer;
+onMounted(() =&gt; { timer = setInterval(tick, 1000); });
+onUnmounted(() =&gt; { clearInterval(timer); });</code></pre>
+<h2 id="loading-data">Loading data</h2>
+<p>Data from a server has three states, and the page should show each of them:</p>
+<pre><code class="lang-html">&lt;script setup&gt;
+import { ref, onMounted } from "vue";
+
+const users = ref([]);
+const loading = ref(true);
+const error = ref("");
+
+async function load() {
+  loading.value = true;
+  error.value = "";
+  try {
+    const response = await fetch("/api/users");
+    if (!response.ok) {
+      throw new Error(`request failed: ${response.status}`);
+    }
+    users.value = await response.json();
+  } catch (problem) {
+    error.value = problem.message;
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(load);
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p v-if="loading"&gt;Loading ...&lt;/p&gt;
+  &lt;p v-else-if="error" role="alert"&gt;{{ error }}&lt;/p&gt;
+  &lt;ul v-else&gt;
+    &lt;li v-for="user in users" :key="user.id"&gt;{{ user.name }}&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/template&gt;</code></pre>
+<ul><li><code>fetch</code> does not fail on a 404 or a 500: check <code>response.ok</code>.</li><li><code>finally</code> runs in both cases, so <code>loading</code> always ends up <code>false</code>.</li></ul>
+<h2 id="watch-load-again-when-something-changes">watch: load again when something changes</h2>
+<pre><code class="lang-javascript">const props = defineProps({ userId: Number });
+
+watch(() =&gt; props.userId, load, { immediate: true });</code></pre>
+<p>The first argument says what to watch. <code>immediate: true</code> also runs it once at the start.</p>
+<h2 id="composables">Composables</h2>
+<p>When two components need the same logic, move it into a function. A function that uses Vue's reactivity is called a <strong>composable</strong>, and by convention its name starts with <code>use</code>:</p>
+<pre><code class="lang-javascript">// useToggle.js
+import { ref } from "vue";
+
+export function useToggle(initial = false) {
+  const on = ref(initial);
+
+  function toggle() {
+    on.value = !on.value;
+  }
+
+  return { on, toggle };
+}</code></pre>
+<pre><code class="lang-html">&lt;script setup&gt;
+import { useToggle } from "./useToggle.js";
+
+const { on: isOpen, toggle } = useToggle();
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="toggle"&gt;{{ isOpen ? "Close" : "Open" }}&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+<p>Each call creates its own state: two components that call <code>useToggle()</code> do not share anything. A composable shares <strong>logic</strong>, not data.</p>
+<p>The loading code above is a natural composable:</p>
+<pre><code class="lang-javascript">export function useFetch(url) {
+  const data = ref(null);
+  const loading = ref(true);
+  const error = ref("");
+  // ... the same load function ...
+  return { data, loading, error, reload: load };
+}</code></pre>
+<p>Composables can use lifecycle hooks, <code>watch</code>, <code>computed</code> and other composables. They are ordinary JavaScript, which makes them easy to test.</p>
+<h2 id="the-rest-of-the-ecosystem">The rest of the ecosystem</h2>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Tool</th></tr></thead><tbody><tr><td>several pages with their own addresses</td><td><strong>Vue Router</strong></td></tr><tr><td>state shared across the whole application</td><td><strong>Pinia</strong></td></tr><tr><td>a full framework with server rendering and file-based routes</td><td><strong>Nuxt</strong></td></tr><tr><td>tests</td><td><strong>Vitest</strong> and <strong>Vue Test Utils</strong>, which check the exercises of this track</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No loading and no error state</strong>, so the page is blank while waiting and blank when it fails.</li><li><strong>Not checking <code>response.ok</code>.</strong></li><li><strong>Timers and listeners that are never removed.</strong></li><li><strong>A composable that keeps its <code>ref</code> outside the function</strong>, which makes every component share one state by accident.</li><li><strong>Reaching for a store</strong> for data that one component owns.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="vue/06-user-list">
+<h3>Load data, and a composable <span class="ex-id">vue/06-user-list</span></h3>
+<p>Two files to write.</p>
+<h4><code>useToggle.js</code></h4>
+<p>Export a function <code>useToggle(initial)</code>. It returns an object with:</p>
+<ul><li><code>on</code>: a ref, starting at <code>initial</code>, or <code>false</code> when no argument is given;</li><li><code>toggle()</code>: switches <code>on</code> between <code>true</code> and <code>false</code>.</li></ul>
+<p>Every call has its own state.</p>
+<h4><code>UserList.vue</code></h4>
+<p>It receives a prop <code>load</code>: an async function that returns an array of users such as <code>{ id: 1, name: "Ada" }</code>, or throws an error.</p>
+<ul><li>When the component is mounted it calls <code>load()</code>.</li><li>While waiting it shows a paragraph with the class <code>loading</code> and the text <code>Loading ...</code>.</li><li>On success it shows a <code>ul</code> with one <code>li</code> per user, holding the name.</li><li>On failure it shows a paragraph with <code>role="alert"</code> and the text <code>Could not load: </code> followed by the error's message.</li><li>A button <code>Reload</code> calls <code>load()</code> again, showing <code>Loading ...</code> while it waits. It is always visible.</li><li>A second button uses your <code>useToggle</code>: it reads <code>Hide list</code>, and a click hides the <code>ul</code> and changes the button to <code>Show list</code>.</li></ul>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab, and the page reloads when you save.</p>
+<p class="ex-files">Files: <code>exercises/vue/06-user-list/</code></p>
+<pre><code class="lang-console">$ python3 check.py vue/06-user-list</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../vue/05-forms-and-v-model.html"><span>Previous</span>Forms and v-model</a><a class="next" href="../next/01-app-router.html"><span>Next</span>Next.js and the app router</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

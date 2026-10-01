@@ -1,0 +1,40 @@
+{
+  "title": "A profile card",
+  "lesson": "vue/01-components-and-templates",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "ProfileCard.vue"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Text goes in braces: <h2>{{ name }}</h2>. Attributes get a colon: <img :src=\"photo\" :alt=\"name\">.",
+    "toggle: following.value = !following.value;",
+    "The button: <button @click=\"toggle\">{{ following ? \"Following\" : \"Follow\" }}</button>"
+  ]
+}

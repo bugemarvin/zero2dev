@@ -1,0 +1,42 @@
+[
+ {
+  "q": "In which direction do props carry data?",
+  "options": [
+   "From child to parent",
+   "From parent to child",
+   "Both ways",
+   "Between siblings"
+  ],
+  "answer": 1,
+  "why": "Props go down. Events go up."
+ },
+ {
+  "q": "May a child component change a prop it received?",
+  "options": [
+   "Yes",
+   "No: it emits an event and the parent changes the data"
+  ],
+  "answer": 1,
+  "why": "Props are read-only in the child."
+ },
+ {
+  "q": "What does `<Counter :start=\"5\" />` pass?",
+  "options": [
+   "The string \"5\"",
+   "The number 5"
+  ],
+  "answer": 1,
+  "why": "With the colon the value is a JavaScript expression."
+ },
+ {
+  "q": "What is a slot for?",
+  "options": [
+   "Storing state",
+   "Letting the parent put its own content inside the child",
+   "Routing",
+   "Styling only"
+  ],
+  "answer": 1,
+  "why": "Whatever is written between the component's tags replaces <slot>."
+ }
+]

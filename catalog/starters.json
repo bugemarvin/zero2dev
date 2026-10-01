@@ -573,5 +573,24 @@
  },
  "start/05-sum": {
   "sum.sh": "#!/usr/bin/env bash\n# Read one number per line from standard input and print the total.\n"
+ },
+ "vue/01-profile-card": {
+  "ProfileCard.vue": "<script setup>\nimport { ref } from \"vue\";\n\nconst name = \"Ada Lovelace\";\nconst role = \"Engineer\";\nconst photo = \"ada.jpg\";\nconst site = \"https://example.com/ada\";\n\nconst following = ref(false);\n\nfunction toggle() {\n  // switch following between true and false\n}\n</script>\n\n<template>\n  <div class=\"card\">\n    <!-- write the template here -->\n  </div>\n</template>\n"
+ },
+ "vue/02-counter": {
+  "Counter.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst count = ref(0);\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"count\">Count: {{ count }}</p>\n  </div>\n</template>\n"
+ },
+ "vue/03-star-rating": {
+  "StarRating.vue": "<script setup>\nconst props = defineProps({\n  value: { type: Number, default: 0 },\n});\n</script>\n\n<template>\n  <div class=\"rating\">\n    <span class=\"label\">Rating</span>\n  </div>\n</template>\n"
+ },
+ "vue/04-todo-list": {
+  "TodoList.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst props = defineProps({\n  todos: { type: Array, required: true },\n});\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"empty\">Nothing to do.</p>\n  </div>\n</template>\n"
+ },
+ "vue/05-signup-form": {
+  "SignupForm.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst name = ref(\"\");\nconst email = ref(\"\");\nconst plan = ref(\"free\");\nconst terms = ref(false);\n\nfunction send() {\n  // check, then emit\n}\n</script>\n\n<template>\n  <form class=\"card\" @submit.prevent=\"send\">\n    <p>\n      <label for=\"name\">Name</label>\n      <input id=\"name\" v-model.trim=\"name\">\n    </p>\n\n    <button type=\"submit\">Create account</button>\n  </form>\n</template>\n"
+ },
+ "vue/06-user-list": {
+  "UserList.vue": "<script setup>\nimport { ref, onMounted } from \"vue\";\nimport { useToggle } from \"./useToggle.js\";\n\nconst props = defineProps({\n  load: { type: Function, required: true },\n});\n\nconst users = ref([]);\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"loading\">Loading ...</p>\n  </div>\n</template>\n",
+  "useToggle.js": "import { ref } from \"vue\";\n\nexport function useToggle(initial = false) {\n  // return { on, toggle }\n}\n"
  }
 }

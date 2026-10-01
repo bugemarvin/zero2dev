@@ -1,0 +1,46 @@
+[
+ {
+  "q": "Which three blocks can a .vue file have?",
+  "options": [
+   "head, body, footer",
+   "script, template, style",
+   "html, css, js files",
+   "model, view, controller"
+  ],
+  "answer": 1,
+  "why": "One file holds the component's logic, markup and styles."
+ },
+ {
+  "q": "How do you bind the href attribute to the variable site?",
+  "options": [
+   "href=\"{{ site }}\"",
+   ":href=\"site\"",
+   "href=site",
+   "@href=\"site\""
+  ],
+  "answer": 1,
+  "why": "The colon is short for v-bind. Braces work only in text."
+ },
+ {
+  "q": "What is `@click` short for?",
+  "options": [
+   "v-bind:click",
+   "v-on:click",
+   "v-if:click",
+   "v-model:click"
+  ],
+  "answer": 1,
+  "why": "@ is short for v-on."
+ },
+ {
+  "q": "What does `<style scoped>` do?",
+  "options": [
+   "Makes the CSS global",
+   "Limits the CSS to this component",
+   "Minifies the CSS",
+   "Loads CSS later"
+  ],
+  "answer": 1,
+  "why": "Scoped styles do not leak into other components."
+ }
+]

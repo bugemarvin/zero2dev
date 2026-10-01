@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Props, events and slots · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="vue/03-props-and-events">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Vue · lesson 3 of 6</p>
+<h1>Props, events and slots</h1>
+<p class="lede">How components talk: data goes down, events come up, content goes in.</p>
+<h2 id="props-data-goes-down">Props: data goes down</h2>
+<p>A parent passes data to a child through <strong>props</strong>. The child declares what it accepts:</p>
+<pre><code class="lang-html">&lt;!-- PriceTag.vue --&gt;
+&lt;script setup&gt;
+const props = defineProps({
+  amount: { type: Number, required: true },
+  currency: { type: String, default: "USD" },
+});
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;span&gt;{{ amount }} {{ currency }}&lt;/span&gt;
+&lt;/template&gt;</code></pre>
+<p>The parent uses them like attributes:</p>
+<pre><code class="lang-html">&lt;PriceTag :amount="12.5" /&gt;
+&lt;PriceTag :amount="total" currency="EUR" /&gt;</code></pre>
+<ul><li>With a colon, the value is JavaScript: <code>:amount="12.5"</code> passes a number. Without it, <code>amount="12.5"</code> passes the string.</li><li>In the template a prop is used by its name. In the script it is <code>props.amount</code>.</li><li><code>defineProps</code> needs no import: it is built into <code>&lt;script setup&gt;</code>.</li></ul>
+<h2 id="props-are-read-only">Props are read-only</h2>
+<p>A child must <strong>not</strong> change a prop. The data belongs to the parent. Vue warns if you try.</p>
+<p>If the child needs a changing copy, it makes its own <code>ref</code> from the prop. If the child wants the <strong>parent</strong> to change the data, it asks, with an event.</p>
+<h2 id="events-messages-go-up">Events: messages go up</h2>
+<p>A child announces that something happened. The parent decides what to do.</p>
+<pre><code class="lang-html">&lt;!-- AddButton.vue --&gt;
+&lt;script setup&gt;
+const emit = defineEmits(["add"]);
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;button @click="emit('add', 1)"&gt;Add one&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+<pre><code class="lang-html">&lt;!-- the parent --&gt;
+&lt;AddButton @add="count += $event" /&gt;
+&lt;AddButton @add="onAdd" /&gt;</code></pre>
+<ul><li><code>emit("add", 1)</code> sends the event <code>add</code> with the value 1.</li><li>The parent listens with <code>@add</code>. A handler function receives the value as its argument.</li></ul>
+<p>This one-way flow, <strong>props down and events up</strong>, is what keeps a large application understandable: you can always tell who owns a piece of data.</p>
+<h2 id="slots-content-goes-in">Slots: content goes in</h2>
+<p>A <strong>slot</strong> lets the parent put its own content inside the child:</p>
+<pre><code class="lang-html">&lt;!-- Card.vue --&gt;
+&lt;template&gt;
+  &lt;div class="card"&gt;
+    &lt;slot&gt;Nothing here yet&lt;/slot&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code></pre>
+<pre><code class="lang-html">&lt;Card&gt;
+  &lt;h2&gt;Hello&lt;/h2&gt;
+  &lt;p&gt;Any content at all.&lt;/p&gt;
+&lt;/Card&gt;</code></pre>
+<p>What is written between the tags replaces <code>&lt;slot&gt;</code>. The text inside <code>&lt;slot&gt;</code> is the fallback, shown when the parent gives nothing.</p>
+<p><strong>Named slots</strong> give a component several places:</p>
+<pre><code class="lang-html">&lt;!-- Layout.vue --&gt;
+&lt;header&gt;&lt;slot name="title" /&gt;&lt;/header&gt;
+&lt;main&gt;&lt;slot /&gt;&lt;/main&gt;</code></pre>
+<pre><code class="lang-html">&lt;Layout&gt;
+  &lt;template #title&gt;Settings&lt;/template&gt;
+  &lt;p&gt;The main content.&lt;/p&gt;
+&lt;/Layout&gt;</code></pre>
+<h2 id="v-model-on-a-component">v-model on a component</h2>
+<p>A component that edits a value follows a convention: a prop named <code>modelValue</code> and an event named <code>update:modelValue</code>. The parent can then write <code>v-model</code>:</p>
+<pre><code class="lang-html">&lt;StarRating v-model="stars" /&gt;
+&lt;!-- is the same as --&gt;
+&lt;StarRating :modelValue="stars" @update:modelValue="stars = $event" /&gt;</code></pre>
+<p>Recent versions of Vue offer <code>defineModel()</code> as a shortcut for the child's side.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Changing a prop in the child.</strong></li><li><strong>Forgetting the colon</strong>, and passing the text <code>"5"</code> where the number 5 was meant.</li><li><strong>An event that is emitted and never declared</strong> in <code>defineEmits</code>.</li><li><strong>Passing a callback function as a prop</strong> where an event is the Vue way.</li><li><strong>Passing data through five layers of props.</strong> For that, Vue has <code>provide</code> and <code>inject</code>, and stores such as Pinia.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="vue/03-star-rating">
+<h3>A star rating <span class="ex-id">vue/03-star-rating</span></h3>
+<p>Write <code>StarRating.vue</code>: a row of star buttons.</p>
+<h4>Props</h4>
+<ul><li><code>value</code>: a number, the current rating. Default 0.</li><li><code>max</code>: a number, how many stars. Default 5.</li></ul>
+<h4>Template</h4>
+<ul><li>One <code>button</code> per star, each with the text <code>★</code> and the class <code>star</code>.</li><li>The stars up to and including <code>value</code> also have the class <code>active</code>.</li><li>Each button has an <code>aria-label</code>: <code>1 star</code> for the first, <code>2 stars</code>, <code>3 stars</code> and so on.</li><li>Before the stars, a <code>span</code> with the class <code>label</code> holds a <strong>slot</strong>. When the parent gives no content, it shows <code>Rating</code>.</li></ul>
+<h4>Event</h4>
+<p>A click on star number N emits the event <code>rate</code> with the number N. The component does not change <code>value</code> itself: that belongs to the parent.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab, and the page reloads when you save.</p>
+<p class="ex-files">Files: <code>exercises/vue/03-star-rating/</code></p>
+<pre><code class="lang-console">$ python3 check.py vue/03-star-rating</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../vue/02-reactivity.html"><span>Previous</span>Reactivity: ref and computed</a><a class="next" href="../vue/04-lists-and-conditions.html"><span>Next</span>Lists and conditions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
