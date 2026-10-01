@@ -30,11 +30,24 @@
   color: var(--muted); border-right: 1px solid var(--border);
   font: 14px/21px var(--mono);
 }
-.st-area {
-  flex: 1 1 auto; min-width: 0; padding: 12px; border: 0; resize: vertical;
-  background: transparent; color: var(--text);
-  font: 14px/21px var(--mono); tab-size: 4; white-space: pre; overflow: auto;
+.st-code { position: relative; flex: 1 1 auto; min-width: 0; display: flex; }
+.st-area, .st-highlight {
+  margin: 0; padding: 12px; border: 0; border-radius: 0;
+  font: 14px/21px var(--mono); letter-spacing: 0; tab-size: 4; white-space: pre; overflow-wrap: normal;
 }
+.st-area {
+  position: relative; flex: 1 1 auto; min-width: 0; resize: vertical; overflow: auto;
+  background: transparent; color: transparent; caret-color: var(--text);
+}
+.st-area::selection { color: transparent; background: rgba(79, 160, 209, 0.35); }
+.st-highlight {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  background: transparent; color: var(--text);
+}
+.st-highlight code { font: inherit; background: none; padding: 0; white-space: pre; overflow-wrap: normal; }
+/* italic and bold glyphs can be a different width in some fonts, which would shift the caret */
+.st-highlight .tok-c { font-style: normal; }
+.st-highlight .tok-cmd { font-weight: inherit; }
 .st-area:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
 .st-readonly { border-top: none; border-radius: 0 0 10px 10px; margin: 0; max-height: 460px; overflow: auto; }
 .st-keys { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
