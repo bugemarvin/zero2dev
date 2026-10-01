@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good practice · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="docker/06-good-practice">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Docker · lesson 6 of 6</p>
+<h1>Good practice</h1>
+<p class="lede">Smaller, safer, faster images, and how to keep Docker from filling your disk.</p>
+<h2 id="small-images">Small images</h2>
+<p>A smaller image downloads faster, starts faster and contains less that can be attacked.</p>
+<p><strong>Start from a small base.</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Base</th><th>Rough size</th></tr></thead><tbody><tr><td><code>python:3.12</code></td><td>1 GB</td></tr><tr><td><code>python:3.12-slim</code></td><td>130 MB</td></tr><tr><td><code>python:3.12-alpine</code></td><td>50 MB</td></tr></tbody></table></div>
+<p><code>-slim</code> is the safe default. <code>-alpine</code> is smaller still, and uses a different C library, which occasionally causes trouble with packages that include compiled code.</p>
+<p><strong>Leave out what the program does not need</strong>, with <code>.dockerignore</code>.</p>
+<p><strong>Clean up in the same instruction.</strong> Each <code>RUN</code> is a layer, and a file deleted in a later layer still takes space in the earlier one:</p>
+<pre><code class="lang-dockerfile">RUN apt-get update \
+    &amp;&amp; apt-get install -y --no-install-recommends curl \
+    &amp;&amp; rm -rf /var/lib/apt/lists/*</code></pre>
+<h2 id="multi-stage-builds">Multi-stage builds</h2>
+<p>Building often needs tools that running does not: compilers, development packages. A <strong>multi-stage build</strong> uses one image to build and copies only the result into a clean one.</p>
+<pre><code class="lang-dockerfile">FROM golang:1.23 AS build
+WORKDIR /src
+COPY . .
+RUN go build -o /app/server .
+
+FROM alpine:3
+COPY --from=build /app/server /usr/local/bin/server
+CMD ["server"]</code></pre>
+<p>The first stage is close to a gigabyte. The final image is a few megabytes: a small base and one file.</p>
+<p>The same approach works for a Node front end: build with Node, then serve the generated files from a small web server image.</p>
+<h2 id="do-not-run-as-root">Do not run as root</h2>
+<p>By default the process in a container is root. If an attacker gets control of it, they are root inside the container, which makes escaping easier. Create a user and switch to it:</p>
+<pre><code class="lang-dockerfile">FROM node:22-slim
+WORKDIR /app
+COPY --chown=node:node . .
+USER node
+CMD ["node", "server.js"]</code></pre>
+<p>The official Node image ships with a user called <code>node</code>. Other images need <code>RUN adduser ...</code> first.</p>
+<h2 id="secrets">Secrets</h2>
+<p>Never put a secret in an image: not with <code>COPY</code>, not with <code>ENV</code>, not with <code>ARG</code>. Every layer can be inspected by anyone who has the image.</p>
+<ul><li>Pass secrets when the container <strong>starts</strong>: <code>-e</code>, <code>--env-file</code>, or the secret mechanism of your platform.</li><li>Keep <code>.env</code> in both <code>.gitignore</code> and <code>.dockerignore</code>.</li></ul>
+<h2 id="reproducible-builds">Reproducible builds</h2>
+<ul><li><strong>Pin versions.</strong> <code>FROM node:22.11-slim</code>, not <code>node:latest</code>.</li><li><strong>Install from a lock file</strong>: <code>npm ci</code>, <code>pip install -r requirements.txt</code> with exact versions.</li><li>The same Dockerfile should produce the same image next month.</li></ul>
+<h2 id="health-checks">Health checks</h2>
+<p>Tell Docker how to see whether the program inside is really working, not merely running:</p>
+<pre><code class="lang-dockerfile">HEALTHCHECK --interval=10s --timeout=3s CMD wget -qO- http://localhost:8000/health || exit 1</code></pre>
+<p><code>docker ps</code> then shows <code>healthy</code> or <code>unhealthy</code>, and Compose can wait for it.</p>
+<h2 id="one-process-per-container">One process per container</h2>
+<p>A container runs one main process: the web server, or the database, or the worker. Not all three. Separate containers can be restarted, scaled and updated on their own, and Compose makes running several of them easy.</p>
+<h2 id="logs-go-to-standard-output">Logs go to standard output</h2>
+<p>A program in a container should print its logs, not write them to files inside the container. Docker collects standard output, <code>docker logs</code> shows it, and hosting platforms forward it to wherever logs are kept.</p>
+<h2 id="keeping-your-disk">Keeping your disk</h2>
+<p>Images, stopped containers and volumes add up to many gigabytes over time.</p>
+<pre><code class="lang-console">$ docker system df                 # what is using space
+$ docker container prune           # remove stopped containers
+$ docker image prune               # remove images that nothing uses
+$ docker volume prune              # remove unused volumes: check first, this deletes data
+$ docker system prune              # the first two, plus unused networks</code></pre>
+<p>This guide's own containers are all named <code>z2d-</code> followed by something. <code>python3 check.py services down --purge</code> removes the service containers and their data. The images stay until you remove them with <code>docker rmi</code>.</p>
+<h2 id="a-checklist">A checklist</h2>
+<ul><li>a small, pinned base image</li><li><code>.dockerignore</code> present</li><li>dependencies installed before the code is copied</li><li>a multi-stage build when there is a build step</li><li>runs as a user other than root</li><li>no secrets in the image</li><li>configuration through environment variables</li><li>logs on standard output</li><li>a health check</li></ul>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You can now package any program and run it next to its database. The Microservices track uses exactly these skills to run several services that work together.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>latest</code> as the tag</strong>, in <code>FROM</code> or for your own images.</li><li><strong>A secret passed as a build argument.</strong></li><li><strong>Several programs crammed into one container.</strong></li><li><strong><code>docker system prune -a --volumes</code></strong> typed without reading what it will delete.</li><li><strong>Never pruning</strong>, until the disk is full.</li></ul>
+
+<nav class="pager"><a class="prev" href="../docker/05-app-with-a-database.html"><span>Previous</span>An app with a data store</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

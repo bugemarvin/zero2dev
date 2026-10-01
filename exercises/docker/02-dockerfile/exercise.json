@@ -1,0 +1,42 @@
+{
+  "title": "Build an image",
+  "lesson": "docker/02-dockerfile",
+  "kind": "sandbox",
+  "needs": [
+    "docker"
+  ],
+  "timeout": 240,
+  "setup": [
+    "cp \"$Z2D_EX\"/files/* ."
+  ],
+  "checks": [
+    {
+      "name": "docker build succeeds",
+      "cmd": "docker rmi -f z2d-ex-greet >/dev/null 2>&1; docker build -q -t z2d-ex-greet . >/dev/null 2>&1",
+      "fail": "run it yourself to see the error: docker build -t z2d-ex-greet ."
+    },
+    {
+      "name": "with no argument the container prints Hello, world!",
+      "cmd": "docker run --rm z2d-ex-greet",
+      "stdout": "Hello, world!"
+    },
+    {
+      "name": "an argument replaces the default: Hello, Sam!",
+      "cmd": "docker run --rm z2d-ex-greet Sam",
+      "stdout": "Hello, Sam!"
+    },
+    {
+      "name": "the base image is Alpine",
+      "cmd": "docker run --rm --entrypoint cat z2d-ex-greet /etc/os-release | grep -q Alpine"
+    },
+    {
+      "name": "the working directory is /app and greet.sh is in it",
+      "cmd": "test \"$(docker image inspect z2d-ex-greet --format '{{.Config.WorkingDir}}')\" = /app && docker run --rm --entrypoint ls z2d-ex-greet /app | grep -qx greet.sh"
+    }
+  ],
+  "hints": [
+    "Start with FROM alpine:3, then WORKDIR /app, then COPY greet.sh .",
+    "ENTRYPOINT [\"sh\", \"greet.sh\"] is the fixed part of the command.",
+    "CMD [\"world\"] is the default argument, which an argument on the command line replaces."
+  ]
+}

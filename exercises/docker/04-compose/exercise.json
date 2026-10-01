@@ -1,0 +1,57 @@
+{
+  "title": "A web server with Compose",
+  "lesson": "docker/04-compose",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "compose.yaml"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ex-web-{port}",
+    "up",
+    "-d"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ex-web-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 90,
+  "timeout": 30,
+  "requests": [
+    {
+      "name": "GET / serves site/index.html",
+      "path": "/",
+      "status": 200,
+      "contains": "Hello from Compose"
+    },
+    {
+      "name": "GET /about.html serves the second page",
+      "path": "/about.html",
+      "status": 200,
+      "contains": "About this site"
+    },
+    {
+      "name": "a missing page answers 404",
+      "path": "/missing.html",
+      "status": 404
+    }
+  ],
+  "hints": [
+    "One service, web, with image: busybox:1 and command: [\"httpd\", \"-f\", \"-p\", \"80\", \"-h\", \"/www\"]",
+    "Mount the folder: volumes: [\"./site:/www:ro\"]",
+    "Publish the port from the variable: ports: [\"127.0.0.1:${PORT}:80\"]",
+    "YAML is indented with spaces. services: at the left edge, the service name two spaces in, its keys four spaces in."
+  ]
+}

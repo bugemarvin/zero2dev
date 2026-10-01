@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Images and containers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="docker/01-images-and-containers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Docker · lesson 1 of 6</p>
+<h1>Images and containers</h1>
+<p class="lede">Run any program in an isolated box that carries everything it needs, and throw the box away afterwards.</p>
+<h2 id="the-problem-docker-solves">The problem Docker solves</h2>
+<p>"It works on my machine" is the oldest complaint in software. A program depends on a particular language version, libraries, system packages and settings. Reproducing all of that on another computer is slow and error-prone.</p>
+<p>A <strong>container</strong> packages a program together with everything it needs to run, down to the system libraries. The same container runs the same way on your laptop, on a colleague's, and on a server.</p>
+<p>This guide uses Docker itself in that way: when a language is not installed on your machine, the app runs your exercises in a container that has it.</p>
+<h2 id="two-words-to-keep-apart">Two words to keep apart</h2>
+<div class="table-wrap"><table><thead><tr><th>Word</th><th>Meaning</th><th>Comparison</th></tr></thead><tbody><tr><td><strong>image</strong></td><td>a read-only package: files plus the command to start</td><td>a class, or a recipe</td></tr><tr><td><strong>container</strong></td><td>a running instance of an image</td><td>an object, or the meal</td></tr></tbody></table></div>
+<p>You can start many containers from one image. Each has its own files and processes, and none can see the others.</p>
+<p>A container is not a virtual machine. It shares the kernel of the host and is just an ordinary process with a restricted view of the system, which is why it starts in a fraction of a second.</p>
+<h2 id="checking-the-installation">Checking the installation</h2>
+<pre><code class="lang-console">$ docker --version
+$ docker run --rm hello-world</code></pre>
+<p>If the second command prints a greeting, Docker works. On Linux, <code>./setup/install.sh --stack docker</code> installs it. On Windows and macOS, install Docker Desktop.</p>
+<h2 id="running-a-container">Running a container</h2>
+<pre><code class="lang-console">$ docker run --rm alpine:3 echo "hello from a container"
+hello from a container</code></pre>
+<p>Piece by piece:</p>
+<ul><li><code>docker run</code> creates a container from an image and starts it.</li><li><code>--rm</code> deletes the container when it exits. Without it, stopped containers pile up.</li><li><code>alpine:3</code> is the image: a tiny Linux system. The part after the colon is the <strong>tag</strong>, usually a version.</li><li><code>echo "hello from a container"</code> is the command to run inside.</li></ul>
+<p>The first time, Docker <strong>pulls</strong> the image from Docker Hub, the public registry. After that it is stored on your machine.</p>
+<p>The container has its own file system. This shows the operating system <strong>inside</strong> the container, not yours:</p>
+<pre><code class="lang-console">$ docker run --rm alpine:3 cat /etc/os-release
+NAME="Alpine Linux"</code></pre>
+<p>A shell needs <code>sh -c</code> when the command uses shell features:</p>
+<pre><code class="lang-console">$ docker run --rm alpine:3 sh -c 'echo $((6 * 7))'
+42</code></pre>
+<h2 id="an-interactive-shell">An interactive shell</h2>
+<pre><code class="lang-console">$ docker run --rm -it alpine:3 sh
+/ # ls
+/ # exit</code></pre>
+<p><code>-it</code> connects your terminal to the container. Anything you change inside is gone when you exit, because the container is removed. That makes containers a safe place to experiment.</p>
+<h2 id="long-running-containers">Long-running containers</h2>
+<p>A server keeps running, so start it in the background:</p>
+<pre><code class="lang-console">$ docker run -d --name web -p 8080:80 nginx:alpine
+$ docker ps
+$ docker logs web
+$ docker stop web
+$ docker rm web</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Option</th><th>Meaning</th></tr></thead><tbody><tr><td><code>-d</code></td><td>detached: run in the background</td></tr><tr><td><code>--name web</code></td><td>a name to refer to it by</td></tr><tr><td><code>-p 8080:80</code></td><td>port 8080 on your machine reaches port 80 in the container</td></tr></tbody></table></div>
+<h2 id="the-commands-you-need">The commands you need</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>docker ps</code></td><td>list running containers (<code>-a</code> includes stopped ones)</td></tr><tr><td><code>docker logs NAME</code></td><td>show a container's output (<code>-f</code> follows it)</td></tr><tr><td><code>docker exec -it NAME sh</code></td><td>open a shell in a running container</td></tr><tr><td><code>docker stop NAME</code></td><td>stop it</td></tr><tr><td><code>docker rm NAME</code></td><td>delete it</td></tr><tr><td><code>docker images</code></td><td>list the images on this machine</td></tr><tr><td><code>docker pull IMAGE</code></td><td>download an image</td></tr><tr><td><code>docker rmi IMAGE</code></td><td>delete an image</td></tr><tr><td><code>docker system df</code></td><td>show how much disk space Docker uses</td></tr></tbody></table></div>
+<h2 id="choosing-images">Choosing images</h2>
+<ul><li>Prefer <strong>official images</strong> such as <code>python</code>, <code>node</code>, <code>postgres</code>.</li><li>Give a <strong>version tag</strong>: <code>python:3.12</code>, not <code>python</code>. With no tag you get <code>latest</code>, which changes over time.</li><li>Variants ending in <code>-slim</code> or <code>-alpine</code> are much smaller.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>--rm</code></strong>, and collecting hundreds of stopped containers. <code>docker container prune</code> removes them.</li><li><strong>Expecting files to survive.</strong> A container's own file system is thrown away with the container. Lesson 3 shows how to keep data.</li><li><strong><code>permission denied</code> on the Docker socket</strong> on Linux. Add your user to the <code>docker</code> group, then log out and in.</li><li><strong>Confusing image and container.</strong> You build and pull images. You run, stop and remove containers.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="docker/01-run">
+<h3>Run commands in containers <span class="ex-id">docker/01-run</span></h3>
+<p>In your working folder, create three files. Each must hold the output of a command that ran <strong>inside a container</strong> of the image <code>alpine:3</code>.</p>
+<ol><li><code>os.txt</code>: the contents of the container's <code>/etc/os-release</code> file.</li><li><code>hello.txt</code>: the output of <code>echo hello from a container</code>.</li><li><code>answer.txt</code>: the result of the shell arithmetic <code>$((6 * 7))</code>, computed by the shell inside the container.</li></ol>
+<p>Use <code>--rm</code>, so that no stopped containers are left behind.</p>
+<p>The first run downloads the small <code>alpine:3</code> image.</p>
+<p class="ex-files">Files: <code>exercises/docker/01-run/</code></p>
+<pre><code class="lang-console">$ python3 check.py docker/01-run</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/08-building-and-deploying.html"><span>Previous</span>Building and deploying</a><a class="next" href="../docker/02-dockerfile.html"><span>Next</span>Writing a Dockerfile</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

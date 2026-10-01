@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Writing a Dockerfile · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="docker/02-dockerfile">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Docker · lesson 2 of 6</p>
+<h1>Writing a Dockerfile</h1>
+<p class="lede">Describe how to build an image of your own program, one instruction per line.</p>
+<h2 id="a-dockerfile">A Dockerfile</h2>
+<p>A <code>Dockerfile</code> is a text file of instructions. <code>docker build</code> follows them from top to bottom and produces an image.</p>
+<pre><code class="lang-dockerfile">FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "app.py"]</code></pre>
+<pre><code class="lang-console">$ docker build -t myapp .
+$ docker run --rm myapp</code></pre>
+<p><code>-t myapp</code> names the image. The dot is the <strong>build context</strong>: the folder whose files can be copied into the image.</p>
+<h2 id="the-instructions">The instructions</h2>
+<div class="table-wrap"><table><thead><tr><th>Instruction</th><th>Does</th></tr></thead><tbody><tr><td><code>FROM image</code></td><td>the image to start from. Always first.</td></tr><tr><td><code>WORKDIR /app</code></td><td>set, and create, the directory that later instructions run in</td></tr><tr><td><code>COPY src dest</code></td><td>copy files from the build context into the image</td></tr><tr><td><code>RUN command</code></td><td>run a command <strong>while building</strong>, and keep the result</td></tr><tr><td><code>ENV NAME=value</code></td><td>set an environment variable</td></tr><tr><td><code>EXPOSE 8000</code></td><td>document which port the program listens on</td></tr><tr><td><code>CMD [...]</code></td><td>the default command when a container <strong>starts</strong></td></tr><tr><td><code>ENTRYPOINT [...]</code></td><td>the fixed part of that command</td></tr></tbody></table></div>
+<p><code>RUN</code> happens once, at build time: installing packages, compiling. <code>CMD</code> happens every time a container starts.</p>
+<h2 id="cmd-and-entrypoint">CMD and ENTRYPOINT</h2>
+<p>With only <code>CMD</code>, anything written after the image name <strong>replaces</strong> the command:</p>
+<pre><code class="lang-dockerfile">CMD ["python", "app.py"]</code></pre>
+<pre><code class="lang-console">$ docker run --rm myapp              # runs: python app.py
+$ docker run --rm myapp ls           # runs: ls</code></pre>
+<p>With <code>ENTRYPOINT</code>, what you write is <strong>added</strong> as arguments, and <code>CMD</code> supplies the default arguments:</p>
+<pre><code class="lang-dockerfile">ENTRYPOINT ["sh", "greet.sh"]
+CMD ["world"]</code></pre>
+<pre><code class="lang-console">$ docker run --rm greeter            # runs: sh greet.sh world
+$ docker run --rm greeter Sam        # runs: sh greet.sh Sam</code></pre>
+<p>Use that combination when the image <strong>is</strong> a command-line tool.</p>
+<p>Write both in the bracket form shown here. The other form, <code>CMD python app.py</code>, wraps the command in a shell, and your program then does not receive the signal that tells it to stop.</p>
+<h2 id="layers-and-the-build-cache">Layers and the build cache</h2>
+<p>Each instruction creates a <strong>layer</strong>. Docker caches layers, and reuses one if neither the instruction nor the files it copies have changed. When one layer changes, every layer after it is rebuilt.</p>
+<p>That is why the example copies <code>requirements.txt</code> and installs <strong>before</strong> copying the rest:</p>
+<pre><code class="lang-dockerfile">COPY requirements.txt .
+RUN pip install -r requirements.txt      # reused as long as requirements.txt is unchanged
+COPY . .                                 # changes with every edit</code></pre>
+<p>With <code>COPY . .</code> first, every code change would reinstall all the dependencies. Order instructions from what changes least to what changes most.</p>
+<h2 id="dockerignore">.dockerignore</h2>
+<p>Files you do not want in the image, or in the build context at all, go in <code>.dockerignore</code>:</p>
+<pre><code class="lang-text">.git
+node_modules
+__pycache__
+.env</code></pre>
+<p>It keeps builds fast and keeps secrets out of images.</p>
+<h2 id="a-node-example">A Node example</h2>
+<pre><code class="lang-dockerfile">FROM node:22-slim
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+ENV PORT=3000
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+<h2 id="looking-inside">Looking inside</h2>
+<pre><code class="lang-console">$ docker image inspect myapp
+$ docker history myapp
+$ docker run --rm -it myapp sh</code></pre>
+<p>The last one opens a shell in a container of your image, which is the quickest way to check that the files are where you expect.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>COPY . .</code> before installing dependencies.</strong></li><li><strong>No version tag</strong> on the base image.</li><li><strong>Secrets in the image</strong>, through <code>COPY</code> or <code>ENV</code>. Anyone with the image can read them.</li><li><strong>Expecting <code>RUN</code> to start the program.</strong> It runs at build time.</li><li><strong>Building in the wrong folder</strong>, so <code>COPY</code> cannot find the files.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="docker/02-dockerfile">
+<h3>Build an image <span class="ex-id">docker/02-dockerfile</span></h3>
+<p>Your working folder contains <code>greet.sh</code>, a small script that prints <code>Hello, NAME!</code> for the name it is given.</p>
+<p>Write a <code>Dockerfile</code> next to it, so that:</p>
+<ul><li>the image is based on <code>alpine:3</code>;</li><li>its working directory is <code>/app</code>, and <code>greet.sh</code> is copied there;</li><li><code>docker run --rm IMAGE</code> prints <code>Hello, world!</code>;</li><li><code>docker run --rm IMAGE Sam</code> prints <code>Hello, Sam!</code>.</li></ul>
+<p>So the script is the fixed part of the command, and the name is an argument with the default <code>world</code>.</p>
+<p>Try it yourself:</p>
+<pre><code class="lang-console">$ docker build -t greeter .
+$ docker run --rm greeter
+$ docker run --rm greeter Sam</code></pre>
+<p class="ex-files">Files: <code>exercises/docker/02-dockerfile/</code></p>
+<pre><code class="lang-console">$ python3 check.py docker/02-dockerfile</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../docker/01-images-and-containers.html"><span>Previous</span>Images and containers</a><a class="next" href="../docker/03-volumes-and-environment.html"><span>Next</span>Data, configuration and ports</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

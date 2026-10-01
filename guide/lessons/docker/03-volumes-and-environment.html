@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data, configuration and ports · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="docker/03-volumes-and-environment">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Docker · lesson 3 of 6</p>
+<h1>Data, configuration and ports</h1>
+<p class="lede">Keep data after a container is gone, configure a container from outside, and reach it over the network.</p>
+<h2 id="containers-forget">Containers forget</h2>
+<p>Everything a container writes to its own file system disappears when the container is removed. That is a feature: every start is clean. But a database has to keep its data, and you want the file your program produced.</p>
+<p>Docker has two ways to give a container storage that outlives it.</p>
+<h2 id="bind-mounts">Bind mounts</h2>
+<p>A <strong>bind mount</strong> makes a folder of your machine appear inside the container:</p>
+<pre><code class="lang-console">$ mkdir -p out
+$ docker run --rm -v "$PWD/out":/data alpine:3 sh -c 'echo hello &gt; /data/hello.txt'
+$ cat out/hello.txt
+hello</code></pre>
+<p><code>-v HOST_PATH:CONTAINER_PATH</code>. The host path must be absolute, hence <code>$PWD</code>.</p>
+<p>Bind mounts are for development and for getting files in and out: source code, configuration, results.</p>
+<p>Add <code>:ro</code> to make it read-only inside the container: <code>-v "$PWD/site":/www:ro</code>.</p>
+<h2 id="who-owns-the-files">Who owns the files</h2>
+<p>Inside most containers the program runs as <strong>root</strong>. A file it writes through a bind mount is then owned by root on your machine, and you cannot edit or delete it without <code>sudo</code>.</p>
+<p>Run the container as yourself:</p>
+<pre><code class="lang-console">$ docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/out":/data alpine:3 sh -c 'echo hi &gt; /data/hi.txt'</code></pre>
+<p>Create the host folder first, too. If it does not exist, Docker creates it, owned by root.</p>
+<h2 id="named-volumes">Named volumes</h2>
+<p>A <strong>named volume</strong> is storage that Docker manages. It is the right choice for data that only containers need to see, such as a database's files.</p>
+<pre><code class="lang-console">$ docker volume create pgdata
+$ docker run -d --name db -v pgdata:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:16</code></pre>
+<p>Remove the container, start a new one with the same volume, and the data is still there.</p>
+<pre><code class="lang-console">$ docker volume ls
+$ docker volume rm pgdata</code></pre>
+<div class="table-wrap"><table><thead><tr><th></th><th>Bind mount</th><th>Named volume</th></tr></thead><tbody><tr><td>Written as</td><td><code>-v /path/on/host:/path</code></td><td><code>-v name:/path</code></td></tr><tr><td>Lives</td><td>where you say</td><td>inside Docker's storage</td></tr><tr><td>Use for</td><td>code, config, files you want to see</td><td>databases, caches</td></tr></tbody></table></div>
+<h2 id="environment-variables">Environment variables</h2>
+<p>The standard way to configure a container from outside is the environment:</p>
+<pre><code class="lang-console">$ docker run --rm -e NAME=Sam -e GREETING=Hi alpine:3 sh -c 'echo "$GREETING, $NAME"'
+Hi, Sam</code></pre>
+<p>A Dockerfile can set a default with <code>ENV</code>, which <code>-e</code> overrides.</p>
+<p>For several variables, use a file with one <code>NAME=value</code> per line:</p>
+<pre><code class="lang-console">$ docker run --rm --env-file .env myapp</code></pre>
+<p>Passwords and keys are given this way, when the container starts. They must not be written into the image.</p>
+<h2 id="ports">Ports</h2>
+<p>A container has its own network. A server listening on port 8000 <strong>inside</strong> is unreachable from outside until you publish the port:</p>
+<pre><code class="lang-console">$ docker run -d -p 8080:8000 myapp</code></pre>
+<p><code>-p HOST:CONTAINER</code>. Port 8080 on your machine now leads to port 8000 in the container.</p>
+<p>By default a published port is open to the whole network your machine is on. To accept connections from your own machine only:</p>
+<pre><code class="lang-console">$ docker run -d -p 127.0.0.1:8080:8000 myapp</code></pre>
+<p>The server inside must listen on <code>0.0.0.0</code>, all interfaces. If it listens on <code>127.0.0.1</code> inside the container, only the container itself can reach it, and the published port leads nowhere.</p>
+<h2 id="putting-it-together">Putting it together</h2>
+<pre><code class="lang-console">$ mkdir -p out
+$ docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    -e OWNER=sam \
+    -v "$PWD/out":/data \
+    report-image</code></pre>
+<p>A backslash at the end of a line continues the command on the next one.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Data stored only inside a container</strong>, and lost with it.</li><li><strong>A relative host path</strong> in <code>-v</code>. Use <code>"$PWD/..."</code>.</li><li><strong>Root-owned files</strong> in your project folder. Use <code>--user</code>.</li><li><strong>A server bound to <code>127.0.0.1</code> inside the container.</strong></li><li><strong>Publishing a database port to the whole network</strong> with a weak password.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="docker/03-volumes">
+<h3>Environment, a volume and the right owner <span class="ex-id">docker/03-volumes</span></h3>
+<p>Your working folder contains a <code>Dockerfile</code> and the script it runs, <code>report.sh</code>. Read both. The script writes a line to <code>/data/report.txt</code> inside the container, using the environment variable <code>OWNER</code>, and then prints <code>written</code>.</p>
+<p>Write a script <code>run.sh</code> that:</p>
+<ol><li>builds the image with the tag <code>z2d-ex-report</code>;</li><li>runs a container from it so that - <code>OWNER</code> is <code>sam</code>, - the folder <code>out</code> of your working folder is mounted at <code>/data</code>, - the file it writes belongs to <strong>you</strong>, not to root, - the container is removed when it finishes.</li></ol>
+<p>Afterwards <code>out/report.txt</code> must contain <code>Report for sam</code>.</p>
+<p class="ex-files">Files: <code>exercises/docker/03-volumes/</code></p>
+<pre><code class="lang-console">$ python3 check.py docker/03-volumes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../docker/02-dockerfile.html"><span>Previous</span>Writing a Dockerfile</a><a class="next" href="../docker/04-compose.html"><span>Next</span>Docker Compose</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

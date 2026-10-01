@@ -96,7 +96,7 @@ Where to go next in this guide:
 - [React](react/01-components-and-jsx) for user interfaces;
 - [Next.js](next/01-app-router) for complete web applications;
 - [SQL and PostgreSQL](sql/01-select) to store data properly;
-- Docker to package and run what you build.
+- [Docker](docker/01-images-and-containers) to package and run what you build.
 
 ## Common mistakes
 

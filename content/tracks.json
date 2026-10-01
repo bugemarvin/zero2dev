@@ -100,5 +100,13 @@
       "toolchain:javascript",
       "workspace:next"
     ]
+  },
+  {
+    "id": "docker",
+    "title": "Docker",
+    "blurb": "Package any program with everything it needs, and run several containers together with Compose.",
+    "needs": [
+      "tool:docker"
+    ]
   }
 ]

@@ -1,0 +1,43 @@
+{
+  "title": "Environment, a volume and the right owner",
+  "lesson": "docker/03-volumes-and-environment",
+  "kind": "sandbox",
+  "needs": [
+    "docker"
+  ],
+  "timeout": 240,
+  "setup": [
+    "cp \"$Z2D_EX\"/files/* ."
+  ],
+  "checks": [
+    {
+      "name": "run.sh exists",
+      "cmd": "test -f run.sh"
+    },
+    {
+      "name": "bash run.sh builds, runs and ends with the line: written",
+      "cmd": "rm -rf out 2>/dev/null; bash run.sh 2>/dev/null | tail -n 1",
+      "stdout": "written",
+      "fail": "run it yourself to see the error: bash run.sh"
+    },
+    {
+      "name": "out/report.txt says: Report for sam",
+      "cmd": "cat out/report.txt",
+      "stdout": "Report for sam"
+    },
+    {
+      "name": "out/report.txt belongs to you, not to root",
+      "cmd": "test -O out/report.txt",
+      "fail": "the file is owned by root. Use --user \"$(id -u):$(id -g)\", and create the out folder before running."
+    },
+    {
+      "name": "no container of the image was left behind",
+      "cmd": "test -z \"$(docker ps -aq --filter ancestor=z2d-ex-report)\""
+    }
+  ],
+  "hints": [
+    "Three commands: docker build -t z2d-ex-report . then mkdir -p out then docker run ...",
+    "The run needs: --rm, -e OWNER=sam, -v \"$PWD/out\":/data and --user \"$(id -u):$(id -g)\".",
+    "If an earlier attempt left a root-owned out folder, remove it with: docker run --rm -v \"$PWD\":/w alpine:3 rm -rf /w/out"
+  ]
+}
