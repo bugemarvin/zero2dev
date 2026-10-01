@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Allow a website · zero2dev</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="">
+<header class="topbar">
+<a class="brand" href="index.html">zero2dev</a>
+</header>
+<main class="home">
+<section class="hero">
+<h1>Allow a website to use this app?</h1>
+<div id="connect" class="in-connect"><p>Checking ...</p></div>
+</section>
+</main>
+<script>
+(function () {
+  "use strict";
+  var box = document.getElementById("connect");
+  function el(tag, text, cls) { var n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; }
+  function show() { box.textContent = ""; Array.prototype.forEach.call(arguments, function (n) { box.appendChild(n); }); }
+  var origin = new URLSearchParams(location.search).get("origin") || "";
+
+  fetch("api/session").then(function (r) { if (!r.ok) throw new Error(); return r.json(); }).then(function (session) {
+    function api(name, data) {
+      return fetch("api/" + name, {
+        method: "POST", headers: { "X-Z2D-Token": session.token, "Content-Type": "application/json" }, body: JSON.stringify(data)
+      }).then(function (r) { return r.json().then(function (body) { if (!r.ok) throw new Error(body.error); return body; }); });
+    }
+    if (!/^https:\/\/[^\/\s]+$|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      show(el("p", "This page is opened by a website that wants to use the app. No valid website address was given, so there is nothing to allow."));
+      return;
+    }
+    var name = el("p", origin, "in-origin");
+    var explain = el("p", "This website is asking to run exercises with the zero2dev app on this computer. If you allow it, its pages can run code here, with your tools and your files, exactly as the app's own pages can. Allow only a site you trust, such as the official copy of this guide.");
+    var allow = el("button", "Allow this website", "st-btn st-primary");
+    var deny = el("button", "No", "st-btn");
+    var row = el("div", "", "in-row");
+    row.appendChild(allow);
+    row.appendChild(deny);
+    allow.type = deny.type = "button";
+    allow.addEventListener("click", function () {
+      allow.disabled = true;
+      api("pair", { origin: origin }).then(function () {
+        show(el("p", "Allowed. Go back to the tab with " + origin + ": it connects by itself in a moment. You can close this tab."),
+             el("p", "To remove it later: the Setup page of this app, under \"Websites that may use this app\".", "st-count"));
+      }).catch(function (error) { show(el("p", "That did not work: " + error.message)); });
+    });
+    deny.addEventListener("click", function () { show(el("p", "Nothing was allowed. You can close this tab.")); });
+    show(name, explain, row);
+  }).catch(function () {
+    show(el("p", "This page belongs to the zero2dev app on your own computer. It works when the app is running there, at http://127.0.0.1:4750."));
+  });
+})();
+</script>
+</body>
+</html>

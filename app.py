@@ -13,6 +13,7 @@
 
 The first ordinary start switches start-at-login on, and says so. `autostart off` undoes it for good.
 
+    python3 app.py trust URL        let a website (the guide hosted online) use this app: untrust, trusted
     python3 app.py prefetch react   download packages or images in advance (for offline use)
 
 The app runs on this computer only (127.0.0.1) and uses the tools installed here.
@@ -20,7 +21,7 @@ Standard library only.
 """
 import sys
 
-from z2d import background, cli, platforminfo, server
+from z2d import background, cli, origins, platforminfo, server
 
 
 def port_from(argv):
@@ -42,6 +43,13 @@ def main(argv):
     if command == "prefetch":
         return cli.cmd_prefetch(argv[1:])
     if command == "start":
+        if "--no-autostart" not in argv:
+            notice = background.first_run_enable(port)
+            if notice:
+                print(notice)
+                if browser:
+                    platforminfo.open_url(background.url(port))
+                return 0
         return background.start(port, open_browser=browser)
     if command == "stop":
         return background.stop()
@@ -54,6 +62,22 @@ def main(argv):
         return 0 if now["running"] else 1
     if command == "autostart":
         return background.command(argv[1:])
+    if command in ("trust", "untrust"):
+        if len(argv) < 2:
+            sys.exit(f"Usage: python3 app.py {command} https://your-site.vercel.app")
+        if command == "trust":
+            added = origins.add(argv[1])
+            if added is None:
+                sys.exit("That is not a website address this app can approve. It must look like https://example.com")
+            print(f"{added} may now use this app. A page from it can run code on this computer, "
+                  f"so approve only sites you trust. Undo with: python3 app.py untrust {added}")
+        else:
+            print("Removed." if origins.remove(argv[1]) else "That website was not approved.")
+        return 0
+    if command == "trusted":
+        approved = origins.trusted()
+        print("\n".join(approved) if approved else "No website is approved. The app answers only its own pages.")
+        return 0
     if command is not None:
         sys.exit(f"unknown command: {command}. See: python3 app.py --help")
 

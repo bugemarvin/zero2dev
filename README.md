@@ -18,6 +18,22 @@ You need a computer and nothing else. No maths, no "tech background".
 
 ## Start
 
+One line installs it and starts it. Run it again later to update.
+
+**Ubuntu, Debian, macOS, or Ubuntu inside WSL:**
+
+```console
+$ curl -fsSL https://raw.githubusercontent.com/bugemarvin/zero2dev/main/setup/get.sh | bash
+```
+
+**Windows** (PowerShell, run as Administrator; it sets up Ubuntu inside Windows first):
+
+```powershell
+irm https://raw.githubusercontent.com/bugemarvin/zero2dev/main/setup/get.ps1 | iex
+```
+
+Or by hand:
+
 ```console
 $ git clone https://github.com/bugemarvin/zero2dev.git
 $ cd zero2dev
@@ -54,6 +70,24 @@ $ python3 app.py autostart off   # do not start at login any more (on, status)
 Not what you want? `python3 app.py autostart off` switches it off for good: it is never switched on again by itself. `python3 app.py --no-autostart` starts the app once without touching this, and so does setting `Z2D_AUTOSTART=0`.
 
 `autostart` uses what the system offers and needs no administrator rights: a systemd user service on Linux, a launch agent on macOS, and on Windows a small script in the Startup folder that runs the app inside WSL. The same switch is on the Setup page. `--port 5000` picks another port.
+
+## The guide online, the work on your machine
+
+The `guide/` folder is a plain static site, so it can be put online, for example on Vercel. Online it is the front door: every lesson and quiz can be read there, and an **Install on this computer** button opens a pop-up with the steps for the visitor's system (PowerShell on Windows, a terminal on Linux or macOS). After those steps the app is on their machine, works offline and starts at login. The online copy never runs anyone's code.
+
+**Deploying on Vercel:** import this repository in Vercel and deploy. `vercel.json` already says that the site is the `guide/` folder and that there is nothing to build. Each push to `main` then updates the site.
+
+Once the app is installed, the online pages notice it and offer two things:
+
+- **Open my app**: go to `http://127.0.0.1:4750`, the copy on your own machine. This is the normal way.
+- **Use it on this page**: let the online pages run exercises with the app on your machine. Your browser opens a page **of your own app**, which names the website and asks you to allow it. A site you allow can run code on your computer, exactly as the app's own pages can, so allow only a site you trust. Nothing is allowed until you say so, and you can remove a site on the Setup page, or with:
+
+```console
+$ python3 app.py trusted
+$ python3 app.py untrust https://your-site.vercel.app
+```
+
+Some browsers ask whether the site may reach apps on your device: that is this connection. Safari does not allow it at all: there, use **Open my app**.
 
 ## Paths
 
@@ -144,7 +178,9 @@ $ python3 check.py prefetch react next  # download in advance, for offline use
 
 ## Is the local server safe?
 
-`app.py` runs your code, which is its purpose, so it is locked down: it listens on `127.0.0.1` only, refuses requests whose `Host` or `Origin` is not its own, and requires a token that only its own pages can read. Nobody else on your network can reach it. Do not put it behind a proxy that exposes it.
+`app.py` runs your code, which is its purpose, so it is locked down: it listens on `127.0.0.1` only, refuses requests whose `Host` is not its own, refuses requests from other websites, and requires a token that only its own pages can read. Nobody else on your network can reach it. Do not put it behind a proxy that exposes it.
+
+The one exception is a website you have approved yourself (see above). It may call the API from its own address, with the token; it cannot approve other sites, and you can remove it at any time. Any website may ask one question, "is the app here?", and gets a yes with nothing else.
 
 ## Install the tools
 
@@ -193,7 +229,8 @@ content/     lesson sources in Markdown, quizzes, tracks and paths
 guide/       the lessons as static HTML, plus the app's pages
 exercises/   one folder per exercise: task, starter files, tests
 solutions/   reference solutions
-setup/       install.sh (Linux, WSL) and install.ps1 (Windows)
+setup/       get.sh and get.ps1 (one-line install of the app), install.sh and install.ps1 (developer tools)
+vercel.json  puts guide/ online as a static site
 tools/       build_guide.py, selftest.py, test_app.py
 ```
 

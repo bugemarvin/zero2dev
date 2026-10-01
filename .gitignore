@@ -12,3 +12,4 @@ __pycache__/
 a.out
 .DS_Store
 .game.json
+.vercel

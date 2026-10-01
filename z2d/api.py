@@ -15,7 +15,7 @@ import sys
 import tempfile
 import threading
 
-from . import background, core, doctor, jobs, platforminfo, progress as prog, providers, runner, services, workspaces
+from . import background, core, doctor, jobs, origins, platforminfo, progress as prog, providers, runner, services, workspaces
 from .core import Skip
 from .toolchains import LANGS
 
@@ -408,6 +408,23 @@ def get_track(data):
     raise ApiError("unknown track", 404)
 
 
+def get_origins(_data):
+    return {"origins": origins.trusted()}
+
+
+def post_pair(data):
+    """Approve a website. The server only accepts this from its own pages, never from the website itself."""
+    origin = origins.add(data.get("origin"))
+    if origin is None:
+        raise ApiError("that is not a website address this app can approve. It must look like https://example.com")
+    return {"origins": origins.trusted(), "paired": origin}
+
+
+def post_unpair(data):
+    origins.remove(data.get("origin"))
+    return {"origins": origins.trusted()}
+
+
 def get_autostart(_data):
     return dict(background.autostart_status(), running=background.status())
 
@@ -555,7 +572,8 @@ def get_job(data):
     return job.as_dict()
 
 
-GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track, "game": get_game, "autostart": get_autostart}
+GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track, "game": get_game, "autostart": get_autostart, "origins": get_origins}
 POST = {"save": post_save, "lang": post_lang, "run": post_run, "reset": post_reset, "show": post_show,
         "shell": post_shell, "sandbox": post_sandbox, "app": post_app, "open": post_open,
-        "profile": post_profile, "service": post_service, "job": post_job, "game": post_game, "autostart": post_autostart}
+        "profile": post_profile, "service": post_service, "job": post_job, "game": post_game, "autostart": post_autostart,
+        "pair": post_pair, "unpair": post_unpair}
