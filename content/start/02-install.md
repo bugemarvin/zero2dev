@@ -57,18 +57,38 @@ $ xcode-select --install
 
 ## Check that it worked
 
-From the `zero2dev` folder:
+Start the app from the `zero2dev` folder:
+
+```console
+$ python3 app.py
+```
+
+It opens in your browser. Go to **Setup**. Every tool is listed with what the app found:
+
+| Badge | Meaning |
+| --- | --- |
+| Installed | already on your machine. It is used as it is, and there is nothing to do. |
+| Via Docker | not installed, and that is fine: the app runs it in a container |
+| Needs download | available after a one-time download, with a button to start it |
+| Not installed | missing, with the command that installs it |
+
+To begin you need C, Git and Python to show **Installed** or **Via Docker**. The rest can wait until you reach their track.
+
+The same report is available in the terminal:
 
 ```console
 $ python3 check.py doctor
-Toolchains
-  ✓ C           gcc (Ubuntu 13.2.0) 13.2.0
-  ✓ git         git version 2.43.0
-  ✓ Python      Python 3.12.3
-  – Java        not installed   (setup/install.sh --stack java)
+Languages
+  ✓ C            already installed on this machine (gcc 13.2.0). Nothing to do.
+  ✓ Python       already installed on this machine (Python 3.12.3). Nothing to do.
+  – Java         not installed. It can run in Docker after a one-time download of eclipse-temurin:21-jdk.
 ```
 
-You need the first three lines to show a tick to begin. The others can wait until you reach their track.
+## You do not have to install everything
+
+If **Docker** is on your machine, a language that is missing runs in a container instead. You can start the Java track without installing Java. Databases work the same way: when an exercise needs PostgreSQL, the app uses one that is already running, or starts a container for it.
+
+Docker itself comes with `./setup/install.sh --stack docker` on Linux, or Docker Desktop on Windows and macOS.
 
 ## If something fails
 

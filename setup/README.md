@@ -10,6 +10,7 @@ $ ./install.sh --minimal       # core only
 $ ./install.sh --list
 $ ./install.sh --dry-run --all # show what would happen, change nothing
 $ ./install.sh --yes           # never ask questions
+$ ./install.sh --no-sudo --stack go   # only stacks that install into your home folder: no password
 ```
 
 It is safe to run again. Installed packages are skipped, and a summary of versions is printed at the end. If one stack fails, the others still run and the script exits with an error at the end.
@@ -34,6 +35,8 @@ It is safe to run again. Installed packages are skipped, and a summary of versio
 [mise](https://mise.jdx.dev) manages the language runtimes. They are installed for your user, with no root needed, and its shims folder is added to `PATH` in `~/.bashrc` (and `~/.zshrc` if you have one). Open a new terminal after the install.
 
 The JDK version can be changed: `Z2D_JAVA=temurin-21 ./install.sh --stack java`.
+
+The learning app uses the same script. On its Setup page, a missing language that installs into the home folder (`node`, `java`, `go`, `rust`, `elixir`) gets an **Install** button, which runs `install.sh --no-sudo --stack NAME`. Stacks that need administrator rights show the command to paste into a terminal, because a web page must not ask for your password.
 
 ### Adding a stack
 

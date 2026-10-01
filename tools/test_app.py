@@ -196,6 +196,45 @@ check("git: resetting the working folder starts over", body["status"] == "failed
 status, _, _ = request("POST", "/api/shell", {"id": "python/01-first-functions", "command": "ls"})
 check("the command line is refused for other kinds of exercise", status == 400)
 
+# ---------------------------------------------------------------- an app exercise (http kind)
+import shutil  # noqa: E402
+import urllib.request  # noqa: E402
+
+if shutil.which("node"):
+    EX = "js/07-http-server"
+    starter = read(f"exercises/{EX}/server.mjs")
+    solution = read(f"solutions/{EX}/server.mjs")
+    try:
+        status, body, _ = request("GET", f"/api/exercise?id={EX}")
+        check("http exercise offers Start app", body["can_start_app"] is True and body["app"] is None)
+        status, body, _ = request("POST", "/api/run", {"id": EX, "files": {"server.mjs": solution}})
+        check("http exercise: the checker starts the server and the solution passes", body["status"] == "passed", str(body)[:400])
+        status, body, _ = request("POST", "/api/app", {"id": EX, "action": "start", "files": {"server.mjs": solution}})
+        check("Start app returns a local address", bool(body.get("app")) and body["app"]["url"].startswith("http://127.0.0.1:"), str(body)[:300])
+        if body.get("app"):
+            with urllib.request.urlopen(body["app"]["url"] + "health", timeout=10) as resp:
+                check("the started app answers", resp.status == 200 and b"ok" in resp.read())
+            status, info, _ = request("GET", f"/api/exercise?id={EX}")
+            check("the exercise reports the running app", info["app"] is not None)
+        status, body, _ = request("POST", "/api/app", {"id": EX, "action": "stop"})
+        check("Stop app stops it", body["app"] is None)
+    finally:
+        request("POST", "/api/app", {"id": EX, "action": "stop"})
+        (ROOT / f"exercises/{EX}/server.mjs").write_text(starter, encoding="utf-8")
+
+# ---------------------------------------------------------------- nested files and package sets
+EX = "next/01-pages"
+status, body, _ = request("GET", f"/api/exercise?id={EX}")
+editable = [f["name"] for f in body["files"] if f["editable"]]
+check("files in sub-folders are editable by their path", editable == ["app/page.jsx", "app/about/page.jsx"], str(editable))
+status, _, _ = request("POST", "/api/save", {"id": EX, "files": {"app/layout.jsx": "x"}})
+check("a given file in a sub-folder cannot be overwritten", status == 403)
+status, body, _ = request("POST", "/api/run", {"id": "react/03-counter"})
+check("a missing package set is offered as a download, not installed silently",
+      body["status"] == "skipped" and body.get("download") == {"kind": "workspace", "name": "react"}, str(body)[:300])
+status, body, _ = request("POST", "/api/job", {"kind": "workspace", "name": "nonsense"})
+check("only catalog package sets can be downloaded", status == 404)
+
 # ---------------------------------------------------------------- environment
 status, body, _ = request("GET", "/api/doctor")
 check("doctor lists toolchains, services and tracks", status == 200 and body["toolchains"] and body["services"] and body["tracks"])
