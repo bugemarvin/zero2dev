@@ -114,7 +114,7 @@ jobs:
       - name: What this runner has
         run: python3 check.py doctor
       - name: Download the package sets
-        run: python3 check.py prefetch node react next
+        run: python3 check.py prefetch node react vue next sass tailwind
       - name: Every exercise fails with its starter and passes with its solution
         run: python3 tools/selftest.py --strict
 

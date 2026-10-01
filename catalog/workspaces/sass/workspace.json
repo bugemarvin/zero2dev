@@ -1,0 +1,24 @@
+{
+  "title": "Sass",
+  "needs": [
+    "node",
+    "npm"
+  ],
+  "stack": "node",
+  "setup": [
+    [
+      "npm",
+      "ci",
+      "--no-audit",
+      "--no-fund"
+    ]
+  ],
+  "compile": [
+    "npx",
+    "sass",
+    "--no-source-map",
+    "--quiet-deps",
+    "{source}",
+    "{target}"
+  ]
+}

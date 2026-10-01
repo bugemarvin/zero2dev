@@ -526,6 +526,22 @@
  "rust/07-iterators": {
   "solution.rs": "pub fn sum_of_even_squares(numbers: &[i64]) -> i64 {\n    0\n}\n\npub fn initials(names: &[&str]) -> String {\n    String::new()\n}\n\npub fn long_words(text: &str, min: usize) -> Vec<String> {\n    Vec::new()\n}\n\npub fn apply_n<F: Fn(i64) -> i64>(f: F, times: u32, start: i64) -> i64 {\n    start\n}\n\npub fn running_total(numbers: &[i64]) -> Vec<i64> {\n    Vec::new()\n}\n"
  },
+ "scss/01-variables": {
+  "style.scss": "// Declare $brand, $radius and $space here, then use them below.\n"
+ },
+ "scss/02-nesting": {
+  "style.scss": ".nav {\n  display: flex;\n}\n\n.card {\n  padding: 16px;\n}\n"
+ },
+ "scss/03-modules": {
+  "_tokens.scss": "// Declare $brand, $text and $space.\n",
+  "style.scss": "// Load the tokens here, then write the rules.\n"
+ },
+ "scss/04-mixins": {
+  "style.scss": "@use \"sass:math\";\n\n// @mixin button($background) { ... }\n\n// @mixin from($width) { ... }\n\n// @function rem($pixels) { ... }\n"
+ },
+ "scss/05-loops": {
+  "style.scss": "// $colors: ( ... );\n\n// @each ...\n\n// @for ...\n"
+ },
  "sql/01-select-where": {
   "query.sql": "-- Write your query here.\n"
  },
@@ -573,5 +589,41 @@
  },
  "start/05-sum": {
   "sum.sh": "#!/usr/bin/env bash\n# Read one number per line from standard input and print the total.\n"
+ },
+ "tailwind/01-card": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"\">\n  <article class=\"\">\n    <h2 class=\"\">House blend</h2>\n    <p class=\"\">Chocolate and hazelnut. Roasted here, every morning.</p>\n    <a class=\"\" href=\"#\">Order</a>\n  </article>\n</body>\n</html>\n"
+ },
+ "tailwind/02-layout": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header class=\"\">\n    <strong>Bean</strong>\n    <nav class=\"\">\n      <a href=\"#\">Menu</a>\n      <a href=\"#\">Visit</a>\n      <a href=\"#\">Contact</a>\n    </nav>\n  </header>\n  <main class=\"\">\n    <div id=\"cards\" class=\"\">\n      <article id=\"featured\" class=\"\">House blend</article>\n      <article>Espresso</article>\n      <article>Decaf</article>\n      <article>Filter</article>\n      <article>Cold brew</article>\n    </div>\n  </main>\n</body>\n</html>\n"
+ },
+ "tailwind/03-responsive": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"\">\n  <header>\n    <h1 class=\"\">Bean</h1>\n    <nav class=\"\">\n      <a href=\"#\">Menu</a>\n      <a href=\"#\">Visit</a>\n    </nav>\n  </header>\n  <div id=\"cards\" class=\"\">\n    <article>House blend</article>\n    <article>Espresso</article>\n    <article>Decaf</article>\n    <article>Filter</article>\n  </div>\n  <button class=\"\">Order</button>\n</body>\n</html>\n"
+ },
+ "tailwind/04-theme": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <main class=\"\">\n    <h1 class=\"\">Bean</h1>\n    <p>Roasted here, every morning.</p>\n    <button class=\"\">Order</button>\n  </main>\n</body>\n</html>\n",
+  "input.css": "@import \"tailwindcss\";\n"
+ },
+ "tailwind/05-components": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"p-8\">\n  <button class=\"px-4 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Order</button>\n  <button class=\"px-4 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Save</button>\n  <button id=\"wide\" class=\"px-8 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Send</button>\n</body>\n</html>\n",
+  "input.css": "@import \"tailwindcss\";\n"
+ },
+ "vue/01-profile-card": {
+  "ProfileCard.vue": "<script setup>\nimport { ref } from \"vue\";\n\nconst name = \"Ada Lovelace\";\nconst role = \"Engineer\";\nconst photo = \"ada.jpg\";\nconst site = \"https://example.com/ada\";\n\nconst following = ref(false);\n\nfunction toggle() {\n  // switch following between true and false\n}\n</script>\n\n<template>\n  <div class=\"card\">\n    <!-- write the template here -->\n  </div>\n</template>\n"
+ },
+ "vue/02-counter": {
+  "Counter.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst count = ref(0);\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"count\">Count: {{ count }}</p>\n  </div>\n</template>\n"
+ },
+ "vue/03-star-rating": {
+  "StarRating.vue": "<script setup>\nconst props = defineProps({\n  value: { type: Number, default: 0 },\n});\n</script>\n\n<template>\n  <div class=\"rating\">\n    <span class=\"label\">Rating</span>\n  </div>\n</template>\n"
+ },
+ "vue/04-todo-list": {
+  "TodoList.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst props = defineProps({\n  todos: { type: Array, required: true },\n});\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"empty\">Nothing to do.</p>\n  </div>\n</template>\n"
+ },
+ "vue/05-signup-form": {
+  "SignupForm.vue": "<script setup>\nimport { ref, computed } from \"vue\";\n\nconst name = ref(\"\");\nconst email = ref(\"\");\nconst plan = ref(\"free\");\nconst terms = ref(false);\n\nfunction send() {\n  // check, then emit\n}\n</script>\n\n<template>\n  <form class=\"card\" @submit.prevent=\"send\">\n    <p>\n      <label for=\"name\">Name</label>\n      <input id=\"name\" v-model.trim=\"name\">\n    </p>\n\n    <button type=\"submit\">Create account</button>\n  </form>\n</template>\n"
+ },
+ "vue/06-user-list": {
+  "UserList.vue": "<script setup>\nimport { ref, onMounted } from \"vue\";\nimport { useToggle } from \"./useToggle.js\";\n\nconst props = defineProps({\n  load: { type: Function, required: true },\n});\n\nconst users = ref([]);\n</script>\n\n<template>\n  <div class=\"card\">\n    <p class=\"loading\">Loading ...</p>\n  </div>\n</template>\n",
+  "useToggle.js": "import { ref } from \"vue\";\n\nexport function useToggle(initial = false) {\n  // return { on, toggle }\n}\n"
  }
 }

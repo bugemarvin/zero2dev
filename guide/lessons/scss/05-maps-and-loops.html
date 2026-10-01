@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maps, loops and conditions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="scss/05-maps-and-loops">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Sass (SCSS) · lesson 5 of 5</p>
+<h1>Maps, loops and conditions</h1>
+<p class="lede">Generate families of classes from data, and decide with @if.</p>
+<h2 id="maps">Maps</h2>
+<p>A <strong>map</strong> holds values under names:</p>
+<pre><code class="lang-scss">$colors: (
+  "primary": #1a73e8,
+  "danger": #b42318,
+  "success": #15803d,
+);</code></pre>
+<p>Read one with <code>map.get</code> from the built-in module:</p>
+<pre><code class="lang-scss">@use "sass:map";
+
+.alert {
+  color: map.get($colors, "danger");
+}</code></pre>
+<p>A map is the right shape for <strong>design tokens</strong>: the set of colours, the spacing steps, the breakpoints.</p>
+<h2 id="each">@each</h2>
+<p><code>@each</code> runs a block once for every item of a list or a map:</p>
+<pre><code class="lang-scss">@each $name, $color in $colors {
+  .text-#{$name} {
+    color: $color;
+  }
+}</code></pre>
+<p>It compiles to <code>.text-primary</code>, <code>.text-danger</code> and <code>.text-success</code>. Add a colour to the map, and its class exists.</p>
+<p><code>#{$name}</code> is <strong>interpolation</strong>: it puts the value of a variable into a selector, a property name, or a string. Without it, <code>.text-$name</code> would be taken as plain text.</p>
+<p>Over a list:</p>
+<pre><code class="lang-scss">@each $side in top, right, bottom, left {
+  .border-#{$side} {
+    border-#{$side}: 1px solid #cccccc;
+  }
+}</code></pre>
+<h2 id="for">@for</h2>
+<p><code>@for</code> counts:</p>
+<pre><code class="lang-scss">@for $i from 1 through 4 {
+  .mt-#{$i} {
+    margin-top: $i * 4px;
+  }
+}</code></pre>
+<p>That gives <code>.mt-1</code> with 4px up to <code>.mt-4</code> with 16px. <code>through</code> includes the last number. <code>to</code> stops before it.</p>
+<h2 id="if">@if</h2>
+<pre><code class="lang-scss">@mixin theme($mode) {
+  @if $mode == dark {
+    background: #111111;
+    color: #eeeeee;
+  } @else if $mode == light {
+    background: #ffffff;
+    color: #222222;
+  } @else {
+    @error "Unknown mode: #{$mode}";
+  }
+}</code></pre>
+<p><code>@error</code> stops the compile with your message. Use it in mixins and functions to catch wrong arguments early. <code>@warn</code> prints a message and carries on. <code>@debug</code> prints a value while you are working something out.</p>
+<h2 id="breakpoints-from-a-map">Breakpoints from a map</h2>
+<p>Loops and maps together remove a great deal of repetition:</p>
+<pre><code class="lang-scss">@use "sass:map";
+
+$breakpoints: ("small": 480px, "medium": 768px, "large": 1100px);
+
+@mixin from($name) {
+  @media (min-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}
+
+.sidebar {
+  @include from("medium") {
+    width: 240px;
+  }
+}</code></pre>
+<h2 id="generate-with-care">Generate with care</h2>
+<p>A loop over ten colours, six properties and four breakpoints produces 240 classes, and your page uses eleven of them. Every generated class is shipped to every visitor. Generate what you use.</p>
+<p>That idea, taken to its end with a tool that removes what is unused, is what utility frameworks such as Tailwind do.</p>
+<h2 id="what-plain-css-has-caught-up-on">What plain CSS has caught up on</h2>
+<p>CSS now has custom properties, nesting, <code>calc()</code>, and colour functions. Sass still gives you what CSS has not: mixins, functions, loops, maps, and splitting into modules at build time. Many projects use both: Sass for structure and generation, custom properties for values that change at run time.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>#{ }</code></strong> in a selector or a property name.</li><li><strong><code>to</code> where <code>through</code> was meant</strong>, and one class too few.</li><li><strong>Generating hundreds of unused classes.</strong></li><li><strong>A map key that does not exist</strong>: <code>map.get</code> returns <code>null</code>, and the declaration silently disappears.</li><li><strong>Logic so clever</strong> that nobody can tell what CSS comes out. Look at the compiled file now and then.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="scss/05-loops">
+<h3>Utility classes from a map and a loop <span class="ex-id">scss/05-loops</span></h3>
+<p>Generate classes in <code>style.scss</code>. The page already uses them.</p>
+<h4>Colours, with a map and <code>@each</code></h4>
+<p>Declare the map <code>$colors</code> with three entries: <code>primary</code> is <code>#1a73e8</code>, <code>danger</code> is <code>#b42318</code>, <code>success</code> is <code>#15803d</code>.</p>
+<p>For every entry, generate two classes:</p>
+<ul><li><code>.text-NAME</code> with that <code>color</code>;</li><li><code>.bg-NAME</code> with that <code>background-color</code>.</li></ul>
+<h4>Spacing, with <code>@for</code></h4>
+<p>Generate <code>.mt-1</code> to <code>.mt-4</code>, where <code>.mt-N</code> has a <code>margin-top</code> of N times <code>4px</code>: 4px, 8px, 12px, 16px.</p>
+<p>Your file must not contain the class names written out, such as <code>.text-danger</code> or <code>.mt-3</code>. Build them with interpolation: <code>#{$name}</code> and <code>#{$i}</code>.</p>
+<p>Edit the <code>.scss</code> file. <strong>Run tests</strong> compiles it to CSS and checks the page. <strong>Open preview</strong> shows the page with your compiled styles, and recompiles when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/scss/05-loops/</code></p>
+<pre><code class="lang-console">$ python3 check.py scss/05-loops</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../scss/04-mixins-and-functions.html"><span>Previous</span>Mixins and functions</a><a class="next" href="../tailwind/01-utility-first.html"><span>Next</span>Utility-first CSS</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

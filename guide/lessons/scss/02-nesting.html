@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nesting and the parent selector · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="scss/02-nesting">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Sass (SCSS) · lesson 2 of 5</p>
+<h1>Nesting and the parent selector</h1>
+<p class="lede">Write rules inside rules, the way the HTML is nested, without overdoing it.</p>
+<h2 id="nesting">Nesting</h2>
+<p>In CSS, rules for one component repeat its name on every line:</p>
+<pre><code class="lang-css">.nav { display: flex; }
+.nav a { color: #333; }
+.nav a:hover { text-decoration: underline; }</code></pre>
+<p>In Sass you write the inner rules <strong>inside</strong> the outer one:</p>
+<pre><code class="lang-scss">.nav {
+  display: flex;
+
+  a {
+    color: #333;
+  }
+}</code></pre>
+<p>It compiles to exactly the CSS above: <code>.nav</code> and <code>.nav a</code>. Everything that belongs to the component sits in one block.</p>
+<h2 id="the-parent-selector">The parent selector: &amp;</h2>
+<p>Inside a nested block, <code>&amp;</code> stands for the <strong>selector of the parent</strong>. It is how you attach something to the parent with no space in between:</p>
+<pre><code class="lang-scss">a {
+  color: #333;
+
+  &amp;:hover {              // a:hover
+    text-decoration: underline;
+  }
+
+  &amp;.active {             // a.active
+    font-weight: bold;
+  }
+}</code></pre>
+<p>Without the <code>&amp;</code>, a nested <code>:hover</code> would compile to <code>a :hover</code>, with a space: any hovered element <strong>inside</strong> a link. That is almost never what you mean.</p>
+<h2 id="builds-names">&amp; builds names</h2>
+<p><code>&amp;</code> can also be the start of a longer class name. That fits naming schemes such as <strong>BEM</strong> (block, element, modifier), where a card has <code>card__title</code> and <code>card--featured</code>:</p>
+<pre><code class="lang-scss">.card {
+  padding: 16px;
+
+  &amp;__title {             // .card__title
+    font-size: 1.25rem;
+  }
+
+  &amp;--featured {          // .card--featured
+    border-color: gold;
+  }
+}</code></pre>
+<p>The compiled selectors are flat single classes, which keeps specificity low.</p>
+<h2 id="at-the-end">&amp; at the end</h2>
+<p><code>&amp;</code> can come last, to style something depending on where it sits:</p>
+<pre><code class="lang-scss">.button {
+  .dark-theme &amp; {        // .dark-theme .button
+    background: #222;
+  }
+}</code></pre>
+<h2 id="nesting-properties-and-media-queries">Nesting properties and media queries</h2>
+<p>A media query can be written inside the rule it belongs to. Sass moves it out to the top level:</p>
+<pre><code class="lang-scss">.sidebar {
+  width: 100%;
+
+  @media (min-width: 700px) {
+    width: 240px;
+  }
+}</code></pre>
+<p>The base style and its responsive change are next to each other, which is where you want them when reading.</p>
+<h2 id="do-not-nest-deeply">Do not nest deeply</h2>
+<p>Nesting is easy to overdo:</p>
+<pre><code class="lang-scss">.page {
+  .content {
+    .article {
+      .header {
+        h2 { color: navy; }     // .page .content .article .header h2
+      }
+    }
+  }
+}</code></pre>
+<p>That selector is slow to read, has a high specificity that is hard to override, and breaks when the HTML is rearranged. A good rule: <strong>no more than three levels</strong>, and nest only what really belongs to the parent.</p>
+<p>Plain CSS now supports nesting too, with the same <code>&amp;</code>. What you learn here carries over.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>&amp;</code></strong> before <code>:hover</code>, <code>.active</code> or <code>::before</code>.</li><li><strong>Nesting to mirror the whole HTML tree.</strong></li><li><strong>A nested rule that does not depend on its parent.</strong> Write it at the top level.</li><li><strong>Mixing BEM names and deep nesting</strong>, which gives the worst of both.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="scss/02-nesting">
+<h3>A navigation bar and a card, nested <span class="ex-id">scss/02-nesting</span></h3>
+<p>Write <code>style.scss</code> with <strong>two</strong> top-level rules, <code>.nav</code> and <code>.card</code>, and nest everything else inside them.</p>
+<h4><code>.nav</code></h4>
+<ul><li><code>.nav</code> itself is <code>display: flex</code> with a <code>gap</code> of <code>1rem</code>.</li><li>Links inside it have the colour <code>#333333</code> and <code>text-decoration: none</code>.</li><li>A hovered link has <code>text-decoration: underline</code>. Use <code>&amp;:hover</code>.</li><li>A link with the class <code>active</code> has <code>font-weight: bold</code>. Use <code>&amp;.active</code>.</li></ul>
+<h4><code>.card</code> (BEM names)</h4>
+<ul><li><code>.card</code> has <code>padding: 16px</code> and a border of <code>1px solid #cccccc</code>.</li><li><code>.card__title</code> has <code>font-size: 1.25rem</code>. Write it as <code>&amp;__title</code>.</li><li><code>.card--featured</code> has <code>border-color: gold</code>. Write it as <code>&amp;--featured</code>.</li></ul>
+<p>In your file, <code>.nav a</code>, <code>.card__title</code> and <code>.card--featured</code> must not be written out: nest them.</p>
+<p>Edit the <code>.scss</code> file. <strong>Run tests</strong> compiles it to CSS and checks the page. <strong>Open preview</strong> shows the page with your compiled styles, and recompiles when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/scss/02-nesting/</code></p>
+<pre><code class="lang-console">$ python3 check.py scss/02-nesting</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../scss/01-variables.html"><span>Previous</span>What Sass is, and variables</a><a class="next" href="../scss/03-modules.html"><span>Next</span>Partials and modules</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

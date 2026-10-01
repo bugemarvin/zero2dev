@@ -99,6 +99,26 @@
     ]
   },
   {
+    "id": "scss",
+    "title": "Sass (SCSS)",
+    "blurb": "CSS with variables, nesting, modules, mixins and loops: write less, repeat nothing, keep big stylesheets in order.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:sass",
+      "tool:browser"
+    ]
+  },
+  {
+    "id": "tailwind",
+    "title": "Tailwind CSS",
+    "blurb": "Style pages with small utility classes in the HTML: spacing, colour, layout, responsive and hover variants, and your own theme.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:tailwind",
+      "tool:browser"
+    ]
+  },
+  {
     "id": "java",
     "title": "Java",
     "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",
@@ -164,6 +184,15 @@
     "needs": [
       "toolchain:javascript",
       "workspace:react"
+    ]
+  },
+  {
+    "id": "vue",
+    "title": "Vue",
+    "blurb": "User interfaces with single-file components: templates, reactivity, props and events, forms, and composables.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:vue"
     ]
   },
   {

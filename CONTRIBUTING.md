@@ -105,7 +105,7 @@ Text with `code`, **bold** and a [link to another lesson](c/08-memory).
 
 Supported: `##` and `###` headings, paragraphs, `-` and `1.` lists (one level), fenced code blocks with a language, `>` callouts (start with `**Warning:**` for the warning style), pipe tables (write `\|` for a pipe inside a cell), `` `code` ``, `**bold**`, `*italic*`, links.
 
-Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html`, `css`, `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
+Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html` (also `vue`), `css` (also `scss`), `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
 
 A section that applies to one system only says so in its heading: `## Windows {os=windows}`, `## Ubuntu or Debian Linux {os=linux wsl}`, `## macOS {os=macos}`. The page shows the sections for the learner's system and tucks the others behind a button. The marker is removed from the title, and the section ends at the next `##` heading.
 
@@ -129,7 +129,11 @@ Aim for three to five questions that test understanding, not memory of a sentenc
 
 ## Paths
 
-`content/paths.json` lists the career paths: an `id`, a `title`, a `blurb`, an `outcome`, the `stages` (each with a `title`, a `why` and the `tracks` in order), and `electives`: optional tracks the learner can add.
+`content/paths.json` lists the career paths: an `id`, a `title`, a `blurb`, an `outcome`, a `group` (`start`, `work` for a kind of work, or `language` for a path built around one language or framework), the `stages` (each with a `title`, a `why` and the `tracks` in order), and `electives`: optional tracks the learner can add.
+
+A stage can leave a choice to the learner: `"pick": ["python", "java", "go"]` next to (or in place of) `tracks`. The learner chooses one, the first is the default, and the ones not chosen are offered as optional tracks.
+
+A new track belongs in at least one path: as a stage, a choice, or an elective.
 
 ## Tracks
 
@@ -241,13 +245,27 @@ For HTML and CSS. The page is parsed and the cascade applied by the checker itse
 ```
 
 - `select` is a CSS selector. `count`, `min` and `max` test how many elements match. `text` is the exact text of the first match, and `contains` a piece of text in any match.
+- `classes` tests the class names of every match: `["grid", "md:grid-cols-3"]`. A list inside the list means "one of these": `[["gap-4", "gap-x-4"]]`.
 - `attr` tests attributes of every match: a value, `true` for "present and not empty", `false` for "absent".
 - `style` tests the value each matched element ends up with: its own declaration by specificity and order, an inherited one for inherited properties, with `var(--x)` resolved. A value can be a list of accepted spellings, `null` in the list means "not set", and `"~text"` means "contains".
 - `state` (`hover`, `focus`, ...) and `media` select the rules that apply in that state or inside that media query.
 - `{"doctype": true}` and `{"valid": true}` test the doctype and that every element is closed in the right order.
 - Values are compared as written, after light normalisation (case, spaces, `#fff` and `#ffffff`, `0px` and `0`). Of the shorthands only `margin`, `padding` and a one-colour `background` are expanded, so name in the task the property you test.
 
-The app gives every web exercise an **Open preview** button.
+- `{"source": "style.scss", ...}` tests the text the learner wrote, with comments removed, for things a compiler erases: `contains` and `not_contains` (a text or a list), `regex`, and `count_of` (a regular expression) with `min_count` and `max_count`. `fail` is the message shown.
+
+Styles that are compiled first (Sass, Tailwind) name a package set and what to compile. The exercise is copied into the package set, compiled there, and the checks run on the result. A compiler error is shown to the learner as the first failed check. The command is data: the `compile` line of the package set's `workspace.json`, with `{source}` and `{target}`. A `source` check that names the compiled file reads the built one.
+
+```json
+{"kind": "web", "workspace": "sass", "compile": {"style.scss": "style.css"}, "page": "index.html",
+ "edit": ["style.scss", "_tokens.scss"],
+ "checks": [
+   {"name": "the tokens are loaded with @use", "source": "style.scss", "regex": "@use\\s+[\"']tokens[\"']"},
+   {"name": ".button has the brand background", "select": ".button", "style": {"background-color": "#1a73e8"}}
+ ]}
+```
+
+The app gives every web exercise an **Open preview** button. For a compiled exercise the preview compiles on start and again on every save.
 
 ### kind: mongo
 

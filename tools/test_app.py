@@ -317,6 +317,71 @@ try:
 finally:
     (ROOT / "exercises" / CSS / "style.css").write_text(starter_css, encoding="utf-8")
 
+# ---------------------------------------------------------------- styles that are compiled first (Sass)
+def package_set(name):
+    """Install a package set in the temporary working folder. False without npm or without a network."""
+    from z2d import core, workspaces
+    if not shutil.which("npm"):
+        return False
+    try:
+        workspaces.ensure(name, log=lambda text: None)
+        return True
+    except (core.Skip, core.NeedsDownload) as exc:
+        print(f"  ({name} tests skipped: {str(exc).splitlines()[0]})")
+        return False
+
+
+if package_set("sass"):
+    SCSS = "scss/01-variables"
+    starter_scss = read(f"exercises/{SCSS}/style.scss")
+    try:
+        status, body, _ = request("GET", f"/api/exercise?id={SCSS}")
+        check("a Sass exercise offers its .scss file for editing",
+              [f["name"] for f in body["files"] if f["editable"]] == ["style.scss"] and body["can_start_app"], str(body)[:200])
+        status, body, _ = request("POST", "/api/run", {"id": SCSS, "files": {"style.scss": ".a { color: $nope; }"}})
+        first = body["results"][0]
+        check("a Sass error is reported as the first failed check",
+              body["status"] == "failed" and not first["ok"] and "Undefined variable" in first["detail"], str(body)[:300])
+        status, body, _ = request("POST", "/api/run", {"id": SCSS, "files": {"style.scss": read(f"solutions/{SCSS}/style.scss")}})
+        check("a correct Sass file is compiled and passes", body["status"] == "passed", str(body.get("results"))[:300])
+        check("the compiled CSS is not left in the learner's folder", not (ROOT / "exercises" / SCSS / "style.css").exists())
+        status, body, _ = request("POST", "/api/app", {"id": SCSS, "action": "start"})
+        url = (body.get("app") or {}).get("url", "")
+        check("the preview of a Sass exercise starts", status == 200 and url.startswith("http://127.0.0.1:"), str(body)[:300])
+        if url:
+            css = urllib.request.urlopen(url + "style.css", timeout=10).read().decode()
+            check("the preview serves the compiled CSS", "padding: 32px" in css and "$space" not in css, css[:200])
+            request("POST", "/api/save", {"id": SCSS, "files": {"style.scss": "$c: #123456;\nh1 { color: $c; }\n"}})
+            css = urllib.request.urlopen(url + "style.css", timeout=10).read().decode()
+            check("saving compiles again for the preview", "#123456" in css and "$c" not in css, css[:200])
+        status, body, _ = request("POST", "/api/app", {"id": SCSS, "action": "stop"})
+        check("the Sass preview stops", body == {"app": None})
+    finally:
+        request("POST", "/api/app", {"id": SCSS, "action": "stop"})
+        (ROOT / "exercises" / SCSS / "style.scss").write_text(starter_scss, encoding="utf-8")
+
+if package_set("tailwind"):
+    TW = "tailwind/01-card"
+    starter_tw = read(f"exercises/{TW}/index.html")
+    try:
+        status, body, _ = request("POST", "/api/run", {"id": TW})
+        details = " ".join(r["detail"] for r in body.get("results", []))
+        check("a Tailwind exercise names the class that is missing",
+              body["status"] == "failed" and body["results"][0]["ok"] and "needs the class: p-6" in details, str(body)[:300])
+        status, body, _ = request("POST", "/api/run", {"id": TW, "files": {"index.html": read(f"solutions/{TW}/index.html")}})
+        check("a page with the right classes is built by Tailwind and passes", body["status"] == "passed", str(body.get("results"))[:300])
+        status, body, _ = request("POST", "/api/app", {"id": TW, "action": "start"})
+        url = (body.get("app") or {}).get("url", "")
+        check("the preview of a Tailwind exercise starts", status == 200 and url.startswith("http://127.0.0.1:"), str(body)[:300])
+        if url:
+            css = urllib.request.urlopen(url + "style.css", timeout=10).read().decode()
+            check("the preview serves the CSS that Tailwind built", "tailwindcss" in css and ".rounded-lg" in css, css[:200])
+        status, body, _ = request("POST", "/api/app", {"id": TW, "action": "stop"})
+        check("the Tailwind preview stops", body == {"app": None})
+    finally:
+        request("POST", "/api/app", {"id": TW, "action": "stop"})
+        (ROOT / "exercises" / TW / "index.html").write_text(starter_tw, encoding="utf-8")
+
 # ---------------------------------------------------------------- the terminal and the activity list
 status, body, _ = request("GET", "/api/activity")
 check("activity lists jobs, apps, services and the system",

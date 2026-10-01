@@ -251,8 +251,11 @@
     html: ["(<!--[\\s\\S]*?-->)|(<\\/?[A-Za-z][\\w-]*|\\/?>)|(\"[^\"\\n]*\"|'[^'\\n]*')|([A-Za-z_:@][\\w:.-]*(?==))", "g",
            ["tok-c", "tok-k", "tok-s", "tok-p"]],
     css: ["(\\/\\*[\\s\\S]*?\\*\\/)|(@[\\w-]+|(?<=[{;]\\s*|^\\s+)[\\w-]+(?=\\s*:))|(\"[^\"\\n]*\"|'[^'\\n]*')|(#[0-9a-fA-F]{3,8}\\b|\\b\\d+(?:\\.\\d+)?(?:px|rem|em|vh|vw|fr|ms|s|deg|%)?)", "gm",
-          ["tok-c", "tok-k", "tok-s", "tok-n"]]
+          ["tok-c", "tok-k", "tok-s", "tok-n"]],
+    scss: ["(\\/\\*[\\s\\S]*?\\*\\/|(?<![:\\w])\\/\\/[^\\n]*)|(@[\\w-]+|(?<=[{;]\\s*|^\\s+)[\\w-]+(?=\\s*:))|(\"[^\"\\n]*\"|'[^'\\n]*')|(#[0-9a-fA-F]{3,8}\\b|\\b\\d+(?:\\.\\d+)?(?:px|rem|em|vh|vw|fr|ms|s|deg|%)?)|(\\$[\\w-]+)", "gm",
+           ["tok-c", "tok-k", "tok-s", "tok-n", "tok-p"]]
   };
+  MARKUP.vue = MARKUP.html;
 
   function colourMarkup(code, text, rule) {
     var re = new RegExp(rule[0], rule[1]), classes = rule[2], last = 0, m;   // throws on a very old browser

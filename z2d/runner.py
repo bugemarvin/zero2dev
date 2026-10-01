@@ -70,7 +70,7 @@ def editable_files(ex, lang=None):
     if ex.kind == "redis":
         return [spec.get("file", "commands.redis")]
     if ex.kind == "web":
-        return [spec.get("page", "index.html")] + list(spec.get("styles", []))
+        return [spec.get("page", "index.html")] + list(spec.get("styles", [])) + list(spec.get("compile", {}))
     if ex.kind == "harness":
         if spec.get("lang") == "elixir":
             return ["solution.ex"]
@@ -722,6 +722,10 @@ class App:
     def start(self):
         """Returns '' when the app is listening, otherwise a description of what went wrong."""
         seconds = self.spec.get("start_timeout", 40)
+        if self.spec.get("compile"):
+            problem = self.compile()
+            if problem:
+                return problem
         if "up" in self.spec:
             code, out, err = core.run(self.fill(self.spec["up"]), cwd=self.cwd, timeout=900, env=self.env)
             if code != 0:
@@ -756,6 +760,11 @@ class App:
             return ""
         return (f"nothing was listening on the port after {seconds} seconds. The app must listen on the port "
                 f"given in the PORT environment variable.\n" + block("output:", self.output(), 20, 2500))
+
+    def compile(self):
+        """Compile the styles of a web exercise in the running copy. Returns '' or the compiler's message."""
+        return compile_styles(self.spec, lambda cmd: core.run(cmd, cwd=self.cwd, timeout=120,
+                                                              env=dict(self.env, NO_COLOR="1")))
 
     def output(self):
         if self.log is None:
@@ -842,6 +851,51 @@ def load_page(spec, exdir):
     return page, rules
 
 
+def source_check(exdir, chk):
+    """A check on the text the learner wrote, for things that disappear when it is compiled."""
+    name = chk["source"]
+    try:
+        text = (exdir / name).read_text(encoding="utf-8")
+    except OSError:
+        return f"{name} does not exist"
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)           # comments do not count
+    text = re.sub(r"(?m)(^|\s)//[^\n]*", r"\1", text)
+    for piece in [chk["contains"]] if isinstance(chk.get("contains"), str) else chk.get("contains", []):
+        if piece not in text:
+            return chk.get("fail", f"{name} should use: {piece}")
+    for piece in [chk["not_contains"]] if isinstance(chk.get("not_contains"), str) else chk.get("not_contains", []):
+        if piece in text:
+            return f"{name} should not contain: {piece}"
+    if "regex" in chk and re.search(chk["regex"], text, re.M | re.S) is None:
+        return chk.get("fail", f"{name} does not have what this check looks for")
+    if "count_of" in chk:
+        found = len(re.findall(chk["count_of"], text))
+        if found < chk.get("min_count", 0):
+            return chk.get("fail", f"{name}: expected at least {chk['min_count']} of {chk['count_of']}, found {found}")
+        if found > chk.get("max_count", found):
+            return chk.get("fail", f"{name}: expected at most {chk['max_count']} of {chk['count_of']}, found {found}")
+    return ""
+
+
+def compile_styles(spec, run):
+    """Compile the style sources an exercise names: {"style.scss": "style.css"}.
+
+    `run(command)` runs a command in the folder that holds the files and returns
+    (exit_code, stdout, stderr). Returns '' or the compiler's message.
+    """
+    template = workspaces.config(spec["workspace"]).get("compile")
+    if not template:
+        return f"the {spec['workspace']} package set does not say how to compile"
+    for source, target in spec.get("compile", {}).items():
+        code, out, err = run([part.replace("{source}", source).replace("{target}", target) for part in template])
+        if code is None:
+            return f"compiling {source} took too long"
+        if code != 0:
+            message = ANSI.sub("", (err or out).strip()) or describe_exit(code)
+            return clip(message, 18, 1600)
+    return ""
+
+
 def web_check(page, rules, chk):
     """One check of a web exercise. Returns '' or what is wrong."""
     if chk.get("doctype"):
@@ -866,6 +920,11 @@ def web_check(page, rules, chk):
     if "contains" in chk and not any(chk["contains"].lower() in el.text().lower() for el in found):
         return f"no `{selector}` contains the text: {chk['contains']}"
     for el in found:
+        have = el.attrs.get("class", "").split()
+        for want in chk.get("classes", []):         # a class, or a list of classes of which one is enough
+            options = [want] if isinstance(want, str) else list(want)
+            if not any(option in have for option in options):
+                return f"{el.describe()} needs the class: {' or '.join(options)}"
         for name, want in chk.get("attr", {}).items():
             got = el.attrs.get(name)
             if want is True:
@@ -890,18 +949,44 @@ def web_check(page, rules, chk):
 
 def check_web(ex, exdir):
     spec = ex.spec
-    try:
-        page, rules = load_page(spec, exdir)
-    except OSError:
-        return [Result(False, f"{spec.get('page', 'index.html')} exists")]
     results = []
-    for chk in spec["checks"]:
+    staged = None
+    pagedir = exdir
+    try:
+        if spec.get("compile"):
+            # Sass and the like: copy the exercise into its package set, compile there, check the result.
+            with tempfile.TemporaryDirectory() as tmp:
+                root, rel = workspaces.stage(spec["workspace"], ex, exdir)
+                staged = (root, rel)
+                env = toolchains.open_env("javascript", root, Path(tmp), writable=True)
+                try:
+                    problem = compile_styles(spec, lambda cmd: env.run(cmd, cwd=env.ex(rel), timeout=120,
+                                                                       env={"NO_COLOR": "1", "CI": "1"}))
+                finally:
+                    env.close()
+            label = " and ".join(spec["compile"]) + " compiles"
+            results.append(Result(not problem, label, problem))
+            if problem:
+                return results
+            pagedir = root / rel
         try:
-            problem = web_check(page, rules, chk)
-        except webcheck.SelectorError as exc:
-            problem = str(exc)
-        results.append(Result(not problem, chk["name"], problem if problem else ""))
-    return results
+            page, rules = load_page(spec, pagedir)
+        except OSError:
+            return results + [Result(False, f"{spec.get('page', 'index.html')} exists")]
+        for chk in spec["checks"]:
+            try:
+                if "source" in chk:        # a compiled file is read from where it was built
+                    built = chk["source"] in spec.get("compile", {}).values()
+                    problem = source_check(pagedir if built else exdir, chk)
+                else:
+                    problem = web_check(page, rules, chk)
+            except webcheck.SelectorError as exc:
+                problem = str(exc)
+            results.append(Result(not problem, chk["name"], problem if problem else ""))
+        return results
+    finally:
+        if staged:
+            workspaces.unstage(*staged)
 
 
 # ---------------------------------------------------------------- mongo kind

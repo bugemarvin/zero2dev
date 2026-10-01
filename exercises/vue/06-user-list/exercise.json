@@ -1,0 +1,42 @@
+{
+  "title": "Load data, and a composable",
+  "lesson": "vue/06-composables-and-lifecycle",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "UserList.vue",
+    "useToggle.js"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "useToggle: const on = ref(initial); function toggle() { on.value = !on.value; } return { on, toggle };",
+    "UserList needs three refs: users, loading (starting true) and error. An async function refresh() sets them around await props.load(), with try, catch and finally.",
+    "Call it when the component appears: onMounted(refresh); and from the button: @click=\"refresh\".",
+    "The template: <p v-if=\"loading\" class=\"loading\">, then <p v-else-if=\"error\" role=\"alert\">, then <ul v-else-if=\"visible\">."
+  ]
+}

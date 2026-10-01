@@ -3935,6 +3935,442 @@ window.Z2D_QUIZZES = {
 "why": "Let the content decide: resize the window until it breaks."
 }
 ],
+"scss/01-variables": [
+{
+"q": "What does the browser load?",
+"options": [
+"The .scss file",
+"The compiled .css file",
+"Both",
+"Neither"
+],
+"answer": 1,
+"why": "Browsers do not understand Sass. It is compiled to CSS first."
+},
+{
+"q": "Is every valid CSS file also valid SCSS?",
+"options": [
+"Yes",
+"No"
+],
+"answer": 0,
+"why": "SCSS is CSS with additions."
+},
+{
+"q": "With $space: 16px, what does `padding: $space * 2` compile to?",
+"accept": [
+"32px"
+],
+"why": "Sass does the arithmetic and keeps the unit."
+},
+{
+"q": "Which can change while the page is open?",
+"options": [
+"A Sass $variable",
+"A CSS --custom-property"
+],
+"answer": 1,
+"why": "Sass variables are gone after compiling."
+}
+],
+"scss/02-nesting": [
+{
+"q": "Inside `a { ... }`, what does `&:hover` compile to?",
+"options": [
+"a :hover",
+"a:hover",
+":hover a",
+"&:hover"
+],
+"answer": 1,
+"why": "& is the parent selector, joined with no space."
+},
+{
+"q": "Inside `.card { ... }`, what does `&__title` compile to?",
+"options": [
+".card .__title",
+".card__title",
+".card &__title",
+"__title"
+],
+"answer": 1,
+"why": "& can be the start of a longer class name."
+},
+{
+"q": "What is a sensible limit for nesting depth?",
+"options": [
+"None",
+"About three levels",
+"Ten levels",
+"One level only"
+],
+"answer": 1,
+"why": "Deep nesting gives long, fragile, highly specific selectors."
+},
+{
+"q": "Where does a media query nested inside a rule end up in the CSS?",
+"options": [
+"It is removed",
+"At the top level, wrapping that rule's selector",
+"Inside the rule",
+"In a separate file"
+],
+"answer": 1,
+"why": "Sass lifts it out for you."
+}
+],
+"scss/03-modules": [
+{
+"q": "What does the underscore in `_tokens.scss` mean?",
+"options": [
+"It is private",
+"It is a partial: not compiled to its own CSS file",
+"It is a backup",
+"It is a comment"
+],
+"answer": 1,
+"why": "Partials exist to be used by other files."
+},
+{
+"q": "After `@use \"tokens\";`, how do you read its variable $brand?",
+"options": [
+"$brand",
+"tokens.$brand",
+"tokens::brand",
+"@tokens.brand"
+],
+"answer": 1,
+"why": "Members are reached through the namespace."
+},
+{
+"q": "Why not use @import?",
+"options": [
+"It is slower",
+"It makes everything global, and it is deprecated",
+"It needs a plugin",
+"It only works in CSS"
+],
+"answer": 1,
+"why": "@use gives namespaces and loads each file once."
+},
+{
+"q": "How do you divide in Sass?",
+"options": [
+"a / b",
+"math.div(a, b)",
+"div(a, b)",
+"a ÷ b"
+],
+"answer": 1,
+"why": "From the built-in module sass:math."
+}
+],
+"scss/04-mixins-and-functions": [
+{
+"q": "Which pair defines and uses a mixin?",
+"options": [
+"@function and @return",
+"@mixin and @include",
+"@use and @forward",
+"@extend and %"
+],
+"answer": 1,
+"why": "@mixin defines, @include uses."
+},
+{
+"q": "What does @content stand for inside a mixin?",
+"options": [
+"The mixin's arguments",
+"The block of styles the caller passed in",
+"The file's content",
+"A comment"
+],
+"answer": 1,
+"why": "It is how a mixin wraps something around the caller's styles."
+},
+{
+"q": "What does a function give back?",
+"options": [
+"A block of declarations",
+"A value",
+"A selector",
+"A file"
+],
+"answer": 1,
+"why": "A mixin produces declarations. A function produces a value."
+},
+{
+"q": "With a base of 16px, what is rem(24px)?",
+"accept": [
+"1.5rem"
+],
+"why": "24 divided by 16."
+}
+],
+"scss/05-maps-and-loops": [
+{
+"q": "What does `#{$name}` do in `.text-#{$name}`?",
+"options": [
+"Starts a comment",
+"Puts the variable's value into the selector",
+"Declares a variable",
+"Calls a mixin"
+],
+"answer": 1,
+"why": "This is interpolation."
+},
+{
+"q": "How many classes does `@for $i from 1 through 4` generate, with one class per round?",
+"accept": [
+"4"
+],
+"why": "through includes the last number. `to` would give 3."
+},
+{
+"q": "Which loop goes over the entries of a map?",
+"options": [
+"@for",
+"@each",
+"@while only",
+"@if"
+],
+"answer": 1,
+"why": "@each $key, $value in $map."
+},
+{
+"q": "What is the risk of generating classes with loops?",
+"options": [
+"Slower compiling",
+"Shipping many classes that the page never uses",
+"Syntax errors",
+"None"
+],
+"answer": 1,
+"why": "Every generated class is downloaded by every visitor."
+}
+],
+"tailwind/01-utility-first": [
+{
+"q": "What does the class `p-4` set?",
+"options": [
+"A padding of 4px",
+"A padding of 1rem",
+"A padding of 4rem",
+"Four paragraphs"
+],
+"answer": 1,
+"why": "One step of the spacing scale is 0.25rem, so 4 steps are 1rem."
+},
+{
+"q": "Which CSS does Tailwind generate?",
+"options": [
+"Every class it knows",
+"Only the classes it finds in your files",
+"None: it runs in the browser",
+"Only colours"
+],
+"answer": 1,
+"why": "It reads your files and generates CSS for the class names in them."
+},
+{
+"q": "Why does a bare <h1> look like normal text with Tailwind?",
+"options": [
+"A bug",
+"Tailwind's reset removes the browser's default styles",
+"The font is missing",
+"h1 is not supported"
+],
+"answer": 1,
+"why": "Every element starts blank. Add classes such as text-3xl font-bold."
+},
+{
+"q": "Why does `\"text-\" + colour + \"-600\"` not work?",
+"options": [
+"Colours need a hash",
+"Tailwind reads files as text and never sees the complete class name",
+"The plus sign is not allowed",
+"It works"
+],
+"answer": 1,
+"why": "Write complete class names so that Tailwind can find them."
+}
+],
+"tailwind/02-layout": [
+{
+"q": "Which classes centre a column with a maximum width?",
+"options": [
+"max-w-4xl mx-auto",
+"w-full center",
+"flex-1 gap-4",
+"text-center"
+],
+"answer": 0,
+"why": "A maximum width, and automatic margins left and right."
+},
+{
+"q": "`justify-between` does nothing. What is the likely reason?",
+"options": [
+"The element is not flex or grid",
+"It needs a number",
+"It only works on links",
+"The gap is missing"
+],
+"answer": 0,
+"why": "Alignment classes need display: flex or grid on the same element."
+},
+{
+"q": "Which class makes a grid item two columns wide?",
+"accept": [
+"col-span-2"
+],
+"why": "Type the class name."
+},
+{
+"q": "On which element do `grid` and `grid-cols-3` go?",
+"options": [
+"On each item",
+"On the container",
+"On the body",
+"On any of them"
+],
+"answer": 1,
+"why": "Layout is set on the container. The items are placed by it."
+}
+],
+"tailwind/03-responsive-and-states": [
+{
+"q": "When does `md:flex` apply?",
+"options": [
+"Only on medium screens",
+"From 768px and wider",
+"Up to 768px",
+"Always"
+],
+"answer": 1,
+"why": "Breakpoint variants mean: from this width and up."
+},
+{
+"q": "How do you style the phone layout?",
+"options": [
+"With the sm: variant",
+"With classes that have no variant",
+"With the phone: variant",
+"With max-w-sm"
+],
+"answer": 1,
+"why": "Mobile first: no variant is the base, variants add what changes on wider screens."
+},
+{
+"q": "Which class makes a background darker while the pointer is over the element?",
+"options": [
+"hover:bg-blue-700",
+"bg-blue-700:hover",
+"on-hover-bg-blue-700",
+"bg-hover-blue-700"
+],
+"answer": 0,
+"why": "The variant comes first, then a colon, then the class."
+},
+{
+"q": "A child should change when its parent is hovered. What does the parent need?",
+"options": [
+"The class group",
+"The class parent",
+"An id",
+"Nothing"
+],
+"answer": 0,
+"why": "Mark the parent with group, and use group-hover: on the child."
+}
+],
+"tailwind/04-theme": [
+{
+"q": "Which theme variable creates the class `bg-brand`?",
+"options": [
+"--brand",
+"--bg-brand",
+"--color-brand",
+"--theme-brand"
+],
+"answer": 2,
+"why": "A colour variable starts with --color-, and gives every colour class: bg-, text-, border-."
+},
+{
+"q": "How do you write a width of exactly 320 pixels?",
+"options": [
+"w-320",
+"w-[320px]",
+"w-(320)",
+"width-320px"
+],
+"answer": 1,
+"why": "Arbitrary values go in square brackets."
+},
+{
+"q": "What does `bg-black/50` mean?",
+"options": [
+"Black, at 50% opacity",
+"Half the element is black",
+"Black divided by 50",
+"Shade 50 of black"
+],
+"answer": 0,
+"why": "The number after the slash is the opacity."
+},
+{
+"q": "In which block do theme variables go?",
+"accept": [
+"@theme"
+],
+"why": "Type the at-rule, with the @."
+}
+],
+"tailwind/05-components": [
+{
+"q": "In a React or Vue project, what is the first answer to a repeated list of classes?",
+"options": [
+"@apply",
+"A component",
+"A Sass mixin",
+"Copy and paste"
+],
+"answer": 1,
+"why": "The repetition is in the markup, so it is removed in the markup."
+},
+{
+"q": "What does @apply do?",
+"options": [
+"Imports a file",
+"Copies the declarations of utilities into your own rule",
+"Applies a theme",
+"Runs Tailwind"
+],
+"answer": 1,
+"why": "It gives a set of utilities a class name."
+},
+{
+"q": "Why put .btn in `@layer components`?",
+"options": [
+"It compiles faster",
+"So that utilities on the element can still override it",
+"It is required for @apply",
+"For dark mode"
+],
+"answer": 1,
+"why": "The components layer comes before the utilities in the cascade."
+},
+{
+"q": "What is wrong with using @apply for every element?",
+"options": [
+"It is slow",
+"You rebuild a hand-written stylesheet, with names to invent and CSS that grows",
+"It breaks hover",
+"Nothing"
+],
+"answer": 1,
+"why": "Keep it for a few small, much-repeated things."
+}
+],
 "java/01-hello-jvm": [
 {
 "q": "What does `javac` produce?",
@@ -6424,6 +6860,274 @@ window.Z2D_QUIZZES = {
 ],
 "answer": 1,
 "why": "Use it sparingly: every consumer renders again when it changes."
+}
+],
+"vue/01-components-and-templates": [
+{
+"q": "Which three blocks can a .vue file have?",
+"options": [
+"head, body, footer",
+"script, template, style",
+"html, css, js files",
+"model, view, controller"
+],
+"answer": 1,
+"why": "One file holds the component's logic, markup and styles."
+},
+{
+"q": "How do you bind the href attribute to the variable site?",
+"options": [
+"href=\"{{ site }}\"",
+":href=\"site\"",
+"href=site",
+"@href=\"site\""
+],
+"answer": 1,
+"why": "The colon is short for v-bind. Braces work only in text."
+},
+{
+"q": "What is `@click` short for?",
+"options": [
+"v-bind:click",
+"v-on:click",
+"v-if:click",
+"v-model:click"
+],
+"answer": 1,
+"why": "@ is short for v-on."
+},
+{
+"q": "What does `<style scoped>` do?",
+"options": [
+"Makes the CSS global",
+"Limits the CSS to this component",
+"Minifies the CSS",
+"Loads CSS later"
+],
+"answer": 1,
+"why": "Scoped styles do not leak into other components."
+}
+],
+"vue/02-reactivity": [
+{
+"q": "In the script, how do you add 1 to `const count = ref(0)`?",
+"options": [
+"count++",
+"count.value++",
+"count.set(1)",
+"setCount(1)"
+],
+"answer": 1,
+"why": "A ref is an object: its value lives in .value."
+},
+{
+"q": "In the template, how do you show that same count?",
+"options": [
+"{{ count.value }}",
+"{{ count }}",
+"{ count }",
+"{{ count() }}"
+],
+"answer": 1,
+"why": "Templates unwrap refs for you."
+},
+{
+"q": "What is `computed` for?",
+"options": [
+"Running code on a timer",
+"A value worked out from other reactive values, kept up to date",
+"Fetching data",
+"Styling"
+],
+"answer": 1,
+"why": "It is cached and recalculated only when its inputs change."
+},
+{
+"q": "When is `watch` the right tool?",
+"options": [
+"To derive a value",
+"To run a side effect when a value changes",
+"To declare props",
+"To loop"
+],
+"answer": 1,
+"why": "Saving, logging, fetching. For values, use computed."
+}
+],
+"vue/03-props-and-events": [
+{
+"q": "In which direction do props carry data?",
+"options": [
+"From child to parent",
+"From parent to child",
+"Both ways",
+"Between siblings"
+],
+"answer": 1,
+"why": "Props go down. Events go up."
+},
+{
+"q": "May a child component change a prop it received?",
+"options": [
+"Yes",
+"No: it emits an event and the parent changes the data"
+],
+"answer": 1,
+"why": "Props are read-only in the child."
+},
+{
+"q": "What does `<Counter :start=\"5\" />` pass?",
+"options": [
+"The string \"5\"",
+"The number 5"
+],
+"answer": 1,
+"why": "With the colon the value is a JavaScript expression."
+},
+{
+"q": "What is a slot for?",
+"options": [
+"Storing state",
+"Letting the parent put its own content inside the child",
+"Routing",
+"Styling only"
+],
+"answer": 1,
+"why": "Whatever is written between the component's tags replaces <slot>."
+}
+],
+"vue/04-lists-and-conditions": [
+{
+"q": "What happens to an element whose v-if is false?",
+"options": [
+"It is hidden with CSS",
+"It is not in the page at all",
+"It is greyed out",
+"It is moved to the end"
+],
+"answer": 1,
+"why": "v-show hides. v-if removes."
+},
+{
+"q": "What is the `:key` of a v-for for?",
+"options": [
+"Styling",
+"Letting Vue tell the items apart when the list changes",
+"Sorting",
+"Security"
+],
+"answer": 1,
+"why": "Use a stable id of the item."
+},
+{
+"q": "Where should a list be filtered?",
+"options": [
+"With v-if on the same element as v-for",
+"In a computed value",
+"In the CSS",
+"In the key"
+],
+"answer": 1,
+"why": "v-if and v-for do not belong on the same element."
+},
+{
+"q": "What does `:class=\"{ done: todo.done }\"` do?",
+"options": [
+"Always adds the class done",
+"Adds the class done when todo.done is true",
+"Removes all classes",
+"Sets an id"
+],
+"answer": 1,
+"why": "Each key of the object is a class, added when its value is true."
+}
+],
+"vue/05-forms-and-v-model": [
+{
+"q": "What does v-model do?",
+"options": [
+"Validates a field",
+"Binds a field and a ref in both directions",
+"Submits the form",
+"Styles the input"
+],
+"answer": 1,
+"why": "Typing updates the data, and changing the data updates the field."
+},
+{
+"q": "Which modifier removes spaces at both ends?",
+"options": [
+".lazy",
+".trim",
+".number",
+".prevent"
+],
+"answer": 1,
+"why": "v-model.trim."
+},
+{
+"q": "What type is the value of `<input type=\"number\" v-model=\"age\">`?",
+"options": [
+"A number",
+"A string, unless you add .number"
+],
+"answer": 1,
+"why": "Inputs give strings. v-model.number converts."
+},
+{
+"q": "Where should you listen to handle a form being sent?",
+"options": [
+"@click on the button",
+"@submit.prevent on the form",
+"@change on each field",
+"@keydown.enter everywhere"
+],
+"answer": 1,
+"why": "The form's submit event covers the button and the Enter key."
+}
+],
+"vue/06-composables-and-lifecycle": [
+{
+"q": "Which hook runs when the component has been put on the page?",
+"options": [
+"onCreated",
+"onMounted",
+"onUpdated",
+"onUnmounted"
+],
+"answer": 1,
+"why": "onMounted. Clean up in onUnmounted."
+},
+{
+"q": "Which three states should a data-loading component show?",
+"options": [
+"Start, middle, end",
+"Loading, error, the data",
+"Get, post, put",
+"Open, closed, hidden"
+],
+"answer": 1,
+"why": "A blank page while waiting or after a failure is a bug."
+},
+{
+"q": "What is a composable?",
+"options": [
+"A CSS file",
+"A function that uses Vue's reactivity, to share logic between components",
+"A kind of slot",
+"A router"
+],
+"answer": 1,
+"why": "By convention its name starts with use."
+},
+{
+"q": "Two components call useToggle(). Do they share the same state?",
+"options": [
+"Yes",
+"No: each call creates its own"
+],
+"answer": 1,
+"why": "A composable shares logic, not data."
 }
 ],
 "next/01-app-router": [

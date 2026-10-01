@@ -1,0 +1,24 @@
+{
+  "title": "Tailwind CSS",
+  "needs": [
+    "node",
+    "npm"
+  ],
+  "stack": "node",
+  "setup": [
+    [
+      "npm",
+      "ci",
+      "--no-audit",
+      "--no-fund"
+    ]
+  ],
+  "compile": [
+    "npx",
+    "@tailwindcss/cli",
+    "-i",
+    "{source}",
+    "-o",
+    "{target}"
+  ]
+}
