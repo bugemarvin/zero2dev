@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker Compose · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="docker/04-compose">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Docker · lesson 4 of 6</p>
+<h1>Docker Compose</h1>
+<p class="lede">Describe every container of a project in one file, and start them all with one command.</p>
+<h2 id="the-problem">The problem</h2>
+<p>A real project is rarely one container. It is an app, a database, perhaps a cache. Starting each by hand, with the right options and in the right order, means long commands that nobody remembers.</p>
+<p><strong>Docker Compose</strong> reads a file that describes all of them and manages them together.</p>
+<h2 id="compose-yaml">compose.yaml</h2>
+<pre><code class="lang-yaml">services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html:ro</code></pre>
+<pre><code class="lang-console">$ docker compose up -d
+$ docker compose ps
+$ docker compose logs -f
+$ docker compose down</code></pre>
+<p>Everything you would pass to <code>docker run</code> has a key:</p>
+<div class="table-wrap"><table><thead><tr><th><code>docker run</code></th><th>In <code>compose.yaml</code></th></tr></thead><tbody><tr><td>the image name</td><td><code>image: nginx:alpine</code></td></tr><tr><td><code>-p 8080:80</code></td><td><code>ports: ["8080:80"]</code></td></tr><tr><td><code>-v ./site:/www:ro</code></td><td><code>volumes: ["./site:/www:ro"]</code></td></tr><tr><td><code>-e NAME=value</code></td><td><code>environment: {NAME: value}</code></td></tr><tr><td>the command after the image</td><td><code>command: ["httpd", "-f"]</code></td></tr><tr><td><code>--user 1000:1000</code></td><td><code>user: "1000:1000"</code></td></tr></tbody></table></div>
+<p>The file is <strong>YAML</strong>. Indentation carries the structure, and it must be spaces, not tabs. Relative paths are relative to the compose file, so <code>./site</code> works without <code>$PWD</code>.</p>
+<h2 id="the-commands">The commands</h2>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>docker compose up -d</code></td><td>create and start everything, in the background</td></tr><tr><td><code>docker compose up -d --build</code></td><td>rebuild images first</td></tr><tr><td><code>docker compose ps</code></td><td>show the containers of this project</td></tr><tr><td><code>docker compose logs -f web</code></td><td>follow the output of one service</td></tr><tr><td><code>docker compose exec web sh</code></td><td>open a shell in a running service</td></tr><tr><td><code>docker compose stop</code></td><td>stop, keeping the containers</td></tr><tr><td><code>docker compose down</code></td><td>stop and remove the containers and the network</td></tr><tr><td><code>docker compose down -v</code></td><td>also remove the named volumes: <strong>the data is deleted</strong></td></tr></tbody></table></div>
+<p><code>up</code> is safe to repeat. It changes only what differs from the file.</p>
+<h2 id="building-your-own-image">Building your own image</h2>
+<p>A service can be built from a Dockerfile in place of pulling an image:</p>
+<pre><code class="lang-yaml">services:
+  app:
+    build: ./app
+    ports:
+      - "127.0.0.1:8000:8000"</code></pre>
+<p><code>build: ./app</code> means: build the Dockerfile in the <code>app</code> folder.</p>
+<h2 id="variables">Variables</h2>
+<p>Compose replaces <code>${NAME}</code> with the value from your shell's environment, or from a file named <code>.env</code> next to the compose file:</p>
+<pre><code class="lang-yaml">    ports:
+      - "127.0.0.1:${PORT}:80"</code></pre>
+<p><code>${PORT:-8080}</code> supplies a default when the variable is not set.</p>
+<p>This keeps things that differ per machine, such as ports and passwords, out of the file that is committed to Git.</p>
+<h2 id="networks">Networks</h2>
+<p>Compose creates a private network for the project and gives every service a <strong>host name equal to its service name</strong>. A service called <code>db</code> is reachable from the other services at the address <code>db</code>.</p>
+<pre><code class="lang-yaml">services:
+  app:
+    build: ./app
+    environment:
+      DATABASE_HOST: db          # the service name is the host name
+  db:
+    image: postgres:16</code></pre>
+<p>Inside that network, containers talk to each other on the container's own port. <code>ports:</code> is only needed for what <strong>you</strong>, on the host, want to reach. A database that only the app uses needs no published port, and is safer without one.</p>
+<h2 id="project-names">Project names</h2>
+<p>Compose groups containers into a <strong>project</strong>, named after the folder by default. <code>-p</code> sets another name, which lets the same file run several times side by side:</p>
+<pre><code class="lang-console">$ docker compose -p demo up -d
+$ docker compose -p demo down</code></pre>
+<h2 id="a-static-site-in-six-lines">A static site in six lines</h2>
+<pre><code class="lang-yaml">services:
+  web:
+    image: busybox:1
+    command: ["httpd", "-f", "-p", "80", "-h", "/www"]
+    volumes:
+      - ./site:/www:ro
+    ports:
+      - "127.0.0.1:${PORT:-8080}:80"</code></pre>
+<p><code>busybox</code> contains a tiny web server. <code>-f</code> keeps it in the foreground, which a container needs: when the main process ends, the container stops.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Tabs in YAML</strong>, or inconsistent indentation.</li><li><strong><code>down -v</code></strong> by reflex, deleting the database.</li><li><strong>Publishing every port.</strong> Publish only what the host needs.</li><li><strong><code>localhost</code> between services.</strong> Inside a container, <code>localhost</code> is that container. Use the service name.</li><li><strong>A main process that exits or goes to the background</strong>, so the container stops at once.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="docker/04-compose">
+<h3>A web server with Compose <span class="ex-id">docker/04-compose</span></h3>
+<p>The folder <code>site/</code> contains two HTML pages. Write <code>compose.yaml</code> so that <code>docker compose up -d</code> serves them.</p>
+<p>One service, named <code>web</code>:</p>
+<ul><li>image <code>busybox:1</code>, which contains a tiny web server;</li><li>command <code>httpd -f -p 80 -h /www</code> (foreground, port 80, serving the folder <code>/www</code>);</li><li>the folder <code>./site</code> mounted at <code>/www</code>, read-only;</li><li>port 80 of the container published on <code>127.0.0.1</code>, on the host port given by the variable <code>PORT</code>.</li></ul>
+<p>The checker sets <code>PORT</code>, runs <code>docker compose up -d</code>, requests the pages, and runs <code>docker compose down</code>.</p>
+<p>To try it yourself: <code>PORT=8080 docker compose up -d</code>, open http://127.0.0.1:8080/, then <code>PORT=8080 docker compose down</code>.</p>
+<p class="ex-files">Files: <code>exercises/docker/04-compose/</code></p>
+<pre><code class="lang-console">$ python3 check.py docker/04-compose</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../docker/03-volumes-and-environment.html"><span>Previous</span>Data, configuration and ports</a><a class="next" href="../docker/05-app-with-a-database.html"><span>Next</span>An app with a data store</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1442,6 +1442,74 @@ window.Z2D_CURRICULUM = {
      "exercises": []
     }
    ]
+  },
+  {
+   "id": "docker",
+   "title": "Docker",
+   "blurb": "Package any program with everything it needs, and run several containers together with Compose.",
+   "lessons": [
+    {
+     "id": "docker/01-images-and-containers",
+     "title": "Images and containers",
+     "summary": "Run any program in an isolated box that carries everything it needs, and throw the box away afterwards.",
+     "exercises": [
+      {
+       "id": "docker/01-run",
+       "title": "Run commands in containers"
+      }
+     ]
+    },
+    {
+     "id": "docker/02-dockerfile",
+     "title": "Writing a Dockerfile",
+     "summary": "Describe how to build an image of your own program, one instruction per line.",
+     "exercises": [
+      {
+       "id": "docker/02-dockerfile",
+       "title": "Build an image"
+      }
+     ]
+    },
+    {
+     "id": "docker/03-volumes-and-environment",
+     "title": "Data, configuration and ports",
+     "summary": "Keep data after a container is gone, configure a container from outside, and reach it over the network.",
+     "exercises": [
+      {
+       "id": "docker/03-volumes",
+       "title": "Environment, a volume and the right owner"
+      }
+     ]
+    },
+    {
+     "id": "docker/04-compose",
+     "title": "Docker Compose",
+     "summary": "Describe every container of a project in one file, and start them all with one command.",
+     "exercises": [
+      {
+       "id": "docker/04-compose",
+       "title": "A web server with Compose"
+      }
+     ]
+    },
+    {
+     "id": "docker/05-app-with-a-database",
+     "title": "An app with a data store",
+     "summary": "Build your own image, run it next to a database, and make the two find each other.",
+     "exercises": [
+      {
+       "id": "docker/05-app-with-redis",
+       "title": "An app and its data store"
+      }
+     ]
+    },
+    {
+     "id": "docker/06-good-practice",
+     "title": "Good practice",
+     "summary": "Smaller, safer, faster images, and how to keep Docker from filling your disk.",
+     "exercises": []
+    }
+   ]
   }
  ]
 };

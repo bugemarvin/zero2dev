@@ -45,7 +45,7 @@ process.env.NEXT_PUBLIC_API_URL     // also sent to the browser</code></pre>
 <p>Anything prefixed <code>NEXT_PUBLIC_</code> ends up in the JavaScript that every visitor downloads. Never put a secret behind that prefix.</p>
 <h2 id="where-to-host">Where to host</h2>
 <p><strong>A platform that understands Next.js</strong>, such as Vercel or Netlify. Connect the Git repository, and every push is built and deployed. Each pull request gets its own preview address. This is the least work.</p>
-<p><strong>Your own server or a container.</strong> <code>npm run build</code> then <code>npm run start</code> runs anywhere Node runs. With Docker:</p>
+<p><strong>Your own server or a container.</strong> <code>npm run build</code> then <code>npm run start</code> runs anywhere Node runs. With <a href="../docker/02-dockerfile.html">Docker</a>:</p>
 <pre><code class="lang-dockerfile">FROM node:22-slim AS build
 WORKDIR /app
 COPY package*.json ./
@@ -68,11 +68,11 @@ CMD ["npm", "run", "start"]</code></pre>
 <h2 id="where-to-go-next">Where to go next</h2>
 <p>You can now build a full application with Next.js: pages and layouts, server and client components, dynamic routes, API endpoints, data loading and forms that change data.</p>
 <p>What remains is a place to keep the data and a way to ship it:</p>
-<ul><li><a href="../sql/01-select.html">SQL and PostgreSQL</a>, for a real database behind your server components and actions;</li><li>Docker, to package the app and its database so they run the same everywhere.</li></ul>
+<ul><li><a href="../sql/01-select.html">SQL and PostgreSQL</a>, for a real database behind your server components and actions;</li><li><a href="../docker/01-images-and-containers.html">Docker</a>, to package the app and its database so they run the same everywhere.</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Deploying <code>npm run dev</code>.</strong></li><li><strong>Testing performance on the development server.</strong></li><li><strong>Committing <code>.env.local</code>.</strong></li><li><strong>A secret behind <code>NEXT_PUBLIC_</code>.</strong></li><li><strong>Ignoring the build output</strong>, and paying for dynamic rendering of pages that never change.</li></ul>
 
-<nav class="pager"><a class="prev" href="../next/07-forms-and-server-actions.html"><span>Previous</span>Forms and server actions</a></nav>
+<nav class="pager"><a class="prev" href="../next/07-forms-and-server-actions.html"><span>Previous</span>Forms and server actions</a><a class="next" href="../docker/01-images-and-containers.html"><span>Next</span>Images and containers</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>

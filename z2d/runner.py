@@ -595,6 +595,22 @@ def http_request(port, req, timeout):
         return exc.code, dict(exc.headers), exc.read().decode("utf-8", "replace")
 
 
+def request_when_ready(port, req, timeout, patience):
+    """Send a request, retrying for a while if the connection is refused or dropped.
+
+    A published container port accepts connections a moment before the program
+    behind it is ready, so the first attempts can fail without anything being wrong.
+    """
+    deadline = time.time() + patience
+    while True:
+        try:
+            return http_request(port, req, timeout)
+        except (ConnectionError, urllib.error.URLError, OSError) as exc:
+            if isinstance(exc, urllib.error.HTTPError) or time.time() > deadline:
+                raise
+            time.sleep(0.5)
+
+
 def judge_response(req, status, headers, body):
     """Compare one response with what the exercise expects. Returns '' or a failure description."""
     problems = []
@@ -721,7 +737,8 @@ def check_http(ex, exdir):
         for req in ex.spec["requests"]:
             name = req.get("name") or f"{req.get('method', 'GET')} {req['path']}"
             try:
-                status, headers, body = http_request(app.port, req, ex.timeout)
+                status, headers, body = request_when_ready(app.port, req, ex.timeout,
+                                                           ex.spec.get("ready_timeout", 20))
             except (OSError, ValueError) as exc:
                 results.append(Result(False, name, f"the request failed: {exc}\n" + block("output:", app.output(), 12, 1500)))
                 continue

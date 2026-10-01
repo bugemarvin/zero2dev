@@ -1,0 +1,76 @@
+{
+  "title": "An app and its data store",
+  "lesson": "docker/05-app-with-a-database",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "app/Dockerfile",
+    "compose.yaml"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ex-hits-{port}",
+    "up",
+    "-d",
+    "--build"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ex-hits-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "--rmi",
+    "local",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 240,
+  "timeout": 30,
+  "requests": [
+    {
+      "name": "GET /health answers",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "GET /hits counts 1",
+      "path": "/hits",
+      "status": 200,
+      "json": {
+        "hits": 1
+      }
+    },
+    {
+      "name": "GET /hits counts 2",
+      "path": "/hits",
+      "status": 200,
+      "json": {
+        "hits": 2
+      }
+    },
+    {
+      "name": "GET /hits counts 3",
+      "path": "/hits",
+      "status": 200,
+      "json": {
+        "hits": 3
+      }
+    }
+  ],
+  "hints": [
+    "app/Dockerfile: FROM python:3-alpine, WORKDIR /app, COPY server.py ., CMD [\"python\", \"server.py\"]",
+    "compose.yaml needs two services: app with build: ./app, and redis with image: redis:7-alpine",
+    "The app finds Redis through its environment: environment: {REDIS_HOST: redis}. The service name is the host name.",
+    "Publish only the app: ports: [\"127.0.0.1:${PORT}:8000\"]"
+  ]
+}

@@ -50,7 +50,7 @@ Anything prefixed `NEXT_PUBLIC_` ends up in the JavaScript that every visitor do
 
 **A platform that understands Next.js**, such as Vercel or Netlify. Connect the Git repository, and every push is built and deployed. Each pull request gets its own preview address. This is the least work.
 
-**Your own server or a container.** `npm run build` then `npm run start` runs anywhere Node runs. With Docker:
+**Your own server or a container.** `npm run build` then `npm run start` runs anywhere Node runs. With [Docker](docker/02-dockerfile):
 
 ```dockerfile
 FROM node:22-slim AS build
@@ -92,7 +92,7 @@ You can now build a full application with Next.js: pages and layouts, server and
 What remains is a place to keep the data and a way to ship it:
 
 - [SQL and PostgreSQL](sql/01-select), for a real database behind your server components and actions;
-- Docker, to package the app and its database so they run the same everywhere.
+- [Docker](docker/01-images-and-containers), to package the app and its database so they run the same everywhere.
 
 ## Common mistakes
 

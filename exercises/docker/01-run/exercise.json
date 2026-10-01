@@ -1,0 +1,30 @@
+{
+  "title": "Run commands in containers",
+  "lesson": "docker/01-images-and-containers",
+  "kind": "sandbox",
+  "needs": [
+    "docker"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "os.txt holds the os-release file of an Alpine container",
+      "cmd": "grep -q 'Alpine Linux' os.txt"
+    },
+    {
+      "name": "hello.txt holds what echo printed in a container",
+      "cmd": "cat hello.txt",
+      "stdout": "hello from a container"
+    },
+    {
+      "name": "answer.txt holds 42",
+      "cmd": "tr -d ' \\n' < answer.txt",
+      "stdout": "42"
+    }
+  ],
+  "hints": [
+    "docker run --rm alpine:3 COMMAND runs a command in a fresh Alpine container and removes it afterwards.",
+    "Save the output with redirection on your side: docker run --rm alpine:3 cat /etc/os-release > os.txt",
+    "For the arithmetic, the shell must run inside the container: docker run --rm alpine:3 sh -c 'echo $((6 * 7))' > answer.txt"
+  ]
+}
