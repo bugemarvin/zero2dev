@@ -742,8 +742,17 @@ def check_http(ex, exdir):
             except (OSError, ValueError) as exc:
                 results.append(Result(False, name, f"the request failed: {exc}\n" + block("output:", app.output(), 12, 1500)))
                 continue
-            results.append(Result(not judge_response(req, status, headers, body), name,
-                                  judge_response(req, status, headers, body)))
+            problem = judge_response(req, status, headers, body)
+            # "retry": keep asking for that many seconds, for results that arrive later (a queue, a worker)
+            deadline = time.time() + req.get("retry", 0)
+            while problem and time.time() < deadline:
+                time.sleep(0.5)
+                try:
+                    status, headers, body = http_request(app.port, req, ex.timeout)
+                except (OSError, ValueError):
+                    continue
+                problem = judge_response(req, status, headers, body)
+            results.append(Result(not problem, name, problem))
     finally:
         app.stop()
     return results

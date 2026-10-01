@@ -1,0 +1,20 @@
+# Given. Do not edit.
+services:
+  api:
+    build: ./api
+    environment:
+      REDIS_HOST: redis
+    ports:
+      - "127.0.0.1:${PORT}:3000"
+    depends_on:
+      - redis
+
+  worker:
+    build: ./worker
+    environment:
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine

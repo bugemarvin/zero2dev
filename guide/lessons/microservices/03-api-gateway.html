@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The API gateway · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/03-api-gateway">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 3 of 6</p>
+<h1>The API gateway</h1>
+<p class="lede">One front door for all the services, so that clients do not need to know how the system is split.</p>
+<h2 id="the-problem">The problem</h2>
+<p>A system has a users service, an orders service and a catalogue service. If a web or mobile client talks to each of them directly:</p>
+<ul><li>the client must know every address;</li><li>every service must be reachable from the internet;</li><li>logging in, rate limiting and CORS have to be implemented in each one;</li><li>splitting or merging services breaks the clients.</li></ul>
+<h2 id="the-gateway">The gateway</h2>
+<p>An <strong>API gateway</strong> is one service that faces the outside world and forwards each request to the service behind it that handles it.</p>
+<pre><code class="lang-text">                     +--&gt; /api/users/*   --&gt; [users]
+client --&gt; [gateway] +
+                     +--&gt; /api/orders/*  --&gt; [orders]</code></pre>
+<p>Clients know one address. The services behind it are private, and can be rearranged without anyone outside noticing.</p>
+<h2 id="routing">Routing</h2>
+<p>At its heart a gateway is a routing table: a path prefix and where it leads.</p>
+<pre><code class="lang-javascript">const routes = [
+  { prefix: "/api/users", target: process.env.USERS_URL },
+  { prefix: "/api/orders", target: process.env.ORDERS_URL },
+];
+
+function findRoute(path) {
+  return routes.find((route) =&gt; path === route.prefix || path.startsWith(route.prefix + "/"));
+}</code></pre>
+<p>The check for the slash matters. Without it, <code>/api/usersettings</code> would match the prefix <code>/api/users</code>.</p>
+<h2 id="forwarding">Forwarding</h2>
+<p>The gateway makes the same request to the service, and hands the answer back unchanged: same status, same body.</p>
+<pre><code class="lang-javascript">async function forward(req, res, route) {
+  const path = req.url.slice("/api".length);              // /api/users/3 becomes /users/3
+  let upstream;
+  try {
+    upstream = await fetch(route.target + path, { method: req.method });
+  } catch (error) {
+    return sendJson(res, 502, { error: "service unavailable" });
+  }
+  const body = await upstream.text();
+  res.writeHead(upstream.status, { "Content-Type": upstream.headers.get("content-type") ?? "application/json" });
+  res.end(body);
+}</code></pre>
+<ul><li>A 404 from the service goes back to the client as a 404. The gateway does not interpret it.</li><li>If the service <strong>cannot be reached</strong>, the gateway answers 502.</li><li>A path that matches no route is the gateway's own 404.</li></ul>
+<p>A complete gateway also forwards the request body and the relevant headers. This one handles <code>GET</code>, which is enough to see the principle.</p>
+<h2 id="what-else-belongs-in-a-gateway">What else belongs in a gateway</h2>
+<p>Things that every request needs, done once:</p>
+<div class="table-wrap"><table><thead><tr><th>Concern</th><th>What the gateway does</th></tr></thead><tbody><tr><td>authentication</td><td>checks the token, and passes the user's identity on to the services</td></tr><tr><td>rate limiting</td><td>refuses clients that send too many requests</td></tr><tr><td>TLS</td><td>handles HTTPS, so the services inside can speak plain HTTP</td></tr><tr><td>CORS</td><td>answers the browser's cross-origin checks</td></tr><tr><td>logging</td><td>records every request in one place, with one request id</td></tr></tbody></table></div>
+<p>In production you would rarely write one yourself. Nginx, Traefik, Kong and the gateways of cloud providers do this job. Writing a small one teaches what they do.</p>
+<h2 id="aggregated-health">Aggregated health</h2>
+<p>The gateway is a natural place to ask "is the whole system up?":</p>
+<pre><code class="lang-javascript">async function check(url) {
+  try {
+    const response = await fetch(url + "/health");
+    return response.ok ? "ok" : "down";
+  } catch {
+    return "down";
+  }
+}
+
+const [users, orders] = await Promise.all([check(USERS_URL), check(ORDERS_URL)]);
+const allOk = users === "ok" &amp;&amp; orders === "ok";
+sendJson(res, allOk ? 200 : 503, { status: allOk ? "ok" : "degraded", services: { users, orders } });</code></pre>
+<p><code>Promise.all</code> asks both at the same time. A status of 503 lets monitoring tools notice without parsing the body.</p>
+<h2 id="keep-business-logic-out">Keep business logic out</h2>
+<p>A gateway routes. It should not know what an order is. Once it starts combining data and applying rules, it becomes a service that every team has to change, and the bottleneck that microservices were meant to remove.</p>
+<p>When a client needs data combined from several services, that belongs in a dedicated service, sometimes called a <strong>backend for frontend</strong>.</p>
+<h2 id="only-the-gateway-is-published">Only the gateway is published</h2>
+<pre><code class="lang-yaml">services:
+  gateway:
+    build: ./gateway
+    environment:
+      USERS_URL: http://users:3000
+      ORDERS_URL: http://orders:3000
+    ports:
+      - "127.0.0.1:${PORT}:3000"
+
+  users:
+    build: ./users
+
+  orders:
+    build: ./orders
+    environment:
+      USERS_URL: http://users:3000</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Prefix matching without the slash check.</strong></li><li><strong>Turning every upstream problem into a 500.</strong> Pass the service's status through, and use 502 for "could not reach it".</li><li><strong>Business logic in the gateway.</strong></li><li><strong>A gateway that is the only copy of itself.</strong> Everything goes through it, so in production it must run more than once.</li><li><strong>Leaving the internal services reachable</strong> from outside as well.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="microservices/02-gateway">
+<h3>An API gateway <span class="ex-id">microservices/02-gateway</span></h3>
+<p>Three services. <strong>users</strong> and <strong>orders</strong> are complete and are not reachable from outside. Write the <strong>gateway</strong>, the only published service, in <code>gateway/server.mjs</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Request to the gateway</th><th>What it does</th></tr></thead><tbody><tr><td><code>GET /api/users/...</code></td><td>forwards to the users service as <code>/users/...</code></td></tr><tr><td><code>GET /api/orders/...</code></td><td>forwards to the orders service as <code>/orders/...</code></td></tr><tr><td><code>GET /health</code></td><td>asks both services for their <code>/health</code></td></tr><tr><td>anything else</td><td>404 <code>{"error": "no such route"}</code></td></tr></tbody></table></div>
+<p>Forwarding means: the client receives the <strong>same status and the same JSON body</strong> that the service returned, including 404s.</p>
+<p><code>/api/usersettings</code> must <strong>not</strong> match the users route: a prefix only matches when it is followed by <code>/</code> or is the whole path.</p>
+<p><code>GET /health</code> answers 200 <code>{"status": "ok", "services": {"users": "ok", "orders": "ok"}}</code> when both are healthy. If one cannot be reached or does not answer 200, its entry is <code>"down"</code>, the overall status is <code>"degraded"</code> and the HTTP status is 503.</p>
+<p>The addresses are in the environment variables <code>USERS_URL</code> and <code>ORDERS_URL</code>. If a service cannot be reached while forwarding, answer 502 <code>{"error": "service unavailable"}</code>.</p>
+<p>To run it yourself: <code>PORT=8080 docker compose up -d --build</code>, then <code>curl http://127.0.0.1:8080/health</code>, and <code>PORT=8080 docker compose down</code> when you are done. <code>docker compose logs -f</code> shows what the services print.</p>
+<p class="ex-files">Files: <code>exercises/microservices/02-gateway/</code></p>
+<pre><code class="lang-console">$ python3 check.py microservices/02-gateway</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../microservices/02-services-talking.html"><span>Previous</span>Services that call each other</a><a class="next" href="../microservices/04-queues-and-workers.html"><span>Next</span>Queues and workers</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

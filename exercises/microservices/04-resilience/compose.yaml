@@ -1,0 +1,19 @@
+# Given. Do not edit.
+services:
+  shop:
+    build: ./shop
+    environment:
+      INVENTORY_URL: http://inventory:3000
+    ports:
+      - "127.0.0.1:${PORT}:3000"
+    depends_on:
+      inventory:
+        condition: service_healthy
+
+  inventory:
+    build: ./inventory
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

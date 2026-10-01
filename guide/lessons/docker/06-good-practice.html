@@ -75,11 +75,11 @@ $ docker system prune              # the first two, plus unused networks</code><
 <h2 id="a-checklist">A checklist</h2>
 <ul><li>a small, pinned base image</li><li><code>.dockerignore</code> present</li><li>dependencies installed before the code is copied</li><li>a multi-stage build when there is a build step</li><li>runs as a user other than root</li><li>no secrets in the image</li><li>configuration through environment variables</li><li>logs on standard output</li><li>a health check</li></ul>
 <h2 id="where-to-go-next">Where to go next</h2>
-<p>You can now package any program and run it next to its database. The Microservices track uses exactly these skills to run several services that work together.</p>
+<p>You can now package any program and run it next to its database. The <a href="../microservices/01-what-and-why.html">Microservices</a> track uses exactly these skills to run several services that work together.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>latest</code> as the tag</strong>, in <code>FROM</code> or for your own images.</li><li><strong>A secret passed as a build argument.</strong></li><li><strong>Several programs crammed into one container.</strong></li><li><strong><code>docker system prune -a --volumes</code></strong> typed without reading what it will delete.</li><li><strong>Never pruning</strong>, until the disk is full.</li></ul>
 
-<nav class="pager"><a class="prev" href="../docker/05-app-with-a-database.html"><span>Previous</span>An app with a data store</a></nav>
+<nav class="pager"><a class="prev" href="../docker/05-app-with-a-database.html"><span>Previous</span>An app with a data store</a><a class="next" href="../microservices/01-what-and-why.html"><span>Next</span>What microservices are, and when to use them</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>

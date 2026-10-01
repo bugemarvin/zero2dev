@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resilience and observability · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/06-resilience-and-observability">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 6 of 6</p>
+<h1>Resilience and observability</h1>
+<p class="lede">Services will fail. Make the system survive it, and make it possible to see what happened.</p>
+<h2 id="failure-is-normal">Failure is normal</h2>
+<p>With many services on many machines, something is always slow, restarting or broken. A system that works only when everything works does not work.</p>
+<p>The goal is that <strong>one failing service degrades the system instead of taking it down</strong>.</p>
+<h2 id="timeouts">Timeouts</h2>
+<p>A call with no timeout can wait for ever. A hanging service then makes its callers hang, whose callers hang too, until everything is waiting. That is a <strong>cascading failure</strong>.</p>
+<p><strong>Every network call needs a timeout.</strong></p>
+<pre><code class="lang-javascript">async function fetchWithTimeout(url, ms) {
+  return fetch(url, { signal: AbortSignal.timeout(ms) });
+}</code></pre>
+<p><code>AbortSignal.timeout(ms)</code> cancels the request after the given time, and <code>fetch</code> then rejects.</p>
+<p>Choose the timeout from how long the call normally takes, with some margin. Far shorter than "the default", which is often minutes.</p>
+<h2 id="retries">Retries</h2>
+<p>Many failures are brief: a restart, a network blip. Trying again often works.</p>
+<pre><code class="lang-javascript">async function getWithRetry(url, attempts, timeoutMs) {
+  let lastError;
+  for (let attempt = 1; attempt &lt;= attempts; attempt++) {
+    try {
+      const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+      if (response.status &lt; 500) {
+        return response;                 // success, or the caller's own mistake: do not retry
+      }
+      lastError = new Error(`status ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}</code></pre>
+<p>Rules for retrying:</p>
+<ul><li><strong>Retry 5xx and network errors. Do not retry 4xx.</strong> A 404 or a 400 will be the same next time.</li><li><strong>Only retry what is safe to repeat</strong>: reads, and writes that are <a href="../microservices/05-data-and-consistency.html">idempotent</a>.</li><li><strong>Limit the attempts.</strong> Three is common.</li><li><strong>Wait between attempts</strong>, a little longer each time, with some randomness. Otherwise a thousand clients retry at the same instant and knock the recovering service over again.</li></ul>
+<h2 id="fallbacks">Fallbacks</h2>
+<p>When a dependency stays down, decide what your service can still usefully do.</p>
+<pre><code class="lang-javascript">try {
+  const response = await getWithRetry(`${INVENTORY_URL}/stock/${item}`, 3, 500);
+  const { stock } = await response.json();
+  sendJson(res, 200, { item, stock });
+} catch {
+  sendJson(res, 200, { item, stock: null, degraded: true });
+}</code></pre>
+<p>The product page still loads, without the stock figure. That is far better than an error page. Marking the response as <code>degraded</code> lets the client show it honestly.</p>
+<p>Not everything has a fallback. A payment cannot be "roughly" processed. Decide per call whether the right reaction is a default value, a cached value, or a clear error.</p>
+<h2 id="circuit-breakers">Circuit breakers</h2>
+<p>If a service is down, retrying against it wastes time on every request and adds load to something that is already struggling. A <strong>circuit breaker</strong> watches the failures:</p>
+<div class="table-wrap"><table><thead><tr><th>State</th><th>Behaviour</th></tr></thead><tbody><tr><td>closed</td><td>calls go through. Failures are counted.</td></tr><tr><td>open</td><td>after too many failures, calls fail <strong>at once</strong> without being attempted</td></tr><tr><td>half-open</td><td>after a pause, one trial call is allowed. Success closes the circuit, failure opens it again.</td></tr></tbody></table></div>
+<p>Callers get a fast answer, and the failing service gets room to recover.</p>
+<h2 id="health-checks">Health checks</h2>
+<div class="table-wrap"><table><thead><tr><th>Check</th><th>Question</th><th>Used to</th></tr></thead><tbody><tr><td>liveness</td><td>is the process alive?</td><td>restart it if not</td></tr><tr><td>readiness</td><td>can it take requests right now?</td><td>stop sending it traffic until it can</td></tr></tbody></table></div>
+<p>A service that is still starting, or has lost its database, is alive and not ready.</p>
+<h2 id="observability">Observability</h2>
+<p>When a request passes through five services, "it is slow" or "it failed" is the beginning of a search. Three kinds of information make that search possible.</p>
+<p><strong>Logs.</strong> Each service writes what it does, to standard output, as one line of JSON per event so that machines can search it:</p>
+<pre><code class="lang-javascript">console.log(JSON.stringify({ time: new Date().toISOString(), level: "error", requestId, message: "inventory timeout", item }));</code></pre>
+<p><strong>A request id.</strong> The gateway gives every incoming request a unique id and passes it along in a header. Every service includes it in its logs and in its own outgoing calls. Searching the logs for that one id shows the request's whole journey.</p>
+<pre><code class="lang-javascript">const requestId = req.headers["x-request-id"] ?? crypto.randomUUID();
+await fetch(url, { headers: { "x-request-id": requestId } });</code></pre>
+<p><strong>Metrics.</strong> Numbers over time: requests per second, error rate, response time. They tell you <strong>that</strong> something is wrong, and when it started. Logs and traces tell you <strong>why</strong>.</p>
+<p><strong>Tracing</strong> combines these: it records how long each service spent on a request and draws the result as a timeline. OpenTelemetry is the common standard.</p>
+<h2 id="where-to-go-next">Where to go next</h2>
+<p>You have built services that talk to each other, a gateway, a queue with a worker, and calls that survive failure. Together with <a href="../docker/01-images-and-containers.html">Docker</a> and a <a href="../sql/01-select.html">database</a>, that is the foundation of most backend systems.</p>
+<p>In production, the same ideas are run by an orchestrator such as <strong>Kubernetes</strong>, which starts containers, restarts them when their health checks fail, and scales them up and down. Everything in this track carries over.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No timeout.</strong></li><li><strong>Retrying everything</strong>, including errors that can never succeed and operations that are not safe to repeat.</li><li><strong>Retrying immediately and without limit.</strong></li><li><strong>No fallback</strong>, so a minor service takes down a major page.</li><li><strong>Logs with no request id</strong>, impossible to connect across services.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="microservices/04-resilience">
+<h3>Survive a flaky service <span class="ex-id">microservices/04-resilience</span></h3>
+<p>Two services. <strong>inventory</strong> is given, and it misbehaves on purpose. Read the comment at the top of <code>inventory/server.mjs</code>.</p>
+<p>Write the <strong>shop</strong> service in <code>shop/server.mjs</code>, so that it copes.</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /health</code></td><td>200 <code>{"status": "ok"}</code></td></tr><tr><td><code>GET /product/ITEM</code></td><td>200 <code>{"item": "apple", "stock": 12}</code>, taking the stock from <code>GET /stock/ITEM</code> of the inventory service</td></tr><tr><td><code>GET /slow-product/ITEM</code></td><td>the same, taking the stock from <code>GET /slow/ITEM</code></td></tr></tbody></table></div>
+<p>Rules for every call to the inventory service:</p>
+<ul><li>a <strong>timeout</strong> of 500 milliseconds;</li><li>up to <strong>3 attempts</strong> when the call times out, cannot connect, or answers 5xx;</li><li>a 404 from inventory is <strong>not retried</strong>: answer 404 <code>{"error": "unknown item"}</code>;</li><li>if all 3 attempts fail, answer 200 with a <strong>fallback</strong>: <code>{"item": "melon", "stock": null, "degraded": true}</code>.</li></ul>
+<p>A stock of <code>0</code> is a valid answer, not a failure.</p>
+<p>The inventory address is in the environment variable <code>INVENTORY_URL</code>. <code>AbortSignal.timeout(500)</code> gives <code>fetch</code> a timeout.</p>
+<p>To run it yourself: <code>PORT=8080 docker compose up -d --build</code>, then <code>curl http://127.0.0.1:8080/health</code>, and <code>PORT=8080 docker compose down</code> when you are done. <code>docker compose logs -f</code> shows what the services print.</p>
+<p class="ex-files">Files: <code>exercises/microservices/04-resilience/</code></p>
+<pre><code class="lang-console">$ python3 check.py microservices/04-resilience</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../microservices/05-data-and-consistency.html"><span>Previous</span>Data and consistency</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

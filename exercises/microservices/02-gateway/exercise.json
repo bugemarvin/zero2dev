@@ -1,0 +1,111 @@
+{
+  "title": "An API gateway",
+  "lesson": "microservices/03-api-gateway",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "gateway/server.mjs"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms02-{port}",
+    "up",
+    "-d",
+    "--build"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms02-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "--rmi",
+    "local",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 300,
+  "timeout": 30,
+  "requests": [
+    {
+      "name": "GET /api/users/1 is forwarded to the users service",
+      "path": "/api/users/1",
+      "status": 200,
+      "json": {
+        "id": 1,
+        "name": "Ada"
+      },
+      "retry": 15
+    },
+    {
+      "name": "a 404 from the users service is passed through",
+      "path": "/api/users/99",
+      "status": 404,
+      "json": {
+        "error": "user not found"
+      }
+    },
+    {
+      "name": "GET /api/orders/2 is forwarded to the orders service",
+      "path": "/api/orders/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "item": "Pen",
+        "user": {
+          "id": 2,
+          "name": "Linus"
+        }
+      },
+      "retry": 10
+    },
+    {
+      "name": "a 404 from the orders service is passed through",
+      "path": "/api/orders/99",
+      "status": 404,
+      "json": {
+        "error": "order not found"
+      }
+    },
+    {
+      "name": "/api/usersettings does not match the users route",
+      "path": "/api/usersettings",
+      "status": 404,
+      "json": {
+        "error": "no such route"
+      }
+    },
+    {
+      "name": "an unknown path is the gateway's own 404",
+      "path": "/other",
+      "status": 404,
+      "json": {
+        "error": "no such route"
+      }
+    },
+    {
+      "name": "GET /health reports both services",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok",
+        "services": {
+          "users": "ok",
+          "orders": "ok"
+        }
+      }
+    }
+  ],
+  "hints": [
+    "A route matches when path === prefix or path.startsWith(prefix + \"/\").",
+    "The path for the service is the request path without the leading /api: req.url.slice(\"/api\".length).",
+    "Pass the answer through: const body = await upstream.text(); res.writeHead(upstream.status, { \"Content-Type\": \"application/json\" }); res.end(body);",
+    "For /health, call both with Promise.all, and catch errors inside the helper so that one failure does not reject the whole thing."
+  ]
+}

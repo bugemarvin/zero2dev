@@ -233,6 +233,18 @@
  "js/10-dom": {
   "dom.js": "export function renderList(container, items) {\n}\n\nexport function setupCounter(button, output) {\n}\n\nexport function setupFilter(input, list) {\n}\n"
  },
+ "microservices/01-order-details": {
+  "orders/server.mjs": "import { createServer } from \"node:http\";\nimport { orders } from \"./data.mjs\";\n\nconst USERS_URL = process.env.USERS_URL ?? \"http://localhost:3001\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\ncreateServer(async (req, res) => {\n  if (req.method === \"GET\" && req.url === \"/health\") {\n    return sendJson(res, 200, { status: \"ok\" });\n  }\n  // GET /orders/:id goes here\n  sendJson(res, 404, { error: \"not found\" });\n}).listen(3000, () => console.log(\"orders listening on 3000\"));\n"
+ },
+ "microservices/02-gateway": {
+  "gateway/server.mjs": "import { createServer } from \"node:http\";\n\nconst USERS_URL = process.env.USERS_URL ?? \"http://localhost:3001\";\nconst ORDERS_URL = process.env.ORDERS_URL ?? \"http://localhost:3002\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\ncreateServer(async (req, res) => {\n  // route /api/users/..., /api/orders/... and /health here\n  sendJson(res, 404, { error: \"no such route\" });\n}).listen(3000, () => console.log(\"gateway listening on 3000\"));\n"
+ },
+ "microservices/03-queue-worker": {
+  "worker/worker.mjs": "import { connect } from \"./redis.mjs\";\n\nconst redis = await connect(process.env.REDIS_HOST);\nconsole.log(\"worker started\");\n\n// Loop for ever: take a job from the list \"jobs\", compute its result, store it under result:ID.\n"
+ },
+ "microservices/04-resilience": {
+  "shop/server.mjs": "import { createServer } from \"node:http\";\n\nconst INVENTORY_URL = process.env.INVENTORY_URL ?? \"http://localhost:3001\";\n\nfunction sendJson(res, status, data) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(data));\n}\n\ncreateServer(async (req, res) => {\n  if (req.method === \"GET\" && req.url === \"/health\") {\n    return sendJson(res, 200, { status: \"ok\" });\n  }\n  // GET /product/:item and GET /slow-product/:item go here\n  sendJson(res, 404, { error: \"not found\" });\n}).listen(3000, () => console.log(\"shop listening on 3000\"));\n"
+ },
  "next/01-pages": {
   "app/about/page.jsx": "export default function About() {\n  return null;\n}\n",
   "app/page.jsx": "export default function Home() {\n  return null;\n}\n"

@@ -1,0 +1,111 @@
+{
+  "title": "Survive a flaky service",
+  "lesson": "microservices/06-resilience-and-observability",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "shop/server.mjs"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms04-{port}",
+    "up",
+    "-d",
+    "--build"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms04-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "--rmi",
+    "local",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 300,
+  "timeout": 8,
+  "requests": [
+    {
+      "name": "GET /health",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "a retry gets past the first failure: /product/apple",
+      "path": "/product/apple",
+      "status": 200,
+      "json": {
+        "item": "apple",
+        "stock": 12
+      }
+    },
+    {
+      "name": "it keeps working on the next request",
+      "path": "/product/apple",
+      "status": 200,
+      "json": {
+        "item": "apple",
+        "stock": 12
+      }
+    },
+    {
+      "name": "a stock of 0 is a valid answer, not a failure",
+      "path": "/product/pear",
+      "status": 200,
+      "json": {
+        "item": "pear",
+        "stock": 0
+      }
+    },
+    {
+      "name": "an unknown item answers 404",
+      "path": "/product/ghost",
+      "status": 404,
+      "json": {
+        "error": "unknown item"
+      }
+    },
+    {
+      "name": "a service that always fails gives the fallback",
+      "path": "/product/melon",
+      "status": 200,
+      "json": {
+        "item": "melon",
+        "stock": null,
+        "degraded": true
+      }
+    },
+    {
+      "name": "a slow service is cut off by the timeout and gives the fallback",
+      "path": "/slow-product/apple",
+      "status": 200,
+      "json": {
+        "item": "apple",
+        "stock": null,
+        "degraded": true
+      }
+    },
+    {
+      "name": "the shop is still healthy afterwards",
+      "path": "/health",
+      "status": 200
+    }
+  ],
+  "hints": [
+    "fetch(url, { signal: AbortSignal.timeout(500) }) rejects after 500 ms.",
+    "Loop up to 3 times. Return the response as soon as its status is below 500. Remember the error otherwise, and throw it after the loop.",
+    "After the retry helper: a 404 becomes your own 404. Do not test `if (!data.stock)`: 0 is falsy.",
+    "Wrap the helper in try/catch. In the catch, answer 200 with { item, stock: null, degraded: true }."
+  ]
+}

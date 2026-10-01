@@ -119,7 +119,7 @@ This guide's own containers are all named `z2d-` followed by something. `python3
 
 ## Where to go next
 
-You can now package any program and run it next to its database. The Microservices track uses exactly these skills to run several services that work together.
+You can now package any program and run it next to its database. The [Microservices](microservices/01-what-and-why) track uses exactly these skills to run several services that work together.
 
 ## Common mistakes
 
