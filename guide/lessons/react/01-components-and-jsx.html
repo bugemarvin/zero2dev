@@ -6,13 +6,17 @@
 <title>Components and JSX · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="react/01-components-and-jsx">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,25 @@
 <p class="crumb">React · lesson 1 of 9</p>
 <h1>Components and JSX</h1>
 <p class="lede">Build a user interface out of small functions that return markup.</p>
+<details class="install" id="install" data-track="react">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack node</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks node</code></pre>
+<h4>Node.js and npm: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://mise.run | sh
+$ ~/.local/bin/mise use --global node@lts</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install node</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ node --version &amp;&amp; npm --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs JavaScript in the image <code>node:22-slim</code> (one download).</p>
+<p>The <strong>react</strong> packages come from npm, once: press <strong>Download packages</strong> on the Setup page, or run <code>python3 check.py prefetch react</code>.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="the-idea">The idea</h2>
 <p>In <a href="../js/10-the-browser-and-dom.html">the DOM lesson</a> you kept data in variables and wrote a <code>render</code> function to make the page match. React is that idea, made into a library: you describe what the page should look like <strong>for the current data</strong>, and React updates the real DOM to match, changing only what differs.</p>
 <p>A React app is built from <strong>components</strong>: functions that return a piece of the interface.</p>
@@ -82,6 +105,7 @@ createRoot(document.getElementById("root")).render(&lt;App /&gt;);</code></pre>
 <p>They use the React package set. Download it once from the Setup page.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A lower-case component name.</strong> <code>&lt;header /&gt;</code> is the HTML element. <code>&lt;Header /&gt;</code> is your component.</li><li><strong>Two root elements.</strong> Wrap them in <code>&lt;&gt;...&lt;/&gt;</code>.</li><li><strong><code>class</code> in place of <code>className</code>.</strong></li><li><strong>An unclosed tag</strong> such as <code>&lt;br&gt;</code>.</li><li><strong>Forgetting <code>export</code></strong>, so nothing else can import the component.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="react/01-greeting">
@@ -94,11 +118,13 @@ createRoot(document.getElementById("root")).render(&lt;App /&gt;);</code></pre>
 <pre><code class="lang-console">$ python3 check.py react/01-greeting</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../js/11-tooling.html"><span>Previous</span>Tooling and what comes next</a><a class="next" href="../react/02-props.html"><span>Next</span>Props</a></nav>
+<nav class="pager"><a class="prev" href="../php/06-databases.html"><span>Previous</span>Databases with PDO</a><a class="next" href="../react/02-props.html"><span>Next</span>Props</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

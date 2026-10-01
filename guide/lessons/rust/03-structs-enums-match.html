@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structs, enums and match · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/03-structs-enums-match">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 3 of 7</p>
+<h1>Structs, enums and match</h1>
+<p class="lede">Model your data so that wrong states cannot even be written.</p>
+<h2 id="structs">Structs</h2>
+<pre><code class="lang-rust">struct Point {
+    x: f64,
+    y: f64,
+}
+
+let p = Point { x: 3.0, y: 4.0 };
+println!("{}", p.x);</code></pre>
+<p>Methods go in an <code>impl</code> block:</p>
+<pre><code class="lang-rust">impl Point {
+    fn new(x: f64, y: f64) -&gt; Point {            // an associated function: Point::new(1.0, 2.0)
+        Point { x, y }
+    }
+
+    fn distance_from_origin(&amp;self) -&gt; f64 {      // a method: p.distance_from_origin()
+        (self.x * self.x + self.y * self.y).sqrt()
+    }
+
+    fn move_by(&amp;mut self, dx: f64, dy: f64) {    // a method that changes the point
+        self.x += dx;
+        self.y += dy;
+    }
+}</code></pre>
+<p>The first parameter says what the method does with the value, with the same three choices as any function: <code>&amp;self</code> looks, <code>&amp;mut self</code> changes, <code>self</code> takes ownership.</p>
+<h2 id="derive">derive</h2>
+<p>One line gives a struct common abilities:</p>
+<pre><code class="lang-rust">#[derive(Debug, Clone, PartialEq)]
+struct Point {
+    x: f64,
+    y: f64,
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Trait</th><th>Gives you</th></tr></thead><tbody><tr><td><code>Debug</code></td><td>printing with <code>{:?}</code></td></tr><tr><td><code>Clone</code></td><td><code>.clone()</code></td></tr><tr><td><code>PartialEq</code></td><td><code>==</code> and <code>!=</code></td></tr><tr><td><code>Copy</code></td><td>implicit copies, for small simple types</td></tr></tbody></table></div>
+<h2 id="enums">Enums</h2>
+<p>An <strong>enum</strong> is a type whose value is one of several <strong>variants</strong>. In Rust each variant can carry its own data:</p>
+<pre><code class="lang-rust">enum Shape {
+    Circle { radius: f64 },
+    Rect { width: f64, height: f64 },
+    Point,
+}
+
+let s = Shape::Circle { radius: 1.0 };</code></pre>
+<p>This is the tool for "it is one of these, and each case has different information". In other languages you would use a class hierarchy, or a struct full of fields that are sometimes meaningless.</p>
+<h2 id="match">match</h2>
+<p><code>match</code> looks at a value and runs the arm that fits:</p>
+<pre><code class="lang-rust">fn area(shape: &amp;Shape) -&gt; f64 {
+    match shape {
+        Shape::Circle { radius } =&gt; 3.14159 * radius * radius,
+        Shape::Rect { width, height } =&gt; width * height,
+        Shape::Point =&gt; 0.0,
+    }
+}</code></pre>
+<p><code>match</code> must be <strong>exhaustive</strong>: every variant is handled, or the code does not compile. Add a variant to the enum next month, and the compiler lists every <code>match</code> you need to update. This is one of Rust's best features.</p>
+<p><code>_</code> matches anything, for the cases you do not care about:</p>
+<pre><code class="lang-rust">match n {
+    0 =&gt; println!("zero"),
+    1 | 2 =&gt; println!("small"),
+    3..=9 =&gt; println!("medium"),
+    _ =&gt; println!("large"),
+}</code></pre>
+<p><code>match</code> is an expression, so its result can be assigned or returned.</p>
+<h2 id="if-let">if let</h2>
+<p>When only one variant matters:</p>
+<pre><code class="lang-rust">if let Shape::Circle { radius } = shape {
+    println!("a circle of radius {}", radius);
+}</code></pre>
+<h2 id="make-invalid-states-impossible">Make invalid states impossible</h2>
+<p>Compare two designs for a network connection:</p>
+<pre><code class="lang-rust">struct Connection {             // weak: what does connected=false with an address mean?
+    connected: bool,
+    address: Option&lt;String&gt;,
+    error: Option&lt;String&gt;,
+}
+
+enum Connection {               // strong: only real states exist
+    Disconnected,
+    Connected { address: String },
+    Failed { error: String },
+}</code></pre>
+<p>With the enum, "connected with an error and no address" cannot be written. Whole categories of bugs disappear before the program runs.</p>
+<h2 id="tuples">Tuples</h2>
+<p>A quick group of values without names:</p>
+<pre><code class="lang-rust">let pair: (i32, &amp;str) = (1, "one");
+let (number, word) = pair;          // take it apart
+println!("{}", pair.0);</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>&amp;self</code></strong> and writing a method that consumes its value.</li><li><strong>A catch-all <code>_</code> arm on your own enum.</strong> It hides new variants from the compiler's check.</li><li><strong>Boolean flags and optional fields</strong> where an enum would say exactly what the states are.</li><li><strong>Forgetting <code>#[derive(Debug)]</code></strong> and being unable to print a value while debugging.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/03-shapes">
+<h3>Shapes with an enum <span class="ex-id">rust/03-shapes</span></h3>
+<p>Write the following in <code>solution.rs</code>. Everything is <code>pub</code>.</p>
+<h4><code>Shape</code></h4>
+<p>An enum with three variants. Derive <code>Debug</code>, <code>Clone</code> and <code>PartialEq</code>.</p>
+<ul><li><code>Circle { radius: f64 }</code></li><li><code>Rect { width: f64, height: f64 }</code></li><li><code>Square(f64)</code>: the side</li></ul>
+<p>Methods:</p>
+<ul><li><code>area(&amp;self) -&gt; f64</code>. Use <code>std::f64::consts::PI</code> for the circle.</li><li><code>name(&amp;self) -&gt; &amp;'static str</code> returns <code>"circle"</code>, <code>"rect"</code> or <code>"square"</code>.</li><li><code>scale(&amp;mut self, factor: f64)</code> multiplies every length by the factor.</li></ul>
+<h4><code>Counter</code></h4>
+<p>A struct with a private field.</p>
+<ul><li><code>Counter::new() -&gt; Counter</code> starts at 0.</li><li><code>increment(&amp;mut self)</code> adds 1.</li><li><code>value(&amp;self) -&gt; u32</code> returns the count.</li><li><code>reset(&amp;mut self)</code> goes back to 0.</li></ul>
+<p class="ex-files">Files: <code>exercises/rust/03-shapes/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/03-shapes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/02-ownership-and-borrowing.html"><span>Previous</span>Ownership and borrowing</a><a class="next" href="../rust/04-option-result.html"><span>Next</span>Option, Result and error handling</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

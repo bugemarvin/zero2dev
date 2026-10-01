@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Selectors and the cascade · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="css/01-selectors-and-cascade">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">CSS · lesson 1 of 6</p>
+<h1>Selectors and the cascade</h1>
+<p class="lede">How a rule finds its elements, and which rule wins when two disagree.</p>
+<details class="install" id="install" data-track="css">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<p>A <strong>web browser</strong>: you are using one now. Nothing to install.</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="what-css-is">What CSS is</h2>
+<p>HTML says what each part of a page <strong>is</strong>. <strong>CSS</strong> (Cascading Style Sheets) says how it <strong>looks</strong>: colours, fonts, spacing, position.</p>
+<p>Put your CSS in its own file and link it from the head of the page:</p>
+<pre><code class="lang-html">&lt;link rel="stylesheet" href="style.css"&gt;</code></pre>
+<h2 id="a-rule">A rule</h2>
+<pre><code class="lang-css">h1 {
+  color: navy;
+  font-size: 2rem;
+}</code></pre>
+<ul><li><code>h1</code> is the <strong>selector</strong>: which elements the rule applies to.</li><li>Between the braces are <strong>declarations</strong>: a <strong>property</strong>, a colon, a <strong>value</strong>, a semicolon.</li></ul>
+<h2 id="selectors">Selectors</h2>
+<div class="table-wrap"><table><thead><tr><th>Selector</th><th>Matches</th></tr></thead><tbody><tr><td><code>p</code></td><td>every <code>p</code> element</td></tr><tr><td><code>.note</code></td><td>every element with <code>class="note"</code></td></tr><tr><td><code>#top</code></td><td>the element with <code>id="top"</code></td></tr><tr><td><code>a[href]</code></td><td><code>a</code> elements that have an <code>href</code> attribute</td></tr><tr><td><code>h1, h2</code></td><td><code>h1</code> elements and <code>h2</code> elements</td></tr><tr><td><code>nav a</code></td><td><code>a</code> elements anywhere inside a <code>nav</code></td></tr><tr><td><code>ul &gt; li</code></td><td><code>li</code> elements that are direct children of a <code>ul</code></td></tr><tr><td><code>p.note</code></td><td><code>p</code> elements with the class <code>note</code> (no space)</td></tr><tr><td><code>*</code></td><td>every element</td></tr></tbody></table></div>
+<p>Classes are the workhorse. Give an element a class in the HTML, and style the class.</p>
+<h2 id="states-and-positions">States and positions</h2>
+<p>A <strong>pseudo-class</strong> selects an element in a certain state or position:</p>
+<pre><code class="lang-css">a:hover { text-decoration: underline; }     /* the mouse is over it */
+input:focus { outline: 2px solid blue; }    /* the keyboard is in it */
+li:first-child { font-weight: bold; }
+li:nth-child(even) { background-color: #f4f4f4; }</code></pre>
+<h2 id="the-cascade-which-rule-wins">The cascade: which rule wins</h2>
+<p>Several rules can set the same property on the same element. The browser picks one, in this order:</p>
+<ol><li>A declaration marked <code>!important</code> beats one that is not.</li><li>Otherwise the more <strong>specific</strong> selector wins.</li><li>Otherwise the rule that comes <strong>later</strong> in the file wins.</li></ol>
+<p><strong>Specificity</strong> counts what the selector is made of:</p>
+<div class="table-wrap"><table><thead><tr><th>Selector</th><th>ids</th><th>classes</th><th>elements</th></tr></thead><tbody><tr><td><code>p</code></td><td>0</td><td>0</td><td>1</td></tr><tr><td><code>.note</code></td><td>0</td><td>1</td><td>0</td></tr><tr><td><code>p.note</code></td><td>0</td><td>1</td><td>1</td></tr><tr><td><code>nav a:hover</code></td><td>0</td><td>1</td><td>2</td></tr><tr><td><code>#top</code></td><td>1</td><td>0</td><td>0</td></tr></tbody></table></div>
+<p>Compare from the left: any id beats any number of classes, and any class beats any number of elements. Pseudo-classes and attribute selectors count as classes.</p>
+<pre><code class="lang-css">p { color: black; }
+.note { color: green; }    /* wins on &lt;p class="note"&gt;: a class beats an element */</code></pre>
+<p>Keep specificity low. Style with single classes, avoid ids in selectors, and treat <code>!important</code> as a last resort: the only thing that beats it is another <code>!important</code>.</p>
+<h2 id="inheritance">Inheritance</h2>
+<p>Some properties pass from an element to everything inside it: <code>color</code>, <code>font-family</code>, <code>font-size</code>, <code>line-height</code>, <code>text-align</code>. So set them once, on <code>body</code>:</p>
+<pre><code class="lang-css">body {
+  font-family: system-ui, sans-serif;
+  color: #222;
+}</code></pre>
+<p>Box properties such as <code>margin</code>, <code>padding</code>, <code>border</code> and <code>background-color</code> are <strong>not</strong> inherited.</p>
+<h2 id="inspect-it">Inspect it</h2>
+<p>In the browser's developer tools (F12), click an element and look at the <strong>Styles</strong> panel. It lists every rule that matches, with the losing declarations struck through. When a style "does not work", this panel tells you which rule won.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A space where none is meant.</strong> <code>p.note</code> is a paragraph with the class. <code>p .note</code> is something with the class <em>inside</em> a paragraph.</li><li><strong>A missing semicolon</strong>, which swallows the next declaration.</li><li><strong>Fighting specificity with <code>!important</code>.</strong></li><li><strong>A typo in a property name.</strong> The browser ignores the line without an error.</li><li><strong>Forgetting the dot</strong>: <code>note { }</code> matches a <code>&lt;note&gt;</code> element, which does not exist.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="css/01-selectors">
+<h3>Style a page with selectors <span class="ex-id">css/01-selectors</span></h3>
+<p>Read <code>index.html</code>, then write rules in <code>style.css</code>. Do not change the HTML.</p>
+<ul><li><code>body</code> text has the colour <code>#222222</code> and the font family <code>sans-serif</code>.</li><li>The <code>h1</code> has the colour <code>navy</code>.</li><li>The paragraph with the class <code>intro</code> has <code>font-size: 1.25rem</code>. The other paragraph does not.</li><li>Links inside the <code>nav</code> have <code>text-decoration: none</code>.</li><li>The link with the class <code>active</code> has <code>font-weight: bold</code>.</li><li>A <code>nav</code> link under the mouse (<code>:hover</code>) has <code>text-decoration: underline</code>.</li><li>The <strong>first</strong> list item has <code>font-weight: bold</code>. Use a pseudo-class: the HTML has no class for it.</li></ul>
+<p>The tests read your CSS as it is written. Use the property names given here: for example <code>background-color</code>, not the <code>background</code> shorthand with several values.</p>
+<p class="ex-files">Files: <code>exercises/css/01-selectors/</code></p>
+<pre><code class="lang-console">$ python3 check.py css/01-selectors</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../html/05-semantic-html.html"><span>Previous</span>Semantic HTML and accessibility</a><a class="next" href="../css/02-box-model.html"><span>Next</span>The box model</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

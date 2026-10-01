@@ -1,0 +1,38 @@
+[
+ {
+  "q": "Which layer is between the content and the border?",
+  "options": [
+   "margin",
+   "padding",
+   "outline",
+   "gap"
+  ],
+  "answer": 1,
+  "why": "Order from the inside: content, padding, border, margin."
+ },
+ {
+  "q": "width: 200px; padding: 10px; border: 5px solid; with the default box-sizing. How wide is the box in pixels?",
+  "accept": [
+   "230"
+  ],
+  "why": "content-box adds padding and border on both sides: 200 + 10 + 10 + 5 + 5."
+ },
+ {
+  "q": "What does margin: 10px 20px mean?",
+  "options": [
+   "top 10, right 20",
+   "top and bottom 10, left and right 20",
+   "left 10, right 20",
+   "all sides 15"
+  ],
+  "answer": 1,
+  "why": "Two values: vertical first, then horizontal."
+ },
+ {
+  "q": "An h2 has margin-bottom 30px and the p under it has margin-top 20px. How big is the gap in pixels?",
+  "accept": [
+   "30"
+  ],
+  "why": "Vertical margins collapse: the larger one wins."
+ }
+]

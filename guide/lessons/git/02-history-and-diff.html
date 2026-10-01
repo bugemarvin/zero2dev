@@ -6,13 +6,17 @@
 <title>History and diff · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="git/02-history-and-diff">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -75,6 +79,7 @@ Untracked files:
 <div class="callout warn"><p><strong>Warning:</strong> <code>.gitignore</code> only affects files Git is not tracking yet. If a file was already committed, ignoring it later does nothing until you remove it with <code>git rm --cached file</code>.</p></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Committing a password or API key.</strong> Deleting it in a later commit does not remove it from history. Treat it as leaked and change it.</li><li><strong>Stuck in a screen full of <code>git log</code>.</strong> It opened in a pager. Press <code>q</code>.</li><li><strong>Confusing <code>git diff</code> with <code>git diff --staged</code>.</strong> An empty <code>git diff</code> after <code>git add</code> is normal: everything is staged, so nothing is left unstaged.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="git/02-ignore-and-commit">
@@ -90,7 +95,9 @@ Untracked files:
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

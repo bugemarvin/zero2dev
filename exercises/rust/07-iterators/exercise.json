@@ -1,0 +1,26 @@
+{
+  "title": "Pipelines with iterators",
+  "lesson": "rust/07-iterators-closures-testing",
+  "kind": "harness",
+  "lang": "rust",
+  "edit": [
+    "solution.rs"
+  ],
+  "build": [
+    "rustc",
+    "--edition",
+    "2021",
+    "-o",
+    "{build}/tests",
+    "tests.rs"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "sum_of_even_squares: numbers.iter().filter(|n| *n % 2 == 0).map(|n| n * n).sum()",
+    "long_words: text.split_whitespace().filter(|w| w.chars().count() >= min).map(|w| w.to_lowercase()).collect()",
+    "apply_n: a for loop is fine: let mut value = start; for _ in 0..times { value = f(value); } value"
+  ]
+}

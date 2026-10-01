@@ -127,3 +127,19 @@ def postgres_client():
         return ["psql"], "native"
     up("postgres")
     return ["docker", "exec", "-i", container("postgres"), "psql", "-U", "postgres"], "docker"
+
+
+def mongo_client():
+    """How to run mongosh against a usable server: the machine's own, or the z2d-mongodb container."""
+    if native_ok("mongodb"):
+        return ["mongosh"]
+    up("mongodb")
+    return ["docker", "exec", "-i", container("mongodb"), "mongosh"]
+
+
+def redis_client():
+    """How to run redis-cli against a usable server: the machine's own, or the z2d-redis container."""
+    if native_ok("redis"):
+        return ["redis-cli"]
+    up("redis")
+    return ["docker", "exec", "-i", container("redis"), "redis-cli"]

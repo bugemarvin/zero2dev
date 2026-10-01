@@ -23,7 +23,7 @@ USAGE = """zero2dev exercise checker.
     python3 check.py hint <id>       show the hints for an exercise
     python3 check.py start <id> [--lang java]   create a starter file or working folder
     python3 check.py reset <id>      recreate the working folder of a git/shell exercise
-    python3 check.py show <id>       SQL exercises: run your query and print its result
+    python3 check.py show <id>       SQL and MongoDB exercises: run your query and print its result
 
 To work in the browser instead:  python3 app.py
 Standard library only."""
@@ -226,8 +226,27 @@ def cmd_start(selector, lang):
 def cmd_show(selector):
     """Run a SQL exercise's query against its sample data and print the result, without judging it."""
     for ex in resolve(selector, core.load_exercises()):
+        if ex.kind == "mongo":
+            print(bold(ex.id) + f"  result of {ex.spec.get('file', 'query.js')}")
+            try:
+                error, result = runner.show_mongo(ex)
+            except Skip as skip:
+                print(f"  {yellow(SKIP_MARK)} {skip}")
+                continue
+            text = red("error: ") + error if error else runner.show_docs(result, 40)
+            for line in text.split("\n"):
+                print("  " + line)
+            continue
+        if ex.kind == "redis":
+            print(bold(ex.id) + f"  output of {ex.spec.get('file', 'commands.redis')}")
+            try:
+                for line in clip(runner.show_redis(ex), 40, 4000).split("\n"):
+                    print("  " + line)
+            except Skip as skip:
+                print(f"  {yellow(SKIP_MARK)} {skip}")
+            continue
         if ex.kind != "sql":
-            print(f"{ex.id}: 'show' is for SQL exercises")
+            print(f"{ex.id}: 'show' is for SQL, MongoDB and Redis exercises")
             continue
         print(bold(ex.id) + f"  result of {ex.spec.get('file', 'query.sql')}")
         try:

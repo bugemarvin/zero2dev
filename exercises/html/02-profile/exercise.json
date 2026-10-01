@@ -1,0 +1,76 @@
+{
+  "title": "A profile with links and a list",
+  "lesson": "html/02-text-links-images",
+  "kind": "web",
+  "page": "index.html",
+  "checks": [
+    {
+      "name": "every element is closed, in the right order",
+      "valid": true
+    },
+    {
+      "name": "the h1 says Sam Doe and has id=\"top\"",
+      "select": "h1#top",
+      "text": "Sam Doe"
+    },
+    {
+      "name": "the image has src=\"sam.jpg\" and a described alt",
+      "select": "img",
+      "attr": {
+        "src": "sam.jpg",
+        "alt": true
+      }
+    },
+    {
+      "name": "a paragraph contains a strong element",
+      "select": "p strong",
+      "min": 1
+    },
+    {
+      "name": "an h2 with id=\"links\" says Links",
+      "select": "h2#links",
+      "text": "Links"
+    },
+    {
+      "name": "the list has three items",
+      "select": "ul > li",
+      "count": 3
+    },
+    {
+      "name": "each item contains a link",
+      "select": "ul > li a[href]",
+      "count": 3
+    },
+    {
+      "name": "the first link goes to GitHub",
+      "select": "ul > li:nth-child(1) a",
+      "attr": {
+        "href": "https://github.com/samdoe"
+      }
+    },
+    {
+      "name": "the second link is relative: projects.html",
+      "select": "ul > li:nth-child(2) a",
+      "attr": {
+        "href": "projects.html"
+      }
+    },
+    {
+      "name": "the third link is a mailto link",
+      "select": "ul > li:nth-child(3) a",
+      "attr": {
+        "href": "mailto:sam@example.com"
+      }
+    },
+    {
+      "name": "a Back to top link goes to #top",
+      "select": "a[href='#top']",
+      "text": "Back to top"
+    }
+  ],
+  "hints": [
+    "An image: <img src=\"sam.jpg\" alt=\"...describe it...\">. It has no closing tag.",
+    "A list item with a link: <li><a href=\"projects.html\">My projects</a></li>.",
+    "An email link starts with mailto: and a link inside the page starts with #."
+  ]
+}

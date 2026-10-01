@@ -6,13 +6,17 @@
 <title>Good practice · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="docker/06-good-practice">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -78,12 +82,15 @@ $ docker system prune              # the first two, plus unused networks</code><
 <p>You can now package any program and run it next to its database. The <a href="../microservices/01-what-and-why.html">Microservices</a> track uses exactly these skills to run several services that work together.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>latest</code> as the tag</strong>, in <code>FROM</code> or for your own images.</li><li><strong>A secret passed as a build argument.</strong></li><li><strong>Several programs crammed into one container.</strong></li><li><strong><code>docker system prune -a --volumes</code></strong> typed without reading what it will delete.</li><li><strong>Never pruning</strong>, until the disk is full.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 
 <nav class="pager"><a class="prev" href="../docker/05-app-with-a-database.html"><span>Previous</span>An app with a data store</a><a class="next" href="../microservices/01-what-and-why.html"><span>Next</span>What microservices are, and when to use them</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

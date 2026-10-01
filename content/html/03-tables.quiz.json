@@ -1,0 +1,35 @@
+[
+ {
+  "q": "What is a table for?",
+  "options": [
+   "Placing page sections side by side",
+   "Data that has rows and columns",
+   "Making text bold",
+   "Navigation menus"
+  ],
+  "answer": 1,
+  "why": "Layout is done with CSS. Tables are for tabular data."
+ },
+ {
+  "q": "Which element is a header cell?",
+  "options": [
+   "<td>",
+   "<tr>",
+   "<th>",
+   "<thead>"
+  ],
+  "answer": 2,
+  "why": "th labels a row or a column. thead only groups the header rows."
+ },
+ {
+  "q": "What does scope=\"row\" on a th say?",
+  "options": [
+   "The cell spans a row",
+   "The header labels its row",
+   "The row is hidden",
+   "The row is the first one"
+  ],
+  "answer": 1,
+  "why": "scope tells assistive technology which cells a header describes."
+ }
+]

@@ -208,6 +208,7 @@
     go: "break case chan const continue default defer else fallthrough for func go goto if import interface map package range return select struct switch type var nil true false string int int64 float64 bool error",
     rust: "as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type unsafe use where while",
     ruby: "alias and begin break case class def defined do else elsif end ensure false for if in module next nil not or redo rescue retry return self super then true undef unless until when while yield puts require",
+    php: "abstract and array as break callable case catch class clone const continue declare default do echo else elseif empty enum extends final finally fn for foreach function global if implements include instanceof interface isset list match namespace new null or print private protected public readonly require require_once return static switch throw trait try unset use var while yield true false int float string bool void mixed self parent",
     dockerfile: "FROM RUN COPY ADD CMD ENTRYPOINT WORKDIR ENV EXPOSE ARG USER VOLUME HEALTHCHECK LABEL AS",
     yaml: "true false null",
     sql: "select from where and or not null is in like between order by group having limit offset join left right inner outer full cross on as insert into values update set delete create table primary key foreign references unique check default index drop alter add distinct union all case when then else end with over partition begin commit rollback explain analyze returning asc desc exists integer text real numeric boolean serial jsonb timestamp date using"
@@ -223,6 +224,7 @@
     go: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
     rust: "\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
     ruby: "#[^\\n]*",
+    php: "\\/\\/[^\\n]*|#[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/",
     dockerfile: "(?:^|(?<=\\s))#[^\\n]*",
     yaml: "(?:^|(?<=\\s))#[^\\n]*",
     sql: "--[^\\n]*"
@@ -243,11 +245,34 @@
     });
   }
 
+  // HTML and CSS are not keyword languages: each has its own small set of patterns.
+  var MARKUP = {
+    html: ["(<!--[\\s\\S]*?-->)|(<\\/?[A-Za-z][\\w-]*|\\/?>)|(\"[^\"\\n]*\"|'[^'\\n]*')|([A-Za-z_:@][\\w:.-]*(?==))", "g",
+           ["tok-c", "tok-k", "tok-s", "tok-p"]],
+    css: ["(\\/\\*[\\s\\S]*?\\*\\/)|(@[\\w-]+|(?<=[{;]\\s*|^\\s+)[\\w-]+(?=\\s*:))|(\"[^\"\\n]*\"|'[^'\\n]*')|(#[0-9a-fA-F]{3,8}\\b|\\b\\d+(?:\\.\\d+)?(?:px|rem|em|vh|vw|fr|ms|s|deg|%)?)", "gm",
+          ["tok-c", "tok-k", "tok-s", "tok-n"]]
+  };
+
+  function colourMarkup(code, text, rule) {
+    var re = new RegExp(rule[0], rule[1]), classes = rule[2], last = 0, m;   // throws on a very old browser
+    code.textContent = "";
+    while ((m = re.exec(text)) !== null) {
+      if (m[0] === "") { re.lastIndex++; continue; }
+      if (m.index > last) code.appendChild(document.createTextNode(text.slice(last, m.index)));
+      var cls = null;
+      for (var i = 0; i < classes.length; i++) if (m[i + 1] !== undefined) cls = classes[i];
+      code.appendChild(span(cls, m[0]));
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) code.appendChild(document.createTextNode(text.slice(last)));
+  }
+
   function colour(code, lang) {
     var text = code.textContent;
     if (lang === "console") { code.textContent = ""; colourConsole(code, text); return; }
+    if (MARKUP[lang]) { try { colourMarkup(code, text, MARKUP[lang]); } catch (e) { code.textContent = text; } return; }
     lang = { js: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript", typescript: "javascript",
-             mjs: "javascript", sh: "bash", yml: "yaml" }[lang] || lang;
+             mjs: "javascript", json: "javascript", sh: "bash", yml: "yaml" }[lang] || lang;
     if (!KEYWORDS[lang]) return;
     var words = {};
     KEYWORDS[lang].split(" ").forEach(function (w) { words[w] = true; });

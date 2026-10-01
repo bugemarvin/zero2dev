@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slices, maps and strings · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/03-slices-and-maps">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 3 of 7</p>
+<h1>Slices, maps and strings</h1>
+<p class="lede">The collections you will use in every Go program.</p>
+<h2 id="slices">Slices</h2>
+<p>A <strong>slice</strong> is a list that can grow. It is the collection you use most.</p>
+<pre><code class="lang-go">numbers := []int{10, 20, 30}
+numbers = append(numbers, 40)       // append returns the new slice: assign it back
+
+fmt.Println(numbers[0])             // 10
+fmt.Println(len(numbers))           // 4
+fmt.Println(numbers[1:3])           // [20 30]: from index 1 up to, not including, 3</code></pre>
+<p>An empty slice ready to be filled:</p>
+<pre><code class="lang-go">var names []string                  // nil, length 0: append works on it
+scores := make([]int, 5)            // five zeros</code></pre>
+<p>Reading an index that does not exist stops the program with a <strong>panic</strong>: <code>index out of range</code>.</p>
+<h3 id="slices-share-memory">Slices share memory</h3>
+<p>A slice is a small header that points at an underlying array. Slicing and assigning do <strong>not</strong> copy the elements:</p>
+<pre><code class="lang-go">a := []int{1, 2, 3}
+b := a
+b[0] = 99
+fmt.Println(a[0])      // 99: a and b look at the same array</code></pre>
+<p>To get an independent copy:</p>
+<pre><code class="lang-go">b := make([]int, len(a))
+copy(b, a)
+// or, since Go 1.21:
+b := slices.Clone(a)</code></pre>
+<p>Arrays with a fixed size exist too (<code>[3]int</code>), and you will rarely use them directly.</p>
+<h2 id="maps">Maps</h2>
+<p>A <strong>map</strong> stores values by key.</p>
+<pre><code class="lang-go">ages := map[string]int{"sam": 30, "ada": 36}
+ages["linus"] = 54
+delete(ages, "sam")
+
+age := ages["nobody"]               // 0: a missing key gives the zero value
+age, ok := ages["ada"]              // ok says whether the key exists
+if !ok {
+	fmt.Println("not found")
+}</code></pre>
+<p>Counting is the classic use. A missing key reads as 0, so no check is needed:</p>
+<pre><code class="lang-go">counts := map[string]int{}
+for _, word := range words {
+	counts[word]++
+}</code></pre>
+<p><strong>The order of a map is random</strong>, on purpose. To print in order, sort the keys:</p>
+<pre><code class="lang-go">keys := make([]string, 0, len(counts))
+for key := range counts {
+	keys = append(keys, key)
+}
+sort.Strings(keys)
+for _, key := range keys {
+	fmt.Println(key, counts[key])
+}</code></pre>
+<p>A map must be created before use. Writing to a <code>nil</code> map panics:</p>
+<pre><code class="lang-go">var m map[string]int
+m["a"] = 1             // panic
+m = map[string]int{}   // now it works</code></pre>
+<h2 id="strings">Strings</h2>
+<p>A string is a read-only sequence of bytes holding UTF-8 text.</p>
+<pre><code class="lang-go">s := "héllo"
+fmt.Println(len(s))                 // 6: bytes, not characters
+for i, r := range s {               // range gives runes (characters)
+	fmt.Println(i, string(r))
+}</code></pre>
+<p>The <code>strings</code> package has what you need:</p>
+<pre><code class="lang-go">strings.ToUpper("go")                    // "GO"
+strings.Fields("  a b   c ")             // ["a" "b" "c"]: split on whitespace
+strings.Split("a,b,c", ",")              // ["a" "b" "c"]
+strings.Join([]string{"a", "b"}, "-")    // "a-b"
+strings.Contains("golang", "lang")       // true
+strings.TrimSpace("  hi \n")             // "hi"</code></pre>
+<p>Converting numbers:</p>
+<pre><code class="lang-go">n, err := strconv.Atoi("42")        // string to int
+text := strconv.Itoa(42)            // int to string</code></pre>
+<h2 id="reading-all-of-the-input">Reading all of the input</h2>
+<p>For input with many lines or words, <code>bufio.Scanner</code> is the tool:</p>
+<pre><code class="lang-go">scanner := bufio.NewScanner(os.Stdin)
+scanner.Split(bufio.ScanWords)      // word by word; leave this out for line by line
+for scanner.Scan() {
+	word := scanner.Text()
+	fmt.Println(word)
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>append(numbers, 4)</code> without assigning the result.</strong></li><li><strong>Changing a slice</strong> that another variable still uses, because slices share memory.</li><li><strong>Relying on map order.</strong></li><li><strong>Writing to a nil map.</strong></li><li><strong><code>len(s)</code> for the number of characters.</strong> It counts bytes. Use <code>utf8.RuneCountInString(s)</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/03-word-count">
+<h3>Word count <span class="ex-id">go/03-word-count</span></h3>
+<p>Write <code>main.go</code>. Read all the words from standard input. Words are separated by spaces and newlines. Count them <strong>ignoring upper and lower case</strong>.</p>
+<p>Print one line per different word, as <code>word count</code>, in lower case, sorted <strong>alphabetically</strong>.</p>
+<p>Input:</p>
+<pre><code class="lang-text">the cat The dog
+the END</code></pre>
+<p>Output:</p>
+<pre><code class="lang-text">cat 1
+dog 1
+end 1
+the 3</code></pre>
+<p>With no input, print nothing.</p>
+<p class="ex-files">Files: <code>exercises/go/03-word-count/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/03-word-count</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/02-control-flow-and-functions.html"><span>Previous</span>Control flow and functions</a><a class="next" href="../go/04-structs-and-methods.html"><span>Next</span>Structs, methods and pointers</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

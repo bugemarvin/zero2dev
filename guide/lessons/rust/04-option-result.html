@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Option, Result and error handling · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/04-option-result">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 4 of 7</p>
+<h1>Option, Result and error handling</h1>
+<p class="lede">No null, no exceptions: absence and failure are ordinary values the compiler makes you handle.</p>
+<h2 id="option-a-value-that-may-be-missing">Option: a value that may be missing</h2>
+<p>Rust has no <code>null</code>. A value that may be absent has the type <code>Option&lt;T&gt;</code>:</p>
+<pre><code class="lang-rust">enum Option&lt;T&gt; {
+    Some(T),
+    None,
+}</code></pre>
+<pre><code class="lang-rust">fn first_even(numbers: &amp;[i32]) -&gt; Option&lt;i32&gt; {
+    for &amp;n in numbers {
+        if n % 2 == 0 {
+            return Some(n);
+        }
+    }
+    None
+}
+
+match first_even(&amp;[1, 3, 4]) {
+    Some(n) =&gt; println!("found {}", n),
+    None =&gt; println!("no even number"),
+}</code></pre>
+<p>An <code>Option&lt;i32&gt;</code> is not an <code>i32</code>. You cannot add to it or print it as a number until you have dealt with the <code>None</code> case. The "null pointer" crash of other languages cannot happen.</p>
+<h2 id="result-an-operation-that-may-fail">Result: an operation that may fail</h2>
+<pre><code class="lang-rust">enum Result&lt;T, E&gt; {
+    Ok(T),
+    Err(E),
+}</code></pre>
+<pre><code class="lang-rust">fn parse_age(text: &amp;str) -&gt; Result&lt;u32, String&gt; {
+    match text.trim().parse::&lt;u32&gt;() {
+        Ok(age) if age &lt;= 150 =&gt; Ok(age),
+        Ok(_) =&gt; Err(String::from("age out of range")),
+        Err(_) =&gt; Err(format!("not a number: {}", text)),
+    }
+}</code></pre>
+<p>There are no exceptions. A function that can fail says so in its return type, and the caller must look.</p>
+<h2 id="getting-the-value-out">Getting the value out</h2>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Does</th></tr></thead><tbody><tr><td><code>match</code></td><td>handles both cases explicitly</td></tr><tr><td><code>if let Some(x) = opt</code></td><td>handles one case</td></tr><tr><td><code>.unwrap_or(default)</code></td><td>the value, or a default</td></tr><tr><td><code>.unwrap_or_else(|| ...)</code></td><td>the value, or the result of a closure</td></tr><tr><td><code>.map(|x| ...)</code></td><td>changes the value inside, and leaves <code>None</code> or <code>Err</code> alone</td></tr><tr><td><code>.ok_or(error)</code></td><td>turns an <code>Option</code> into a <code>Result</code></td></tr><tr><td><code>.unwrap()</code></td><td>the value, or <strong>panic</strong></td></tr><tr><td><code>.expect("message")</code></td><td>the same, with your message</td></tr></tbody></table></div>
+<p><code>unwrap</code> is fine in examples, tests and quick scripts. In real code it is a crash waiting for unusual input.</p>
+<h2 id="the-operator">The ? operator</h2>
+<p>Passing errors up the call chain by hand is noisy. <code>?</code> does it in one character:</p>
+<pre><code class="lang-rust">fn total_ages(a: &amp;str, b: &amp;str) -&gt; Result&lt;u32, String&gt; {
+    let first = parse_age(a)?;      // on Err, return that error from this function right now
+    let second = parse_age(b)?;
+    Ok(first + second)
+}</code></pre>
+<p><code>?</code> means: if this is <code>Ok</code>, give me the value; if it is <code>Err</code>, return it from the enclosing function. It works on <code>Option</code> too, returning <code>None</code>.</p>
+<h2 id="your-own-error-type">Your own error type</h2>
+<p>A <code>String</code> error works for small programs. Real code uses an enum, so that callers can tell the cases apart:</p>
+<pre><code class="lang-rust">#[derive(Debug, PartialEq)]
+enum ConfigError {
+    Missing(String),
+    Invalid { key: String, value: String },
+}
+
+fn get_port(text: Option&lt;&amp;str&gt;) -&gt; Result&lt;u16, ConfigError&gt; {
+    let text = text.ok_or(ConfigError::Missing(String::from("port")))?;
+    text.parse().map_err(|_| ConfigError::Invalid {
+        key: String::from("port"),
+        value: text.to_string(),
+    })
+}</code></pre>
+<p><code>map_err</code> converts one error type into another.</p>
+<h2 id="main-can-return-a-result">main can return a Result</h2>
+<pre><code class="lang-rust">fn main() -&gt; Result&lt;(), String&gt; {
+    let age = parse_age("42")?;
+    println!("{}", age);
+    Ok(())
+}</code></pre>
+<p><code>()</code> is the empty value: "nothing, successfully".</p>
+<h2 id="panic">panic</h2>
+<p><code>panic!("message")</code> stops the program. Like in Go, it is for bugs, not for expected failures:</p>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Use</th></tr></thead><tbody><tr><td>a file is missing, input is wrong, the network fails</td><td><code>Result</code></td></tr><tr><td>a value may be absent</td><td><code>Option</code></td></tr><tr><td>"this cannot happen"</td><td><code>panic!</code>, <code>unreachable!()</code></td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>unwrap()</code> on user input or files.</strong></li><li><strong>Returning <code>-1</code> or an empty string</strong> to mean "not found". Use <code>Option</code>.</li><li><strong>Using <code>?</code> in a function that does not return <code>Result</code> or <code>Option</code>.</strong></li><li><strong>Throwing away the error detail</strong> with <code>.ok()</code> when the caller needs it.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/04-parsing">
+<h3>Parsing with Option and Result <span class="ex-id">rust/04-parsing</span></h3>
+<p>Write the following in <code>solution.rs</code>. Everything is <code>pub</code>.</p>
+<h4><code>find_user</code></h4>
+<p><code>find_user(names: &amp;[&amp;str], wanted: &amp;str) -&gt; Option&lt;usize&gt;</code> returns the position of <code>wanted</code> in the list, or <code>None</code>.</p>
+<h4><code>ParseError</code></h4>
+<p>An enum that derives <code>Debug</code> and <code>PartialEq</code>, with three variants:</p>
+<ul><li><code>Empty</code></li><li><code>NotANumber(String)</code>: holds the text that could not be parsed</li><li><code>OutOfRange(i64)</code>: holds the number</li></ul>
+<h4><code>parse_percent</code></h4>
+<p><code>parse_percent(text: &amp;str) -&gt; Result&lt;u8, ParseError&gt;</code> turns text into a percentage from 0 to 100.</p>
+<ul><li>Spaces around the text are ignored: <code>" 42 "</code> gives <code>Ok(42)</code>.</li><li>An empty text (after trimming) gives <code>Err(ParseError::Empty)</code>.</li><li>Text that is not a whole number gives <code>Err(ParseError::NotANumber(...))</code> holding the trimmed text.</li><li>A number below 0 or above 100 gives <code>Err(ParseError::OutOfRange(n))</code>.</li></ul>
+<p>Parse as <code>i64</code> first, then check the range.</p>
+<h4><code>average_percent</code></h4>
+<p><code>average_percent(texts: &amp;[&amp;str]) -&gt; Result&lt;f64, ParseError&gt;</code> parses every text with <code>parse_percent</code> and returns the average. The first error is returned as it is: use <code>?</code>. An empty list gives <code>Err(ParseError::Empty)</code>.</p>
+<p class="ex-files">Files: <code>exercises/rust/04-parsing/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/04-parsing</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/03-structs-enums-match.html"><span>Previous</span>Structs, enums and match</a><a class="next" href="../rust/05-collections-and-strings.html"><span>Next</span>Vectors, hash maps and strings</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

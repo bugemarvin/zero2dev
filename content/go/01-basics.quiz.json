@@ -1,0 +1,43 @@
+[
+ {
+  "q": "What is the difference between := and = ?",
+  "options": [
+   ":= compares, = assigns",
+   ":= declares and assigns, = assigns to an existing variable",
+   "They are the same",
+   ":= is for constants"
+  ],
+  "answer": 1,
+  "why": ":= creates a new variable and gives it a value. = needs the variable to exist already."
+ },
+ {
+  "q": "What happens when you declare a variable and never use it?",
+  "options": [
+   "A warning",
+   "Nothing",
+   "A compile error",
+   "It is removed silently"
+  ],
+  "answer": 2,
+  "why": "Unused variables and unused imports stop the build."
+ },
+ {
+  "q": "What does this print?",
+  "accept": [
+   "3"
+  ],
+  "why": "Both operands are ints, so the division is integer division.",
+  "code": "fmt.Println(7 / 2)"
+ },
+ {
+  "q": "Which names are visible from other packages?",
+  "options": [
+   "Names marked public",
+   "Names starting with a capital letter",
+   "All names",
+   "Names in main"
+  ],
+  "answer": 1,
+  "why": "Capitalised names are exported. That is the whole visibility rule."
+ }
+]

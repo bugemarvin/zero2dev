@@ -1,0 +1,26 @@
+{
+  "title": "Functions and loops",
+  "lesson": "go/02-control-flow-and-functions",
+  "kind": "harness",
+  "lang": "go",
+  "edit": [
+    "solution.go"
+  ],
+  "build": [
+    "go",
+    "build",
+    "-o",
+    "{build}/tests",
+    "solution.go",
+    "tests.go"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "A switch with no value reads well here: switch { case score >= 90: return \"A\" ... }",
+    "IsPrime: return false below 2, then try every divisor i while i*i <= n.",
+    "Divide: if b == 0 { return 0, errors.New(\"division by zero\") }. Import \"errors\"."
+  ]
+}

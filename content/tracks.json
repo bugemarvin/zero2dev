@@ -58,11 +58,43 @@
     ]
   },
   {
+    "id": "html",
+    "title": "HTML",
+    "blurb": "The structure of every web page: text, links, images, tables, forms, and markup that works for everyone.",
+    "needs": [
+      "tool:browser"
+    ]
+  },
+  {
+    "id": "css",
+    "title": "CSS",
+    "blurb": "Make pages look right: selectors, the box model, flexbox, grid, and layouts that adapt to any screen.",
+    "needs": [
+      "tool:browser"
+    ]
+  },
+  {
     "id": "java",
     "title": "Java",
     "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",
     "needs": [
       "toolchain:java"
+    ]
+  },
+  {
+    "id": "go",
+    "title": "Go",
+    "blurb": "A small, fast, compiled language made for servers and tools: slices, structs, interfaces, goroutines and an HTTP API.",
+    "needs": [
+      "toolchain:go"
+    ]
+  },
+  {
+    "id": "rust",
+    "title": "Rust",
+    "blurb": "Speed of C with memory safety checked by the compiler: ownership, enums, traits and iterators.",
+    "needs": [
+      "toolchain:rust"
     ]
   },
   {
@@ -81,6 +113,14 @@
       "toolchain:javascript",
       "workspace:node",
       "workspace:react"
+    ]
+  },
+  {
+    "id": "php",
+    "title": "PHP",
+    "blurb": "The language behind a large part of the web: arrays, functions, classes, forms, JSON APIs and a database with PDO.",
+    "needs": [
+      "toolchain:php"
     ]
   },
   {

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The box model · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="css/02-box-model">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">CSS · lesson 2 of 6</p>
+<h1>The box model</h1>
+<p class="lede">Every element is a box: content, padding, border, margin.</p>
+<h2 id="everything-is-a-box">Everything is a box</h2>
+<p>The browser draws every element as a rectangle with four layers:</p>
+<pre><code class="lang-text">+-------------------------------------------+
+|                 margin                    |
+|   +-----------------------------------+   |
+|   |             border                |   |
+|   |   +---------------------------+   |   |
+|   |   |         padding           |   |   |
+|   |   |   +-------------------+   |   |   |
+|   |   |   |      content      |   |   |   |
+|   |   |   +-------------------+   |   |   |
+|   |   +---------------------------+   |   |
+|   +-----------------------------------+   |
++-------------------------------------------+</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Layer</th><th>What it is</th></tr></thead><tbody><tr><td>content</td><td>the text or image</td></tr><tr><td>padding</td><td>space <strong>inside</strong> the border. The background colour fills it.</td></tr><tr><td>border</td><td>a line around the padding</td></tr><tr><td>margin</td><td>space <strong>outside</strong> the border, between this box and its neighbours. Always transparent.</td></tr></tbody></table></div>
+<pre><code class="lang-css">.card {
+  padding: 16px;
+  border: 1px solid #cccccc;
+  margin: 24px;
+}</code></pre>
+<h2 id="one-to-four-values">One to four values</h2>
+<p><code>padding</code> and <code>margin</code> are shorthands for four sides:</p>
+<div class="table-wrap"><table><thead><tr><th>Written</th><th>Meaning</th></tr></thead><tbody><tr><td><code>margin: 10px</code></td><td>all four sides</td></tr><tr><td><code>margin: 10px 20px</code></td><td>top and bottom 10, left and right 20</td></tr><tr><td><code>margin: 10px 20px 30px</code></td><td>top 10, left and right 20, bottom 30</td></tr><tr><td><code>margin: 10px 20px 30px 40px</code></td><td>top, right, bottom, left: clockwise from the top</td></tr></tbody></table></div>
+<p>One side at a time: <code>margin-top</code>, <code>padding-left</code>, and so on.</p>
+<h2 id="width-and-box-sizing">Width and box-sizing</h2>
+<p>By default, <code>width</code> is the width of the <strong>content</strong> only. Padding and border are added on top:</p>
+<pre><code class="lang-css">.card { width: 300px; padding: 20px; border: 5px solid black; }
+/* takes 300 + 20 + 20 + 5 + 5 = 350px */</code></pre>
+<p>That surprises everyone. Almost every project starts with this rule, which makes <code>width</code> include padding and border:</p>
+<pre><code class="lang-css">*, *::before, *::after {
+  box-sizing: border-box;
+}</code></pre>
+<p>Now a <code>300px</code> wide card is 300px wide, whatever its padding.</p>
+<h2 id="block-and-inline">Block and inline</h2>
+<div class="table-wrap"><table><thead><tr><th><code>display</code></th><th>Behaviour</th><th>Examples</th></tr></thead><tbody><tr><td><code>block</code></td><td>starts on a new line and takes the full width</td><td><code>div</code>, <code>p</code>, <code>h1</code>, <code>section</code></td></tr><tr><td><code>inline</code></td><td>flows inside a line of text. <code>width</code> and <code>height</code> are ignored.</td><td><code>a</code>, <code>span</code>, <code>strong</code></td></tr><tr><td><code>inline-block</code></td><td>flows in the line, and accepts a width and height</td><td></td></tr><tr><td><code>none</code></td><td>not shown at all, and takes no space</td><td></td></tr></tbody></table></div>
+<h2 id="centring-a-block">Centring a block</h2>
+<p>A block with a width and automatic left and right margins sits in the middle:</p>
+<pre><code class="lang-css">.page {
+  max-width: 700px;
+  margin: 0 auto;
+}</code></pre>
+<p><code>max-width</code> in place of <code>width</code> lets the block shrink on a narrow screen.</p>
+<h2 id="margins-collapse">Margins collapse</h2>
+<p>When two vertical margins touch, they do not add up. The larger one wins:</p>
+<pre><code class="lang-css">h2 { margin-bottom: 30px; }
+p  { margin-top: 20px; }
+/* the gap between them is 30px, not 50px */</code></pre>
+<p>This happens only top-to-bottom, and not inside flex or grid containers.</p>
+<h2 id="borders-and-corners">Borders and corners</h2>
+<pre><code class="lang-css">.card {
+  border: 1px solid #cccccc;      /* width, style, colour */
+  border-radius: 8px;             /* rounded corners */
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>box-sizing: border-box</code></strong> and wondering why things are too wide.</li><li><strong>Setting <code>width</code> on an inline element</strong>, where it does nothing.</li><li><strong>Using margin where padding is meant</strong>: the background does not extend into the margin.</li><li><strong><code>margin: auto</code> on a block with no width.</strong> It already fills the line, so there is nothing to centre.</li><li><strong>A fixed <code>width</code></strong> that overflows on a phone. Prefer <code>max-width</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="css/02-cards">
+<h3>Boxes: a column of cards <span class="ex-id">css/02-cards</span></h3>
+<p>Style <code>index.html</code> from <code>style.css</code>.</p>
+<ul><li>Every element uses <code>box-sizing: border-box</code>. Use the <code>*</code> selector.</li><li><code>.page</code> is centred: <code>max-width: 600px</code>, top and bottom margin <code>0</code>, left and right margin <code>auto</code>.</li><li><code>.card</code> has <code>padding: 16px</code>, a border of <code>1px solid #cccccc</code>, <code>border-radius: 8px</code>, and a bottom margin of <code>24px</code>.</li><li><code>.card h2</code> has a top margin of <code>0</code>.</li><li><code>.button</code> is displayed as <code>inline-block</code>, with <code>padding: 8px 16px</code> (8px top and bottom, 16px left and right) and <code>background-color: navy</code>.</li></ul>
+<p>The tests read your CSS as it is written. Use the property names given here: for example <code>background-color</code>, not the <code>background</code> shorthand with several values.</p>
+<p class="ex-files">Files: <code>exercises/css/02-cards/</code></p>
+<pre><code class="lang-console">$ python3 check.py css/02-cards</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../css/01-selectors-and-cascade.html"><span>Previous</span>Selectors and the cascade</a><a class="next" href="../css/03-colours-fonts-units.html"><span>Next</span>Colours, fonts, units and variables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

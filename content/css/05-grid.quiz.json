@@ -1,0 +1,42 @@
+[
+ {
+  "q": "What does 1fr mean?",
+  "options": [
+   "1 pixel",
+   "One fraction of the free space",
+   "One full row",
+   "A fixed 100px"
+  ],
+  "answer": 1,
+  "why": "fr shares out the space that is left."
+ },
+ {
+  "q": "grid-template-columns: 240px 1fr. What is the second column?",
+  "options": [
+   "240px",
+   "Whatever space is left",
+   "Half the page",
+   "Zero"
+  ],
+  "answer": 1,
+  "why": "The fixed column takes 240px and the fr column takes the rest."
+ },
+ {
+  "q": "How many grid lines do three columns have?",
+  "accept": [
+   "4"
+  ],
+  "why": "A line on each side of every column: one more than the number of columns."
+ },
+ {
+  "q": "Which tool for a navigation bar of links in one row?",
+  "options": [
+   "Grid",
+   "Flexbox",
+   "A table",
+   "Floats"
+  ],
+  "answer": 1,
+  "why": "One direction: flexbox. Rows and columns together: grid."
+ }
+]

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "How does a type implement a trait in Rust?",
+  "options": [
+   "Automatically, by having the methods",
+   "With an impl Trait for Type block",
+   "With extends",
+   "It cannot"
+  ],
+  "answer": 1,
+  "why": "Unlike Go, the implementation is explicit."
+ },
+ {
+  "q": "What does the bound in fn largest<T: PartialOrd>(...) mean?",
+  "options": [
+   "T must be a number",
+   "T must support comparison",
+   "T is optional",
+   "T is a pointer"
+  ],
+  "answer": 1,
+  "why": "The bound limits T to types that implement PartialOrd, so < and > can be used."
+ },
+ {
+  "q": "When do you need Box<dyn Trait> in place of generics?",
+  "options": [
+   "Always",
+   "When one collection must hold values of different types",
+   "For speed",
+   "Never"
+  ],
+  "answer": 1,
+  "why": "A trait object lets a list mix types that share a trait."
+ },
+ {
+  "q": "Which trait controls how a value prints with {} ?",
+  "options": [
+   "Debug",
+   "Display",
+   "ToString",
+   "Print"
+  ],
+  "answer": 1,
+  "why": "Display is for {} and Debug is for {:?}."
+ }
+]

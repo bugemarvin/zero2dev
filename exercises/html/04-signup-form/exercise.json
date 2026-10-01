@@ -1,0 +1,85 @@
+{
+  "title": "A sign-up form",
+  "lesson": "html/04-forms",
+  "kind": "web",
+  "page": "index.html",
+  "checks": [
+    {
+      "name": "every element is closed, in the right order",
+      "valid": true
+    },
+    {
+      "name": "the form posts to /signup",
+      "select": "form",
+      "attr": {
+        "method": "post",
+        "action": "/signup"
+      }
+    },
+    {
+      "name": "username: a required text field, at least 3 characters",
+      "select": "form input#username[name='username'][required][minlength='3']",
+      "count": 1
+    },
+    {
+      "name": "email: a required email field",
+      "select": "form input#email[type='email'][name='email'][required]",
+      "count": 1
+    },
+    {
+      "name": "password: a required password field, at least 8 characters",
+      "select": "form input#password[type='password'][name='password'][required][minlength='8']",
+      "count": 1
+    },
+    {
+      "name": "plan: a select with three options",
+      "select": "form select#plan[name='plan'] > option",
+      "count": 3
+    },
+    {
+      "name": "the options have the values free, pro, team",
+      "select": "select#plan > option[value='free'], select#plan > option[value='pro'], select#plan > option[value='team']",
+      "count": 3
+    },
+    {
+      "name": "terms: a required checkbox",
+      "select": "form input#terms[type='checkbox'][name='terms'][required]",
+      "count": 1
+    },
+    {
+      "name": "username has a label",
+      "select": "label[for='username']",
+      "count": 1
+    },
+    {
+      "name": "email has a label",
+      "select": "label[for='email']",
+      "count": 1
+    },
+    {
+      "name": "password has a label",
+      "select": "label[for='password']",
+      "count": 1
+    },
+    {
+      "name": "plan has a label",
+      "select": "label[for='plan']",
+      "count": 1
+    },
+    {
+      "name": "terms has a label",
+      "select": "label[for='terms']",
+      "count": 1
+    },
+    {
+      "name": "a submit button says Create account",
+      "select": "form button",
+      "text": "Create account"
+    }
+  ],
+  "hints": [
+    "A field and its label: <label for=\"email\">Email</label> <input type=\"email\" id=\"email\" name=\"email\" required>.",
+    "required and minlength are attributes of the input: <input ... required minlength=\"3\">.",
+    "<select id=\"plan\" name=\"plan\"> contains <option value=\"free\">Free</option> and two more."
+  ]
+}

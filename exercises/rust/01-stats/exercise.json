@@ -1,0 +1,34 @@
+{
+  "title": "Number statistics",
+  "lesson": "rust/01-basics",
+  "kind": "program",
+  "lang": "rust",
+  "cases": [
+    {
+      "name": "four numbers",
+      "stdin": "2 9 4 5\n",
+      "stdout": "count: 4\nsum: 20\nmax: 9\naverage: 5.00\n"
+    },
+    {
+      "name": "negative numbers",
+      "stdin": "-5 -2\n-9\n",
+      "stdout": "count: 3\nsum: -16\nmax: -2\naverage: -5.33\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "7\n",
+      "stdout": "count: 1\nsum: 7\nmax: 7\naverage: 7.00\n"
+    },
+    {
+      "name": "no numbers",
+      "stdin": "",
+      "stdout": "count: 0\n"
+    }
+  ],
+  "timeout": 20,
+  "hints": [
+    "let mut sum = 0; and then for &n in &numbers { sum += n; }",
+    "Start max at numbers[0], but only after checking that the list is not empty.",
+    "The average: sum as f64 / numbers.len() as f64, printed with {:.2}."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Word count",
+  "lesson": "go/03-slices-and-maps",
+  "kind": "program",
+  "lang": "go",
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "the cat The dog\nthe END\n",
+      "stdout": "cat 1\ndog 1\nend 1\nthe 3\n"
+    },
+    {
+      "name": "one word",
+      "stdin": "Go\n",
+      "stdout": "go 1\n"
+    },
+    {
+      "name": "no input",
+      "stdin": "",
+      "stdout": ""
+    },
+    {
+      "name": "many repeats",
+      "stdin": "b a b A B a c\n",
+      "stdout": "a 3\nb 3\nc 1\n"
+    }
+  ],
+  "timeout": 20,
+  "hints": [
+    "counts := map[string]int{} and then counts[strings.ToLower(word)]++ for every word.",
+    "A map has no order. Collect the keys into a slice and sort it with sort.Strings.",
+    "Then loop over the sorted keys and print each key with counts[key]."
+  ]
+}

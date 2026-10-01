@@ -6,13 +6,17 @@
 <title>Errors and exceptions · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="python/05-errors">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -90,6 +94,7 @@ except KeyError:
 <p>Python code often prefers the second style when failure is rare. For this particular case <code>user.get("name", "unknown")</code> beats both.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A bare <code>except:</code> or <code>except Exception: pass</code>.</strong> It hides real bugs.</li><li><strong>Catching too early.</strong> If a function cannot do anything useful about an error, let it travel up to code that can.</li><li><strong>Returning <code>None</code> or <code>-1</code> to signal an error.</strong> Callers forget to check. Raise.</li><li><strong>Reading the traceback from the top.</strong> The answer is on the last line.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="python/07-errors">
@@ -108,7 +113,9 @@ except KeyError:
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

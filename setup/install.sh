@@ -14,7 +14,7 @@
 # then add <name> to STACKS and STACK_DESC below.
 set -euo pipefail
 
-STACKS=(core python node java elixir go rust ruby postgres sqlite redis docker)
+STACKS=(core python node java elixir go rust ruby php postgres sqlite redis mongodb docker)
 DEFAULT_STACKS=(core python node)
 declare -A STACK_DESC=(
   [core]="C toolchain, gdb, valgrind, make, cmake, git, GitHub CLI, shell tools"
@@ -25,9 +25,11 @@ declare -A STACK_DESC=(
   [go]="Go (via mise)"
   [rust]="Rust (via rustup)"
   [ruby]="Ruby and bundler"
+  [php]="PHP command line, common extensions (SQLite, mbstring, XML, curl) and Composer"
   [postgres]="PostgreSQL server and client, with a role and database for you"
   [sqlite]="SQLite command-line shell"
   [redis]="Redis server and CLI"
+  [mongodb]="MongoDB server and the mongosh shell (from MongoDB's own package source)"
   [docker]="Docker Engine (on WSL: use Docker Desktop instead)"
 )
 
@@ -320,6 +322,14 @@ stack_ruby_verify() {
   first_line ruby --version
 }
 
+stack_php_install() {
+  apt_install php-cli php-sqlite3 php-mbstring php-xml php-curl composer
+}
+stack_php_verify() {
+  have php || return 1
+  first_line php --version | cut -d' ' -f1-2
+}
+
 as_postgres() {
   if [ "$(id -u)" -eq 0 ]; then run runuser -u postgres -- "$@"; else run sudo -u postgres "$@"; fi
 }
@@ -368,6 +378,58 @@ stack_redis_install() {
 stack_redis_verify() {
   have redis-cli || return 1
   first_line redis-server --version | cut -d' ' -f1-3
+}
+
+MONGO_VERSION="${Z2D_MONGO:-8.0}"
+
+stack_mongodb_install() {
+  if ! have mongod || ! have mongosh; then
+    # MongoDB is not in the Ubuntu or Debian archives: add the vendor's package source.
+    local id codename repo key="/etc/apt/keyrings/mongodb-server-$MONGO_VERSION.gpg"
+    id="$(. /etc/os-release && printf '%s' "${ID:-}")"
+    codename="$(. /etc/os-release && printf '%s' "${VERSION_CODENAME:-}")"
+    case "$id:$codename" in
+      ubuntu:focal|ubuntu:jammy|ubuntu:noble)
+        repo="deb [ signed-by=$key ] https://repo.mongodb.org/apt/ubuntu $codename/mongodb-org/$MONGO_VERSION multiverse" ;;
+      debian:bookworm)
+        repo="deb [ signed-by=$key ] https://repo.mongodb.org/apt/debian $codename/mongodb-org/$MONGO_VERSION main" ;;
+      *)
+        warn "MongoDB publishes no packages for $id $codename. Use Docker instead: python3 check.py services up mongodb"
+        return 1 ;;
+    esac
+    apt_install gnupg curl
+    info "Adding the MongoDB $MONGO_VERSION apt repository"
+    as_root mkdir -p -m 755 /etc/apt/keyrings
+    run sh -c "curl -fsSL https://www.mongodb.org/static/pgp/server-$MONGO_VERSION.asc | gpg --dearmor --yes -o /tmp/z2d-mongo.gpg"
+    as_root install -m 644 /tmp/z2d-mongo.gpg "$key"
+    run sh -c "echo '$repo' > /tmp/z2d-mongo.list"
+    as_root install -m 644 /tmp/z2d-mongo.list "/etc/apt/sources.list.d/mongodb-org-$MONGO_VERSION.list"
+    apt_update
+    apt_install mongodb-org
+  fi
+  if has_systemd; then
+    as_root systemctl enable --now mongod
+  elif [ "$DRY" -eq 1 ] || ! pgrep -x mongod >/dev/null 2>&1; then
+    # No systemd (plain WSL, containers): start the server directly, as the mongodb user.
+    if [ "$(id -u)" -eq 0 ]; then
+      run runuser -u mongodb -- mongod --config /etc/mongod.conf --fork
+    else
+      run sudo -u mongodb mongod --config /etc/mongod.conf --fork
+    fi
+  fi
+}
+stack_mongodb_verify() {
+  have mongosh || return 1
+  have mongod || return 1
+  local i
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    if mongosh --quiet --eval 'db.runCommand({ping: 1}).ok' >/dev/null 2>&1; then
+      first_line mongod --version
+      return 0
+    fi
+    sleep 1
+  done
+  return 1
 }
 
 stack_docker_install() {

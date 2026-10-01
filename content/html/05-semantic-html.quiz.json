@@ -1,0 +1,46 @@
+[
+ {
+  "q": "How many main elements may a page have?",
+  "options": [
+   "One",
+   "One per article",
+   "Two",
+   "Any number"
+  ],
+  "answer": 0,
+  "why": "main is the main content of the page: there is one."
+ },
+ {
+  "q": "Which element fits a blog post that could be shared on its own?",
+  "options": [
+   "<section>",
+   "<article>",
+   "<aside>",
+   "<div>"
+  ],
+  "answer": 1,
+  "why": "article is for content that stands alone."
+ },
+ {
+  "q": "Why is <button> better than a clickable <div>?",
+  "options": [
+   "It is faster",
+   "It works with the keyboard and screen readers",
+   "It needs less CSS",
+   "It is newer"
+  ],
+  "answer": 1,
+  "why": "A button can be focused with Tab and pressed with Enter or Space, and is announced as a button."
+ },
+ {
+  "q": "A quick accessibility test anyone can do:",
+  "options": [
+   "Zoom to 50%",
+   "Use only the Tab key",
+   "Disable images",
+   "Open two tabs"
+  ],
+  "answer": 1,
+  "why": "If everything can be reached and used with the keyboard, most of the basics are right."
+ }
+]

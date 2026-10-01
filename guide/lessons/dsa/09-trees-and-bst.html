@@ -6,13 +6,17 @@
 <title>Trees and binary search trees · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="dsa/09-trees-and-bst">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -95,6 +99,7 @@ for v in [8, 3, 10, 1, 6, 14]:
 <div class="table-wrap"><table><thead><tr><th>Need</th><th>Hash table</th><th>Balanced BST</th></tr></thead><tbody><tr><td>lookup, insert, delete</td><td>O(1) average</td><td>O(log n)</td></tr><tr><td>keys in sorted order</td><td>no</td><td>yes</td></tr><tr><td>smallest, largest, next larger</td><td>O(n)</td><td>O(log n)</td></tr><tr><td>all keys in a range</td><td>O(n)</td><td>O(log n + results)</td></tr></tbody></table></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Not handling <code>None</code></strong> before reading <code>node.left</code> or <code>node.value</code>.</li><li><strong>Forgetting to re-attach</strong> in a recursive insert: <code>node.left = insert(node.left, value)</code>.</li><li><strong>Assuming a BST is balanced.</strong> Sorted input gives the worst case.</li><li><strong>Checking the BST rule only against the direct children.</strong> It applies to the whole subtree.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="dsa/14-bst">
@@ -123,7 +128,9 @@ inorder</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

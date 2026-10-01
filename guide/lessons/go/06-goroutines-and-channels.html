@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goroutines and channels · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/06-goroutines-and-channels">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 6 of 7</p>
+<h1>Goroutines and channels</h1>
+<p class="lede">Do many things at once, safely: the feature Go is known for.</p>
+<h2 id="goroutines">Goroutines</h2>
+<p>A <strong>goroutine</strong> is a function running at the same time as the rest of the program. Starting one takes the word <code>go</code>:</p>
+<pre><code class="lang-go">go download(url)</code></pre>
+<p>Goroutines are cheap. A program can run hundreds of thousands of them, where operating-system threads would run out of memory. The Go runtime spreads them over the processor cores.</p>
+<p>There is a catch. When <code>main</code> returns, the program ends, and goroutines still running are simply cut off:</p>
+<pre><code class="lang-go">func main() {
+	go fmt.Println("hello")
+}                               // usually prints nothing</code></pre>
+<p>So you must <strong>wait</strong> for them.</p>
+<h2 id="waitgroup">WaitGroup</h2>
+<pre><code class="lang-go">var wg sync.WaitGroup
+for _, url := range urls {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		download(url)
+	}()
+}
+wg.Wait()                       // blocks until every Done has been called</code></pre>
+<h2 id="shared-data-needs-protection">Shared data needs protection</h2>
+<p>Two goroutines changing the same variable at the same time is a <strong>data race</strong>. The result is wrong in ways that appear and disappear from run to run:</p>
+<pre><code class="lang-go">count := 0
+for i := 0; i &lt; 1000; i++ {
+	go func() { count++ }()     // a race: count++ is read, add, write
+}</code></pre>
+<p>A <strong>mutex</strong> lets one goroutine in at a time:</p>
+<pre><code class="lang-go">var mu sync.Mutex
+mu.Lock()
+count++
+mu.Unlock()</code></pre>
+<p>Go has a race detector. Use it in tests:</p>
+<pre><code class="lang-console">$ go run -race main.go
+$ go test -race ./...</code></pre>
+<h2 id="channels">Channels</h2>
+<p>A <strong>channel</strong> carries values from one goroutine to another. It is both the pipe and the synchronisation:</p>
+<pre><code class="lang-go">results := make(chan int)
+
+go func() {
+	results &lt;- 42               // send
+}()
+
+value := &lt;-results              // receive: waits until a value arrives</code></pre>
+<p>A send on an unbuffered channel waits until someone receives, and a receive waits until someone sends. That waiting is what coordinates the goroutines.</p>
+<p>The Go proverb: <em>do not communicate by sharing memory; share memory by communicating.</em> Hand the data over through a channel, and only one goroutine touches it at a time.</p>
+<h2 id="closing-and-ranging">Closing and ranging</h2>
+<p>The sender closes a channel to say "no more values". A <code>range</code> loop over a channel ends when it is closed:</p>
+<pre><code class="lang-go">func generate(n int) &lt;-chan int {
+	out := make(chan int)
+	go func() {
+		defer close(out)
+		for i := 1; i &lt;= n; i++ {
+			out &lt;- i
+		}
+	}()
+	return out
+}
+
+for value := range generate(5) {
+	fmt.Println(value)
+}</code></pre>
+<p><code>&lt;-chan int</code> is a channel you may only receive from, and <code>chan&lt;- int</code> one you may only send to. The compiler enforces it.</p>
+<h2 id="a-worker-pool">A worker pool</h2>
+<p>A fixed number of goroutines take jobs from one channel and put results on another:</p>
+<pre><code class="lang-go">jobs := make(chan int)
+results := make(chan int)
+
+var wg sync.WaitGroup
+for w := 0; w &lt; 4; w++ {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for job := range jobs {
+			results &lt;- job * job
+		}
+	}()
+}
+
+go func() {
+	for i := 1; i &lt;= 10; i++ {
+		jobs &lt;- i
+	}
+	close(jobs)             // the workers' range loops end
+}()
+
+go func() {
+	wg.Wait()
+	close(results)          // nothing more will be sent
+}()
+
+for r := range results {
+	fmt.Println(r)
+}</code></pre>
+<p>The results arrive in whatever order the workers finish.</p>
+<h2 id="select-and-timeouts">select and timeouts</h2>
+<p><code>select</code> waits on several channels and takes whichever is ready first:</p>
+<pre><code class="lang-go">select {
+case result := &lt;-results:
+	fmt.Println(result)
+case &lt;-time.After(2 * time.Second):
+	fmt.Println("timed out")
+}</code></pre>
+<h2 id="deadlock">Deadlock</h2>
+<p>If every goroutine is waiting and none can continue, Go stops the program:</p>
+<pre><code class="lang-text">fatal error: all goroutines are asleep - deadlock!</code></pre>
+<p>The usual causes: sending on a channel nobody receives from, or ranging over a channel nobody closes.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Not waiting</strong> for goroutines before <code>main</code> returns.</li><li><strong>Sharing a variable between goroutines</strong> with no mutex and no channel.</li><li><strong>Forgetting to close a channel</strong> that someone ranges over.</li><li><strong>Closing a channel from the receiving side</strong>, or twice. Both panic. The sender closes.</li><li><strong>Starting a goroutine that can never finish</strong>: a leak that grows until the program runs out of memory.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/06-concurrency">
+<h3>Parallel work with goroutines <span class="ex-id">go/06-concurrency</span></h3>
+<p>Write three things in <code>solution.go</code>.</p>
+<h4><code>SafeCounter</code></h4>
+<p>A type that many goroutines can use at once.</p>
+<ul><li><code>Inc()</code> adds 1.</li><li><code>Value() int</code> returns the count.</li></ul>
+<p>Protect the count with a <code>sync.Mutex</code>. The tests call <code>Inc</code> from 100 goroutines, 100 times each, and expect exactly 10000.</p>
+<h4><code>Squares(n int) &lt;-chan int</code></h4>
+<p>Returns a channel that delivers 1, 4, 9, ... up to n squared, in order, and is then <strong>closed</strong>. The values are produced by a goroutine.</p>
+<h4><code>ParallelMap(inputs []int, workers int, f func(int) int) []int</code></h4>
+<p>Applies <code>f</code> to every input using <code>workers</code> goroutines, and returns the results <strong>in the same order as the inputs</strong>. The tests check that several calls of <code>f</code> really run at the same time.</p>
+<p>A simple way to keep the order: give each job its index, and have the worker write <code>results[index]</code>.</p>
+<p class="ex-files">Files: <code>exercises/go/06-concurrency/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/06-concurrency</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/05-interfaces-and-errors.html"><span>Previous</span>Interfaces and errors</a><a class="next" href="../go/07-modules-testing-http.html"><span>Next</span>Modules, testing and an HTTP API</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

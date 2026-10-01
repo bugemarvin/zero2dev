@@ -1,0 +1,61 @@
+{
+  "title": "Mobile first",
+  "lesson": "css/06-responsive",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": "images never overflow",
+      "select": "img",
+      "style": {
+        "max-width": "100%",
+        "height": "auto"
+      }
+    },
+    {
+      "name": "small screen: .layout is a one-column grid",
+      "select": ".layout",
+      "style": {
+        "display": "grid",
+        "grid-template-columns": "1fr",
+        "gap": "1rem"
+      }
+    },
+    {
+      "name": "small screen: the links are stacked",
+      "select": ".links",
+      "style": {
+        "display": "flex",
+        "flex-direction": "column"
+      }
+    },
+    {
+      "name": "from 700px: .layout has the columns 2fr 1fr",
+      "select": ".layout",
+      "media": "min-width: 700px",
+      "style": {
+        "grid-template-columns": "2fr 1fr",
+        "display": "grid"
+      }
+    },
+    {
+      "name": "from 700px: the links are in a row",
+      "select": ".links",
+      "media": "min-width: 700px",
+      "style": {
+        "flex-direction": "row"
+      }
+    }
+  ],
+  "hints": [
+    "The base rules stand on their own, outside any media query.",
+    "@media (min-width: 700px) { .layout { grid-template-columns: 2fr 1fr; } }",
+    "The media query must come after the base rules, or the base rules win."
+  ]
+}

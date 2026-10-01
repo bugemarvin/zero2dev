@@ -1,0 +1,46 @@
+[
+ {
+  "q": "How many kinds of loop keyword does Go have?",
+  "options": [
+   "One: for",
+   "Two: for and while",
+   "Three: for, while, do",
+   "None"
+  ],
+  "answer": 0,
+  "why": "for covers every kind of loop."
+ },
+ {
+  "q": "A case in a Go switch matches. What happens after its body runs?",
+  "options": [
+   "The next case runs too",
+   "The switch ends",
+   "It loops",
+   "It is an error without break"
+  ],
+  "answer": 1,
+  "why": "Go does not fall through. Only the matching case runs."
+ },
+ {
+  "q": "How does a Go function normally report failure?",
+  "options": [
+   "It throws an exception",
+   "It returns an error as its last value",
+   "It sets a global variable",
+   "It exits the program"
+  ],
+  "answer": 1,
+  "why": "Errors are values: result, err := f() followed by if err != nil."
+ },
+ {
+  "q": "When does a deferred call run?",
+  "options": [
+   "Immediately",
+   "When the surrounding function returns",
+   "At the end of the program",
+   "Never, unless called"
+  ],
+  "answer": 1,
+  "why": "defer schedules the call for when the function ends, on every path."
+ }
+]

@@ -15,7 +15,8 @@ def open_env(lang, exdir, outdir, network=False, writable=False):
         raise core.Skip(f"unknown language '{lang}'. Known: {', '.join(LANGS)}")
     info = LANGS[lang]
     return providers.open_env(info["name"], info["needs"], info.get("image"), info["stack"],
-                              exdir, outdir, network=network, writable=writable)
+                              exdir, outdir, network=network, writable=writable,
+                              cache=providers.cache_mount(lang, info.get("docker_cache")))
 
 
 def sanitizers_work(info, env):

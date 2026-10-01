@@ -1,0 +1,91 @@
+{
+  "title": "A header, a hero and a sidebar with flexbox",
+  "lesson": "css/04-flexbox",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": ".header is a flex container",
+      "select": ".header",
+      "style": {
+        "display": "flex"
+      }
+    },
+    {
+      "name": ".header pushes logo and links apart",
+      "select": ".header",
+      "style": {
+        "justify-content": "space-between"
+      }
+    },
+    {
+      "name": ".header centres its items vertically",
+      "select": ".header",
+      "style": {
+        "align-items": "center"
+      }
+    },
+    {
+      "name": ".links is a flex container with a 1rem gap",
+      "select": ".links",
+      "style": {
+        "display": "flex",
+        "gap": "1rem"
+      }
+    },
+    {
+      "name": ".hero centres its content both ways",
+      "select": ".hero",
+      "style": {
+        "display": "flex",
+        "justify-content": "center",
+        "align-items": "center"
+      }
+    },
+    {
+      "name": ".hero is at least half the window high",
+      "select": ".hero",
+      "style": {
+        "min-height": "50vh"
+      }
+    },
+    {
+      "name": ".layout is a flex container with a 2rem gap",
+      "select": ".layout",
+      "style": {
+        "display": "flex",
+        "gap": "2rem"
+      }
+    },
+    {
+      "name": ".sidebar is fixed at 240px",
+      "select": ".sidebar",
+      "style": {
+        "flex": "0 0 240px"
+      }
+    },
+    {
+      "name": ".content takes the rest",
+      "select": ".content",
+      "style": {
+        "flex": [
+          "1",
+          "1 1 0",
+          "1 1 0%",
+          "1 1 auto"
+        ]
+      }
+    }
+  ],
+  "hints": [
+    "display: flex goes on the parent: .header, .links, .hero and .layout.",
+    "justify-content works along the row, align-items across it.",
+    ".sidebar { flex: 0 0 240px; } and .content { flex: 1; }"
+  ]
+}

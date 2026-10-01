@@ -6,13 +6,17 @@
 <title>Lists and recursion · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="elixir/04-lists-and-recursion">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -83,6 +87,7 @@ def countdown(n) when n &gt; 0, do: [n | countdown(n - 1)]</code></pre>
 <p>Rarely. The <code>Enum</code> module, in the next lesson, already contains <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>sum</code> and many more. But they are all built in the way shown here, and whenever a problem does not fit a ready-made function you write the recursion yourself. Knowing the pattern is what makes the rest of Elixir readable.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>No clause for <code>[]</code>.</strong> The recursion ends in <code>FunctionClauseError</code>.</li><li><strong>Appending with <code>++</code> at each step.</strong> That makes the whole function O(n²). Prepend, and reverse once at the end.</li><li><strong>Believing a function is tail-recursive</strong> when something still happens after the call, as in <code>head + sum(tail)</code>.</li><li><strong>A numeric recursion with no guard</strong>, which never ends for negative input.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="elixir/04-recursion">
@@ -99,7 +104,9 @@ def countdown(n) when n &gt; 0, do: [n | countdown(n - 1)]</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

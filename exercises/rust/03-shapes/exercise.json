@@ -1,0 +1,26 @@
+{
+  "title": "Shapes with an enum",
+  "lesson": "rust/03-structs-enums-match",
+  "kind": "harness",
+  "lang": "rust",
+  "edit": [
+    "solution.rs"
+  ],
+  "build": [
+    "rustc",
+    "--edition",
+    "2021",
+    "-o",
+    "{build}/tests",
+    "tests.rs"
+  ],
+  "run": [
+    "{build}/tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "The variants: Circle { radius: f64 }, Rect { width: f64, height: f64 }, Square(f64). Then impl Shape { ... } with the methods.",
+    "area: match self { Shape::Circle { radius } => PI * radius * radius, ... }",
+    "scale needs to change the value behind the reference: Shape::Circle { radius } => *radius *= factor,"
+  ]
+}

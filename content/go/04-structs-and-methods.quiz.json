@@ -1,0 +1,46 @@
+[
+ {
+  "q": "A function receives a struct (not a pointer) and changes a field. What happens to the caller's struct?",
+  "options": [
+   "It changes too",
+   "Nothing: the function changed a copy",
+   "A compile error",
+   "A panic"
+  ],
+  "answer": 1,
+  "why": "Go passes copies. To change the original, pass a pointer."
+ },
+ {
+  "q": "What does &p mean?",
+  "options": [
+   "The value of p",
+   "The address of p",
+   "p and something",
+   "A reference count"
+  ],
+  "answer": 1,
+  "why": "& takes the address of a variable."
+ },
+ {
+  "q": "Which receiver does a method need to change its struct?",
+  "options": [
+   "A value receiver",
+   "A pointer receiver",
+   "Either",
+   "Neither"
+  ],
+  "answer": 1,
+  "why": "With a value receiver the method works on a copy."
+ },
+ {
+  "q": "Does Go have classes and inheritance?",
+  "options": [
+   "Yes, both",
+   "Classes but no inheritance",
+   "Neither: it has types with methods, and embedding",
+   "Only inheritance"
+  ],
+  "answer": 2,
+  "why": "A type plus methods replaces a class, and embedding replaces inheritance."
+ }
+]

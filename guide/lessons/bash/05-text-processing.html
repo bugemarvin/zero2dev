@@ -6,13 +6,17 @@
 <title>Text processing · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="bash/05-text-processing">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -69,6 +73,7 @@ awk '{ total += $1 } END { print total }' numbers.txt</code></pre>
 <div class="table-wrap"><table><thead><tr><th>Task</th><th>Reach for</th></tr></thead><tbody><tr><td>find lines</td><td><code>grep</code></td></tr><tr><td>one column</td><td><code>cut</code>, or <code>awk '{print $n}'</code> when the spacing is irregular</td></tr><tr><td>replace text</td><td><code>sed</code></td></tr><tr><td>arithmetic, grouping, conditions on columns</td><td><code>awk</code></td></tr><tr><td>the logic no longer fits on one line</td><td>a real language, such as Python</td></tr></tbody></table></div>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>uniq</code> without <code>sort</code>.</strong></li><li><strong><code>cut</code> on columns separated by a varying number of spaces.</strong> Use <code>awk</code>, which treats any run of spaces as one separator.</li><li><strong><code>sort</code> on numbers without <code>-n</code>.</strong> Then 10 comes before 9.</li><li><strong><code>sed -i</code> on the only copy of a file.</strong></li><li><strong>Double quotes around an awk program.</strong> The shell then expands <code>$1</code> before awk sees it. Use single quotes.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="bash/05-report">
@@ -92,7 +97,9 @@ highest: grace 6100</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

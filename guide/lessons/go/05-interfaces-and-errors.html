@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interfaces and errors · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/05-interfaces-and-errors">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 5 of 7</p>
+<h1>Interfaces and errors</h1>
+<p class="lede">Write code against behaviour, and handle failure as an ordinary value.</p>
+<h2 id="interfaces">Interfaces</h2>
+<p>An <strong>interface</strong> is a list of methods. Any type that has those methods satisfies it, <strong>without saying so</strong>:</p>
+<pre><code class="lang-go">type Shape interface {
+	Area() float64
+}
+
+type Rect struct{ W, H float64 }
+type Circle struct{ R float64 }
+
+func (r Rect) Area() float64   { return r.W * r.H }
+func (c Circle) Area() float64 { return math.Pi * c.R * c.R }
+
+func TotalArea(shapes []Shape) float64 {
+	total := 0.0
+	for _, s := range shapes {
+		total += s.Area()
+	}
+	return total
+}
+
+TotalArea([]Shape{Rect{2, 3}, Circle{1}})</code></pre>
+<p><code>Rect</code> never mentions <code>Shape</code>. It has an <code>Area() float64</code> method, so it is a <code>Shape</code>. This lets you write an interface for a type that someone else wrote.</p>
+<p>Keep interfaces small. The most useful ones in the standard library have one method:</p>
+<pre><code class="lang-go">type Writer interface {
+	Write(p []byte) (n int, err error)
+}
+
+type Stringer interface {      // fmt uses this to print your type
+	String() string
+}</code></pre>
+<p>A file, a network connection, a buffer in memory and a compressed stream are all <code>io.Writer</code>. A function that takes an <code>io.Writer</code> works with every one of them, and with a fake one in a test.</p>
+<h2 id="finding-out-what-is-inside">Finding out what is inside</h2>
+<pre><code class="lang-go">if c, ok := shape.(Circle); ok {       // type assertion
+	fmt.Println("radius", c.R)
+}
+
+switch s := shape.(type) {             // type switch
+case Rect:
+	fmt.Println("rect", s.W, s.H)
+case Circle:
+	fmt.Println("circle", s.R)
+}</code></pre>
+<p><code>any</code> is the empty interface: every type satisfies it. Use it rarely. It throws away the checks the compiler does for you.</p>
+<h2 id="errors-are-values">Errors are values</h2>
+<p><code>error</code> is an interface with one method:</p>
+<pre><code class="lang-go">type error interface {
+	Error() string
+}</code></pre>
+<p>Creating errors:</p>
+<pre><code class="lang-go">errors.New("file is empty")
+fmt.Errorf("line %d: unexpected %q", line, token)</code></pre>
+<h2 id="wrapping-add-context-on-the-way-up">Wrapping: add context on the way up</h2>
+<p>A bare "file not found" does not say which file or why you wanted it. Wrap the error with <code>%w</code> as it travels up:</p>
+<pre><code class="lang-go">func loadConfig(path string) (Config, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return Config{}, fmt.Errorf("load config %s: %w", path, err)
+	}
+	// ...
+}</code></pre>
+<p>The final message reads like a trail: <code>start server: load config app.json: open app.json: no such file or directory</code>.</p>
+<h2 id="checking-which-error-it-is">Checking which error it is</h2>
+<p>Declare errors that callers may want to recognise as package-level variables, named <code>Err...</code>:</p>
+<pre><code class="lang-go">var ErrNotFound = errors.New("not found")
+
+func find(id int) (User, error) {
+	// ...
+	return User{}, ErrNotFound
+}
+
+user, err := find(7)
+if errors.Is(err, ErrNotFound) {       // works through any number of wraps
+	// answer 404
+}</code></pre>
+<p>For an error type that carries data, use <code>errors.As</code>:</p>
+<pre><code class="lang-go">type ValidationError struct {
+	Field string
+}
+
+func (e *ValidationError) Error() string { return e.Field + " is invalid" }
+
+var ve *ValidationError
+if errors.As(err, &amp;ve) {
+	fmt.Println("bad field:", ve.Field)
+}</code></pre>
+<p>Never compare error <strong>messages</strong>. Messages change. Compare with <code>errors.Is</code> and <code>errors.As</code>.</p>
+<h2 id="panic">panic</h2>
+<p><code>panic</code> stops the program with a stack trace. It is for bugs: an impossible state, an index out of range. It is not for things that can go wrong normally, such as a missing file or bad input. Those are errors.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A giant interface</strong> with ten methods that only one type implements.</li><li><strong>Returning <code>err.Error()</code> strings</strong> up the stack in place of wrapping with <code>%w</code>.</li><li><strong>Comparing <code>err == ErrNotFound</code></strong> on a wrapped error. Use <code>errors.Is</code>.</li><li><strong><code>panic</code> for ordinary failures.</strong></li><li><strong>Declaring the interface next to the implementation.</strong> In Go, the code that <em>uses</em> a behaviour declares the interface.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/05-shapes">
+<h3>Shapes and a parser with errors <span class="ex-id">go/05-shapes</span></h3>
+<p>Write the following in <code>solution.go</code>.</p>
+<h4>Shapes</h4>
+<ul><li>An interface <code>Shape</code> with two methods: <code>Area() float64</code> and <code>Name() string</code>.</li><li><code>Rect</code> with the fields <code>W</code> and <code>H</code> (both <code>float64</code>). Its name is <code>rect</code>.</li><li><code>Circle</code> with the field <code>R</code>. Its name is <code>circle</code>. Use <code>math.Pi</code>.</li><li><code>Largest(shapes []Shape) (Shape, error)</code> returns the shape with the biggest area. For an empty slice it returns <code>nil</code> and the error <code>ErrNoShapes</code>.</li><li><code>ErrNoShapes</code> is a package-level variable: <code>errors.New("no shapes")</code>.</li></ul>
+<h4>Parser</h4>
+<p><code>ParseShape(text string) (Shape, error)</code> turns text into a shape:</p>
+<ul><li><code>"rect 2 3"</code> gives <code>Rect{W: 2, H: 3}</code></li><li><code>"circle 1.5"</code> gives <code>Circle{R: 1.5}</code></li></ul>
+<p>Anything else returns <code>nil</code> and an error that <strong>wraps</strong> <code>ErrBadShape</code> (declare it as <code>errors.New("bad shape")</code>) and includes the text, for example <code>fmt.Errorf("%w: %q", ErrBadShape, text)</code>. That covers an unknown name, the wrong number of values and a value that is not a number.</p>
+<p class="ex-files">Files: <code>exercises/go/05-shapes/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/05-shapes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../go/04-structs-and-methods.html"><span>Previous</span>Structs, methods and pointers</a><a class="next" href="../go/06-goroutines-and-channels.html"><span>Next</span>Goroutines and channels</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

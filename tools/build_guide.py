@@ -181,13 +181,17 @@ PAGE = """<!doctype html>
 <title>{title} · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
 </head>
 <body data-root="../../" data-lesson="{id}">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -195,13 +199,16 @@ PAGE = """<!doctype html>
 <main class="lesson">
 <p class="crumb">{track_title} · lesson {number} of {count}</p>
 <h1>{title}</h1>
-{lede}{body}
+{lede}{install}{body}
+<section class="quiz-box" id="quiz" hidden></section>
 {practice}
 <nav class="pager">{prev}{next}</nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>
@@ -250,6 +257,93 @@ def render_practice(exercises, inline):
         )
     parts.append("</section>")
     return "\n".join(parts)
+
+
+def console(lines):
+    text = "\n".join(line if line.startswith("#") else "$ " + line for line in lines)
+    return f'<pre><code class="lang-console">{esc(text)}</code></pre>'
+
+
+def render_install(track):
+    """The "what this track needs" box of a track's first lesson: quick install first, then by hand."""
+    catalog = ROOT / "catalog"
+    langs = json.loads((catalog / "toolchains.json").read_text(encoding="utf-8"))
+    services = json.loads((catalog / "services.json").read_text(encoding="utf-8"))
+    install = json.loads((catalog / "install.json").read_text(encoding="utf-8"))
+    core_tools = {"bash": "core", "git": "core", "make": "core", "docker": "docker", "npm": "node"}
+    stacks, extras = [], []          # (stack, docker image or None), and plain sentences
+    for need in track.get("needs", []):
+        kind, _, name = need.partition(":")
+        if kind == "toolchain":
+            entry = (langs[name]["stack"], langs[name].get("image"), langs[name]["name"])
+        elif kind == "service":
+            entry = (services[name].get("stack"), services[name]["image"], services[name]["name"])
+            extras.append(f"<strong>{esc(services[name]['name'])}</strong> is started for you: the app uses a server "
+                          f"already running on this machine, or starts the Docker image <code>{services[name]['image']}</code>.")
+        elif kind == "workspace":
+            extras.append(f"The <strong>{esc(name)}</strong> packages come from npm, once: press <strong>Download packages</strong> "
+                          f"on the Setup page, or run <code>python3 check.py prefetch {name}</code>.")
+            continue
+        elif name == "browser":
+            extras.append("A <strong>web browser</strong>: you are using one now. Nothing to install.")
+            continue
+        else:
+            entry = (core_tools[name], None, name)
+        if entry[0] and entry[0] not in [s[0] for s in stacks]:
+            stacks.append(entry)
+    parts = [f'<details class="install" id="install" data-track="{track["id"]}">',
+             "<summary>Install: what this track needs</summary>", '<div class="install-static">']
+    if stacks:
+        names = ",".join(s[0] for s in stacks)
+        parts.append("<h4>Quick install</h4>")
+        parts.append("<p>One command installs everything for this track. It skips what you already have.</p>")
+        parts.append("<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>")
+        parts.append(console([f"./setup/install.sh --stack {names}"]))
+        parts.append("<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder "
+                     "(it installs WSL first if needed):</p>")
+        parts.append(f'<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\\install.ps1 -Stacks {names}</code></pre>')
+    for stack, image, label in stacks:
+        info = install[stack]
+        parts.append(f"<h4>{esc(info['name'])}: by hand</h4>")
+        parts.append("<p>Ubuntu, Debian, WSL:</p>" + console(info["linux"]))
+        parts.append("<p>macOS, with <a href=\"https://brew.sh\" rel=\"noopener\">Homebrew</a>:</p>" + console(info["mac"]))
+        parts.append("<p>Check that it works:</p>" + console([info["check"]]))
+        if info.get("note"):
+            parts.append(f"<p>{esc(info['note'])}</p>")
+        if image:
+            parts.append(f"<p><strong>Or install nothing:</strong> with Docker running, the app runs {esc(label)} "
+                         f"in the image <code>{image}</code> (one download).</p>")
+    parts += [f"<p>{text}</p>" for text in extras]
+    parts.append("<p>When the app is running, this box also shows what your machine already has.</p>")
+    parts += ["</div>", "</details>"]
+    return "\n".join(parts) + "\n"
+
+
+def load_quizzes(lessons):
+    """Self-test questions per lesson, from content/<track>/<lesson>.quiz.json."""
+    quizzes = {}
+    for lesson in lessons:
+        path = CONTENT / (lesson["id"] + ".quiz.json")
+        if not path.exists():
+            continue
+        try:
+            questions = json.loads(path.read_text(encoding="utf-8"))
+        except ValueError as exc:
+            raise BuildError(f"{path.relative_to(ROOT)}: {exc}")
+        for n, q in enumerate(questions, 1):
+            where = f"{path.relative_to(ROOT)} question {n}"
+            if not q.get("q"):
+                raise BuildError(f"{where}: missing the question text 'q'")
+            if "options" in q:
+                answers = q.get("answer")
+                answers = answers if isinstance(answers, list) else [answers]
+                if len(q["options"]) < 2 or not answers or not all(
+                        isinstance(a, int) and 0 <= a < len(q["options"]) for a in answers):
+                    raise BuildError(f"{where}: 'answer' must be the position of an option, starting at 0")
+            elif not q.get("accept"):
+                raise BuildError(f"{where}: needs 'options' and 'answer', or 'accept'")
+        quizzes[lesson["id"]] = questions
+    return quizzes
 
 
 def starters():
@@ -306,19 +400,32 @@ def build():
             title=esc(lesson["meta"]["title"]), id=lesson["id"],
             track_title=esc(lesson["track"]["title"]), number=lesson["number"], count=lesson["count"],
             lede=f'<p class="lede">{inline(summary)}</p>\n' if summary else "",
+            install=render_install(lesson["track"]) if lesson["number"] == 1 else "",
             body=body, practice=practice,
             prev=pager(prev_lesson, "prev", "Previous"), next=pager(next_lesson, "next", "Next"),
         )
         outputs[GUIDE / "lessons" / (lesson["id"] + ".html")] = page
 
-    curriculum = {"tracks": [{
+    quizzes = load_quizzes(lessons)
+    paths_file = CONTENT / "paths.json"
+    paths = json.loads(paths_file.read_text(encoding="utf-8")) if paths_file.exists() else []
+    track_ids = {t["id"] for t in tracks}
+    for path in paths:
+        for stage in path["stages"]:
+            unknown = [t for t in stage["tracks"] if t not in track_ids]
+            if unknown:
+                raise BuildError(f"paths.json: path {path['id']} names unknown tracks: {', '.join(unknown)}")
+    curriculum = {"paths": paths, "tracks": [{
         "id": t["id"], "title": t["title"], "blurb": t.get("blurb", ""),
         "lessons": [{
             "id": l["id"], "title": l["meta"]["title"], "summary": l["meta"].get("summary", ""),
+            "quiz": len(quizzes.get(l["id"], [])),
             "exercises": [{"id": e["id"], "title": e["title"]} for e in exercises.get(l["id"], [])],
         } for l in lessons if l["track"] is t],
     } for t in tracks]}
     outputs[ROOT / "catalog" / "starters.json"] = starters()
+    outputs[GUIDE / "assets" / "quizzes.js"] = (
+        "window.Z2D_QUIZZES = " + json.dumps(quizzes, indent=0, ensure_ascii=False) + ";\n")
     outputs[GUIDE / "assets" / "curriculum.js"] = (
         "window.Z2D_CURRICULUM = " + json.dumps(curriculum, indent=1, ensure_ascii=False) + ";\n")
     return outputs
@@ -351,7 +458,7 @@ def main(argv):
             written += 1
     for path in stale:
         path.unlink()
-    print(f"guide: {len(outputs) - 2} lessons, {written} files written, {len(stale)} removed")
+    print(f"guide: {len(outputs) - 3} lessons, {written} files written, {len(stale)} removed")
     return 0
 
 

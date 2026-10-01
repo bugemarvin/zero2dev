@@ -11,6 +11,7 @@ import os
 import shutil
 import sqlite3
 import subprocess
+import sys
 import tempfile
 import threading
 
@@ -27,7 +28,8 @@ _starters = None
 
 HIGHLIGHT = {".c": "c", ".h": "c", ".py": "python", ".java": "java", ".ex": "elixir", ".exs": "elixir",
              ".sql": "sql", ".sh": "bash", ".js": "javascript", ".jsx": "javascript", ".mjs": "javascript",
-             ".ts": "javascript", ".tsx": "javascript"}
+             ".ts": "javascript", ".tsx": "javascript", ".go": "go", ".rs": "rust", ".php": "php",
+             ".html": "html", ".css": "css", ".json": "javascript"}
 
 
 class ApiError(Exception):
@@ -103,7 +105,7 @@ def describe(ex, lang=None):
         "files": list_files(ex, lang),
         "hints": ex.spec.get("hints", []),
         "passed": bool(entry.get("passed")), "attempts": entry.get("attempts", 0),
-        "can_show": ex.kind == "sql", "can_start_app": app_spec(ex) is not None,
+        "can_show": ex.kind in ("sql", "mongo", "redis"), "can_start_app": app_spec(ex) is not None,
         "sandbox": None, "app": None, "toolchain": None,
     }
     if info["any_lang"]:
@@ -117,6 +119,10 @@ def describe(ex, lang=None):
         info["toolchain"] = doctor.toolchain("python")
     if ex.spec.get("engine") == "postgres":
         info["service"] = services.status("postgres")
+    if ex.kind == "mongo":
+        info["service"] = services.status("mongodb")
+    if ex.kind == "redis":
+        info["service"] = services.status("redis")
     with _state_lock:
         app = _apps.get(ex.id)
     if app:
@@ -128,6 +134,11 @@ def app_spec(ex):
     """How to start the exercise's app for the learner to look at, or None."""
     if ex.kind == "http":
         return ex.spec
+    if ex.kind == "web":
+        # a static file server, so the learner sees the page as a browser shows it
+        return {"lang": "python", "start": [sys.executable, "-m", "http.server", "{port}", "--bind", "127.0.0.1"]}
+    if ex.spec.get("preview") == "static":
+        return {"lang": "python", "start": [sys.executable, "-m", "http.server", "{port}", "--bind", "127.0.0.1"]}
     if "preview" in ex.spec:
         return dict(ex.spec["preview"], lang=ex.spec.get("lang", "javascript"),
                     workspace=ex.spec.get("workspace"))
@@ -240,9 +251,28 @@ def post_reset(data):
 
 def post_show(data):
     ex = exercise(data)
-    if ex.kind != "sql":
-        raise ApiError("show is for SQL exercises")
+    if ex.kind not in ("sql", "mongo", "redis"):
+        raise ApiError("show is for SQL, MongoDB and Redis exercises")
     save_files(ex, None, data.get("files"))
+    if ex.kind == "redis":
+        try:
+            return {"text": runner.show_redis(ex)[:20000] or "(no output)"}
+        except core.NeedsDownload as need:
+            return {"error": str(need), "download": {"kind": need.kind, "name": need.name}}
+        except Skip as skip:
+            return {"error": str(skip)}
+    if ex.kind == "mongo":
+        try:
+            error, result = runner.show_mongo(ex)
+        except core.NeedsDownload as need:
+            return {"error": str(need), "download": {"kind": need.kind, "name": need.name}}
+        except Skip as skip:
+            return {"error": str(skip)}
+        if error:
+            return {"error": error}
+        if result is None:
+            return {"text": "The script ran. It defines no `result` variable, so there is nothing to show."}
+        return {"text": json.dumps(result, indent=2)[:20000]}
     try:
         columns, rows = runner.show_sql(ex)
     except core.NeedsDownload as need:
@@ -358,6 +388,14 @@ def get_doctor(_data):
     return report
 
 
+def get_track(data):
+    """What one track needs and whether this machine has it, for the install box of its first lesson."""
+    for track in doctor.tracks():
+        if track["id"] == data.get("id"):
+            return dict(track, can_sudo=can_sudo(), user_stacks=sorted(USER_STACKS))
+    raise ApiError("unknown track", 404)
+
+
 def post_profile(data):
     known = {t["id"] for t in json.loads((core.ROOT / "content" / "tracks.json").read_text(encoding="utf-8"))}
     tracks = [t for t in data.get("tracks", []) if t in known]
@@ -388,7 +426,7 @@ def post_service(data):
 
 # Stacks whose install needs no administrator rights: they go into the user's home folder.
 USER_STACKS = {"node", "java", "go", "rust", "elixir"}
-ALL_STACKS = USER_STACKS | {"core", "python", "ruby", "postgres", "sqlite", "redis", "docker"}
+ALL_STACKS = USER_STACKS | {"core", "python", "ruby", "php", "postgres", "sqlite", "redis", "mongodb", "docker"}
 
 
 def can_sudo():
@@ -461,7 +499,7 @@ def get_job(data):
     return job.as_dict()
 
 
-GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job}
+GET = {"state": get_state, "exercise": get_exercise, "doctor": get_doctor, "job": get_job, "track": get_track}
 POST = {"save": post_save, "lang": post_lang, "run": post_run, "reset": post_reset, "show": post_show,
         "shell": post_shell, "sandbox": post_sandbox, "app": post_app, "open": post_open,
         "profile": post_profile, "service": post_service, "job": post_job}

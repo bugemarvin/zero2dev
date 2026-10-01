@@ -80,8 +80,13 @@
       "--eval",
       "db.runCommand({ping: 1}).ok"
     ],
-    "native": null,
-    "stack": null,
+    "native": [
+      "mongosh",
+      "--quiet",
+      "--eval",
+      "db.runCommand({ping: 1}).ok"
+    ],
+    "stack": "mongodb",
     "connect": "mongosh --port 27170"
   }
 }

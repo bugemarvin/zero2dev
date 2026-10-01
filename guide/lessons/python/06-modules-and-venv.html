@@ -6,13 +6,17 @@
 <title>Modules, packages and virtual environments · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="python/06-modules-and-venv">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -85,6 +89,7 @@ $ source .venv/bin/activate
 (.venv) $ python -m pip install -r requirements.txt</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Naming your file after a library module</strong>, such as <code>random.py</code> or <code>math.py</code>. Then <code>import random</code> imports your own file.</li><li><strong>Installing packages with no environment active.</strong></li><li><strong>Committing <code>.venv</code>.</strong> Commit <code>requirements.txt</code>.</li><li><strong>Code at the top level of a module</strong> that runs whenever it is imported. Put it under <code>if __name__ == "__main__":</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="python/08-stdlib">
@@ -102,7 +107,9 @@ hypotenuse(3, 4)                             # 5.0</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

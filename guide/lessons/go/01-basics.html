@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Go basics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="go/01-basics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Go · lesson 1 of 7</p>
+<h1>Go basics</h1>
+<p class="lede">Programs, variables, types and printing, and how Go is built and run.</p>
+<details class="install" id="install" data-track="go">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack go</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks go</code></pre>
+<h4>Go: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y golang-go</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install go</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ go version</code></pre>
+<p>The quick install gets the newest Go through mise, into your home folder. The apt package is older and also works for this track.</p>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs Go in the image <code>golang:1-alpine</code> (one download).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
+<h2 id="why-go">Why Go</h2>
+<p>Go is a compiled language from Google, designed for servers, command-line tools and cloud software. Docker and Kubernetes are written in it. It is deliberately small: you can learn the whole language in days, and code written by different people looks the same.</p>
+<h2 id="the-first-program">The first program</h2>
+<pre><code class="lang-go">package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, Go")
+}</code></pre>
+<ul><li>Every file starts with its <strong>package</strong>. The package <code>main</code> with a function <code>main</code> is a program you can run.</li><li><code>import "fmt"</code> brings in the formatting package of the standard library.</li><li>A name that starts with a <strong>capital letter</strong>, such as <code>Println</code>, is visible from other packages. Lower-case names are private to their package. There are no <code>public</code> or <code>private</code> keywords.</li></ul>
+<pre><code class="lang-console">$ go run main.go          # compile and run in one step
+Hello, Go
+$ go build -o hello main.go
+$ ./hello</code></pre>
+<p><code>go build</code> produces one executable file with no dependencies. Copy it to another machine with the same system and it runs.</p>
+<h2 id="variables">Variables</h2>
+<pre><code class="lang-go">var age int = 30
+var name = "Sam"        // the type is worked out: string
+count := 0              // short form, inside functions only
+
+const pi = 3.14159</code></pre>
+<p><code>:=</code> declares <strong>and</strong> assigns. <code>=</code> assigns to a variable that already exists.</p>
+<p>Go is strict in two ways that surprise newcomers:</p>
+<ul><li>An <strong>unused variable</strong> or an <strong>unused import</strong> is a compile error.</li><li>A variable declared without a value gets its <strong>zero value</strong>: <code>0</code>, <code>""</code>, <code>false</code>, or <code>nil</code>. There is no "uninitialised" memory.</li></ul>
+<h2 id="types">Types</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Holds</th><th>Zero value</th></tr></thead><tbody><tr><td><code>int</code></td><td>a whole number (64 bits on today's machines)</td><td><code>0</code></td></tr><tr><td><code>float64</code></td><td>a number with a fraction</td><td><code>0</code></td></tr><tr><td><code>string</code></td><td>text, in UTF-8</td><td><code>""</code></td></tr><tr><td><code>bool</code></td><td><code>true</code> or <code>false</code></td><td><code>false</code></td></tr><tr><td><code>byte</code></td><td>one byte, the same as <code>uint8</code></td><td><code>0</code></td></tr><tr><td><code>rune</code></td><td>one Unicode character</td><td><code>0</code></td></tr></tbody></table></div>
+<p>Go never converts between types by itself:</p>
+<pre><code class="lang-go">var n int = 7
+var half float64 = float64(n) / 2     // 3.5
+whole := n / 2                        // 3: integer division</code></pre>
+<h2 id="printing">Printing</h2>
+<pre><code class="lang-go">fmt.Println("total:", 12, true)              // values separated by spaces, then a newline
+fmt.Printf("%s is %d years old\n", name, age)
+fmt.Printf("%.2f\n", 3.14159)                // 3.14
+text := fmt.Sprintf("%05d", 42)              // returns the string "00042"</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Verb</th><th>Shows</th></tr></thead><tbody><tr><td><code>%d</code></td><td>an integer</td></tr><tr><td><code>%f</code>, <code>%.2f</code></td><td>a float, with two decimals</td></tr><tr><td><code>%s</code></td><td>a string</td></tr><tr><td><code>%v</code></td><td>any value in its default form</td></tr><tr><td><code>%q</code></td><td>a string in quotes</td></tr><tr><td><code>%T</code></td><td>the type of the value</td></tr></tbody></table></div>
+<h2 id="reading-input">Reading input</h2>
+<pre><code class="lang-go">var a, b int
+fmt.Scan(&amp;a, &amp;b)        // reads two numbers separated by spaces or newlines</code></pre>
+<p><code>&amp;a</code> is the address of <code>a</code>: <code>Scan</code> needs to know where to put the value.</p>
+<h2 id="gofmt">gofmt</h2>
+<p>Go has one official code style, and a tool that applies it:</p>
+<pre><code class="lang-console">$ gofmt -w main.go</code></pre>
+<p>It uses tabs for indentation. Nobody argues about formatting in Go, because the tool decides. Editors run it on every save.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Declaring a variable and not using it.</strong> Remove it, or use <code>_</code> to discard a value on purpose.</li><li><strong><code>:=</code> outside a function.</strong> At package level use <code>var</code>.</li><li><strong><code>:=</code> when you meant <code>=</code></strong>, which creates a new variable in an inner block and leaves the outer one unchanged.</li><li><strong>Mixing <code>int</code> and <code>float64</code></strong> without a conversion.</li><li><strong>The opening brace on its own line.</strong> Go requires it at the end of the line.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="go/01-rectangle">
+<h3>Rectangle <span class="ex-id">go/01-rectangle</span></h3>
+<p>Write <code>main.go</code>. Read two whole numbers from standard input: the width and the height of a rectangle. Print three lines:</p>
+<pre><code class="lang-text">area: 12
+perimeter: 14
+ratio: 0.75</code></pre>
+<p>The ratio is the width divided by the height, with two decimals.</p>
+<p>For the input <code>3 4</code> the output is the one above.</p>
+<p class="ex-files">Files: <code>exercises/go/01-rectangle/</code></p>
+<pre><code class="lang-console">$ python3 check.py go/01-rectangle</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/10-files-and-streams.html"><span>Previous</span>Files, lambdas and streams</a><a class="next" href="../go/02-control-flow-and-functions.html"><span>Next</span>Control flow and functions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

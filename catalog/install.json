@@ -1,0 +1,161 @@
+{
+  "core": {
+    "name": "C compiler, Make, Git and shell tools",
+    "check": "gcc --version && git --version",
+    "linux": [
+      "sudo apt-get update",
+      "sudo apt-get install -y build-essential gdb valgrind make git curl"
+    ],
+    "mac": [
+      "xcode-select --install"
+    ]
+  },
+  "python": {
+    "name": "Python 3",
+    "check": "python3 --version",
+    "linux": [
+      "sudo apt-get install -y python3 python3-pip python3-venv"
+    ],
+    "mac": [
+      "brew install python"
+    ]
+  },
+  "node": {
+    "name": "Node.js and npm",
+    "check": "node --version && npm --version",
+    "linux": [
+      "curl -fsSL https://mise.run | sh",
+      "~/.local/bin/mise use --global node@lts"
+    ],
+    "mac": [
+      "brew install node"
+    ]
+  },
+  "java": {
+    "name": "Java (JDK)",
+    "check": "javac -version",
+    "linux": [
+      "sudo apt-get install -y default-jdk"
+    ],
+    "mac": [
+      "brew install openjdk"
+    ]
+  },
+  "elixir": {
+    "name": "Erlang and Elixir",
+    "check": "elixir --version",
+    "linux": [
+      "sudo apt-get install -y elixir"
+    ],
+    "mac": [
+      "brew install elixir"
+    ]
+  },
+  "go": {
+    "name": "Go",
+    "check": "go version",
+    "linux": [
+      "sudo apt-get install -y golang-go"
+    ],
+    "mac": [
+      "brew install go"
+    ],
+    "note": "The quick install gets the newest Go through mise, into your home folder. The apt package is older and also works for this track."
+  },
+  "rust": {
+    "name": "Rust (rustc and cargo)",
+    "check": "rustc --version && cargo --version",
+    "linux": [
+      "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
+      "source \"$HOME/.cargo/env\""
+    ],
+    "mac": [
+      "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+    ],
+    "note": "rustup is the official installer. It puts everything in your home folder and needs no administrator rights."
+  },
+  "ruby": {
+    "name": "Ruby",
+    "check": "ruby --version",
+    "linux": [
+      "sudo apt-get install -y ruby-full"
+    ],
+    "mac": [
+      "brew install ruby"
+    ]
+  },
+  "php": {
+    "name": "PHP",
+    "check": "php --version",
+    "linux": [
+      "sudo apt-get install -y php-cli php-sqlite3 php-mbstring php-xml php-curl composer"
+    ],
+    "mac": [
+      "brew install php composer"
+    ],
+    "note": "php-sqlite3 adds the SQLite driver that the database lesson uses."
+  },
+  "postgres": {
+    "name": "PostgreSQL",
+    "check": "psql --version && pg_isready",
+    "linux": [
+      "sudo apt-get install -y postgresql",
+      "sudo service postgresql start",
+      "sudo -u postgres createuser --createdb \"$USER\"",
+      "createdb \"$USER\""
+    ],
+    "mac": [
+      "brew install postgresql@16",
+      "brew services start postgresql@16"
+    ]
+  },
+  "sqlite": {
+    "name": "SQLite shell",
+    "check": "sqlite3 --version",
+    "linux": [
+      "sudo apt-get install -y sqlite3"
+    ],
+    "mac": [
+      "brew install sqlite"
+    ]
+  },
+  "redis": {
+    "name": "Redis",
+    "check": "redis-cli ping",
+    "linux": [
+      "sudo apt-get install -y redis-server",
+      "sudo service redis-server start"
+    ],
+    "mac": [
+      "brew install redis",
+      "brew services start redis"
+    ]
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "check": "mongosh --eval 'db.runCommand({ping: 1})'",
+    "linux": [
+      "# follow https://www.mongodb.com/docs/manual/administration/install-on-linux/ for your version of Ubuntu or Debian",
+      "sudo apt-get install -y mongodb-org",
+      "sudo systemctl start mongod"
+    ],
+    "mac": [
+      "brew tap mongodb/brew",
+      "brew install mongodb-community",
+      "brew services start mongodb-community"
+    ],
+    "note": "MongoDB is not in the standard Ubuntu packages: the quick install adds MongoDB's own package source first. The easiest route is Docker: the app starts a MongoDB container for you."
+  },
+  "docker": {
+    "name": "Docker",
+    "check": "docker run --rm hello-world",
+    "linux": [
+      "curl -fsSL https://get.docker.com | sh",
+      "sudo usermod -aG docker \"$USER\"   # then log out and in"
+    ],
+    "mac": [
+      "brew install --cask docker   # then open Docker Desktop once"
+    ],
+    "note": "On Windows install Docker Desktop and switch on its WSL integration (install.ps1 -Docker does the first part)."
+  }
+}

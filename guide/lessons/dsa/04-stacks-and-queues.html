@@ -6,13 +6,17 @@
 <title>Stacks and queues · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="dsa/04-stacks-and-queues">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -92,6 +96,7 @@ queue.popleft()        # 'a'</code></pre>
 <p>Each index is pushed once and popped at most once, so the total is O(n) despite the nested loop.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Popping from an empty stack.</strong> Check first, or the program crashes.</li><li><strong>Using <code>list.pop(0)</code> as a queue.</strong> It works, and it is O(n) per call.</li><li><strong>Operand order</strong> for <code>-</code> and <code>/</code> in postfix evaluation.</li><li><strong>Forgetting the final check</strong> that the stack is empty in bracket matching.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="dsa/04-balanced-brackets">
@@ -127,7 +132,9 @@ a[i]=(b+c)</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

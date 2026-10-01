@@ -1,0 +1,44 @@
+[
+ {
+  "q": "Can a function read a variable defined outside it, without anything extra?",
+  "options": [
+   "Yes",
+   "No: it sees only its parameters and its own variables"
+  ],
+  "answer": 1,
+  "why": "PHP functions have their own scope. Pass values in, or capture them in a closure."
+ },
+ {
+  "q": "What does the type ?string accept?",
+  "options": [
+   "Any string",
+   "A string or null",
+   "An optional parameter",
+   "A string or false"
+  ],
+  "answer": 1,
+  "why": "The question mark makes the type nullable."
+ },
+ {
+  "q": "How does an arrow function fn() => ... differ from function () { }?",
+  "options": [
+   "It is slower",
+   "It sees outside variables automatically",
+   "It cannot return",
+   "It needs use"
+  ],
+  "answer": 1,
+  "why": "Arrow functions capture outside variables by value, without use."
+ },
+ {
+  "q": "What happens when no arm of a match fits and there is no default?",
+  "options": [
+   "It returns null",
+   "An error is thrown",
+   "The first arm runs",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "match throws UnhandledMatchError, so a forgotten case is noticed."
+ }
+]

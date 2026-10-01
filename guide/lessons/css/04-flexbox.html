@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexbox · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="css/04-flexbox">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">CSS · lesson 4 of 6</p>
+<h1>Flexbox</h1>
+<p class="lede">Lay out items in a row or a column: spacing, alignment and wrapping.</p>
+<h2 id="one-dimension">One dimension</h2>
+<p><strong>Flexbox</strong> lays out the children of an element in <strong>one direction</strong>: a row or a column. It is the tool for navigation bars, toolbars, a row of cards, and centring things.</p>
+<pre><code class="lang-html">&lt;nav class="bar"&gt;
+  &lt;a href="#"&gt;Home&lt;/a&gt;
+  &lt;a href="#"&gt;Menu&lt;/a&gt;
+  &lt;a href="#"&gt;Visit&lt;/a&gt;
+&lt;/nav&gt;</code></pre>
+<pre><code class="lang-css">.bar {
+  display: flex;
+  gap: 1rem;
+}</code></pre>
+<p><code>display: flex</code> goes on the <strong>parent</strong>, the <strong>flex container</strong>. Its direct children become <strong>flex items</strong> and line up in a row.</p>
+<h2 id="the-two-axes">The two axes</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Default</th><th>Meaning</th></tr></thead><tbody><tr><td>main axis</td><td>left to right</td><td>the direction the items are laid out</td></tr><tr><td>cross axis</td><td>top to bottom</td><td>the other direction</td></tr></tbody></table></div>
+<p><code>flex-direction: column</code> turns it around: the main axis runs top to bottom.</p>
+<h2 id="properties-of-the-container">Properties of the container</h2>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Does</th><th>Common values</th></tr></thead><tbody><tr><td><code>flex-direction</code></td><td>the main axis</td><td><code>row</code>, <code>column</code></td></tr><tr><td><code>justify-content</code></td><td>distributes items along the <strong>main</strong> axis</td><td><code>flex-start</code>, <code>center</code>, <code>flex-end</code>, <code>space-between</code>, <code>space-around</code></td></tr><tr><td><code>align-items</code></td><td>positions items on the <strong>cross</strong> axis</td><td><code>stretch</code>, <code>flex-start</code>, <code>center</code>, <code>flex-end</code></td></tr><tr><td><code>gap</code></td><td>space between items</td><td><code>1rem</code></td></tr><tr><td><code>flex-wrap</code></td><td>may items move to a new line?</td><td><code>nowrap</code>, <code>wrap</code></td></tr></tbody></table></div>
+<p>A header with a logo on the left and links on the right:</p>
+<pre><code class="lang-css">.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}</code></pre>
+<h2 id="centring-finally">Centring, finally</h2>
+<pre><code class="lang-css">.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}</code></pre>
+<p>Centre on the main axis, centre on the cross axis: the child sits in the middle, horizontally and vertically.</p>
+<h2 id="properties-of-the-items">Properties of the items</h2>
+<div class="table-wrap"><table><thead><tr><th>Property</th><th>Does</th></tr></thead><tbody><tr><td><code>flex-grow</code></td><td>how much of the free space the item takes. <code>0</code> means none.</td></tr><tr><td><code>flex-shrink</code></td><td>how much it gives up when space is short</td></tr><tr><td><code>flex-basis</code></td><td>its starting size before growing or shrinking</td></tr><tr><td><code>flex</code></td><td>the three in one: <code>flex: 1</code> means "share the space equally"</td></tr><tr><td><code>align-self</code></td><td>overrides <code>align-items</code> for one item</td></tr></tbody></table></div>
+<pre><code class="lang-css">.sidebar { flex: 0 0 240px; }    /* never grow, never shrink, 240px wide */
+.content { flex: 1; }            /* takes the rest */</code></pre>
+<p>A trick worth knowing: an automatic margin eats all the free space on its side.</p>
+<pre><code class="lang-css">.bar .login { margin-left: auto; }    /* pushes this item to the far right */</code></pre>
+<h2 id="wrapping">Wrapping</h2>
+<pre><code class="lang-css">.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.cards &gt; * {
+  flex: 1 1 200px;     /* at least about 200px, growing to fill the row */
+}</code></pre>
+<p>The cards flow onto as many rows as they need. No media query is involved.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Putting <code>display: flex</code> on the items</strong> in place of their parent.</li><li><strong>Mixing up <code>justify-content</code> and <code>align-items</code>.</strong> Justify is the main axis, align is the cross axis. They swap meaning when the direction is <code>column</code>.</li><li><strong>Using margins for spacing between items</strong> where <code>gap</code> does it without edge cases.</li><li><strong>Expecting grandchildren to be flex items.</strong> Only direct children are.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="css/04-flex-layout">
+<h3>A header, a hero and a sidebar with flexbox <span class="ex-id">css/04-flex-layout</span></h3>
+<p>Lay out <code>index.html</code> with flexbox. Edit only <code>style.css</code>.</p>
+<ul><li><code>.header</code> is a flex container. The logo sits on the left and the links on the right: <code>justify-content: space-between</code>. They are vertically centred: <code>align-items: center</code>.</li><li><code>.links</code> is a flex container with a <code>gap</code> of <code>1rem</code>.</li><li><code>.hero</code> centres its heading both ways: flex, <code>justify-content: center</code>, <code>align-items: center</code>, and <code>min-height: 50vh</code>.</li><li><code>.layout</code> is a flex container with a <code>gap</code> of <code>2rem</code>.</li><li><code>.sidebar</code> never grows or shrinks and is 240px wide: <code>flex: 0 0 240px</code>.</li><li><code>.content</code> takes the remaining space: <code>flex: 1</code>.</li></ul>
+<p>The tests read your CSS as it is written. Use the property names given here: for example <code>background-color</code>, not the <code>background</code> shorthand with several values.</p>
+<p class="ex-files">Files: <code>exercises/css/04-flex-layout/</code></p>
+<pre><code class="lang-console">$ python3 check.py css/04-flex-layout</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../css/03-colours-fonts-units.html"><span>Previous</span>Colours, fonts, units and variables</a><a class="next" href="../css/05-grid.html"><span>Next</span>Grid</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

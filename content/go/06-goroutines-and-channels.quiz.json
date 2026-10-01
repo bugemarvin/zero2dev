@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What happens to running goroutines when main returns?",
+  "options": [
+   "They finish first",
+   "They are cut off: the program ends",
+   "They become daemons",
+   "A panic"
+  ],
+  "answer": 1,
+  "why": "The program ends when main returns. Wait with a WaitGroup or a channel."
+ },
+ {
+  "q": "Two goroutines do count++ on the same variable with no protection. What is this called?",
+  "options": [
+   "A deadlock",
+   "A data race",
+   "A leak",
+   "A panic"
+  ],
+  "answer": 1,
+  "why": "Unsynchronised access where at least one side writes is a data race."
+ },
+ {
+  "q": "Who should close a channel?",
+  "options": [
+   "The receiver",
+   "The sender",
+   "Either",
+   "The garbage collector"
+  ],
+  "answer": 1,
+  "why": "Only the sender knows there are no more values."
+ },
+ {
+  "q": "What ends a `for v := range ch` loop?",
+  "options": [
+   "An empty channel",
+   "The channel being closed",
+   "A timeout",
+   "Nothing"
+  ],
+  "answer": 1,
+  "why": "range over a channel runs until the channel is closed and drained."
+ }
+]

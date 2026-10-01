@@ -1,0 +1,62 @@
+{
+  "title": "From divs to landmarks",
+  "lesson": "html/05-semantic-html",
+  "kind": "web",
+  "page": "index.html",
+  "checks": [
+    {
+      "name": "every element is closed, in the right order",
+      "valid": true
+    },
+    {
+      "name": "no div is left",
+      "select": "div",
+      "count": 0
+    },
+    {
+      "name": "a header contains the h1",
+      "select": "body > header h1",
+      "text": "Sam's blog"
+    },
+    {
+      "name": "the menu is a nav with a list of three links",
+      "select": "header nav ul > li > a[href]",
+      "count": 3
+    },
+    {
+      "name": "there is exactly one main",
+      "select": "body > main",
+      "count": 1
+    },
+    {
+      "name": "main contains two articles",
+      "select": "main > article",
+      "count": 2
+    },
+    {
+      "name": "each article has an h2 title",
+      "select": "main > article > h2",
+      "count": 2
+    },
+    {
+      "name": "the first title is kept",
+      "select": "main > article:first-child > h2",
+      "text": "Why I like HTML"
+    },
+    {
+      "name": "each article has a Read more link",
+      "select": "main > article a[href]",
+      "count": 2
+    },
+    {
+      "name": "a footer closes the page",
+      "select": "body > footer",
+      "contains": "Written by Sam."
+    }
+  ],
+  "hints": [
+    "Replace <div class=\"top\"> with <header> and its closing </div> with </header>. Do the same for main and footer.",
+    "The menu: <nav><ul><li><a href=\"index.html\">Home</a></li> ... </ul></nav>.",
+    "A real link needs an address: <a href=\"html.html\">Read more</a>."
+  ]
+}

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databases with PDO · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="php/06-databases">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">PHP · lesson 6 of 6</p>
+<h1>Databases with PDO</h1>
+<p class="lede">Talk to a SQL database safely: prepared statements, transactions and password hashing.</p>
+<h2 id="pdo">PDO</h2>
+<p><strong>PDO</strong> (PHP Data Objects) is the standard way to use a SQL database from PHP. The same code works with SQLite, PostgreSQL and MySQL. Only the connection string changes.</p>
+<pre><code class="lang-php">$pdo = new PDO('sqlite:' . __DIR__ . '/app.sqlite');
+// $pdo = new PDO('pgsql:host=127.0.0.1;dbname=shop', 'user', 'password');
+// $pdo = new PDO('mysql:host=127.0.0.1;dbname=shop;charset=utf8mb4', 'user', 'password');
+
+$pdo-&gt;setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$pdo-&gt;setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);</code></pre>
+<p>The two settings make every database error an exception, and make rows come back as arrays keyed by column name. Since PHP 8, exceptions are the default.</p>
+<p><code>sqlite::memory:</code> is a database that lives in memory and disappears when the script ends. It is ideal for tests.</p>
+<p>If SQL is new to you, read <a href="../sql/01-select.html">the SQL track</a> first.</p>
+<h2 id="running-statements">Running statements</h2>
+<pre><code class="lang-php">$pdo-&gt;exec('CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL
+)');</code></pre>
+<h2 id="prepared-statements">Prepared statements</h2>
+<p><strong>Never</strong> put a value into SQL text yourself:</p>
+<pre><code class="lang-php">// DANGEROUS
+$pdo-&gt;query("SELECT * FROM users WHERE email = '$email'");</code></pre>
+<p>If <code>$email</code> is <code>' OR '1'='1</code>, the query returns every user. This is <strong>SQL injection</strong>, and it has leaked more data than any other mistake.</p>
+<p>A <strong>prepared statement</strong> sends the SQL and the values separately. The database never mistakes a value for SQL:</p>
+<pre><code class="lang-php">$statement = $pdo-&gt;prepare('SELECT * FROM users WHERE email = :email');
+$statement-&gt;execute(['email' =&gt; $email]);
+$user = $statement-&gt;fetch();        // one row as an array, or false when there is none</code></pre>
+<p>Use a placeholder for <strong>every</strong> value that comes from outside. No exceptions.</p>
+<h2 id="reading-rows">Reading rows</h2>
+<pre><code class="lang-php">$statement = $pdo-&gt;prepare('SELECT id, name FROM users WHERE name LIKE :pattern ORDER BY name');
+$statement-&gt;execute(['pattern' =&gt; 'S%']);
+
+$all = $statement-&gt;fetchAll();              // every row
+$names = $statement-&gt;fetchAll(PDO::FETCH_COLUMN, 1);   // one column as a plain list
+
+$count = (int) $pdo-&gt;query('SELECT COUNT(*) FROM users')-&gt;fetchColumn();</code></pre>
+<h2 id="writing-rows">Writing rows</h2>
+<pre><code class="lang-php">$statement = $pdo-&gt;prepare('INSERT INTO users (email, name) VALUES (:email, :name)');
+$statement-&gt;execute(['email' =&gt; 'sam@example.com', 'name' =&gt; 'Sam']);
+$id = (int) $pdo-&gt;lastInsertId();
+
+$statement = $pdo-&gt;prepare('UPDATE users SET name = :name WHERE id = :id');
+$statement-&gt;execute(['name' =&gt; 'Samuel', 'id' =&gt; $id]);
+$changed = $statement-&gt;rowCount();          // how many rows were affected</code></pre>
+<p>A broken rule, such as a duplicate email in a <code>UNIQUE</code> column, throws a <code>PDOException</code>.</p>
+<h2 id="transactions">Transactions</h2>
+<p>Changes that belong together must all happen or none:</p>
+<pre><code class="lang-php">$pdo-&gt;beginTransaction();
+try {
+    $pdo-&gt;prepare('UPDATE accounts SET balance = balance - :n WHERE id = :id')
+        -&gt;execute(['n' =&gt; 50, 'id' =&gt; 1]);
+    $pdo-&gt;prepare('UPDATE accounts SET balance = balance + :n WHERE id = :id')
+        -&gt;execute(['n' =&gt; 50, 'id' =&gt; 2]);
+    $pdo-&gt;commit();
+} catch (Throwable $e) {
+    $pdo-&gt;rollBack();
+    throw $e;
+}</code></pre>
+<h2 id="a-repository-class">A repository class</h2>
+<p>Keep SQL in one place, behind methods with clear names. The rest of the program then knows nothing about tables:</p>
+<pre><code class="lang-php">class UserRepository
+{
+    public function __construct(private PDO $pdo)
+    {
+    }
+
+    public function findByEmail(string $email): ?array
+    {
+        $statement = $this-&gt;pdo-&gt;prepare('SELECT * FROM users WHERE email = :email');
+        $statement-&gt;execute(['email' =&gt; $email]);
+        return $statement-&gt;fetch() ?: null;
+    }
+}</code></pre>
+<p>The <code>PDO</code> object is <strong>passed in</strong>. A test hands over an in-memory database, and production hands over the real one. This is called <strong>dependency injection</strong>, and it is the reason the class is easy to test.</p>
+<h2 id="passwords">Passwords</h2>
+<p>Never store a password. Store a <strong>hash</strong>:</p>
+<pre><code class="lang-php">$hash = password_hash($password, PASSWORD_DEFAULT);     // store this
+if (password_verify($typed, $hash)) {
+    // correct
+}</code></pre>
+<p><code>password_hash</code> uses a slow algorithm with a random salt, which is exactly what protects passwords when a database leaks. Never use <code>md5</code> or <code>sha1</code> for passwords: they are fast, and fast is the problem.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Building SQL by joining strings with user input.</strong></li><li><strong>Storing passwords</strong> as plain text or as md5.</li><li><strong>Not checking the result of <code>fetch</code></strong>, which is <code>false</code> when no row matches.</li><li><strong>Forgetting <code>rollBack</code></strong> when a step of a transaction fails.</li><li><strong>Creating a new connection inside every function</strong> in place of passing one in.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="php/06-todo-repository">
+<h3>A repository with PDO <span class="ex-id">php/06-todo-repository</span></h3>
+<p>Write the class <code>TodoRepository</code> in <code>solution.php</code>. Its constructor receives a <code>PDO</code> connection. The tests pass an in-memory SQLite database.</p>
+<ul><li><code>createTable(): void</code> creates the table <code>todos</code> with the columns <code>id</code> (integer primary key, auto-increment), <code>title</code> (text, not null) and <code>done</code> (integer, not null, default 0).</li><li><code>add(string $title): int</code> inserts a todo and returns its id. The title is trimmed. An empty title throws an <code>InvalidArgumentException</code>.</li><li><code>find(int $id): ?array</code> returns the todo as <code>['id' =&gt; 1, 'title' =&gt; '...', 'done' =&gt; false]</code>, or <code>null</code>. <code>id</code> is an <code>int</code> and <code>done</code> is a <code>bool</code>.</li><li><code>all(bool $onlyOpen = false): array</code> returns a list of todos in that same form, ordered by id. With <code>true</code> it returns only those that are not done.</li><li><code>complete(int $id): bool</code> marks a todo as done. It returns <code>true</code> when a row was changed, <code>false</code> when there is no such todo.</li><li><code>delete(int $id): bool</code> removes a todo, and returns whether one was removed.</li><li><code>addMany(array $titles): void</code> inserts all the titles <strong>in one transaction</strong>. If any title is empty, nothing is inserted and the <code>InvalidArgumentException</code> is thrown on.</li></ul>
+<p>Use prepared statements for every value. The tests try a title that would break a query built by joining strings.</p>
+<p class="ex-files">Files: <code>exercises/php/06-todo-repository/</code></p>
+<pre><code class="lang-console">$ python3 check.py php/06-todo-repository</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../php/05-web.html"><span>Previous</span>Requests, forms and JSON</a><a class="next" href="../react/01-components-and-jsx.html"><span>Next</span>Components and JSX</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

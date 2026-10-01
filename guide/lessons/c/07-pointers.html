@@ -6,13 +6,17 @@
 <title>Pointers · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="c/07-pointers">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -92,6 +96,7 @@ printf("%d\n", p[2]);      // 30</code></pre>
 <p>Put <code>const</code> on pointer parameters that are only read. It documents the function and lets the compiler catch accidental writes.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Dereferencing an uninitialised or <code>NULL</code> pointer.</strong> Segmentation fault.</li><li><strong>Returning the address of a local variable.</strong> The variable is gone when the function returns, and the pointer is left <strong>dangling</strong>.</li><li><strong>Mixing up <code>p</code> and <code>*p</code>.</strong> <code>p = 7</code> changes where the pointer points. <code>*p = 7</code> changes the value there.</li><li><strong><code>int* a, b;</code></strong> declares one pointer and one plain <code>int</code>. Declare one variable per line.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="c/09-pointers">
@@ -106,7 +111,9 @@ printf("%d\n", p[2]);      // 30</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

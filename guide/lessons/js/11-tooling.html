@@ -6,13 +6,17 @@
 <title>Tooling and what comes next · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="js/11-tooling">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -69,12 +73,15 @@ const apiKey = process.env.API_KEY;</code></pre>
 <ul><li><a href="../react/01-components-and-jsx.html">React</a> for user interfaces;</li><li><a href="../next/01-app-router.html">Next.js</a> for complete web applications;</li><li><a href="../sql/01-select.html">SQL and PostgreSQL</a> to store data properly;</li><li><a href="../docker/01-images-and-containers.html">Docker</a> to package and run what you build.</li></ul>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>No formatter or linter</strong>, and time lost on things a tool would catch.</li><li><strong>Committing <code>.env</code>.</strong></li><li><strong>Many tools added at once.</strong> Add one when you feel the problem it solves.</li><li><strong>Debugging only with <code>console.log</code></strong> when a breakpoint would show everything at once.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 
-<nav class="pager"><a class="prev" href="../js/10-the-browser-and-dom.html"><span>Previous</span>The browser and the DOM</a><a class="next" href="../react/01-components-and-jsx.html"><span>Next</span>Components and JSX</a></nav>
+<nav class="pager"><a class="prev" href="../js/10-the-browser-and-dom.html"><span>Previous</span>The browser and the DOM</a><a class="next" href="../php/01-basics.html"><span>Next</span>PHP basics</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

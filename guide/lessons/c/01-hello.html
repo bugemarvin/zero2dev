@@ -6,13 +6,17 @@
 <title>Hello, C · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="c/01-hello">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,24 @@
 <p class="crumb">C · lesson 1 of 12</p>
 <h1>Hello, C</h1>
 <p class="lede">Write, compile and run your first C program, and learn to read what the compiler tells you.</p>
+<details class="install" id="install" data-track="c">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack core</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks core</code></pre>
+<h4>C compiler, Make, Git and shell tools: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get update
+$ sudo apt-get install -y build-essential gdb valgrind make git curl</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ xcode-select --install</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ gcc --version &amp;&amp; git --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs C in the image <code>gcc:14</code> (one download).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="why-start-with-c">Why start with C</h2>
 <p>C is small, and it hides very little. You see how memory, numbers and text really work inside the machine. Languages like Python, Java and JavaScript are themselves built in C or its descendants, so what you learn here explains a lot of what they do for you.</p>
 <h2 id="the-program">The program</h2>
@@ -61,6 +83,7 @@ hello.c:4:30: error: expected ';' before 'return'
 <p>The compiler ignores comments. Use them to explain <em>why</em> the code does something, when the reason is not obvious from the code.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Forgetting <code>\n</code></strong>, so that your output and the next prompt run together.</li><li><strong>Editing the file and forgetting to compile again.</strong> You then run the old program.</li><li><strong>Writing <code>Printf</code> or <code>Main</code>.</strong> C is case-sensitive.</li><li><strong>Running <code>hello</code> with no <code>./</code></strong>, which gives <code>command not found</code>.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="c/01-hello">
@@ -79,7 +102,9 @@ $ ./hello</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

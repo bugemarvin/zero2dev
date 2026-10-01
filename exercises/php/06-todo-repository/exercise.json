@@ -1,0 +1,20 @@
+{
+  "title": "A repository with PDO",
+  "lesson": "php/06-databases",
+  "kind": "harness",
+  "lang": "php",
+  "edit": [
+    "solution.php"
+  ],
+  "run": [
+    "php",
+    "tests.php"
+  ],
+  "timeout": 30,
+  "hints": [
+    "add: $statement = $this->pdo->prepare('INSERT INTO todos (title) VALUES (:title)'); $statement->execute(['title' => $title]); return (int) $this->pdo->lastInsertId();",
+    "SQLite returns done as 0 or 1. Convert each row: ['id' => (int) $row['id'], 'title' => $row['title'], 'done' => (bool) $row['done']].",
+    "complete and delete: after execute, return $statement->rowCount() > 0.",
+    "addMany: beginTransaction, add each title inside try, commit, and in catch call rollBack and throw the exception again."
+  ]
+}

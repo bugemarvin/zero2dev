@@ -1,0 +1,114 @@
+{
+  "title": "Style a page with selectors",
+  "lesson": "css/01-selectors-and-cascade",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": "body: colour #222222 and a sans-serif font",
+      "select": "body",
+      "style": {
+        "color": "#222222",
+        "font-family": "~sans-serif"
+      }
+    },
+    {
+      "name": "the paragraphs inherit the body colour",
+      "select": "p",
+      "style": {
+        "color": "#222222"
+      }
+    },
+    {
+      "name": "the h1 is navy",
+      "select": "h1",
+      "style": {
+        "color": "navy"
+      }
+    },
+    {
+      "name": "the intro paragraph is 1.25rem",
+      "select": "p.intro",
+      "style": {
+        "font-size": "1.25rem"
+      }
+    },
+    {
+      "name": "the other paragraph is not",
+      "select": "p:not(.intro)",
+      "style": {
+        "font-size": [
+          null
+        ]
+      }
+    },
+    {
+      "name": "nav links have no underline",
+      "select": "nav a",
+      "style": {
+        "text-decoration": "none"
+      }
+    },
+    {
+      "name": "the active link is bold",
+      "select": "nav a.active",
+      "style": {
+        "font-weight": [
+          "bold",
+          "700"
+        ]
+      }
+    },
+    {
+      "name": "the other links are not bold",
+      "select": "nav a:not(.active)",
+      "style": {
+        "font-weight": [
+          null,
+          "normal",
+          "400"
+        ]
+      }
+    },
+    {
+      "name": "a hovered nav link is underlined",
+      "select": "nav a",
+      "state": "hover",
+      "style": {
+        "text-decoration": "underline"
+      }
+    },
+    {
+      "name": "the first list item is bold",
+      "select": "li:first-child",
+      "style": {
+        "font-weight": [
+          "bold",
+          "700"
+        ]
+      }
+    },
+    {
+      "name": "the other list items are not",
+      "select": "li:not(:first-child)",
+      "style": {
+        "font-weight": [
+          null,
+          "normal",
+          "400"
+        ]
+      }
+    }
+  ],
+  "hints": [
+    "A class selector starts with a dot: .intro { font-size: 1.25rem; }",
+    "Links inside the nav: nav a { ... }. The hover state: nav a:hover { ... }.",
+    "The first list item: li:first-child { font-weight: bold; }"
+  ]
+}

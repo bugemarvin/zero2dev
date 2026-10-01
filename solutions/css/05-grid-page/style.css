@@ -1,0 +1,24 @@
+.page {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  gap: 1rem;
+}
+
+.page > header { grid-area: header; }
+.page > aside { grid-area: sidebar; }
+.page > main { grid-area: main; }
+.page > footer { grid-area: footer; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.featured {
+  grid-column: span 2;
+}

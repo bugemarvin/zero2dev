@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive design · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="css/06-responsive">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">CSS · lesson 6 of 6</p>
+<h1>Responsive design</h1>
+<p class="lede">One page that works on a phone, a laptop and everything between.</p>
+<h2 id="the-viewport-tag">The viewport tag</h2>
+<p>Without this line, a phone pretends to be 980 pixels wide and shows your page zoomed out:</p>
+<pre><code class="lang-html">&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code></pre>
+<p>It belongs in the head of every page.</p>
+<h2 id="start-with-a-page-that-already-flows">Start with a page that already flows</h2>
+<p>Most of a responsive design needs no special code:</p>
+<ul><li>Blocks fill the width they are given, and text wraps.</li><li><code>max-width</code> in place of <code>width</code> lets things shrink.</li><li><code>flex-wrap</code> and <code>repeat(auto-fit, minmax(...))</code> move items to the next row.</li></ul>
+<p>And one rule that prevents wide images from breaking the layout:</p>
+<pre><code class="lang-css">img {
+  max-width: 100%;
+  height: auto;
+}</code></pre>
+<h2 id="media-queries">Media queries</h2>
+<p>A <strong>media query</strong> applies rules only when a condition holds:</p>
+<pre><code class="lang-css">.layout {
+  display: grid;
+  grid-template-columns: 1fr;          /* one column: the phone layout */
+  gap: 1rem;
+}
+
+@media (min-width: 700px) {
+  .layout {
+    grid-template-columns: 240px 1fr;  /* a sidebar from 700px up */
+  }
+}</code></pre>
+<p>A rule inside the block competes with the others under the normal cascade rules. It has no extra weight, so put media queries <strong>after</strong> the rules they override.</p>
+<h2 id="mobile-first">Mobile first</h2>
+<p>The example above is written <strong>mobile first</strong>: the base rules describe the small screen, and <code>min-width</code> queries add to them as the screen grows. This is the usual way, for two reasons:</p>
+<ul><li>the small layout is the simple one, usually a single column, so it makes a good base;</li><li>a phone, the slowest device, uses the least CSS.</li></ul>
+<p>The width at which a layout changes is a <strong>breakpoint</strong>. Do not pick breakpoints from a list of devices. Narrow the browser window until the layout looks wrong, and put the breakpoint there.</p>
+<h2 id="other-things-you-can-ask">Other things you can ask</h2>
+<div class="table-wrap"><table><thead><tr><th>Query</th><th>True when</th></tr></thead><tbody><tr><td><code>(min-width: 700px)</code></td><td>the window is at least 700px wide</td></tr><tr><td><code>(max-width: 699px)</code></td><td>the window is at most 699px wide</td></tr><tr><td><code>(orientation: landscape)</code></td><td>the window is wider than it is tall</td></tr><tr><td><code>(prefers-color-scheme: dark)</code></td><td>the user's system is in dark mode</td></tr><tr><td><code>(prefers-reduced-motion: reduce)</code></td><td>the user asked for less animation</td></tr><tr><td><code>(hover: hover)</code></td><td>the device has a pointer that can hover</td></tr></tbody></table></div>
+<h2 id="sizes-that-scale-by-themselves">Sizes that scale by themselves</h2>
+<pre><code class="lang-css">h1 {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}</code></pre>
+<p><code>clamp(minimum, preferred, maximum)</code>: the size follows the window width and never leaves the limits.</p>
+<h2 id="touch">Touch</h2>
+<p>On a phone there is no mouse and no hover. Make links and buttons at least about 44 by 44 pixels, and never hide information behind <code>:hover</code> alone.</p>
+<h2 id="test-it">Test it</h2>
+<p>In the developer tools, the device toolbar (Ctrl+Shift+M) shows the page at any width. Drag the edge slowly and watch for the moment the layout breaks.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No viewport meta tag.</strong></li><li><strong>Fixed widths in pixels</strong> that cause sideways scrolling. A page should never scroll sideways.</li><li><strong>Desktop first</strong>, then a pile of <code>max-width</code> queries to undo it.</li><li><strong>Media queries before the base rule</strong>, where they lose the cascade.</li><li><strong>Hiding content on mobile.</strong> Phone users want the same information.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="css/06-responsive-layout">
+<h3>Mobile first <span class="ex-id">css/06-responsive-layout</span></h3>
+<p>Write <code>style.css</code> mobile first: base rules for a small screen, then one media query for wide screens.</p>
+<h4>Base rules (small screens)</h4>
+<ul><li><code>img</code> has <code>max-width: 100%</code> and <code>height: auto</code>.</li><li><code>.layout</code> is a grid with a single column: <code>grid-template-columns: 1fr</code>, and a <code>gap</code> of <code>1rem</code>.</li><li><code>.links</code> is a flex container with <code>flex-direction: column</code>.</li></ul>
+<h4>From 700px up</h4>
+<p>Inside <code>@media (min-width: 700px)</code>:</p>
+<ul><li><code>.layout</code> has the columns <code>2fr 1fr</code>.</li><li><code>.links</code> has <code>flex-direction: row</code>.</li></ul>
+<p><strong>Open preview</strong> and change the width of the window to see both layouts.</p>
+<p>The tests read your CSS as it is written. Use the property names given here: for example <code>background-color</code>, not the <code>background</code> shorthand with several values.</p>
+<p class="ex-files">Files: <code>exercises/css/06-responsive-layout/</code></p>
+<pre><code class="lang-console">$ python3 check.py css/06-responsive-layout</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../css/05-grid.html"><span>Previous</span>Grid</a><a class="next" href="../java/01-hello-jvm.html"><span>Next</span>Hello, Java</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

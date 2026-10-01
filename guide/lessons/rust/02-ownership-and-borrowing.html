@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ownership and borrowing · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/02-ownership-and-borrowing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 2 of 7</p>
+<h1>Ownership and borrowing</h1>
+<p class="lede">The one idea that makes Rust different, and safe.</p>
+<h2 id="the-three-rules">The three rules</h2>
+<ol><li>Every value has exactly one <strong>owner</strong>: a variable.</li><li>When the owner goes out of scope, the value is <strong>dropped</strong>: its memory is freed.</li><li>Ownership can <strong>move</strong> to another variable. The old one can then no longer be used.</li></ol>
+<p>There is no garbage collector and no <code>free</code>. The compiler knows, from these rules alone, exactly where each value dies.</p>
+<h2 id="moves">Moves</h2>
+<pre><code class="lang-rust">let a = String::from("hello");
+let b = a;                  // the String moves from a to b
+println!("{}", a);          // error: borrow of moved value: `a`</code></pre>
+<p>A <code>String</code> owns memory on the heap. If both <code>a</code> and <code>b</code> owned it, both would free it. So the assignment <strong>moves</strong> it, and <code>a</code> is dead.</p>
+<p>Passing a value to a function moves it too:</p>
+<pre><code class="lang-rust">fn consume(s: String) { }
+
+let s = String::from("hi");
+consume(s);
+println!("{}", s);          // error: s was moved into the function</code></pre>
+<p>Simple values that live entirely on the stack are <strong>copied</strong> instead: integers, floats, <code>bool</code>, <code>char</code>. They implement the <code>Copy</code> trait.</p>
+<pre><code class="lang-rust">let x = 5;
+let y = x;                  // a copy: x is still usable</code></pre>
+<p>When you really want two independent values, say so: <code>let b = a.clone();</code>.</p>
+<h2 id="borrowing">Borrowing</h2>
+<p>Moving everything would be painful. Usually a function only needs to <strong>look</strong> at a value. A <strong>reference</strong> borrows it without taking ownership:</p>
+<pre><code class="lang-rust">fn length(s: &amp;String) -&gt; usize {
+    s.len()
+}
+
+let s = String::from("hello");
+let n = length(&amp;s);         // lend it
+println!("{} {}", s, n);    // still ours</code></pre>
+<p><code>&amp;s</code> creates a reference. The function borrows, and gives it back when it returns.</p>
+<h2 id="mutable-borrows">Mutable borrows</h2>
+<p>A plain reference is read-only. To let a function change the value, lend it <strong>mutably</strong>:</p>
+<pre><code class="lang-rust">fn shout(s: &amp;mut String) {
+    s.push_str("!");
+}
+
+let mut s = String::from("hello");
+shout(&amp;mut s);</code></pre>
+<h2 id="the-borrowing-rule">The borrowing rule</h2>
+<p>At any moment, a value can have:</p>
+<ul><li><strong>any number of readers</strong> (<code>&amp;T</code>), <strong>or</strong></li><li><strong>exactly one writer</strong> (<code>&amp;mut T</code>),</li></ul>
+<p>and never both.</p>
+<pre><code class="lang-rust">let mut v = vec![1, 2, 3];
+let first = &amp;v[0];          // a reader
+v.push(4);                  // error: a writer, while a reader exists
+println!("{}", first);</code></pre>
+<p>This is the rule that looks harsh and saves you. <code>push</code> may move the vector's contents to a bigger block of memory, which would leave <code>first</code> pointing at freed memory. In C that is a crash waiting to happen. In Rust it does not compile. The same rule removes data races between threads.</p>
+<h2 id="slices-borrowing-a-part">Slices: borrowing a part</h2>
+<pre><code class="lang-rust">let s = String::from("hello world");
+let word: &amp;str = &amp;s[0..5];          // a view into s
+
+let numbers = vec![1, 2, 3, 4];
+let middle: &amp;[i32] = &amp;numbers[1..3];</code></pre>
+<p>Write function parameters as <code>&amp;str</code> and <code>&amp;[T]</code>, not <code>&amp;String</code> and <code>&amp;Vec&lt;T&gt;</code>. They accept more:</p>
+<pre><code class="lang-rust">fn first_word(text: &amp;str) -&gt; &amp;str {
+    text.split_whitespace().next().unwrap_or("")
+}
+
+first_word("hello world");               // a literal
+first_word(&amp;String::from("hi there"));   // a String, borrowed</code></pre>
+<h2 id="references-never-dangle">References never dangle</h2>
+<pre><code class="lang-rust">fn broken() -&gt; &amp;String {
+    let s = String::from("hi");
+    &amp;s                      // error: s is dropped here, the reference would point at nothing
+}</code></pre>
+<p>Return the <code>String</code> itself. That moves ownership out to the caller.</p>
+<h2 id="how-to-think-about-it">How to think about it</h2>
+<div class="table-wrap"><table><thead><tr><th>You write</th><th>Meaning</th></tr></thead><tbody><tr><td><code>fn f(x: T)</code></td><td>"I take this. You no longer have it."</td></tr><tr><td><code>fn f(x: &amp;T)</code></td><td>"I only look."</td></tr><tr><td><code>fn f(x: &amp;mut T)</code></td><td>"I will change yours."</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Using a value after moving it.</strong> Borrow with <code>&amp;</code>, or <code>clone()</code> if you need two.</li><li><strong>Holding a reference into a collection while changing it.</strong></li><li><strong>Sprinkling <code>.clone()</code> everywhere</strong> to silence the compiler. It works, and costs speed. First ask whether a reference would do.</li><li><strong>Returning a reference to a local variable.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/02-borrowing">
+<h3>Borrow, do not take <span class="ex-id">rust/02-borrowing</span></h3>
+<p>Write four functions in <code>solution.rs</code>. Each is <code>pub</code>. The signatures are given: fill in the bodies.</p>
+<ul><li><code>longest&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str</code> returns the longer of two texts, and <code>a</code> when they have the same length.</li><li><code>total(numbers: &amp;[i32]) -&gt; i32</code> returns the sum. It only reads the slice.</li><li><code>double_all(numbers: &amp;mut Vec&lt;i32&gt;)</code> doubles every number <strong>in place</strong>.</li><li><code>append_exclamation(text: &amp;mut String)</code> adds one <code>!</code> to the end of the text.</li></ul>
+<p>The <code>'a</code> in <code>longest</code> is a <strong>lifetime</strong>: it tells the compiler that the result lives as long as the two inputs. You only need to write the body.</p>
+<p class="ex-files">Files: <code>exercises/rust/02-borrowing/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/02-borrowing</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/01-basics.html"><span>Previous</span>Rust basics</a><a class="next" href="../rust/03-structs-enums-match.html"><span>Next</span>Structs, enums and match</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

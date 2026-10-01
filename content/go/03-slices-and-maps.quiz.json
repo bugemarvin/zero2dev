@@ -1,0 +1,43 @@
+[
+ {
+  "q": "What does this print?",
+  "accept": [
+   "99"
+  ],
+  "why": "b := a copies the slice header, not the elements. Both see the same array.",
+  "code": "a := []int{1, 2, 3}\nb := a\nb[0] = 99\nfmt.Println(a[0])"
+ },
+ {
+  "q": "What does reading a missing key from a map[string]int give?",
+  "options": [
+   "A panic",
+   "nil",
+   "0",
+   "-1"
+  ],
+  "answer": 2,
+  "why": "A missing key gives the zero value of the value type."
+ },
+ {
+  "q": "In what order does range visit a map?",
+  "options": [
+   "Insertion order",
+   "Sorted by key",
+   "Random order",
+   "Reverse order"
+  ],
+  "answer": 2,
+  "why": "Map iteration order is deliberately random. Sort the keys when order matters."
+ },
+ {
+  "q": "What is wrong with: append(numbers, 4) on a line by itself?",
+  "options": [
+   "Nothing",
+   "The result is not assigned, so it does not compile",
+   "append needs three arguments",
+   "It panics"
+  ],
+  "answer": 1,
+  "why": "append returns the new slice. Write numbers = append(numbers, 4)."
+ }
+]

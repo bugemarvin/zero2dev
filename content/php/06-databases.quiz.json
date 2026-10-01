@@ -1,0 +1,46 @@
+[
+ {
+  "q": "How do you safely put a user's value into a query?",
+  "options": [
+   "Join it into the SQL string",
+   "Escape quotes by hand",
+   "Use a prepared statement with a placeholder",
+   "Check its length"
+  ],
+  "answer": 2,
+  "why": "Prepared statements send SQL and values separately, so a value can never be run as SQL."
+ },
+ {
+  "q": "What does $statement->fetch() return when no row matches?",
+  "options": [
+   "null",
+   "false",
+   "An empty array",
+   "It throws"
+  ],
+  "answer": 1,
+  "why": "fetch returns false when there are no more rows."
+ },
+ {
+  "q": "How should passwords be stored?",
+  "options": [
+   "As plain text",
+   "With md5",
+   "With password_hash",
+   "Encrypted with a key in the code"
+  ],
+  "answer": 2,
+  "why": "password_hash is slow and salted on purpose. Verify with password_verify."
+ },
+ {
+  "q": "A transaction has two updates and the second fails. What should happen?",
+  "options": [
+   "Keep the first update",
+   "Roll back so neither is applied",
+   "Retry forever",
+   "Ignore the error"
+  ],
+  "answer": 1,
+  "why": "A transaction is all or nothing: rollBack undoes the first update."
+ }
+]

@@ -12,6 +12,7 @@ TOOLS = {
     "make": {"name": "Make", "version": ["make", "--version"], "stack": "core"},
     "docker": {"name": "Docker", "version": ["docker", "--version"], "stack": "docker"},
     "npm": {"name": "npm", "version": ["npm", "--version"], "stack": "node"},
+    "browser": {"name": "A web browser", "version": None, "stack": None},
 }
 
 
@@ -48,6 +49,9 @@ def toolchain(lang):
 
 def tool(name):
     info = TOOLS[name]
+    if name == "browser":
+        return {"id": name, "name": info["name"], "stack": None, "install": None, "state": "native", "version": None,
+                "detail": "you are using one right now. Nothing to install."}
     base = {"id": name, "name": info["name"], "stack": info["stack"],
             "install": f"setup/install.sh --stack {info['stack']}"}
     if name == "docker":

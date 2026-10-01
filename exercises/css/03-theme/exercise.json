@@ -1,0 +1,86 @@
+{
+  "title": "A theme with variables",
+  "lesson": "css/03-colours-fonts-units",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": ":root defines --brand, --text and --page",
+      "select": "html",
+      "style": {
+        "--brand": "#1a73e8",
+        "--text": "#222222",
+        "--page": "#ffffff"
+      }
+    },
+    {
+      "name": "body text uses --text",
+      "select": "body",
+      "style": {
+        "color": "#222222"
+      }
+    },
+    {
+      "name": "body background uses --page",
+      "select": "body",
+      "style": {
+        "background-color": "#ffffff"
+      }
+    },
+    {
+      "name": "the font family ends with sans-serif",
+      "select": "body",
+      "style": {
+        "font-family": "~sans-serif"
+      }
+    },
+    {
+      "name": "the line height is 1.5",
+      "select": "body",
+      "style": {
+        "line-height": "1.5"
+      }
+    },
+    {
+      "name": "the h1 is 2rem and brand-coloured",
+      "select": "h1",
+      "style": {
+        "font-size": "2rem",
+        "color": "#1a73e8"
+      }
+    },
+    {
+      "name": ".lead is 1.25rem",
+      "select": ".lead",
+      "style": {
+        "font-size": "1.25rem"
+      }
+    },
+    {
+      "name": ".small is 0.875rem",
+      "select": ".small",
+      "style": {
+        "font-size": "0.875rem"
+      }
+    },
+    {
+      "name": ".button has the brand background and page-coloured text",
+      "select": ".button",
+      "style": {
+        "background-color": "#1a73e8",
+        "color": "#ffffff"
+      }
+    }
+  ],
+  "hints": [
+    "Inside :root { } write --brand: #1a73e8; and the two others the same way.",
+    "Read a variable with var(): color: var(--text);",
+    "0.875rem can also be written .875rem."
+  ]
+}

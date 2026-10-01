@@ -1,0 +1,47 @@
+[
+ {
+  "q": "Which operator compares value and type?",
+  "options": [
+   "=",
+   "==",
+   "===",
+   "<>"
+  ],
+  "answer": 2,
+  "why": "=== is true only when both the value and the type are the same."
+ },
+ {
+  "q": "What does this print?",
+  "options": [
+   "Hello, $name",
+   "Hello, Sam",
+   "An error",
+   "Hello, "
+  ],
+  "answer": 0,
+  "why": "Single quotes do not fill in variables.",
+  "code": "$name = 'Sam';\necho 'Hello, $name';"
+ },
+ {
+  "q": "How do you join two strings in PHP?",
+  "options": [
+   "+",
+   ".",
+   "&",
+   ","
+  ],
+  "answer": 1,
+  "why": "The dot joins strings. + is for numbers."
+ },
+ {
+  "q": "What does declare(strict_types=1) change?",
+  "options": [
+   "It makes PHP faster",
+   "Passing a value of the wrong type becomes an error",
+   "Variables need declaring",
+   "It disables echo"
+  ],
+  "answer": 1,
+  "why": "Without it PHP silently converts between scalar types."
+ }
+]

@@ -1,0 +1,138 @@
+{
+  "title": "A notes API with net/http",
+  "lesson": "go/07-modules-testing-http",
+  "kind": "http",
+  "lang": "go",
+  "edit": [
+    "main.go"
+  ],
+  "start": [
+    "go",
+    "run",
+    "main.go"
+  ],
+  "start_timeout": 180,
+  "timeout": 20,
+  "requests": [
+    {
+      "name": "GET /notes starts as an empty list",
+      "path": "/notes",
+      "status": 200,
+      "json": [],
+      "header": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "name": "POST /notes creates a note and answers 201",
+      "method": "POST",
+      "path": "/notes",
+      "body": {
+        "text": "buy milk"
+      },
+      "status": 201,
+      "json": {
+        "id": 1,
+        "text": "buy milk"
+      }
+    },
+    {
+      "name": "the next note gets the next id",
+      "method": "POST",
+      "path": "/notes",
+      "body": {
+        "text": "walk the dog"
+      },
+      "status": 201,
+      "json": {
+        "id": 2,
+        "text": "walk the dog"
+      }
+    },
+    {
+      "name": "POST with an empty text answers 400",
+      "method": "POST",
+      "path": "/notes",
+      "body": {
+        "text": ""
+      },
+      "status": 400,
+      "json": {
+        "error": "text is required"
+      }
+    },
+    {
+      "name": "POST with invalid JSON answers 400",
+      "method": "POST",
+      "path": "/notes",
+      "raw": "{not json",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "status": 400,
+      "json": {
+        "error": "invalid JSON"
+      }
+    },
+    {
+      "name": "GET /notes lists both",
+      "path": "/notes",
+      "status": 200,
+      "json": [
+        {
+          "id": 1,
+          "text": "buy milk"
+        },
+        {
+          "id": 2,
+          "text": "walk the dog"
+        }
+      ]
+    },
+    {
+      "name": "GET /notes/2 returns one note",
+      "path": "/notes/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "text": "walk the dog"
+      }
+    },
+    {
+      "name": "GET /notes/99 answers 404",
+      "path": "/notes/99",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "DELETE /notes/1 answers 204",
+      "method": "DELETE",
+      "path": "/notes/1",
+      "status": 204
+    },
+    {
+      "name": "the deleted note is gone",
+      "path": "/notes/1",
+      "status": 404
+    },
+    {
+      "name": "the other note is still there",
+      "path": "/notes",
+      "status": 200,
+      "json": [
+        {
+          "id": 2,
+          "text": "walk the dog"
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "Lock the mutex in every handler that reads or writes the notes: mu.Lock() then defer mu.Unlock().",
+    "POST: decode into a struct with a Text field. On a decode error answer 400 with {\"error\": \"invalid JSON\"} and return.",
+    "The id in the path: id, err := strconv.Atoi(r.PathValue(\"id\")). Then look for the note with that ID.",
+    "DELETE: build a new slice without that note, then w.WriteHeader(http.StatusNoContent)."
+  ]
+}

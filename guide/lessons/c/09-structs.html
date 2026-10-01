@@ -6,13 +6,17 @@
 <title>Structs · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="c/09-structs">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -110,6 +114,7 @@ if (p != NULL) {
 }</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>.</code> on a pointer or <code>-&gt;</code> on a struct.</strong> The compiler error names the right one.</li><li><strong>Comparing structs with <code>==</code>.</strong> It does not compile. Compare field by field.</li><li><strong>Assigning a string into a <code>char</code> array field.</strong> <code>s.name = "Ada"</code> is an error. Use <code>strcpy(s.name, "Ada")</code>, or set it when the struct is created.</li><li><strong>Forgetting the semicolon</strong> after the closing brace of the definition.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="c/11-structs">
@@ -124,7 +129,9 @@ if (p != NULL) {
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

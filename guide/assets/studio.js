@@ -78,8 +78,19 @@
   var EXTENSIONS = {
     c: "c", h: "c", cpp: "cpp", cc: "cpp", hpp: "cpp", py: "python", java: "java", ex: "elixir", exs: "elixir",
     sql: "sql", sh: "bash", js: "javascript", mjs: "javascript", jsx: "javascript", ts: "javascript", tsx: "javascript",
-    go: "go", rs: "rust", rb: "ruby", yaml: "yaml", yml: "yaml"
+    go: "go", rs: "rust", rb: "ruby", yaml: "yaml", yml: "yaml", php: "php", html: "html", htm: "html",
+    css: "css", json: "javascript"
   };
+
+  // Unsaved edits survive a reload or a closed tab: they are kept in the browser until they are saved.
+  function draftKey(id, name) { return "z2d-draft:" + id + ":" + name; }
+  function draftGet(id, name) { try { return localStorage.getItem(draftKey(id, name)); } catch (e) { return null; } }
+  function draftSet(id, name, value) {
+    try {
+      if (value === null) localStorage.removeItem(draftKey(id, name));
+      else localStorage.setItem(draftKey(id, name), value);
+    } catch (e) { /* storage full or blocked: drafts are a convenience */ }
+  }
 
   function languageOf(name) {
     var base = name.split("/").pop();
@@ -131,6 +142,7 @@
       refresh();
     }
     this.area.addEventListener("input", refresh);
+    this.area.addEventListener("input", function () { if (self.onEdit) self.onEdit(); });
     this.area.addEventListener("scroll", function () {
       self.gutter.scrollTop = self.area.scrollTop;
       self.backdrop.scrollTop = self.area.scrollTop;
@@ -209,9 +221,12 @@
     var runLabel = info.kind === "sandbox" ? "Check my work" : "Run tests";
     this.runBtn = button(runLabel, "st-primary", function () { self.run(); });
     var bar = el("div", { class: "st-bar" }, [this.runBtn]);
-    if (info.can_show) bar.appendChild(button("Show result", "", function () { self.show(); }));
+    if (info.can_show) {
+      bar.appendChild(button(info.kind === "redis" ? "Run commands" : "Show result", "", function () { self.show(); }));
+    }
     if (info.can_start_app) {
-      this.appBtn = button(info.app ? "Stop app" : "Start app", "", function () { self.toggleApp(); });
+      this.appWords = info.kind === "web" ? ["Open preview", "Stop preview"] : ["Start app", "Stop app"];
+      this.appBtn = button(this.appWords[info.app ? 1 : 0], "", function () { self.toggleApp(); });
       bar.appendChild(this.appBtn);
     }
     if (info.hints.length) {
@@ -226,6 +241,7 @@
     } else {
       bar.appendChild(button("Reset", "st-quiet", function () {
         if (!window.confirm("Replace your code with the starter?")) return;
+        Object.keys(self.editors).forEach(function (name) { draftSet(self.id, name, null); });
         api("POST", "reset", { id: self.id, lang: self.lang }).then(function (fresh) { self.render(fresh); });
       }));
     }
@@ -247,6 +263,7 @@
     this.node.appendChild(this.results);
     this.node.appendChild(this.hintBox);
     if (info.passed) this.status.textContent = "Passed earlier. Run again any time.";
+    if (this.restored) { this.status.textContent = "Your unsaved changes were restored."; this.restored = false; }
   };
 
   Studio.prototype.toolNote = function (info) {
@@ -269,6 +286,15 @@
       if (file.editable) {
         var editor = new Editor(file, function () { self.run(); });
         self.editors[file.name] = editor;
+        var draft = draftGet(self.id, file.name);
+        if (draft !== null && draft !== file.content) {
+          editor.area.value = draft;          // not saved to disk yet: `saved` still holds the file's content
+          editor.refresh();
+          self.restored = true;
+        }
+        editor.onEdit = function () {
+          draftSet(self.id, file.name, editor.dirty() ? editor.value() : null);
+        };
         pane = editor.node;
       } else {
         var shown = languageOf(file.name);
@@ -313,7 +339,7 @@
     this.node.appendChild(panes);
     this.node.appendChild(el("p", {
       class: "st-keys",
-      text: "Ctrl+Enter runs the tests. Tab indents; press Esc first to move on with Tab. Your code is saved to exercises/" + info.id + "/."
+      text: "Ctrl+Enter runs the tests. Tab indents; press Esc first to move on with Tab. Your code is saved to exercises/" + info.id + "/ when you run it; until then the browser keeps it as a draft."
     }));
   };
 
@@ -371,7 +397,10 @@
     this.setBusy(true, "Running ...");
     this.results.textContent = "";
     api("POST", "run", { id: this.id, lang: this.lang, files: this.files() }).then(function (r) {
-      Object.keys(self.editors).forEach(function (name) { self.editors[name].saved = self.editors[name].value(); });
+      Object.keys(self.editors).forEach(function (name) {
+        self.editors[name].saved = self.editors[name].value();
+        draftSet(self.id, name, null);
+      });
       self.showRun(r);
     }).catch(function (error) {
       self.results.appendChild(el("p", { class: "st-fail", text: error.message }));
@@ -437,13 +466,17 @@
 
   Studio.prototype.show = function () {
     var self = this;
-    this.setBusy(true, "Running your query ...");
+    this.setBusy(true, "Running ...");
     this.results.textContent = "";
     api("POST", "show", { id: this.id, files: this.files() }).then(function (r) {
       self.status.textContent = "";
       if (r.error) {
         self.results.appendChild(el("p", { class: "st-fail", text: r.error }));
         if (r.download) self.offerDownload(r.download, function () { self.show(); });
+        return;
+      }
+      if (r.text !== undefined) {
+        self.results.appendChild(el("pre", { class: "st-detail st-output", text: r.text }));
         return;
       }
       var head = el("tr", {}, r.columns.map(function (c) { return el("th", { text: c }); }));
@@ -464,7 +497,7 @@
 
   Studio.prototype.showApp = function (app) {
     this.appLink.textContent = "";
-    if (this.appBtn) this.appBtn.textContent = app ? "Stop app" : "Start app";
+    if (this.appBtn) this.appBtn.textContent = this.appWords[app ? 1 : 0];
     if (!app) return;
     this.appLink.appendChild(document.createTextNode("Your app is running at "));
     this.appLink.appendChild(el("a", { href: app.url, target: "_blank", rel: "noopener", text: app.url }));
@@ -472,12 +505,13 @@
 
   Studio.prototype.toggleApp = function () {
     var self = this;
-    var running = this.appBtn.textContent === "Stop app";
+    var running = this.appBtn.textContent === this.appWords[1];
     this.appBtn.disabled = true;
     this.status.textContent = running ? "Stopping ..." : "Starting your app ...";
     api("POST", "app", { id: this.id, action: running ? "stop" : "start", files: this.files() }).then(function (r) {
       self.status.textContent = "";
       self.showApp(r.app);
+      if (r.app && !running && self.info.kind === "web") window.open(r.app.url, "_blank", "noopener");
       if (r.error) {
         self.results.textContent = "";
         self.results.appendChild(el("pre", { class: "st-detail", text: r.error }));
@@ -559,7 +593,9 @@
       var open = button("Open in workspace", "st-primary", function () { self.show(index); self.open(); });
       box.appendChild(el("p", { class: "ws-launch" }, [open]));
     });
-    this.show(0);
+    var lessonKey = "z2d-ws-tab:" + (document.body.dataset.lesson || "");
+    this.tabKey = lessonKey;
+    this.show(Math.min(Number(storeGet(lessonKey)) || 0, boxes.length - 1));
 
     closeBtn.addEventListener("click", function () { self.close(); });
     this.opener.addEventListener("click", function () { self.open(); });
@@ -610,6 +646,7 @@
     this.panes.forEach(function (pane, i) { pane.hidden = i !== index; });
     this.tabs.forEach(function (tab, i) { tab.setAttribute("aria-selected", i === index ? "true" : "false"); });
     this.tabBar.hidden = this.tabs.length < 2;
+    if (this.tabKey) storeSet(this.tabKey, String(index));
     this.refresh();
   };
 
@@ -638,6 +675,76 @@
   };
   var USER_STACKS = ["node", "java", "go", "rust", "elixir"];
 
+  // One line of the Setup page or of a lesson's install box: a badge, what was found, and what can be done about it.
+  function needRow(item, kind, canSudo, log, reload) {
+    var badge = BADGE[item.state] || [item.state, "st-warn"];
+    var actions = el("div", { class: "st-actions" });
+    function job(payload, label) {
+      var b = button(label, "", function () {
+        b.disabled = true;
+        api("POST", "job", payload).then(function (j) { watchJob(j, log, reload); })
+          .catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
+      });
+      actions.appendChild(b);
+    }
+    function service(action, label, purge) {
+      var b = button(label, "", function () {
+        b.disabled = true;
+        api("POST", "service", { name: item.id, action: action, purge: !!purge }).then(function (r) {
+          if (r.download) {
+            api("POST", "job", r.download).then(function (j) {
+              watchJob(j, log, function (ok) { if (ok) api("POST", "service", { name: item.id, action: "up" }).then(reload); else reload(); });
+            });
+          } else {
+            if (r.error) { log.hidden = false; log.textContent = r.error; }
+            reload();
+          }
+        }).catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
+      });
+      actions.appendChild(b);
+    }
+    if (kind === "service") {
+      if (item.state === "running") service("down", "Stop");
+      else if (item.state === "stopped" || item.state === "absent") service("up", "Start");
+    } else if (item.state === "docker-download") {
+      job({ kind: "image", name: item.image }, "Download");
+    } else if (item.state === "workspace-download") {
+      job({ kind: "workspace", name: item.id }, "Download packages");
+    } else if (item.state === "missing" && item.stack &&
+               (USER_STACKS.indexOf(item.stack) >= 0 || canSudo) && item.id !== "docker") {
+      job({ kind: "install", name: item.stack }, "Install");
+    }
+    return el("li", { class: "st-item" }, [
+      el("span", { class: "st-badge " + badge[1], text: badge[0] }),
+      el("div", { class: "st-item-main" }, [el("strong", { text: item.name }), el("span", { text: " " + item.detail })]),
+      actions
+    ]);
+  }
+
+  // The "what this track needs" box of a track's first lesson, with what this machine really has.
+  function renderInstallBox(box) {
+    var live = el("div", { class: "install-live" });
+    var log = el("pre", { class: "st-log" });
+    log.hidden = true;
+    box.insertBefore(live, box.querySelector("summary").nextSibling);
+    function load() {
+      live.textContent = "Checking this machine ...";
+      api("GET", "track", { id: box.dataset.track }).then(function (track) {
+        live.textContent = "";
+        live.appendChild(el("p", {
+          class: track.ready ? "st-tool st-ok" : "st-tool st-warn",
+          text: track.ready ? "This machine is ready for this track." : "Something is missing for this track. See below."
+        }));
+        live.appendChild(el("ul", { class: "st-items" }, track.needs.map(function (item) {
+          return needRow(item, item.kind, track.can_sudo, log, load);
+        })));
+        live.appendChild(log);
+        if (!track.ready) box.open = true;
+      }).catch(function (error) { live.textContent = "Could not check this machine: " + error.message; });
+    }
+    load();
+  }
+
   function renderSetup(mount) {
     mount.textContent = "Checking this machine ...";
     api("GET", "doctor").then(function (report) {
@@ -647,48 +754,7 @@
       function reload() { renderSetup(mount); }
 
       function row(item, kind) {
-        var badge = BADGE[item.state] || [item.state, "st-warn"];
-        var actions = el("div", { class: "st-actions" });
-        function job(payload, label) {
-          var b = button(label, "", function () {
-            b.disabled = true;
-            api("POST", "job", payload).then(function (j) { watchJob(j, log, reload); })
-              .catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
-          });
-          actions.appendChild(b);
-        }
-        function service(action, label, purge) {
-          var b = button(label, "", function () {
-            b.disabled = true;
-            api("POST", "service", { name: item.id, action: action, purge: !!purge }).then(function (r) {
-              if (r.download) {
-                api("POST", "job", r.download).then(function (j) {
-                  watchJob(j, log, function (ok) { if (ok) api("POST", "service", { name: item.id, action: "up" }).then(reload); else reload(); });
-                });
-              } else {
-                if (r.error) { log.hidden = false; log.textContent = r.error; }
-                reload();
-              }
-            }).catch(function (error) { log.hidden = false; log.textContent = error.message; b.disabled = false; });
-          });
-          actions.appendChild(b);
-        }
-        if (kind === "service") {
-          if (item.state === "running") service("down", "Stop");
-          else if (item.state === "stopped" || item.state === "absent") service("up", "Start");
-        } else if (item.state === "docker-download") {
-          job({ kind: "image", name: item.image }, "Download");
-        } else if (item.state === "workspace-download") {
-          job({ kind: "workspace", name: item.id }, "Download packages");
-        } else if (item.state === "missing" && item.stack &&
-                   (USER_STACKS.indexOf(item.stack) >= 0 || report.can_sudo) && item.id !== "docker") {
-          job({ kind: "install", name: item.stack }, "Install");
-        }
-        return el("li", { class: "st-item" }, [
-          el("span", { class: "st-badge " + badge[1], text: badge[0] }),
-          el("div", { class: "st-item-main" }, [el("strong", { text: item.name }), el("span", { text: " " + item.detail })]),
-          actions
-        ]);
+        return needRow(item, kind, report.can_sudo, log, reload);
       }
 
       function section(title, intro, items, kind) {
@@ -769,6 +835,9 @@
     var studios = [];
     var boxes = Array.prototype.slice.call(document.querySelectorAll(".exercise[data-ex]"));
     if (boxes.length) studios = new Workspace(boxes).studios;
+    Array.prototype.forEach.call(document.querySelectorAll("details.install[data-track]"), renderInstallBox);
+    if (window.Z2D) window.Z2D.api = api;
+    document.dispatchEvent(new CustomEvent("z2d:local"));
     var mount = document.getElementById("setup");
     if (mount) renderSetup(mount);
     api("GET", "state").then(function (state) {

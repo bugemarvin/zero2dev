@@ -1,0 +1,107 @@
+{
+  "title": "Boxes: a column of cards",
+  "lesson": "css/02-box-model",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": "every element uses border-box",
+      "select": ".card, .button, h1",
+      "style": {
+        "box-sizing": "border-box"
+      }
+    },
+    {
+      "name": ".page is at most 600px wide",
+      "select": ".page",
+      "style": {
+        "max-width": "600px"
+      }
+    },
+    {
+      "name": ".page is centred with automatic side margins",
+      "select": ".page",
+      "style": {
+        "margin-left": "auto",
+        "margin-right": "auto",
+        "margin-top": "0"
+      }
+    },
+    {
+      "name": ".card has 16px padding on every side",
+      "select": ".card",
+      "style": {
+        "padding-top": "16px",
+        "padding-right": "16px",
+        "padding-bottom": "16px",
+        "padding-left": "16px"
+      }
+    },
+    {
+      "name": ".card has a 1px solid #cccccc border",
+      "select": ".card",
+      "style": {
+        "border": [
+          "1px solid #cccccc",
+          "1px solid #ccc"
+        ]
+      }
+    },
+    {
+      "name": ".card has rounded corners",
+      "select": ".card",
+      "style": {
+        "border-radius": "8px"
+      }
+    },
+    {
+      "name": ".card has a 24px bottom margin",
+      "select": ".card",
+      "style": {
+        "margin-bottom": "24px"
+      }
+    },
+    {
+      "name": "the card titles have no top margin",
+      "select": ".card h2",
+      "style": {
+        "margin-top": "0"
+      }
+    },
+    {
+      "name": ".button is inline-block",
+      "select": ".button",
+      "style": {
+        "display": "inline-block"
+      }
+    },
+    {
+      "name": ".button has 8px vertical and 16px horizontal padding",
+      "select": ".button",
+      "style": {
+        "padding-top": "8px",
+        "padding-bottom": "8px",
+        "padding-left": "16px",
+        "padding-right": "16px"
+      }
+    },
+    {
+      "name": ".button has a navy background",
+      "select": ".button",
+      "style": {
+        "background-color": "navy"
+      }
+    }
+  ],
+  "hints": [
+    "* { box-sizing: border-box; } applies to every element.",
+    "Centring: max-width: 600px; margin: 0 auto;",
+    "padding: 8px 16px means 8px top and bottom, 16px left and right."
+  ]
+}

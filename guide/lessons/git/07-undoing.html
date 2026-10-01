@@ -6,13 +6,17 @@
 <title>Undoing things · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="git/07-undoing">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -57,6 +61,7 @@ e1f0a2b HEAD@{1}: commit: Add experimental cache</code></pre>
 <p>If a reset removed a commit you wanted, find its hash here and return to it with <code>git reset --hard e1f0a2b</code>. <strong>Committed work is very hard to lose.</strong> Uncommitted work is easy to lose, which is one more reason to commit often.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>git reset --hard</code> with uncommitted work.</strong> It is the one command here that destroys things with no way back.</li><li><strong>Amending or resetting pushed commits.</strong> Use <code>git revert</code> on anything other people may have.</li><li><strong>Using <code>revert</code> when you meant <code>restore</code>.</strong> Revert reverses a commit. Restore puts a file back.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="git/07-undo">
@@ -72,7 +77,9 @@ e1f0a2b HEAD@{1}: commit: Add experimental cache</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

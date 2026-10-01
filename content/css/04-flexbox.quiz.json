@@ -1,0 +1,44 @@
+[
+ {
+  "q": "On which element do you put display: flex?",
+  "options": [
+   "Each item",
+   "The parent of the items",
+   "The body, always",
+   "The first item"
+  ],
+  "answer": 1,
+  "why": "The container gets display: flex. Its direct children become flex items."
+ },
+ {
+  "q": "In a row, which property moves items left, centre or right?",
+  "options": [
+   "align-items",
+   "justify-content",
+   "flex-wrap",
+   "align-self"
+  ],
+  "answer": 1,
+  "why": "justify-content distributes along the main axis, which is horizontal in a row."
+ },
+ {
+  "q": "What does flex: 1 on an item mean?",
+  "options": [
+   "Its width is 1px",
+   "It takes a share of the free space",
+   "It is the first item",
+   "It cannot shrink"
+  ],
+  "answer": 1,
+  "why": "flex: 1 lets the item grow to share the remaining space."
+ },
+ {
+  "q": "flex-direction is column. Which property now centres items horizontally?",
+  "options": [
+   "justify-content",
+   "align-items"
+  ],
+  "answer": 1,
+  "why": "In a column the main axis is vertical, so the cross axis, controlled by align-items, is horizontal."
+ }
+]

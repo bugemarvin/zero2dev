@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Text, links, images and lists · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="html/02-text-links-images">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">HTML · lesson 2 of 5</p>
+<h1>Text, links, images and lists</h1>
+<p class="lede">The elements that make up most of every page.</p>
+<h2 id="meaning-not-looks">Meaning, not looks</h2>
+<p>Choose an element for what the text <strong>means</strong>. A browser, a search engine and a screen reader all use that meaning.</p>
+<div class="table-wrap"><table><thead><tr><th>Element</th><th>Meaning</th><th>Default look</th></tr></thead><tbody><tr><td><code>&lt;em&gt;</code></td><td>emphasis: you would stress the word when speaking</td><td>italic</td></tr><tr><td><code>&lt;strong&gt;</code></td><td>importance: a warning, a key point</td><td>bold</td></tr><tr><td><code>&lt;code&gt;</code></td><td>a piece of code</td><td>monospace</td></tr><tr><td><code>&lt;blockquote&gt;</code></td><td>a quotation from elsewhere</td><td>indented</td></tr><tr><td><code>&lt;br&gt;</code></td><td>a line break inside a paragraph, for addresses and poems</td><td></td></tr></tbody></table></div>
+<pre><code class="lang-html">&lt;p&gt;Save your work &lt;strong&gt;before&lt;/strong&gt; you close the editor. I &lt;em&gt;really&lt;/em&gt; mean it.&lt;/p&gt;</code></pre>
+<h2 id="links">Links</h2>
+<p>The <code>a</code> element (anchor) makes text clickable. The <code>href</code> attribute says where it goes.</p>
+<pre><code class="lang-html">&lt;a href="https://developer.mozilla.org"&gt;MDN, the web reference&lt;/a&gt;
+&lt;a href="contact.html"&gt;Contact&lt;/a&gt;
+&lt;a href="#hobbies"&gt;Jump to my hobbies&lt;/a&gt;
+&lt;a href="mailto:sam@example.com"&gt;Email me&lt;/a&gt;</code></pre>
+<p>There are three kinds of address:</p>
+<div class="table-wrap"><table><thead><tr><th>Kind</th><th>Example</th><th>Goes to</th></tr></thead><tbody><tr><td>absolute</td><td><code>https://example.com/about</code></td><td>another site. It starts with <code>https://</code>.</td></tr><tr><td>relative</td><td><code>contact.html</code>, <code>images/cat.jpg</code>, <code>../index.html</code></td><td>a file of your own site, found from the current page</td></tr><tr><td>fragment</td><td><code>#hobbies</code></td><td>the element on this page with <code>id="hobbies"</code></td></tr></tbody></table></div>
+<p>Use <strong>relative</strong> addresses inside your own site. Then the site keeps working when you move it to another domain or open it from your disk.</p>
+<p>The link text should say where the link goes. "Click here" tells a visitor nothing when links are read out of context.</p>
+<h2 id="images">Images</h2>
+<pre><code class="lang-html">&lt;img src="images/cat.jpg" alt="A grey cat asleep on a keyboard" width="400" height="300"&gt;</code></pre>
+<ul><li><code>src</code> is the address of the image file.</li><li><code>alt</code> is the text used when the image cannot be seen: by screen readers, when the file fails to load, and by search engines. Describe what the image shows.</li><li>For an image that is pure decoration, write <code>alt=""</code>. The attribute is still there, and empty on purpose.</li><li><code>width</code> and <code>height</code> let the browser reserve the space before the image arrives, so the page does not jump.</li></ul>
+<h2 id="lists">Lists</h2>
+<p>An <strong>unordered list</strong> for items with no order, an <strong>ordered list</strong> for steps:</p>
+<pre><code class="lang-html">&lt;ul&gt;
+  &lt;li&gt;Milk&lt;/li&gt;
+  &lt;li&gt;Bread&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Boil the water&lt;/li&gt;
+  &lt;li&gt;Add the pasta&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+<p>Only <code>li</code> elements go directly inside <code>ul</code> and <code>ol</code>. A list can go inside an <code>li</code> to make a nested list.</p>
+<p>A navigation menu is a list of links:</p>
+<pre><code class="lang-html">&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="index.html"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="about.html"&gt;About&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+<h2 id="id-and-class">id and class</h2>
+<p>Two attributes work on every element:</p>
+<pre><code class="lang-html">&lt;h2 id="hobbies"&gt;Hobbies&lt;/h2&gt;
+&lt;p class="note warning"&gt;Two classes, separated by a space.&lt;/p&gt;</code></pre>
+<ul><li>An <code>id</code> is unique on the page. It is the target of <code>#hobbies</code> links.</li><li>A <code>class</code> can be used on many elements. CSS uses it to style them.</li></ul>
+<h2 id="special-characters">Special characters</h2>
+<p><code>&lt;</code> and <code>&amp;</code> have a meaning in HTML. To show them as text, write <code>&amp;lt;</code> and <code>&amp;amp;</code>. <code>&amp;gt;</code> is <code>&gt;</code>, and <code>&amp;nbsp;</code> is a space that does not wrap.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No <code>alt</code> on an image.</strong></li><li><strong><code>href</code> with a Windows path</strong> such as <code>C:\site\about.html</code>. It works only on your machine.</li><li><strong>A link written as an absolute address to your own site</strong>, which breaks when the domain changes.</li><li><strong>Using <code>&lt;br&gt;&lt;br&gt;</code> to separate paragraphs</strong> in place of <code>&lt;p&gt;</code>.</li><li><strong>Using <code>&lt;b&gt;</code> and <code>&lt;i&gt;</code></strong> where <code>&lt;strong&gt;</code> and <code>&lt;em&gt;</code> carry the meaning.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="html/02-profile">
+<h3>A profile with links and a list <span class="ex-id">html/02-profile</span></h3>
+<p>The page skeleton is given. Fill in the body.</p>
+<ul><li>An <code>h1</code> with the text <code>Sam Doe</code>.</li><li>An image with <code>src="sam.jpg"</code> and an <code>alt</code> text that describes it.</li><li>A paragraph that contains a <code>strong</code> element.</li><li>An <code>h2</code> with <code>id="links"</code> and the text <code>Links</code>.</li><li>An unordered list with <strong>three</strong> items. Each item contains one link.</li><li>The first link goes to <code>https://github.com/samdoe</code>.</li><li>The second link goes to the page <code>projects.html</code> of this site.</li><li>The third link is an email link to <code>sam@example.com</code>.</li><li>Somewhere after the list, a link with the text <code>Back to top</code> that goes to <code>#top</code>. Give the <code>h1</code> the id <code>top</code>.</li></ul>
+<p>The image file does not exist, so the preview shows the <code>alt</code> text. That is exactly what <code>alt</code> is for.</p>
+<p class="ex-files">Files: <code>exercises/html/02-profile/</code></p>
+<pre><code class="lang-console">$ python3 check.py html/02-profile</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../html/01-page-structure.html"><span>Previous</span>The structure of a page</a><a class="next" href="../html/03-tables.html"><span>Next</span>Tables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

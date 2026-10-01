@@ -1,0 +1,47 @@
+[
+ {
+  "q": "What does `let x = 5; x = 6;` do?",
+  "options": [
+   "Sets x to 6",
+   "Fails to compile: x is immutable",
+   "Creates a second x",
+   "Panics at run time"
+  ],
+  "answer": 1,
+  "why": "Variables are immutable unless declared with let mut."
+ },
+ {
+  "q": "How does this function return its value?",
+  "options": [
+   "It does not: it is missing return",
+   "The last expression without a semicolon is the result",
+   "With the -> keyword",
+   "It prints it"
+  ],
+  "answer": 1,
+  "why": "The final expression of a block is its value.",
+  "code": "fn add(a: i32, b: i32) -> i32 {\n    a + b\n}"
+ },
+ {
+  "q": "What does 0..5 contain?",
+  "options": [
+   "0 to 5",
+   "0 to 4",
+   "1 to 5",
+   "1 to 4"
+  ],
+  "answer": 1,
+  "why": "The end of a .. range is not included. ..= includes it."
+ },
+ {
+  "q": "Which tool builds and runs a Rust project?",
+  "options": [
+   "npm",
+   "cargo",
+   "make",
+   "rustup"
+  ],
+  "answer": 1,
+  "why": "cargo is the build tool and package manager. rustup installs Rust itself."
+ }
+]

@@ -6,13 +6,17 @@
 <title>What microservices are, and when to use them · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="microservices/01-what-and-why">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,24 @@
 <p class="crumb">Microservices · lesson 1 of 6</p>
 <h1>What microservices are, and when to use them</h1>
 <p class="lede">One program or many small ones. What you gain, what it costs, and how to decide.</p>
+<details class="install" id="install" data-track="microservices">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack docker</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks docker</code></pre>
+<h4>Docker: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ curl -fsSL https://get.docker.com | sh
+$ sudo usermod -aG docker "$USER"   # then log out and in</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install --cask docker   # then open Docker Desktop once</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ docker run --rm hello-world</code></pre>
+<p>On Windows install Docker Desktop and switch on its WSL integration (install.ps1 -Docker does the first part).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="the-monolith">The monolith</h2>
 <p>Most systems start as one program: one code base, one deployment, one database. This is a <strong>monolith</strong>, and it is a perfectly good way to build software.</p>
 <pre><code class="lang-text">+--------------------------------------+
@@ -65,12 +87,15 @@ client --&gt; |  gateway  |
 <p>The services are written in JavaScript with nothing but Node's standard library, so that every line is visible. They run in containers, so Node does not need to be installed on your machine. Docker does.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Starting with microservices</strong> for a system nobody understands yet.</li><li><strong>Splitting by technical layer</strong> instead of by business capability.</li><li><strong>A shared database</strong> behind several services. That is one system with extra steps.</li><li><strong>Ignoring the network</strong>, as if a remote call were as reliable as a local one.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 
 <nav class="pager"><a class="prev" href="../docker/06-good-practice.html"><span>Previous</span>Good practice</a><a class="next" href="../microservices/02-services-talking.html"><span>Next</span>Services that call each other</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

@@ -6,13 +6,17 @@
 <title>Arrays · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="c/05-arrays">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -81,6 +85,7 @@ WRITE of size 4
 printf("%d\n", grid[1][2]);   // 6: row 1, column 2</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Using index <code>n</code></strong> on an array of size <code>n</code>. The last valid index is <code>n - 1</code>.</li><li><strong><code>i &lt;= n</code> in the loop</strong>, which reaches one element too far.</li><li><strong>Calling <code>sizeof</code> on an array parameter.</strong> Inside the function it gives the size of an address, not of the array.</li><li><strong>Returning a local array from a function.</strong> Its memory is released when the function ends. The <a href="../c/08-memory.html">memory</a> lesson shows the correct way.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="c/07-arrays">
@@ -96,7 +101,9 @@ printf("%d\n", grid[1][2]);   // 6: row 1, column 2</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

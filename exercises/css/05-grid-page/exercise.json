@@ -1,0 +1,109 @@
+{
+  "title": "A page layout and a card grid",
+  "lesson": "css/05-grid",
+  "kind": "web",
+  "page": "index.html",
+  "styles": [
+    "style.css"
+  ],
+  "edit": [
+    "style.css"
+  ],
+  "checks": [
+    {
+      "name": ".page is a grid",
+      "select": ".page",
+      "style": {
+        "display": "grid"
+      }
+    },
+    {
+      "name": ".page has the columns 200px and 1fr",
+      "select": ".page",
+      "style": {
+        "grid-template-columns": "200px 1fr"
+      }
+    },
+    {
+      "name": ".page has a 1rem gap",
+      "select": ".page",
+      "style": {
+        "gap": "1rem"
+      }
+    },
+    {
+      "name": ".page draws its three rows of areas",
+      "select": ".page",
+      "style": {
+        "grid-template-areas": "'header header' 'sidebar main' 'footer footer'"
+      }
+    },
+    {
+      "name": "the header is in the header area",
+      "select": ".page > header",
+      "style": {
+        "grid-area": "header"
+      }
+    },
+    {
+      "name": "the aside is in the sidebar area",
+      "select": ".page > aside",
+      "style": {
+        "grid-area": "sidebar"
+      }
+    },
+    {
+      "name": "the main is in the main area",
+      "select": ".page > main",
+      "style": {
+        "grid-area": "main"
+      }
+    },
+    {
+      "name": "the footer is in the footer area",
+      "select": ".page > footer",
+      "style": {
+        "grid-area": "footer"
+      }
+    },
+    {
+      "name": ".cards is a grid of three equal columns",
+      "select": ".cards",
+      "style": {
+        "display": "grid",
+        "grid-template-columns": [
+          "repeat(3,1fr)",
+          "1fr 1fr 1fr"
+        ]
+      }
+    },
+    {
+      "name": ".cards has a 1rem gap",
+      "select": ".cards",
+      "style": {
+        "gap": "1rem"
+      }
+    },
+    {
+      "name": "the featured card spans two columns",
+      "select": ".featured",
+      "style": {
+        "grid-column": "span 2"
+      }
+    },
+    {
+      "name": "the other cards do not",
+      "select": ".card:not(.featured)",
+      "style": {
+        "grid-column": [
+          null
+        ]
+      }
+    }
+  ],
+  "hints": [
+    "grid-template-areas takes one quoted string per row: \"header header\" then \"sidebar main\" then \"footer footer\".",
+    "Give a child its area: .page > aside { grid-area: sidebar; }",
+    "Three equal columns: grid-template-columns: repeat(3, 1fr);"
+  ]
+}

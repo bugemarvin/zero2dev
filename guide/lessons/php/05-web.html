@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requests, forms and JSON · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="php/05-web">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">PHP · lesson 5 of 6</p>
+<h1>Requests, forms and JSON</h1>
+<p class="lede">How PHP answers a browser: input, output, escaping, and why nothing is remembered between requests.</p>
+<h2 id="one-request-one-run">One request, one run</h2>
+<p>When a request arrives, the web server starts your PHP script. The script produces a response and <strong>ends</strong>. The next request starts from zero: no variable survives.</p>
+<p>This is the big difference from Node, Go or Java servers, which are one long-running program. In PHP, anything that must last goes into a database, a file, a cache or the session.</p>
+<p>PHP has a server for development built in:</p>
+<pre><code class="lang-console">$ php -S 127.0.0.1:8000 index.php</code></pre>
+<p>With a file name at the end, <strong>every</strong> request is handled by that file. It is then called a <strong>router script</strong> or front controller.</p>
+<h2 id="reading-the-request">Reading the request</h2>
+<div class="table-wrap"><table><thead><tr><th>Source</th><th>Holds</th></tr></thead><tbody><tr><td><code>$_SERVER['REQUEST_METHOD']</code></td><td><code>GET</code>, <code>POST</code>, ...</td></tr><tr><td><code>$_SERVER['REQUEST_URI']</code></td><td>the path and query string: <code>/users?page=2</code></td></tr><tr><td><code>$_GET</code></td><td>the query string as an array: <code>$_GET['page']</code></td></tr><tr><td><code>$_POST</code></td><td>the fields of a submitted HTML form</td></tr><tr><td><code>file_get_contents('php://input')</code></td><td>the raw request body, for JSON</td></tr><tr><td><code>$_COOKIE</code>, <code>$_FILES</code></td><td>cookies and uploaded files</td></tr></tbody></table></div>
+<pre><code class="lang-php">$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$method = $_SERVER['REQUEST_METHOD'];
+$page = (int) ($_GET['page'] ?? 1);</code></pre>
+<p>Everything in these arrays comes from the user. <strong>Never trust it.</strong> Check it, convert it, and escape it before using it.</p>
+<h2 id="an-html-page-with-a-form">An HTML page with a form</h2>
+<pre><code class="lang-php">&lt;?php
+$name = trim($_POST['name'] ?? '');
+?&gt;
+&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+&lt;body&gt;
+  &lt;?php if ($name !== ''): ?&gt;
+    &lt;p&gt;Hello, &lt;?= htmlspecialchars($name) ?&gt;!&lt;/p&gt;
+  &lt;?php endif; ?&gt;
+
+  &lt;form method="post"&gt;
+    &lt;label for="name"&gt;Your name&lt;/label&gt;
+    &lt;input id="name" name="name"&gt;
+    &lt;button&gt;Send&lt;/button&gt;
+  &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+<p><code>&lt;?= $x ?&gt;</code> is short for <code>&lt;?php echo $x ?&gt;</code>.</p>
+<h2 id="escaping-output">Escaping output</h2>
+<p>If a visitor types <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> as their name and you print it as it is, the browser runs it. That is <strong>cross-site scripting (XSS)</strong>, one of the most common security holes on the web.</p>
+<p><strong>Every value that goes into HTML passes through <code>htmlspecialchars</code>.</strong> It turns <code>&lt;</code> into <code>&amp;lt;</code> and so on, so the text is shown and never run. Template engines such as Twig and Blade do this automatically.</p>
+<h2 id="status-and-headers">Status and headers</h2>
+<pre><code class="lang-php">http_response_code(404);
+header('Content-Type: application/json');
+header('Location: /login');     // a redirect</code></pre>
+<p>Headers must be sent <strong>before any output</strong>. One space before <code>&lt;?php</code> is output.</p>
+<h2 id="a-json-api">A JSON API</h2>
+<pre><code class="lang-php">&lt;?php
+declare(strict_types=1);
+
+function send(int $status, mixed $data): never
+{
+    http_response_code($status);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
+$method = $_SERVER['REQUEST_METHOD'];
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+if ($method === 'GET' &amp;&amp; $path === '/health') {
+    send(200, ['status' =&gt; 'ok']);
+}
+
+if ($method === 'POST' &amp;&amp; $path === '/echo') {
+    $body = json_decode(file_get_contents('php://input'), true);
+    if (!is_array($body)) {
+        send(400, ['error' =&gt; 'invalid JSON']);
+    }
+    send(201, $body);
+}
+
+send(404, ['error' =&gt; 'not found']);</code></pre>
+<ul><li><code>json_decode($text, true)</code> gives arrays. It returns <code>null</code> when the text is not valid JSON.</li><li><code>json_encode</code> turns a list into <code>[...]</code> and an array with string keys into <code>{...}</code>. An <strong>empty</strong> array becomes <code>[]</code>.</li><li>A path with a number in it: <code>preg_match('#^/users/(\d+)$#', $path, $m)</code> puts the number in <code>$m[1]</code>.</li></ul>
+<h2 id="keeping-data-between-requests">Keeping data between requests</h2>
+<p>Since the script forgets everything, state lives outside it. The simplest store is a file:</p>
+<pre><code class="lang-php">$file = getenv('DATA_DIR') . '/notes.json';
+$notes = is_file($file) ? json_decode(file_get_contents($file), true) : [];
+$notes[] = ['id' =&gt; count($notes) + 1, 'text' =&gt; 'hello'];
+file_put_contents($file, json_encode($notes), LOCK_EX);</code></pre>
+<p>Real applications use a database, the subject of the next lesson.</p>
+<h2 id="sessions">Sessions</h2>
+<p>A <strong>session</strong> remembers a visitor across requests. PHP stores the data on the server and gives the browser a cookie with the session's id:</p>
+<pre><code class="lang-php">session_start();
+$_SESSION['user_id'] = 42;      // readable on every later request of this visitor</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Printing user input without <code>htmlspecialchars</code>.</strong></li><li><strong>Expecting a variable to keep its value</strong> until the next request.</li><li><strong>Sending a header after output has started.</strong> The warning is "headers already sent".</li><li><strong>Forgetting <code>exit</code> after a redirect</strong>, so the rest of the script still runs.</li><li><strong>Trusting <code>$_GET</code> and <code>$_POST</code></strong> values to be the right type or to be present.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="php/05-notes-api">
+<h3>A notes API <span class="ex-id">php/05-notes-api</span></h3>
+<p>Finish <code>index.php</code>. It answers every request, because the server is started with it as the router script.</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Answer</th></tr></thead><tbody><tr><td><code>GET /notes</code></td><td>200 and the list of notes, <code>[]</code> when there are none</td></tr><tr><td><code>POST /notes</code> with <code>{"text": "..."}</code></td><td>201 and the new note: <code>{"id": 1, "text": "..."}</code>. The text is trimmed. Ids start at 1 and are never reused.</td></tr><tr><td><code>POST /notes</code> with an empty or missing text</td><td>400 and <code>{"error": "text is required"}</code></td></tr><tr><td><code>POST /notes</code> with a body that is not JSON</td><td>400 and <code>{"error": "invalid JSON"}</code></td></tr><tr><td><code>GET /notes/{id}</code></td><td>200 and the note, or 404 and <code>{"error": "not found"}</code></td></tr><tr><td><code>DELETE /notes/{id}</code></td><td>204 with no body, or 404</td></tr><tr><td>anything else</td><td>404 and <code>{"error": "not found"}</code></td></tr></tbody></table></div>
+<p>A PHP script forgets everything when the request ends. Keep the notes in the file whose path is in <code>$file</code>: the <code>load</code> and <code>save</code> functions are given.</p>
+<p class="ex-files">Files: <code>exercises/php/05-notes-api/</code></p>
+<pre><code class="lang-console">$ python3 check.py php/05-notes-api</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../php/04-classes.html"><span>Previous</span>Classes and objects</a><a class="next" href="../php/06-databases.html"><span>Next</span>Databases with PDO</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Iterators, closures and tests · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="rust/07-iterators-closures-testing">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Rust · lesson 7 of 7</p>
+<h1>Iterators, closures and tests</h1>
+<p class="lede">Process data in pipelines, and test your code with the tools built into cargo.</p>
+<h2 id="closures">Closures</h2>
+<p>A <strong>closure</strong> is a function written in place, which can use the variables around it:</p>
+<pre><code class="lang-rust">let limit = 10;
+let is_small = |n: i32| n &lt; limit;      // captures limit
+println!("{}", is_small(3));
+
+let add = |a, b| a + b;                 // types are worked out</code></pre>
+<h2 id="iterators">Iterators</h2>
+<p>An iterator produces values one at a time. Collections give you one with <code>.iter()</code>:</p>
+<pre><code class="lang-rust">let numbers = vec![1, 2, 3, 4, 5, 6];
+
+let result: Vec&lt;i32&gt; = numbers
+    .iter()
+    .filter(|n| *n % 2 == 0)        // keep the even ones
+    .map(|n| n * n)                 // square them
+    .collect();                     // gather into a Vec: [4, 16, 36]</code></pre>
+<p>Read it top to bottom as a pipeline. Each step is an <strong>adapter</strong> that returns a new iterator.</p>
+<div class="table-wrap"><table><thead><tr><th>Adapter</th><th>Does</th></tr></thead><tbody><tr><td><code>map(f)</code></td><td>transforms each item</td></tr><tr><td><code>filter(f)</code></td><td>keeps items for which <code>f</code> is true</td></tr><tr><td><code>enumerate()</code></td><td>pairs each item with its index</td></tr><tr><td><code>zip(other)</code></td><td>pairs items of two iterators</td></tr><tr><td><code>take(n)</code>, <code>skip(n)</code></td><td>the first n, or all but the first n</td></tr><tr><td><code>rev()</code></td><td>backwards</td></tr><tr><td><code>chain(other)</code></td><td>one after the other</td></tr></tbody></table></div>
+<p>Iterators are <strong>lazy</strong>: nothing happens until a <strong>consumer</strong> asks for values.</p>
+<div class="table-wrap"><table><thead><tr><th>Consumer</th><th>Gives</th></tr></thead><tbody><tr><td><code>collect()</code></td><td>a collection</td></tr><tr><td><code>sum()</code>, <code>product()</code>, <code>count()</code></td><td>a number</td></tr><tr><td><code>min()</code>, <code>max()</code></td><td>an <code>Option</code></td></tr><tr><td><code>any(f)</code>, <code>all(f)</code></td><td>a <code>bool</code></td></tr><tr><td><code>find(f)</code></td><td>the first match, as an <code>Option</code></td></tr><tr><td><code>fold(start, f)</code></td><td>anything: the general form</td></tr><tr><td><code>for x in iter</code></td><td>runs your code for each item</td></tr></tbody></table></div>
+<pre><code class="lang-rust">let total: i32 = numbers.iter().sum();
+let has_big = numbers.iter().any(|&amp;n| n &gt; 5);
+let first_even = numbers.iter().find(|&amp;&amp;n| n % 2 == 0);
+let product = numbers.iter().fold(1, |acc, n| acc * n);</code></pre>
+<p><code>collect</code> can build many things. The type you ask for decides:</p>
+<pre><code class="lang-rust">let words: Vec&lt;&amp;str&gt; = "a b c".split(' ').collect();
+let text: String = vec!["a", "b"].concat();
+let lengths: std::collections::HashMap&lt;&amp;str, usize&gt; = words.iter().map(|w| (*w, w.len())).collect();</code></pre>
+<p>A chain of adapters compiles to the same machine code as a hand-written loop. Use whichever reads better.</p>
+<h2 id="iter-iter-mut-into-iter">iter, iter_mut, into_iter</h2>
+<div class="table-wrap"><table><thead><tr><th>Call</th><th>Items are</th><th>The collection afterwards</th></tr></thead><tbody><tr><td><code>v.iter()</code></td><td><code>&amp;T</code></td><td>still usable</td></tr><tr><td><code>v.iter_mut()</code></td><td><code>&amp;mut T</code></td><td>still usable, changed</td></tr><tr><td><code>v.into_iter()</code></td><td><code>T</code></td><td>consumed</td></tr></tbody></table></div>
+<h2 id="modules">Modules</h2>
+<pre><code class="lang-rust">mod geometry {
+    pub fn area(w: f64, h: f64) -&gt; f64 {
+        w * h
+    }
+}
+
+use geometry::area;</code></pre>
+<p>Everything is private unless marked <code>pub</code>. In a cargo project, <code>mod geometry;</code> loads the file <code>src/geometry.rs</code>.</p>
+<h2 id="testing">Testing</h2>
+<p>Tests live in the same file as the code, in a module compiled only for testing:</p>
+<pre><code class="lang-rust">pub fn add(a: i32, b: i32) -&gt; i32 {
+    a + b
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn adds_two_numbers() {
+        assert_eq!(add(2, 3), 5);
+    }
+
+    #[test]
+    #[should_panic]
+    fn index_out_of_range_panics() {
+        let v: Vec&lt;i32&gt; = vec![];
+        let _ = v[0];
+    }
+}</code></pre>
+<pre><code class="lang-console">$ cargo test
+$ cargo test adds          # only tests whose name contains "adds"</code></pre>
+<p><code>assert_eq!</code>, <code>assert_ne!</code> and <code>assert!</code> are the three you need. A test may also return a <code>Result</code> and use <code>?</code>.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p>Libraries are called <strong>crates</strong> and come from crates.io:</p>
+<pre><code class="lang-console">$ cargo add serde --features derive
+$ cargo add rand</code></pre>
+<p>That records them in <code>Cargo.toml</code>. <code>Cargo.lock</code> pins the exact versions, and belongs in Git for applications.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>collect()</code></strong> and wondering why nothing happened. The compiler warns about an unused iterator.</li><li><strong>Double references in closures</strong> such as <code>|&amp;&amp;n|</code>. <code>filter</code> receives a reference to the item, which is itself a reference when you used <code>.iter()</code>. Let the compiler's hint guide you.</li><li><strong>A very long chain</strong> where a plain <code>for</code> loop with a clear name would be easier to read.</li><li><strong>Tests that only check that the code runs</strong>, with no assertion.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="rust/07-iterators">
+<h3>Pipelines with iterators <span class="ex-id">rust/07-iterators</span></h3>
+<p>Write five functions in <code>solution.rs</code>, each <code>pub</code>. Use iterator adapters such as <code>filter</code>, <code>map</code>, <code>sum</code> and <code>collect</code>.</p>
+<ul><li><code>sum_of_even_squares(numbers: &amp;[i64]) -&gt; i64</code>: keep the even numbers, square them, add them up.</li><li><code>initials(names: &amp;[&amp;str]) -&gt; String</code>: the first character of each name, in upper case, joined together. Empty names are skipped. <code>["ada", "linus"]</code> gives <code>"AL"</code>.</li><li><code>long_words(text: &amp;str, min: usize) -&gt; Vec&lt;String&gt;</code>: the words with at least <code>min</code> characters, in lower case, in their original order.</li><li><code>apply_n&lt;F: Fn(i64) -&gt; i64&gt;(f: F, times: u32, start: i64) -&gt; i64</code>: applies <code>f</code> to <code>start</code>, <code>times</code> times in a row. <code>apply_n(|x| x * 2, 3, 1)</code> is 8.</li><li><code>running_total(numbers: &amp;[i64]) -&gt; Vec&lt;i64&gt;</code>: the sum so far at each position. <code>[1, 2, 3]</code> gives <code>[1, 3, 6]</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/rust/07-iterators/</code></p>
+<pre><code class="lang-console">$ python3 check.py rust/07-iterators</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../rust/06-traits-and-generics.html"><span>Previous</span>Traits and generics</a><a class="next" href="../elixir/01-basics.html"><span>Next</span>Elixir basics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+[
+ {
+  "q": "A field has an id but no name. What happens when the form is submitted?",
+  "options": [
+   "The id is used",
+   "Its value is not sent",
+   "The browser shows an error",
+   "It is sent as 'undefined'"
+  ],
+  "answer": 1,
+  "why": "Only fields with a name attribute are sent."
+ },
+ {
+  "q": "How is a label connected to its field?",
+  "options": [
+   "They are on the same line",
+   "The label's for equals the field's id",
+   "The label's name equals the field's name",
+   "By the placeholder"
+  ],
+  "answer": 1,
+  "why": "for on the label must equal id on the field."
+ },
+ {
+  "q": "Three radio buttons should allow only one choice. What must they share?",
+  "options": [
+   "The same id",
+   "The same value",
+   "The same name",
+   "The same label"
+  ],
+  "answer": 2,
+  "why": "Radio buttons with the same name form one group."
+ },
+ {
+  "q": "The browser validates your form. Is that enough for security?",
+  "options": [
+   "Yes",
+   "No: the server must check again"
+  ],
+  "answer": 1,
+  "why": "Anyone can send a request without using your form."
+ }
+]

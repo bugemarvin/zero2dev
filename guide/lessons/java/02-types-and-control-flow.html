@@ -6,13 +6,17 @@
 <title>Types and control flow · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="java/02-types-and-control-flow">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -102,6 +106,7 @@ while (n &gt; 0) {
 };</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong><code>==</code> on strings.</strong></li><li><strong>Whole-number division</strong> when a fraction was wanted.</li><li><strong><code>int</code> overflow.</strong> Use <code>long</code> for big totals and products.</li><li><strong>Mixing <code>nextInt()</code> and <code>nextLine()</code>.</strong> After <code>nextInt()</code>, the rest of that line, often just the newline, is still waiting. The next <code>nextLine()</code> returns it, empty.</li><li><strong>Using a variable before giving it a value.</strong> The compiler refuses.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="java/02-number-stats">
@@ -123,7 +128,9 @@ max: 9</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

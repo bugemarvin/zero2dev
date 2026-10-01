@@ -1,0 +1,58 @@
+{
+  "title": "Your first page",
+  "lesson": "html/01-page-structure",
+  "kind": "web",
+  "page": "index.html",
+  "checks": [
+    {
+      "name": "the page starts with <!doctype html>",
+      "doctype": true
+    },
+    {
+      "name": "every element is closed, in the right order",
+      "valid": true
+    },
+    {
+      "name": "<html> has lang=\"en\"",
+      "select": "html",
+      "attr": {
+        "lang": "en"
+      }
+    },
+    {
+      "name": "the head declares the utf-8 encoding",
+      "select": "head meta[charset]",
+      "count": 1
+    },
+    {
+      "name": "the title is About me",
+      "select": "head title",
+      "text": "About me"
+    },
+    {
+      "name": "there is exactly one h1",
+      "select": "body h1",
+      "count": 1
+    },
+    {
+      "name": "the h1 says About me",
+      "select": "body h1",
+      "text": "About me"
+    },
+    {
+      "name": "an h2 says Hobbies",
+      "select": "body h2",
+      "text": "Hobbies"
+    },
+    {
+      "name": "at least two paragraphs",
+      "select": "body p",
+      "min": 2
+    }
+  ],
+  "hints": [
+    "The first line is <!doctype html>. Then <html lang=\"en\"> wraps a <head> and a <body>.",
+    "The title goes inside the head: <title>About me</title>. The h1 goes inside the body.",
+    "Paragraphs are <p>some text</p>. Each one needs its closing tag."
+  ]
+}

@@ -226,7 +226,8 @@
     "version": [
       "go",
       "version"
-    ]
+    ],
+    "docker_cache": "/tmp/.cache"
   },
   "rust": {
     "name": "Rust",
@@ -275,6 +276,29 @@
     "starter": "tokens = STDIN.read.split\n# tokens is an array of the whitespace-separated strings of the input\n",
     "version": [
       "ruby",
+      "--version"
+    ]
+  },
+  "php": {
+    "name": "PHP",
+    "file": "solution.php",
+    "needs": [
+      "php"
+    ],
+    "stack": "php",
+    "image": "php:8-cli-alpine",
+    "build": [
+      "php",
+      "-l",
+      "{src}"
+    ],
+    "run": [
+      "php",
+      "{src}"
+    ],
+    "starter": "<?php\n$tokens = preg_split('/\\s+/', trim(stream_get_contents(STDIN)), -1, PREG_SPLIT_NO_EMPTY);\n// $tokens is an array of the whitespace-separated strings of the input\n",
+    "version": [
+      "php",
       "--version"
     ]
   }

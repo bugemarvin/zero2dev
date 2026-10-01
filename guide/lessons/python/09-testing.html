@@ -6,13 +6,17 @@
 <title>Testing · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="python/09-testing">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -91,6 +95,7 @@ if __name__ == "__main__":
     unittest.main()</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Testing only the happy path.</strong> The normal case is the least likely to be broken.</li><li><strong>One giant test</strong> that checks ten things. The first failure hides the other nine.</li><li><strong>Tests that never fail.</strong> A test that would still pass with the function body deleted checks nothing. Break the code on purpose once, and watch the test catch it.</li><li><strong>Comparing floats with <code>==</code>.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="python/11-testing">
@@ -112,7 +117,9 @@ if __name__ == "__main__":
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

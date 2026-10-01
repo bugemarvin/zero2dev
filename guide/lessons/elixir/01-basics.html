@@ -6,13 +6,17 @@
 <title>Elixir basics · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="elixir/01-basics">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -21,6 +25,23 @@
 <p class="crumb">Elixir · lesson 1 of 9</p>
 <h1>Elixir basics</h1>
 <p class="lede">A functional language where data never changes. Values, the interactive shell, and your first module.</p>
+<details class="install" id="install" data-track="elixir">
+<summary>Install: what this track needs</summary>
+<div class="install-static">
+<h4>Quick install</h4>
+<p>One command installs everything for this track. It skips what you already have.</p>
+<p>Ubuntu, Debian, or Ubuntu inside WSL, from the <code>zero2dev</code> folder:</p>
+<pre><code class="lang-console">$ ./setup/install.sh --stack elixir</code></pre>
+<p>Windows, from an Administrator PowerShell in the <code>setup</code> folder (it installs WSL first if needed):</p>
+<pre><code class="lang-text">powershell -ExecutionPolicy Bypass -File .\install.ps1 -Stacks elixir</code></pre>
+<h4>Erlang and Elixir: by hand</h4>
+<p>Ubuntu, Debian, WSL:</p><pre><code class="lang-console">$ sudo apt-get install -y elixir</code></pre>
+<p>macOS, with <a href="https://brew.sh" rel="noopener">Homebrew</a>:</p><pre><code class="lang-console">$ brew install elixir</code></pre>
+<p>Check that it works:</p><pre><code class="lang-console">$ elixir --version</code></pre>
+<p><strong>Or install nothing:</strong> with Docker running, the app runs Elixir in the image <code>elixir:1.18-slim</code> (one download).</p>
+<p>When the app is running, this box also shows what your machine already has.</p>
+</div>
+</details>
 <h2 id="what-is-different-about-elixir">What is different about Elixir</h2>
 <p>Elixir is a <strong>functional</strong> language. Three ideas shape everything in it:</p>
 <ul><li><strong>Data is immutable.</strong> A value never changes after it is created. Functions return new values.</li><li><strong>Functions transform data.</strong> Programs are chains of small functions, each taking a value and returning a new one.</li><li><strong>Processes are cheap.</strong> Elixir runs on the Erlang virtual machine (the BEAM), built for systems that run millions of small tasks at the same time and keep running when some of them fail.</li></ul>
@@ -88,6 +109,7 @@ IO.inspect([1, 2, 3])         # prints any value, as it looks in code</code></pr
 <pre><code class="lang-console">$ python3 check.py elixir/01-hello</code></pre>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>Expecting a function to change its argument.</strong> It returns a new value. Bind it.</li><li><strong>Single quotes for strings.</strong> <code>'hello'</code> is a different type, a list of character codes. Use double quotes.</li><li><strong><code>/</code> for whole-number division.</strong> It always gives a float. Use <code>div</code>.</li><li><strong>Forgetting <code>end</code>.</strong> Every <code>do</code> needs one.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="elixir/01-hello">
@@ -99,11 +121,13 @@ IO.inspect([1, 2, 3])         # prints any value, as it looks in code</code></pr
 <pre><code class="lang-console">$ python3 check.py elixir/01-hello</code></pre>
 </article>
 </section>
-<nav class="pager"><a class="prev" href="../java/10-files-and-streams.html"><span>Previous</span>Files, lambdas and streams</a><a class="next" href="../elixir/02-pattern-matching.html"><span>Next</span>Pattern matching</a></nav>
+<nav class="pager"><a class="prev" href="../rust/07-iterators-closures-testing.html"><span>Previous</span>Iterators, closures and tests</a><a class="next" href="../elixir/02-pattern-matching.html"><span>Next</span>Pattern matching</a></nav>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>

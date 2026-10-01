@@ -6,13 +6,17 @@
 <title>Subqueries and CTEs · zero2dev</title>
 <link rel="stylesheet" href="../../assets/style.css">
 <link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
 <script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 </head>
 <body data-root="../../" data-lesson="sql/05-subqueries-and-ctes">
 <header class="topbar">
 <button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
 <a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
 <a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
 <button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
 </header>
 <div class="layout">
@@ -103,6 +107,7 @@ SELECT n FROM numbers;</code></pre>
 <p>The first <code>SELECT</code> is the starting point. The second is applied again and again to the rows produced so far, until it yields nothing new.</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <ul><li><strong>A scalar subquery that returns more than one row.</strong> That is an error at run time.</li><li><strong><code>NOT IN</code> over a column that can be NULL.</strong></li><li><strong>A subquery in <code>FROM</code> with no alias.</strong></li><li><strong>Deep nesting.</strong> Three levels of brackets are a sign to switch to CTEs.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
 <section class="practice" id="practice">
 <h2>Test yourself</h2>
 <article class="exercise" data-ex="sql/06-above-average">
@@ -140,7 +145,9 @@ SELECT n FROM numbers;</code></pre>
 </main>
 </div>
 <script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
 <script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
 <script src="../../assets/studio.js"></script>
 </body>
 </html>
