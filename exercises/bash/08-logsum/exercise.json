@@ -1,0 +1,81 @@
+{
+  "title": "Summarise a log file",
+  "lesson": "bash/08-automation",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "logsum.sh"
+  ],
+  "cases": [
+    {
+      "name": "the example",
+      "args": [
+        "app.log"
+      ],
+      "files": {
+        "app.log": "2025-05-03 10:00:01 INFO service started\n2025-05-03 10:00:07 WARN cache is cold\n2025-05-03 10:01:13 ERROR disk almost full\n2025-05-03 10:02:40 INFO request served\n2025-05-03 10:03:02 ERROR connection lost\n2025-05-03 10:04:55 ERROR disk almost full\n2025-05-03 10:05:00 INFO request served\n"
+      },
+      "stdout": "lines: 7\nINFO: 3\nWARN: 1\nERROR: 3\ntop error: disk almost full\n"
+    },
+    {
+      "name": "no errors",
+      "args": [
+        "quiet.log"
+      ],
+      "files": {
+        "quiet.log": "2025-01-01 09:00:00 INFO all good\n2025-01-01 09:00:01 INFO still good\n"
+      },
+      "stdout": "lines: 2\nINFO: 2\nWARN: 0\nERROR: 0\ntop error: none\n"
+    },
+    {
+      "name": "a tie goes to the alphabetically first message",
+      "args": [
+        "tie.log"
+      ],
+      "files": {
+        "tie.log": "d t ERROR zebra escaped\nd t ERROR apple fell\nd t ERROR zebra escaped\nd t ERROR apple fell\n"
+      },
+      "stdout": "lines: 4\nINFO: 0\nWARN: 0\nERROR: 4\ntop error: apple fell\n"
+    },
+    {
+      "name": "the level is matched as a field, not anywhere in the line",
+      "args": [
+        "tricky.log"
+      ],
+      "files": {
+        "tricky.log": "d t INFO no ERROR here\nd t WARN INFO was logged\n"
+      },
+      "stdout": "lines: 2\nINFO: 1\nWARN: 1\nERROR: 0\ntop error: none\n"
+    },
+    {
+      "name": "an empty file",
+      "args": [
+        "empty.log"
+      ],
+      "files": {
+        "empty.log": ""
+      },
+      "stdout": "lines: 0\nINFO: 0\nWARN: 0\nERROR: 0\ntop error: none\n"
+    },
+    {
+      "name": "a missing file: exit code 1",
+      "args": [
+        "nope.log"
+      ],
+      "stdout": "",
+      "exit": 1
+    },
+    {
+      "name": "no argument: exit code 2",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "The level is the third field. awk '$3 == \"ERROR\"' matches it exactly, which grep on the whole line does not.",
+    "Count with awk and print n + 0, so that zero prints as 0 and the exit code stays 0.",
+    "For the message, take fields 4 to the end: cut -d' ' -f4-. Then sort | uniq -c, and sort by count descending and by message.",
+    "sort -k1,1nr -k2 sorts by the count (largest first) and then by the text."
+  ]
+}

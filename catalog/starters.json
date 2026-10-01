@@ -1,4 +1,28 @@
 {
+ "bash/01-quoting": {
+  "card.sh": "#!/usr/bin/env bash\n# usage: card.sh NAME [CITY]\n"
+ },
+ "bash/02-kind": {
+  "kind.sh": "#!/usr/bin/env bash\n# usage: kind.sh PATH\n"
+ },
+ "bash/03-stats": {
+  "stats.sh": "#!/usr/bin/env bash\n# usage: stats.sh NUMBER...\n"
+ },
+ "bash/04-functions": {
+  "lib.sh": "#!/usr/bin/env bash\n\n# A library of functions. Fill in each one. Do not add code outside the functions.\n\n# is_even N: succeeds (exit code 0) when N is even, fails otherwise. Prints nothing.\nis_even() {\n    return 1\n}\n\n# max A B: prints the larger of two whole numbers.\nmax() {\n    :\n}\n\n# repeat TEXT N: prints TEXT N times on one line, with nothing in between.\nrepeat() {\n    :\n}\n\n# to_upper TEXT: prints TEXT in upper case.\nto_upper() {\n    :\n}\n"
+ },
+ "bash/05-report": {
+  "report.sh": "#!/usr/bin/env bash\n# Reads name,department,salary lines from standard input.\n"
+ },
+ "bash/06-rename": {
+  "rename.sh": "#!/usr/bin/env bash\n# Reads file names from standard input and prints the cleaned-up names.\n"
+ },
+ "bash/07-backup": {
+  "backup.sh": "#!/usr/bin/env bash\nset -euo pipefail\n# usage: backup.sh [-v] [-d DIR] FILE...\n"
+ },
+ "bash/08-logsum": {
+  "logsum.sh": "#!/usr/bin/env bash\nset -euo pipefail\n# usage: logsum.sh LOGFILE\n"
+ },
  "c/01-hello": {
   "main.c": "#include <stdio.h>\n\nint main(void) {\n    /* your code here */\n    return 0;\n}\n"
  },

@@ -103,7 +103,7 @@ def describe(ex, lang=None):
         "files": list_files(ex, lang),
         "hints": ex.spec.get("hints", []),
         "passed": bool(entry.get("passed")), "attempts": entry.get("attempts", 0),
-        "can_show": ex.kind == "sql", "can_start_app": ex.kind == "http",
+        "can_show": ex.kind == "sql", "can_start_app": app_spec(ex) is not None,
         "sandbox": None, "app": None, "toolchain": None,
     }
     if info["any_lang"]:
@@ -124,6 +124,16 @@ def describe(ex, lang=None):
     return info
 
 
+def app_spec(ex):
+    """How to start the exercise's app for the learner to look at, or None."""
+    if ex.kind == "http":
+        return ex.spec
+    if "preview" in ex.spec:
+        return dict(ex.spec["preview"], lang=ex.spec.get("lang", "javascript"),
+                    workspace=ex.spec.get("workspace"))
+    return None
+
+
 def save_files(ex, lang, files):
     allowed = set(runner.editable_files(ex, lang))
     for name, content in (files or {}).items():
@@ -134,6 +144,13 @@ def save_files(ex, lang, files):
         target = ex.dir / name
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
+        with _state_lock:
+            app = _apps.get(ex.id)
+        if app and app.staged:
+            # the running app works on a copy inside its workspace: keep it in step, so dev servers reload
+            copy = app.cwd / name
+            copy.parent.mkdir(parents=True, exist_ok=True)
+            copy.write_text(content, encoding="utf-8")
 
 
 # ---------------------------------------------------------------- handlers
@@ -178,10 +195,11 @@ def post_run(data):
     save_files(ex, lang, data.get("files"))
     if ex.kind == "sandbox" and not ex.sandbox.exists():
         runner.setup_sandbox(ex, ex.sandbox)
-    with _state_lock:
-        app = _apps.pop(ex.id, None)
-    if app:
-        app.stop()
+    if ex.kind == "http":       # the tests start the app themselves, on their own port
+        with _state_lock:
+            app = _apps.pop(ex.id, None)
+        if app:
+            app.stop()
     with _run_slots:
         try:
             results = runner.run_checks(ex, lang=lang if ex.kind == "program" else None)
@@ -287,7 +305,8 @@ def post_sandbox(data):
 def post_app(data):
     """Start or stop the app of an http exercise, so the learner can open it in a browser tab."""
     ex = exercise(data)
-    if ex.kind != "http":
+    spec = app_spec(ex)
+    if spec is None:
         raise ApiError("this exercise has no app to start")
     with _state_lock:
         app = _apps.pop(ex.id, None)
@@ -297,7 +316,7 @@ def post_app(data):
         return {"app": None}
     save_files(ex, None, data.get("files"))
     try:
-        app = runner.App(ex, ex.dir)
+        app = runner.App(ex, ex.dir, spec)
         problem = app.start()
     except core.NeedsDownload as need:
         return {"app": None, "error": str(need), "download": {"kind": need.kind, "name": need.name}}

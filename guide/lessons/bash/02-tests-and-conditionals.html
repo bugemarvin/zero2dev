@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tests and conditionals · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/02-tests-and-conditionals">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 2 of 8</p>
+<h1>Tests and conditionals</h1>
+<p class="lede">Decide with if, test files and strings with [[ ]], and choose between many cases.</p>
+<h2 id="if-runs-a-command">if runs a command</h2>
+<p><code>if</code> does not evaluate an expression. It <strong>runs a command</strong> and looks at its exit code: 0 means true.</p>
+<pre><code class="lang-bash">if grep -q "ERROR" app.log; then
+    echo "there are errors"
+fi</code></pre>
+<p><code>grep -q</code> prints nothing and exits with 0 when it finds a match. Any command works there.</p>
+<h2 id="">[[ ]]</h2>
+<p>For comparisons, Bash provides <code>[[ ... ]]</code>. It is safer than the older <code>[ ... ]</code>: variables inside it are not split, and it supports patterns.</p>
+<pre><code class="lang-bash">if [[ "$name" == "admin" ]]; then
+    echo "welcome back"
+elif [[ -z "$name" ]]; then
+    echo "no name given"
+else
+    echo "hello, $name"
+fi</code></pre>
+<p>The spaces after <code>[[</code> and before <code>]]</code> are required.</p>
+<div class="table-wrap"><table><thead><tr><th>Strings</th><th>True when</th></tr></thead><tbody><tr><td><code>[[ "$a" == "$b" ]]</code></td><td>equal</td></tr><tr><td><code>[[ "$a" != "$b" ]]</code></td><td>different</td></tr><tr><td><code>[[ -z "$a" ]]</code></td><td>empty</td></tr><tr><td><code>[[ -n "$a" ]]</code></td><td>not empty</td></tr><tr><td><code>[[ "$a" == *.txt ]]</code></td><td>matches the pattern (leave the pattern unquoted)</td></tr><tr><td><code>[[ "$a" =~ ^[0-9]+$ ]]</code></td><td>matches the regular expression</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Numbers</th><th>True when</th></tr></thead><tbody><tr><td><code>[[ "$a" -eq "$b" ]]</code></td><td>equal</td></tr><tr><td><code>-ne</code> <code>-lt</code> <code>-le</code> <code>-gt</code> <code>-ge</code></td><td>not equal, less, less or equal, greater, greater or equal</td></tr></tbody></table></div>
+<p><code>==</code> compares <strong>text</strong>. <code>[[ 10 == 10.0 ]]</code> is false, and <code>[[ 9 &lt; 10 ]]</code> compares alphabetically. For numbers use the <code>-eq</code> family, or arithmetic:</p>
+<pre><code class="lang-bash">if (( count &gt; 10 )); then
+    echo "many"
+fi</code></pre>
+<p>Inside <code>(( ))</code> you write ordinary operators and need no <code>$</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Files</th><th>True when</th></tr></thead><tbody><tr><td><code>[[ -e path ]]</code></td><td>it exists</td></tr><tr><td><code>[[ -f path ]]</code></td><td>it is a regular file</td></tr><tr><td><code>[[ -d path ]]</code></td><td>it is a directory</td></tr><tr><td><code>[[ -r path ]]</code>, <code>-w</code>, <code>-x</code></td><td>it is readable, writable, executable</td></tr><tr><td><code>[[ -s path ]]</code></td><td>it exists and is not empty</td></tr></tbody></table></div>
+<h2 id="combining">Combining</h2>
+<pre><code class="lang-bash">if [[ -f "$file" &amp;&amp; -r "$file" ]]; then ...
+if [[ "$answer" == "y" || "$answer" == "yes" ]]; then ...
+if [[ ! -d "$dir" ]]; then ...</code></pre>
+<h2 id="short-circuits">Short circuits</h2>
+<p><code>&amp;&amp;</code> runs the next command only if the previous one succeeded. <code>||</code> runs it only if the previous one failed.</p>
+<pre><code class="lang-bash">mkdir -p "$dir" &amp;&amp; cd "$dir"
+[[ -f "$config" ]] || { echo "missing $config" &gt;&amp;2; exit 1; }</code></pre>
+<p>The second line is the standard way to stop early on a missing requirement.</p>
+<h2 id="case">case</h2>
+<p>When one value is compared against many possibilities, <code>case</code> is clearer than a chain of <code>elif</code>. It matches <strong>patterns</strong>:</p>
+<pre><code class="lang-bash">case "$1" in
+    start)
+        echo "starting"
+        ;;
+    stop|halt)
+        echo "stopping"
+        ;;
+    *.txt)
+        echo "a text file"
+        ;;
+    *)
+        echo "unknown: $1" &gt;&amp;2
+        exit 1
+        ;;
+esac</code></pre>
+<p>Each branch ends with <code>;;</code>. <code>|</code> separates alternatives, and <code>*)</code> at the end catches everything else.</p>
+<h2 id="exit-codes">Exit codes</h2>
+<p>A script ends with the exit code of its last command, or the one given to <code>exit</code>. By convention:</p>
+<div class="table-wrap"><table><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody><tr><td>0</td><td>success</td></tr><tr><td>1</td><td>general failure</td></tr><tr><td>2</td><td>wrong usage: bad arguments</td></tr></tbody></table></div>
+<p>Send error messages to standard error with <code>&gt;&amp;2</code>, so they do not mix with the real output.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>[[ $a = $b ]]</code> for numbers.</strong> It compares text.</li><li><strong>Missing spaces</strong>: <code>[["$a" == "b"]]</code> is an error.</li><li><strong>A quoted pattern.</strong> <code>[[ "$f" == "*.txt" ]]</code> compares with the literal text <code>*.txt</code>.</li><li><strong><code>if [ $x = y ]</code> with <code>x</code> empty</strong> in the old single-bracket form, which becomes <code>[ = y ]</code> and fails. Use <code>[[ ]]</code>.</li><li><strong>Forgetting <code>;;</code></strong> in a <code>case</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/02-kind">
+<h3>What kind of thing is this path? <span class="ex-id">bash/02-kind</span></h3>
+<p>Write <code>kind.sh</code>. It takes one path and prints one word or phrase:</p>
+<div class="table-wrap"><table><thead><tr><th>The path is</th><th>Print</th></tr></thead><tbody><tr><td>a directory</td><td><code>directory</code></td></tr><tr><td>a regular file with nothing in it</td><td><code>empty file</code></td></tr><tr><td>a regular file whose name ends in <code>.sh</code></td><td><code>script</code></td></tr><tr><td>any other regular file</td><td><code>file</code></td></tr><tr><td>not there</td><td><code>missing</code></td></tr></tbody></table></div>
+<p>With no argument, or more than one, print a usage message to standard error and exit with code 2.</p>
+<pre><code class="lang-console">$ bash kind.sh notes.txt
+file</code></pre>
+<p class="ex-files">Files: <code>exercises/bash/02-kind/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/02-kind</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/01-variables-and-quoting.html"><span>Previous</span>Variables and quoting</a><a class="next" href="../bash/03-loops.html"><span>Next</span>Loops</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

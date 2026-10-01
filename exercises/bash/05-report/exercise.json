@@ -1,0 +1,41 @@
+{
+  "title": "A salary report",
+  "lesson": "bash/05-text-processing",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "report.sh"
+  ],
+  "cases": [
+    {
+      "name": "three departments",
+      "stdin": "ada,engineering,5200\nlinus,engineering,4800\ngrace,research,6100\nbob,sales,3000\ncarol,sales,3500\ndave,sales,2900\n",
+      "stdout": "engineering 10000 2\nresearch 6100 1\nsales 9400 3\nhighest: grace 6100\n"
+    },
+    {
+      "name": "one person",
+      "stdin": "zed,ops,100\n",
+      "stdout": "ops 100 1\nhighest: zed 100\n"
+    },
+    {
+      "name": "departments come out in alphabetical order",
+      "stdin": "a,zeta,1\nb,alpha,2\nc,mid,3\n",
+      "stdout": "alpha 2 1\nmid 3 1\nzeta 1 1\nhighest: c 3\n"
+    },
+    {
+      "name": "salaries are compared as numbers, not as text",
+      "stdin": "a,x,900\nb,x,10000\n",
+      "stdout": "x 10900 2\nhighest: b 10000\n"
+    },
+    {
+      "name": "empty input",
+      "stdin": "",
+      "stdout": "highest: none\n"
+    }
+  ],
+  "hints": [
+    "Read all the input once: input=\"$(cat)\", because you need it twice.",
+    "awk -F, '{ total[$2] += $3; count[$2]++ } END { for (d in total) print d, total[d], count[d] }' and then sort.",
+    "For the highest salary: sort -t, -k3 -n -r puts the largest first; head -n 1 takes it."
+  ]
+}

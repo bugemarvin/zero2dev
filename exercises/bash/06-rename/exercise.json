@@ -1,0 +1,52 @@
+{
+  "title": "Clean up file names",
+  "lesson": "bash/06-arrays-and-strings",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "rename.sh"
+  ],
+  "cases": [
+    {
+      "name": "the example",
+      "stdin": "My Photo.JPEG\nNotes 2024.txt\n",
+      "stdout": "my_photo.jpg\nnotes_2024.txt\n"
+    },
+    {
+      "name": "several spaces",
+      "stdin": "A  B   C.md\n",
+      "stdout": "a__b___c.md\n"
+    },
+    {
+      "name": "jpeg only at the end is changed",
+      "stdin": "jpeg notes.txt\nold.jpeg.bak\n",
+      "stdout": "jpeg_notes.txt\nold.jpeg.bak\n"
+    },
+    {
+      "name": "already clean names are unchanged",
+      "stdin": "readme.md\nphoto.jpg\n",
+      "stdout": "readme.md\nphoto.jpg\n"
+    },
+    {
+      "name": "leading spaces are part of the name",
+      "stdin": "  Indented.TXT\n",
+      "stdout": "__indented.txt\n"
+    },
+    {
+      "name": "a last line with no newline is still processed",
+      "stdin": "Last One.JPEG",
+      "stdout": "last_one.jpg\n"
+    },
+    {
+      "name": "no input prints nothing",
+      "stdin": "",
+      "stdout": ""
+    }
+  ],
+  "hints": [
+    "Read lines with: while IFS= read -r name; do ... done   (IFS= keeps leading spaces).",
+    "name=\"${name,,}\" lower-cases; name=\"${name// /_}\" replaces every space.",
+    "Test the ending with [[ \"$name\" == *.jpeg ]] and rebuild it as \"${name%.jpeg}.jpg\".",
+    "For the last test add || [[ -n \"$name\" ]] to the while condition."
+  ]
+}

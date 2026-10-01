@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions and exit codes · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="bash/04-functions-and-exit-codes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Bash scripting · lesson 4 of 8</p>
+<h1>Functions and exit codes</h1>
+<p class="lede">Split a script into named pieces, pass values in and get results out.</p>
+<h2 id="defining-a-function">Defining a function</h2>
+<pre><code class="lang-bash">greet() {
+    echo "Hello, $1!"
+}
+
+greet "Sam"</code></pre>
+<p>A function is called like a command. Inside it, <code>$1</code>, <code>$2</code>, <code>$#</code> and <code>"$@"</code> are the <strong>function's</strong> arguments, not the script's.</p>
+<p>Define functions before the code that calls them.</p>
+<h2 id="local-variables">Local variables</h2>
+<p>Variables are global unless you say otherwise. Always declare a function's own variables with <code>local</code>, or two functions using the name <code>i</code> or <code>result</code> will overwrite each other:</p>
+<pre><code class="lang-bash">count_lines() {
+    local file="$1"
+    local n
+    n="$(wc -l &lt; "$file")"
+    echo "$n"
+}</code></pre>
+<h2 id="two-ways-to-return-something">Two ways to return something</h2>
+<p>A function has two channels, and they mean different things.</p>
+<p><strong>1. Its output</strong>, captured with <code>$( )</code>. Use this to hand back <strong>data</strong>.</p>
+<pre><code class="lang-bash">to_upper() {
+    echo "${1^^}"
+}
+
+loud="$(to_upper "hello")"</code></pre>
+<p><strong>2. Its exit code</strong>, set with <code>return</code>. Use this for <strong>yes or no, success or failure</strong>. It is a number from 0 to 255, where 0 means true.</p>
+<pre><code class="lang-bash">is_even() {
+    (( $1 % 2 == 0 ))
+}
+
+if is_even 4; then
+    echo "even"
+fi</code></pre>
+<p>A function returns the exit code of its last command, so <code>is_even</code> needs no explicit <code>return</code>. The arithmetic command <code>(( ))</code> exits with 0 when the expression is true.</p>
+<p>Do not use <code>return</code> to carry data. <code>return 300</code> does not work, and <code>return 5</code> reads as "failed".</p>
+<h2 id="error-handling-inside-functions">Error handling inside functions</h2>
+<p>Report the problem on standard error, and return a non-zero code:</p>
+<pre><code class="lang-bash">require_file() {
+    if [[ ! -f "$1" ]]; then
+        echo "error: $1 not found" &gt;&amp;2
+        return 1
+    fi
+}
+
+require_file "$config" || exit 1</code></pre>
+<p><code>return</code> leaves the function. <code>exit</code> ends the whole script.</p>
+<h2 id="a-main-function">A main function</h2>
+<p>Putting the script's logic in a <code>main</code> function keeps the file readable from top to bottom:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+
+usage() {
+    echo "usage: $0 FILE" &gt;&amp;2
+}
+
+main() {
+    if [[ $# -ne 1 ]]; then
+        usage
+        return 2
+    fi
+    count_lines "$1"
+}
+
+main "$@"</code></pre>
+<h2 id="libraries">Libraries</h2>
+<p>A file of functions can be loaded into another script with <code>source</code>:</p>
+<pre><code class="lang-bash">source "$(dirname "$0")/lib.sh"</code></pre>
+<p><code>$(dirname "$0")</code> is the folder of the running script, so the library is found wherever the script is called from.</p>
+<h2 id="checking-what-a-command-did">Checking what a command did</h2>
+<pre><code class="lang-bash">if cp "$src" "$dst"; then
+    echo "copied"
+else
+    echo "copy failed" &gt;&amp;2
+fi</code></pre>
+<p>Test the command directly in the <code>if</code>. Avoid running it and then inspecting <code>$?</code> on the next line: any command in between, even an <code>echo</code>, replaces <code>$?</code>.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>local</code>.</strong></li><li><strong><code>local n="$(command)"</code>.</strong> <code>local</code> itself succeeds, which hides a failure of the command. Declare first, assign on the next line.</li><li><strong>Returning data with <code>return</code>.</strong></li><li><strong>Printing debug text on standard output</strong> inside a function whose output is captured. It ends up in the captured value. Use <code>&gt;&amp;2</code>.</li><li><strong>Using <code>exit</code> inside a function</strong> that is meant to be reusable.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="bash/04-functions">
+<h3>A library of functions <span class="ex-id">bash/04-functions</span></h3>
+<p>Fill in the four functions in <code>lib.sh</code>. The file <code>test_lib.sh</code> loads your library with <code>source</code> and calls them; read it to see how.</p>
+<ul><li><code>is_even N</code> answers through its <strong>exit code</strong>: it succeeds when <code>N</code> is even. It prints nothing.</li><li><code>max A B</code> <strong>prints</strong> the larger of two whole numbers.</li><li><code>repeat TEXT N</code> prints <code>TEXT</code> repeated <code>N</code> times on one line. <code>repeat ab 3</code> prints <code>ababab</code>. With <code>N</code> of 0 it prints an empty line.</li><li><code>to_upper TEXT</code> prints the text in upper case.</li></ul>
+<p>Declare the variables you use inside a function with <code>local</code>. One test checks that your functions do not overwrite variables of the script that calls them.</p>
+<p class="ex-files">Files: <code>exercises/bash/04-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py bash/04-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../bash/03-loops.html"><span>Previous</span>Loops</a><a class="next" href="../bash/05-text-processing.html"><span>Next</span>Text processing</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

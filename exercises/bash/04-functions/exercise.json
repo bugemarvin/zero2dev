@@ -1,0 +1,55 @@
+{
+  "title": "A library of functions",
+  "lesson": "bash/04-functions-and-exit-codes",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "test_lib.sh"
+  ],
+  "cases": [
+    {
+      "name": "is_even answers with its exit code and prints nothing",
+      "args": [
+        "even"
+      ],
+      "stdout": "4 even\n7 odd\n0 even\n-2 even\n-3 odd\noutput of is_even 4: []\n"
+    },
+    {
+      "name": "max prints the larger number",
+      "args": [
+        "max"
+      ],
+      "stdout": "9 9 -2 4\n"
+    },
+    {
+      "name": "repeat",
+      "args": [
+        "repeat"
+      ],
+      "stdout": "[ababab] [x] [] [a ba b]\n"
+    },
+    {
+      "name": "to_upper",
+      "args": [
+        "upper"
+      ],
+      "stdout": "HELLO MIXED CASE 42\n"
+    },
+    {
+      "name": "the functions use local variables",
+      "args": [
+        "locals"
+      ],
+      "stdout": "outer outer outer outer\n"
+    }
+  ],
+  "hints": [
+    "is_even: the arithmetic command (( $1 % 2 == 0 )) already exits with 0 when true. It can be the whole body.",
+    "max: compare with (( $1 > $2 )) and echo the winner.",
+    "repeat: build the text in a local variable inside a for (( i = 0; i < n; i++ )) loop, then echo it once.",
+    "to_upper: \"${1^^}\""
+  ],
+  "edit": [
+    "lib.sh"
+  ]
+}

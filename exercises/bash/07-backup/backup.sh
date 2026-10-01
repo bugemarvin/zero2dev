@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# usage: backup.sh [-v] [-d DIR] FILE...

@@ -1,0 +1,66 @@
+{
+  "title": "Count, sum, smallest, largest",
+  "lesson": "bash/03-loops",
+  "kind": "program",
+  "lang": "bash",
+  "sources": [
+    "stats.sh"
+  ],
+  "cases": [
+    {
+      "name": "four numbers",
+      "args": [
+        "4",
+        "9",
+        "-2",
+        "7"
+      ],
+      "stdout": "count: 4\nsum: 18\nmin: -2\nmax: 9\n"
+    },
+    {
+      "name": "one number",
+      "args": [
+        "5"
+      ],
+      "stdout": "count: 1\nsum: 5\nmin: 5\nmax: 5\n"
+    },
+    {
+      "name": "all negative",
+      "args": [
+        "-8",
+        "-3",
+        "-5"
+      ],
+      "stdout": "count: 3\nsum: -16\nmin: -8\nmax: -3\n"
+    },
+    {
+      "name": "more than nine arguments",
+      "args": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "stdout": "count: 12\nsum: 78\nmin: 1\nmax: 12\n"
+    },
+    {
+      "name": "no arguments: exit code 2",
+      "args": [],
+      "stdout": "",
+      "exit": 2
+    }
+  ],
+  "hints": [
+    "Loop with: for n in \"$@\"; do ... done",
+    "Start min and max from \"$1\", not from 0, or negative numbers give the wrong answer.",
+    "(( n < min )) && min=\"$n\" updates the smallest so far. $# is the count."
+  ]
+}
