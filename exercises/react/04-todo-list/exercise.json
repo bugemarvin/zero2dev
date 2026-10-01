@@ -1,0 +1,39 @@
+{
+  "title": "A list you can change",
+  "lesson": "react/04-lists-and-keys",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "TodoList.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "const [todos, setTodos] = useState(initialTodos); then todos.map((todo) => <li key={todo.id}>...</li>)",
+    "Wrap the checkbox and the title in one <label>, and use checked={todo.done} with onChange={() => toggle(todo.id)}.",
+    "toggle: setTodos(todos.map((t) => t.id === id ? { ...t, done: !t.done } : t)). remove: setTodos(todos.filter((t) => t.id !== id)).",
+    "The number left is calculated: todos.filter((t) => !t.done).length. It is not state."
+  ]
+}

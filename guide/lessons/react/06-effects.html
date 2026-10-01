@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Effects · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/06-effects">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 6 of 9</p>
+<h1>Effects</h1>
+<p class="lede">Synchronise a component with something outside React, and clean up after it.</p>
+<h2 id="what-an-effect-is-for">What an effect is for</h2>
+<p>Rendering should only compute what the screen looks like. Some work has to reach <strong>outside</strong> React: starting a timer, changing the page title, opening a connection, subscribing to an event. That work goes in an <strong>effect</strong>, which runs after React has updated the screen.</p>
+<pre><code class="lang-jsx">import { useEffect, useState } from "react";
+
+function PageTitle({ title }) {
+  useEffect(() =&gt; {
+    document.title = title;
+  }, [title]);
+
+  return &lt;h1&gt;{title}&lt;/h1&gt;;
+}</code></pre>
+<p><code>useEffect</code> takes a function and an array of <strong>dependencies</strong>.</p>
+<h2 id="when-it-runs">When it runs</h2>
+<div class="table-wrap"><table><thead><tr><th>Dependencies</th><th>The effect runs</th></tr></thead><tbody><tr><td><code>[a, b]</code></td><td>after the first render, and again whenever <code>a</code> or <code>b</code> has changed</td></tr><tr><td><code>[]</code></td><td>once, after the first render</td></tr><tr><td>left out</td><td>after every render (rarely what you want)</td></tr></tbody></table></div>
+<p>List every value from the component that the effect uses: props, state, and anything computed from them. If you leave one out, the effect keeps using an old value. That is the most common effect bug.</p>
+<h2 id="cleaning-up">Cleaning up</h2>
+<p>An effect that starts something must stop it. Return a function, and React calls it before the effect runs again, and when the component is removed.</p>
+<pre><code class="lang-jsx">function Clock() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() =&gt; {
+    const id = setInterval(() =&gt; {
+      setSeconds((previous) =&gt; previous + 1);
+    }, 1000);
+    return () =&gt; clearInterval(id);        // stop the timer
+  }, []);
+
+  return &lt;p&gt;{seconds} seconds&lt;/p&gt;;
+}</code></pre>
+<p>Two details matter here.</p>
+<p><strong>The cleanup.</strong> Without <code>clearInterval</code>, the timer keeps running after the component has gone, and every re-run of the effect would start another.</p>
+<p><strong>The updater function.</strong> <code>setSeconds((previous) =&gt; previous + 1)</code> does not read <code>seconds</code> from the component, so <code>seconds</code> is not a dependency and the timer is set up once. Writing <code>setSeconds(seconds + 1)</code> with <code>[]</code> would freeze at 1: the effect would only ever see the first value.</p>
+<p>The same shape applies to event listeners:</p>
+<pre><code class="lang-jsx">useEffect(() =&gt; {
+  function onResize() {
+    setWidth(window.innerWidth);
+  }
+  window.addEventListener("resize", onResize);
+  return () =&gt; window.removeEventListener("resize", onResize);
+}, []);</code></pre>
+<p>During development, React runs every effect twice on mount: run, clean up, run again. It does that on purpose, to reveal effects that are missing their cleanup.</p>
+<h2 id="you-may-not-need-an-effect">You may not need an effect</h2>
+<p>Effects are for synchronising with the outside world. Many things that look like a job for an effect are not.</p>
+<p><strong>Deriving data.</strong> Calculate it while rendering:</p>
+<pre><code class="lang-jsx">// unnecessary
+const [fullName, setFullName] = useState("");
+useEffect(() =&gt; {
+  setFullName(first + " " + last);
+}, [first, last]);
+
+// better
+const fullName = first + " " + last;</code></pre>
+<p><strong>Responding to a click.</strong> Do it in the event handler. An effect is for things that must happen <strong>because the component is on screen</strong>, not because the user did something.</p>
+<h2 id="reacting-to-a-prop">Reacting to a prop</h2>
+<p>When a dependency changes, the cleanup of the old effect runs first, then the new effect:</p>
+<pre><code class="lang-jsx">function ChatRoom({ roomId }) {
+  useEffect(() =&gt; {
+    const connection = connect(roomId);
+    return () =&gt; connection.close();
+  }, [roomId]);
+
+  return &lt;h2&gt;Room {roomId}&lt;/h2&gt;;
+}</code></pre>
+<p>Switching rooms closes the old connection and opens a new one, with no extra code.</p>
+<h2 id="useref">useRef</h2>
+<p><code>useRef</code> holds a value that survives renders and does <strong>not</strong> cause one when it changes. Its two uses: reaching a DOM element, and remembering something like a timer id.</p>
+<pre><code class="lang-jsx">import { useEffect, useRef } from "react";
+
+function SearchBox() {
+  const inputRef = useRef(null);
+
+  useEffect(() =&gt; {
+    inputRef.current.focus();
+  }, []);
+
+  return &lt;input ref={inputRef} /&gt;;
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No cleanup</strong> for a timer, listener or connection.</li><li><strong>A missing dependency</strong>, giving stale values.</li><li><strong>No dependency array</strong>, with an effect that sets state: an endless loop.</li><li><strong>An effect to compute something</strong> that could be calculated during rendering.</li><li><strong>An <code>async</code> function passed straight to <code>useEffect</code>.</strong> It would return a promise in place of a cleanup function. Define an async function inside the effect and call it.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/06-effects">
+<h3>A stopwatch and the page title <span class="ex-id">react/06-effects</span></h3>
+<p>Complete the two components in <code>Timer.jsx</code>.</p>
+<h4><code>DocumentTitle</code></h4>
+<p><code>&lt;DocumentTitle title="Inbox" /&gt;</code> sets <code>document.title</code> to the title, and updates it whenever the prop changes. It renders nothing: return <code>null</code>.</p>
+<h4><code>Stopwatch</code></h4>
+<ul><li>It shows a <code>&lt;p&gt;</code> with <code>0 seconds</code>, and a button <code>Start</code>.</li><li>Clicking <code>Start</code> begins counting: the number goes up by one every second, and the button now says <code>Stop</code>.</li><li>Clicking <code>Stop</code> pauses. The number stays where it is, and the button says <code>Start</code> again.</li><li>One second shows as <code>1 second</code>, every other number as <code>N seconds</code>.</li><li>When the component is removed from the page while running, its timer must be cleared.</li></ul>
+<p>Use <code>setInterval</code> inside an effect that depends on whether the stopwatch is running, and return a cleanup function.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/06-effects/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/06-effects</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/05-forms.html"><span>Previous</span>Forms</a><a class="next" href="../react/07-fetching-data.html"><span>Next</span>Fetching data</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

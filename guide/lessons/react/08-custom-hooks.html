@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom hooks · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/08-custom-hooks">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 8 of 9</p>
+<h1>Custom hooks</h1>
+<p class="lede">Move stateful logic out of components into functions you can reuse and test.</p>
+<h2 id="the-problem">The problem</h2>
+<p>Two components need the same logic: a value that toggles, a form field, a subscription to the window size. Copying the <code>useState</code> and <code>useEffect</code> lines into both works until one copy gets fixed and the other does not.</p>
+<h2 id="a-custom-hook">A custom hook</h2>
+<p>A <strong>custom hook</strong> is a function whose name starts with <code>use</code> and that calls other hooks. That is the whole definition.</p>
+<pre><code class="lang-jsx">import { useState } from "react";
+
+export function useToggle(initial = false) {
+  const [on, setOn] = useState(initial);
+
+  function toggle() {
+    setOn((previous) =&gt; !previous);
+  }
+
+  return [on, toggle];
+}</code></pre>
+<pre><code class="lang-jsx">function Menu() {
+  const [open, toggleOpen] = useToggle();
+  return (
+    &lt;&gt;
+      &lt;button onClick={toggleOpen}&gt;Menu&lt;/button&gt;
+      {open &amp;&amp; &lt;nav&gt;...&lt;/nav&gt;}
+    &lt;/&gt;
+  );
+}</code></pre>
+<p>Each component that calls <code>useToggle</code> gets its <strong>own</strong> state. A hook shares logic, not data.</p>
+<p>The <code>use</code> prefix matters. It tells React, and the linter, that the rules of hooks apply: call it at the top level of a component or of another hook, never conditionally.</p>
+<h2 id="what-to-return">What to return</h2>
+<p>Return whatever makes the hook pleasant to use:</p>
+<div class="table-wrap"><table><thead><tr><th>Shape</th><th>When</th></tr></thead><tbody><tr><td>an array: <code>[value, setValue]</code></td><td>one value and one action, like <code>useState</code>. The caller picks the names.</td></tr><tr><td>an object: <code>{ count, increment, reset }</code></td><td>several values or actions</td></tr></tbody></table></div>
+<pre><code class="lang-jsx">export function useCounter(start = 0, step = 1) {
+  const [count, setCount] = useState(start);
+  return {
+    count,
+    increment: () =&gt; setCount((c) =&gt; c + step),
+    decrement: () =&gt; setCount((c) =&gt; c - step),
+    reset: () =&gt; setCount(start),
+  };
+}</code></pre>
+<h2 id="hooks-with-effects">Hooks with effects</h2>
+<p>A hook can hide an effect and its cleanup completely:</p>
+<pre><code class="lang-jsx">import { useEffect, useState } from "react";
+
+export function useWindowWidth() {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() =&gt; {
+    function onResize() {
+      setWidth(window.innerWidth);
+    }
+    window.addEventListener("resize", onResize);
+    return () =&gt; window.removeEventListener("resize", onResize);
+  }, []);
+
+  return width;
+}</code></pre>
+<p>The component just reads a number: <code>const width = useWindowWidth();</code></p>
+<h2 id="state-that-survives-a-reload">State that survives a reload</h2>
+<p><code>localStorage</code> keeps small pieces of text in the browser between visits. A hook can make it behave like state:</p>
+<pre><code class="lang-jsx">export function useLocalStorage(key, initial) {
+  const [value, setValue] = useState(() =&gt; {
+    const stored = localStorage.getItem(key);
+    return stored === null ? initial : JSON.parse(stored);
+  });
+
+  useEffect(() =&gt; {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue];
+}</code></pre>
+<p>Passing a <strong>function</strong> to <code>useState</code> makes React call it once, on the first render, to compute the starting value. Reading storage on every render would be wasted work.</p>
+<h2 id="a-hook-for-fetching">A hook for fetching</h2>
+<p>The loading, error and data handling from the last lesson, written once:</p>
+<pre><code class="lang-jsx">export function useFetch(url) {
+  const [state, setState] = useState({ data: null, loading: true, error: null });
+
+  useEffect(() =&gt; {
+    let cancelled = false;
+    setState({ data: null, loading: true, error: null });
+    fetch(url)
+      .then((response) =&gt; {
+        if (!response.ok) throw new Error(`request failed: ${response.status}`);
+        return response.json();
+      })
+      .then((data) =&gt; !cancelled &amp;&amp; setState({ data, loading: false, error: null }))
+      .catch((error) =&gt; !cancelled &amp;&amp; setState({ data: null, loading: false, error: error.message }));
+    return () =&gt; {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return state;
+}</code></pre>
+<pre><code class="lang-jsx">const { data, loading, error } = useFetch("/api/users");</code></pre>
+<h2 id="when-to-extract-a-hook">When to extract a hook</h2>
+<ul><li>The same stateful logic appears in two components.</li><li>A component has become hard to read, and a chunk of its logic has a clear name.</li></ul>
+<p>Do not extract one just to make a component shorter. A hook used once, with a vague name, only moves the complexity to another file.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A name that does not start with <code>use</code>.</strong> The linter cannot check the rules of hooks.</li><li><strong>Expecting two components to share state</strong> through a hook. Each call has its own.</li><li><strong>Calling a hook inside a condition or loop.</strong></li><li><strong>Returning new functions that callers put in dependency arrays</strong>, causing effects to re-run every render.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/08-hooks">
+<h3>Write your own hooks <span class="ex-id">react/08-hooks</span></h3>
+<p>Write three hooks in <code>hooks.js</code> and export each by name.</p>
+<ul><li><code>useToggle(initial = false)</code> returns <code>[on, toggle]</code>. Calling <code>toggle()</code> flips the value.</li><li><code>useCounter(start = 0, step = 1)</code> returns an object <code>{ count, increment, decrement, reset }</code>. <code>increment</code> and <code>decrement</code> change the count by <code>step</code>, and <code>reset</code> goes back to <code>start</code>.</li><li><code>useLocalStorage(key, initial)</code> works like <code>useState</code>, returning <code>[value, setValue]</code>, and also keeps the value in <code>localStorage</code> under <code>key</code>, as JSON. On the first render it uses the stored value if there is one, and <code>initial</code> otherwise.</li></ul>
+<p>Calling <code>increment()</code> twice in a row must add two steps, so use the function form of the setter.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/08-hooks/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/08-hooks</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/07-fetching-data.html"><span>Previous</span>Fetching data</a><a class="next" href="../react/09-sharing-state.html"><span>Next</span>Sharing state</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

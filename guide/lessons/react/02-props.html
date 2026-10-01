@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Props · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/02-props">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 2 of 9</p>
+<h1>Props</h1>
+<p class="lede">Pass data into components, show things conditionally, and wrap other content.</p>
+<h2 id="props-are-arguments">Props are arguments</h2>
+<p>A component receives one argument: an object of the attributes it was given, called <strong>props</strong>.</p>
+<pre><code class="lang-jsx">function Greeting(props) {
+  return &lt;h1&gt;Hello, {props.name}!&lt;/h1&gt;;
+}
+
+&lt;Greeting name="Ada" /&gt;</code></pre>
+<p>Almost everyone destructures them in the parameter list, often with defaults:</p>
+<pre><code class="lang-jsx">function Greeting({ name, punctuation = "!" }) {
+  return &lt;h1&gt;Hello, {name}{punctuation}&lt;/h1&gt;;
+}</code></pre>
+<h2 id="passing-values">Passing values</h2>
+<p>A string goes in quotes. Anything else goes in braces:</p>
+<pre><code class="lang-jsx">&lt;Badge label="New" /&gt;
+&lt;Avatar size={48} /&gt;
+&lt;UserCard user={currentUser} /&gt;
+&lt;Button disabled={true} onClick={handleClick} /&gt;
+&lt;Button disabled /&gt;              // a bare name means true</code></pre>
+<h2 id="props-are-read-only">Props are read-only</h2>
+<p>A component must never change its props. They belong to the parent. Given the same props, a component should return the same output. To change what is shown, the parent passes new props, or the component uses <strong>state</strong>, which is the next lesson.</p>
+<h2 id="showing-things-conditionally">Showing things conditionally</h2>
+<p>JSX takes expressions, so use the conditional operator and <code>&amp;&amp;</code>:</p>
+<pre><code class="lang-jsx">function UserCard({ user }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h2&gt;{user.name}&lt;/h2&gt;
+      {user.admin &amp;&amp; &lt;span className="badge"&gt;Admin&lt;/span&gt;}
+      &lt;p&gt;{user.online ? "Online" : "Offline"}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<ul><li><code>condition &amp;&amp; &lt;X /&gt;</code> shows <code>&lt;X /&gt;</code> when the condition is true, and nothing otherwise.</li><li><code>condition ? &lt;A /&gt; : &lt;B /&gt;</code> chooses between two.</li></ul>
+<p><code>null</code>, <code>undefined</code>, <code>true</code> and <code>false</code> render nothing. Zero <strong>does</strong> render: <code>{count &amp;&amp; &lt;p&gt;...&lt;/p&gt;}</code> shows <code>0</code> when <code>count</code> is 0. Write <code>{count &gt; 0 &amp;&amp; ...}</code>.</p>
+<p>For anything more involved, decide before the <code>return</code>:</p>
+<pre><code class="lang-jsx">function Status({ state }) {
+  if (state === "loading") {
+    return &lt;p&gt;Loading...&lt;/p&gt;;
+  }
+  if (state === "error") {
+    return &lt;p&gt;Something went wrong.&lt;/p&gt;;
+  }
+  return &lt;p&gt;Ready.&lt;/p&gt;;
+}</code></pre>
+<h2 id="children">children</h2>
+<p>Whatever is written between a component's opening and closing tags arrives as the prop <code>children</code>. This lets a component wrap any content:</p>
+<pre><code class="lang-jsx">function Card({ title, children }) {
+  return (
+    &lt;section className="card"&gt;
+      &lt;h2&gt;{title}&lt;/h2&gt;
+      &lt;div className="card-body"&gt;{children}&lt;/div&gt;
+    &lt;/section&gt;
+  );
+}
+
+&lt;Card title="Welcome"&gt;
+  &lt;p&gt;Any content can go here.&lt;/p&gt;
+  &lt;button&gt;OK&lt;/button&gt;
+&lt;/Card&gt;</code></pre>
+<h2 id="passing-functions">Passing functions</h2>
+<p>A prop can be a function. That is how a child tells its parent that something happened:</p>
+<pre><code class="lang-jsx">function DeleteButton({ onDelete }) {
+  return &lt;button onClick={onDelete}&gt;Delete&lt;/button&gt;;
+}
+
+&lt;DeleteButton onDelete={() =&gt; removeItem(item.id)} /&gt;</code></pre>
+<p>Data flows <strong>down</strong> through props. Events flow <strong>up</strong> through functions passed as props. This one-way flow is what keeps a React app understandable as it grows.</p>
+<h2 id="spreading-props">Spreading props</h2>
+<pre><code class="lang-jsx">const user = { name: "Ada", role: "Engineer" };
+&lt;UserCard {...user} /&gt;        // same as name="Ada" role="Engineer"</code></pre>
+<p>Handy, but it hides which props a component receives. Use it sparingly.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Changing a prop</strong> inside the component.</li><li><strong>Quotes around a number or an object</strong>: <code>size="48"</code> passes a string.</li><li><strong><code>{count &amp;&amp; &lt;X /&gt;}</code></strong> printing a stray <code>0</code>.</li><li><strong>Forgetting to render <code>{children}</code></strong>, so the wrapped content never shows.</li><li><strong>Calling the function when passing it</strong>: <code>onClick={remove()}</code> runs <code>remove</code> during rendering. Pass <code>onClick={remove}</code> or <code>onClick={() =&gt; remove(id)}</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/02-user-card">
+<h3>Props, conditions and children <span class="ex-id">react/02-user-card</span></h3>
+<p>Complete the two components in <code>UserCard.jsx</code>.</p>
+<h4><code>Card</code></h4>
+<p><code>&lt;Card title="Team"&gt;...&lt;/Card&gt;</code> renders a <code>&lt;section&gt;</code> with the class <code>card</code>, containing an <code>&lt;h2&gt;</code> with the title, followed by whatever was placed between its tags.</p>
+<h4><code>UserCard</code></h4>
+<p><code>&lt;UserCard user={user} /&gt;</code>, where a user looks like <code>{ name: "Ada", role: "Engineer", admin: true, online: false }</code>.</p>
+<p>It renders a <code>Card</code> whose title is the user's name. Inside:</p>
+<ul><li>a <code>&lt;p&gt;</code> with the role;</li><li>a <code>&lt;span&gt;</code> with the class <code>badge</code> and the text <code>Admin</code>, <strong>only if</strong> <code>user.admin</code> is true;</li><li>a <code>&lt;p&gt;</code> with the text <code>Online</code> or <code>Offline</code>.</li></ul>
+<p>If the user has no role, show <code>No role</code> in its place.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/02-user-card/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/02-user-card</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/01-components-and-jsx.html"><span>Previous</span>Components and JSX</a><a class="next" href="../react/03-state.html"><span>Next</span>State</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

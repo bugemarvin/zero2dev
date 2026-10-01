@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lists and keys · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/04-lists-and-keys">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 4 of 9</p>
+<h1>Lists and keys</h1>
+<p class="lede">Turn an array into elements, and tell React which item is which.</p>
+<h2 id="rendering-a-list">Rendering a list</h2>
+<p>There is no loop syntax in JSX. Use <code>map</code> to turn an array of data into an array of elements:</p>
+<pre><code class="lang-jsx">function TodoList({ todos }) {
+  return (
+    &lt;ul&gt;
+      {todos.map((todo) =&gt; (
+        &lt;li key={todo.id}&gt;{todo.title}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<p>Filter first if only some should show:</p>
+<pre><code class="lang-jsx">{todos.filter((todo) =&gt; !todo.done).map((todo) =&gt; (
+  &lt;li key={todo.id}&gt;{todo.title}&lt;/li&gt;
+))}</code></pre>
+<h2 id="keys">Keys</h2>
+<p>Every element produced by <code>map</code> needs a <code>key</code>: a value that identifies that item among its siblings and stays the same between renders.</p>
+<p>When the list changes, React uses the keys to work out what happened: which items are new, which were removed, which moved. With good keys it updates only what changed, and each item keeps its own state.</p>
+<div class="table-wrap"><table><thead><tr><th>Key</th><th>Verdict</th></tr></thead><tbody><tr><td>an id from your data: <code>todo.id</code></td><td>correct</td></tr><tr><td>the array index</td><td>only for a list that never reorders, grows at the front, or loses items</td></tr><tr><td><code>Math.random()</code></td><td>wrong: a new key every render destroys and rebuilds each item</td></tr></tbody></table></div>
+<p>With the index as key, deleting the first item makes every remaining item take over the key of the one before it. React then keeps the wrong state with the wrong row, for example the text typed into an input.</p>
+<p>The key goes on the outermost element returned from <code>map</code>. It is not passed to the component as a prop.</p>
+<h2 id="an-empty-list">An empty list</h2>
+<p>Decide what to show when there is nothing:</p>
+<pre><code class="lang-jsx">function TodoList({ todos }) {
+  if (todos.length === 0) {
+    return &lt;p&gt;Nothing to do.&lt;/p&gt;;
+  }
+  return (
+    &lt;ul&gt;
+      {todos.map((todo) =&gt; (
+        &lt;li key={todo.id}&gt;{todo.title}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<h2 id="a-component-per-item">A component per item</h2>
+<p>When an item has behaviour of its own, give it a component:</p>
+<pre><code class="lang-jsx">function TodoItem({ todo, onToggle, onRemove }) {
+  return (
+    &lt;li&gt;
+      &lt;label&gt;
+        &lt;input type="checkbox" checked={todo.done} onChange={() =&gt; onToggle(todo.id)} /&gt;
+        {todo.title}
+      &lt;/label&gt;
+      &lt;button onClick={() =&gt; onRemove(todo.id)}&gt;Remove&lt;/button&gt;
+    &lt;/li&gt;
+  );
+}</code></pre>
+<p>The list keeps the data and passes down functions:</p>
+<pre><code class="lang-jsx">function Todos() {
+  const [todos, setTodos] = useState([
+    { id: 1, title: "Learn React", done: false },
+    { id: 2, title: "Build something", done: false },
+  ]);
+
+  function toggle(id) {
+    setTodos(todos.map((t) =&gt; (t.id === id ? { ...t, done: !t.done } : t)));
+  }
+
+  function remove(id) {
+    setTodos(todos.filter((t) =&gt; t.id !== id));
+  }
+
+  return (
+    &lt;ul&gt;
+      {todos.map((todo) =&gt; (
+        &lt;TodoItem key={todo.id} todo={todo} onToggle={toggle} onRemove={remove} /&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<p>The item knows how to display one todo and report clicks. The list owns the array and decides how it changes. Data goes down, events come up.</p>
+<h2 id="events-in-a-list">Events in a list</h2>
+<p>Each item needs to say <strong>which</strong> one was clicked. An arrow function captures the id:</p>
+<pre><code class="lang-jsx">&lt;button onClick={() =&gt; onRemove(todo.id)}&gt;Remove&lt;/button&gt;</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No key</strong>, or a warning about it in the console that gets ignored.</li><li><strong>The index as key</strong> on a list that changes.</li><li><strong><code>key</code> placed on an inner element</strong> and not on the one returned from <code>map</code>.</li><li><strong>Braces and no return in the arrow function</strong>: <code>todos.map((t) =&gt; { &lt;li&gt;...&lt;/li&gt; })</code> returns nothing. Use round brackets, or write <code>return</code>.</li><li><strong>Mutating the array</strong> with <code>push</code> or <code>splice</code> before setting state.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/04-todo-list">
+<h3>A list you can change <span class="ex-id">react/04-todo-list</span></h3>
+<p>Complete <code>TodoList.jsx</code>.</p>
+<p><code>&lt;TodoList initialTodos={todos} /&gt;</code>, where each todo looks like <code>{ id: 1, title: "Learn React", done: false }</code>.</p>
+<ul><li>With no todos it shows a <code>&lt;p&gt;</code> with the text <code>Nothing to do.</code> and no list.</li><li>Otherwise it shows a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per todo. Each item has: - a checkbox whose label is the todo's title, ticked when the todo is done. Clicking it switches <code>done</code>. - a button whose accessible name is <code>Remove TITLE</code>, for example <code>Remove Learn React</code> (use <code>aria-label</code>). It removes that todo.</li><li>Below the list, a <code>&lt;p&gt;</code> shows how many are not done yet: <code>2 left</code>.</li></ul>
+<p>Keep the todos in state, starting from <code>initialTodos</code>. Use the todo's <code>id</code> as the key, and never change the array or its objects in place.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/04-todo-list/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/04-todo-list</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/03-state.html"><span>Previous</span>State</a><a class="next" href="../react/05-forms.html"><span>Next</span>Forms</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

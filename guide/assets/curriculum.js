@@ -1246,6 +1246,112 @@ window.Z2D_CURRICULUM = {
      "exercises": []
     }
    ]
+  },
+  {
+   "id": "react",
+   "title": "React",
+   "blurb": "User interfaces from components: props, state, lists, forms, effects, data and shared state.",
+   "lessons": [
+    {
+     "id": "react/01-components-and-jsx",
+     "title": "Components and JSX",
+     "summary": "Build a user interface out of small functions that return markup.",
+     "exercises": [
+      {
+       "id": "react/01-greeting",
+       "title": "Your first components"
+      }
+     ]
+    },
+    {
+     "id": "react/02-props",
+     "title": "Props",
+     "summary": "Pass data into components, show things conditionally, and wrap other content.",
+     "exercises": [
+      {
+       "id": "react/02-user-card",
+       "title": "Props, conditions and children"
+      }
+     ]
+    },
+    {
+     "id": "react/03-state",
+     "title": "State",
+     "summary": "Data that a component remembers and that makes the screen update when it changes.",
+     "exercises": [
+      {
+       "id": "react/03-counter",
+       "title": "A counter with state"
+      }
+     ]
+    },
+    {
+     "id": "react/04-lists-and-keys",
+     "title": "Lists and keys",
+     "summary": "Turn an array into elements, and tell React which item is which.",
+     "exercises": [
+      {
+       "id": "react/04-todo-list",
+       "title": "A list you can change"
+      }
+     ]
+    },
+    {
+     "id": "react/05-forms",
+     "title": "Forms",
+     "summary": "Keep the value of every input in state, validate it, and handle the submit yourself.",
+     "exercises": [
+      {
+       "id": "react/05-signup-form",
+       "title": "A form with validation"
+      }
+     ]
+    },
+    {
+     "id": "react/06-effects",
+     "title": "Effects",
+     "summary": "Synchronise a component with something outside React, and clean up after it.",
+     "exercises": [
+      {
+       "id": "react/06-effects",
+       "title": "A stopwatch and the page title"
+      }
+     ]
+    },
+    {
+     "id": "react/07-fetching-data",
+     "title": "Fetching data",
+     "summary": "Load data from a server, and handle the three states every request has.",
+     "exercises": [
+      {
+       "id": "react/07-user-list",
+       "title": "Load data from a server"
+      }
+     ]
+    },
+    {
+     "id": "react/08-custom-hooks",
+     "title": "Custom hooks",
+     "summary": "Move stateful logic out of components into functions you can reuse and test.",
+     "exercises": [
+      {
+       "id": "react/08-hooks",
+       "title": "Write your own hooks"
+      }
+     ]
+    },
+    {
+     "id": "react/09-sharing-state",
+     "title": "Sharing state",
+     "summary": "Lift state up to a common parent, and use context for data that many components need.",
+     "exercises": [
+      {
+       "id": "react/09-theme",
+       "title": "Share state with context"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

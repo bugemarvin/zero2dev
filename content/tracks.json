@@ -82,5 +82,14 @@
       "workspace:node",
       "workspace:react"
     ]
+  },
+  {
+    "id": "react",
+    "title": "React",
+    "blurb": "User interfaces from components: props, state, lists, forms, effects, data and shared state.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:react"
+    ]
   }
 ]

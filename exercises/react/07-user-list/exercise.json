@@ -1,0 +1,39 @@
+{
+  "title": "Load data from a server",
+  "lesson": "react/07-fetching-data",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "UserList.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Three pieces of state: the users, loading (starts true) and failed.",
+    "Inside useEffect define an async function, call it, and list [url] as the dependency.",
+    "Check response.ok and throw if it is false, so the catch block handles both kinds of failure.",
+    "Use a cancelled flag set in the cleanup function, and skip the setState calls when it is true."
+  ]
+}

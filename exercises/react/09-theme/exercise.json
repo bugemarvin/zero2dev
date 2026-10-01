@@ -1,0 +1,39 @@
+{
+  "title": "Share state with context",
+  "lesson": "react/09-sharing-state",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "react",
+  "edit": [
+    "theme.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "In ThemeProvider: const [theme, setTheme] = useState(\"light\"); and return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>",
+    "useTheme: const context = useContext(ThemeContext); throw if it is null, otherwise return it.",
+    "ThemeButton and ThemedBox call useTheme() to read the shared value.",
+    "className={`box ${theme}`} builds the two class names."
+  ]
+}

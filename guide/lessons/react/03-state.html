@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>State · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="react/03-state">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">React · lesson 3 of 9</p>
+<h1>State</h1>
+<p class="lede">Data that a component remembers and that makes the screen update when it changes.</p>
+<h2 id="why-ordinary-variables-are-not-enough">Why ordinary variables are not enough</h2>
+<pre><code class="lang-jsx">function Counter() {
+  let count = 0;
+  return &lt;button onClick={() =&gt; { count += 1; }}&gt;Clicked {count} times&lt;/button&gt;;
+}</code></pre>
+<p>Clicking changes <code>count</code>, and the screen stays at 0. Two things are missing. React does not know anything changed, so it does not run the component again. And if it did, <code>let count = 0</code> would start from zero again.</p>
+<h2 id="usestate">useState</h2>
+<p><code>useState</code> gives a component a value that <strong>survives between renders</strong>, and a function that changes it <strong>and asks React to render again</strong>.</p>
+<pre><code class="lang-jsx">import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+      Clicked {count} times
+    &lt;/button&gt;
+  );
+}</code></pre>
+<ul><li><code>useState(0)</code> returns a pair: the current value, and a setter. <code>0</code> is the starting value, used on the first render only.</li><li>Calling <code>setCount(...)</code> stores the new value and schedules a re-render.</li><li>On that render, <code>useState</code> returns the new value.</li></ul>
+<p>Functions whose names start with <code>use</code> are <strong>hooks</strong>. Call them only at the top level of a component, never inside an <code>if</code>, a loop or a nested function. React matches hooks to their stored values by the order of the calls.</p>
+<h2 id="each-render-is-a-snapshot">Each render is a snapshot</h2>
+<p>Within one run of the component, <code>count</code> is a constant. Setting state does not change the variable you are holding. It affects the <strong>next</strong> render.</p>
+<pre><code class="lang-jsx">function handleClick() {
+  setCount(count + 1);
+  console.log(count);      // still the old value
+}</code></pre>
+<p>This also means three calls in a row do less than you might expect:</p>
+<pre><code class="lang-jsx">setCount(count + 1);
+setCount(count + 1);
+setCount(count + 1);       // all three say "set it to old + 1"</code></pre>
+<p>When the new value depends on the previous one, pass a <strong>function</strong>. React gives it the latest value:</p>
+<pre><code class="lang-jsx">setCount((previous) =&gt; previous + 1);
+setCount((previous) =&gt; previous + 1);
+setCount((previous) =&gt; previous + 1);       // adds 3</code></pre>
+<h2 id="several-pieces-of-state">Several pieces of state</h2>
+<p>Call <code>useState</code> once per independent value:</p>
+<pre><code class="lang-jsx">const [name, setName] = useState("");
+const [age, setAge] = useState(18);
+const [open, setOpen] = useState(false);</code></pre>
+<h2 id="objects-and-arrays-replace-never-mutate">Objects and arrays: replace, never mutate</h2>
+<p>React decides whether to re-render by checking whether the value is a <strong>different object</strong>. Changing an object in place leaves it the same object, and nothing happens.</p>
+<pre><code class="lang-jsx">const [user, setUser] = useState({ name: "Ada", age: 36 });
+
+user.age = 37;                          // wrong: mutation, no re-render
+setUser({ ...user, age: 37 });          // right: a new object</code></pre>
+<pre><code class="lang-jsx">const [items, setItems] = useState([]);
+
+setItems([...items, newItem]);                              // add
+setItems(items.filter((item) =&gt; item.id !== id));           // remove
+setItems(items.map((item) =&gt;
+  item.id === id ? { ...item, done: !item.done } : item));  // change one</code></pre>
+<p><code>push</code>, <code>splice</code> and <code>sort</code> change the array in place. Use spread, <code>filter</code> and <code>map</code>, which return new arrays.</p>
+<h2 id="state-is-private-to-each-copy">State is private to each copy</h2>
+<p>Use a component twice and each copy has its own state:</p>
+<pre><code class="lang-jsx">&lt;Counter /&gt;
+&lt;Counter /&gt;</code></pre>
+<h2 id="do-not-store-what-you-can-calculate">Do not store what you can calculate</h2>
+<p>If a value can be computed from props or other state, compute it during rendering:</p>
+<pre><code class="lang-jsx">const [items, setItems] = useState([]);
+const total = items.reduce((sum, item) =&gt; sum + item.price, 0);     // not state
+const isEmpty = items.length === 0;                                  // not state</code></pre>
+<p>Storing derived values in state creates two things to keep in step, and they will drift apart.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Assigning to the state variable</strong> in place of calling the setter.</li><li><strong>Mutating an object or array</strong> held in state.</li><li><strong>Reading state right after setting it</strong> and expecting the new value.</li><li><strong>Calling a hook conditionally.</strong></li><li><strong><code>onClick={setCount(count + 1)}</code></strong>, which calls the setter during rendering and loops for ever. Wrap it: <code>onClick={() =&gt; setCount(count + 1)}</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="react/03-counter">
+<h3>A counter with state <span class="ex-id">react/03-counter</span></h3>
+<p>Complete <code>Counter.jsx</code>.</p>
+<p><code>&lt;Counter start={5} step={2} /&gt;</code> shows:</p>
+<ul><li>a <code>&lt;p&gt;</code> with the text <code>Count: 5</code></li><li>a button <code>Add</code> that increases the count by <code>step</code></li><li>a button <code>Subtract</code> that decreases it by <code>step</code>, but never below 0</li><li>a button <code>Reset</code> that goes back to <code>start</code></li></ul>
+<p><code>start</code> defaults to 0 and <code>step</code> to 1.</p>
+<p>The <code>Subtract</code> button is <strong>disabled</strong> when the count is 0.</p>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab.</p>
+<p class="ex-files">Files: <code>exercises/react/03-counter/</code></p>
+<pre><code class="lang-console">$ python3 check.py react/03-counter</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/02-props.html"><span>Previous</span>Props</a><a class="next" href="../react/04-lists-and-keys.html"><span>Next</span>Lists and keys</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
