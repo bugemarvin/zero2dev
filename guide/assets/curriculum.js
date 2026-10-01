@@ -75,6 +75,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "vue",
     "gamedev",
     "node",
     "dsa",
@@ -188,6 +189,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "vue",
     "mongodb",
     "redis",
     "devops",
@@ -2561,6 +2563,85 @@ window.Z2D_CURRICULUM = {
       {
        "id": "react/09-theme",
        "title": "Share state with context"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "vue",
+   "title": "Vue",
+   "blurb": "User interfaces with single-file components: templates, reactivity, props and events, forms, and composables.",
+   "lessons": [
+    {
+     "id": "vue/01-components-and-templates",
+     "title": "Components and templates",
+     "summary": "What Vue is, the single-file component, and the template syntax that connects data to the page.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/01-profile-card",
+       "title": "A profile card"
+      }
+     ]
+    },
+    {
+     "id": "vue/02-reactivity",
+     "title": "Reactivity: ref and computed",
+     "summary": "Data that the page follows, and values that are worked out from other values.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/02-counter",
+       "title": "A counter with computed values"
+      }
+     ]
+    },
+    {
+     "id": "vue/03-props-and-events",
+     "title": "Props, events and slots",
+     "summary": "How components talk: data goes down, events come up, content goes in.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/03-star-rating",
+       "title": "A star rating"
+      }
+     ]
+    },
+    {
+     "id": "vue/04-lists-and-conditions",
+     "title": "Lists and conditions",
+     "summary": "Show things only sometimes, repeat things for every item, and switch classes on and off.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/04-todo-list",
+       "title": "A todo list"
+      }
+     ]
+    },
+    {
+     "id": "vue/05-forms-and-v-model",
+     "title": "Forms and v-model",
+     "summary": "Two-way binding between form fields and your data, with validation and submitting.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/05-signup-form",
+       "title": "A sign-up form"
+      }
+     ]
+    },
+    {
+     "id": "vue/06-composables-and-lifecycle",
+     "title": "Lifecycle, data and composables",
+     "summary": "Run code when a component appears, load data from a server, and share logic between components.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "vue/06-user-list",
+       "title": "Load data, and a composable"
       }
      ]
     }

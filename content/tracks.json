@@ -167,6 +167,15 @@
     ]
   },
   {
+    "id": "vue",
+    "title": "Vue",
+    "blurb": "User interfaces with single-file components: templates, reactivity, props and events, forms, and composables.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:vue"
+    ]
+  },
+  {
     "id": "next",
     "title": "Next.js",
     "blurb": "Full web applications with React: file-based routes, server rendering, API endpoints and server actions.",

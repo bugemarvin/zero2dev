@@ -1,0 +1,41 @@
+{
+  "title": "A sign-up form",
+  "lesson": "vue/05-forms-and-v-model",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "SignupForm.vue"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Work the errors out with computed: an array to which you push \"Name is required\" and so on, in order.",
+    "Keep a ref such as tried, set it to true in send(), and show the errors only when it is true: <template v-if=\"tried\">.",
+    "In send(): if (errors.value.length > 0) return; then emit(\"submit\", { name: name.value, email: email.value, plan: plan.value });",
+    "The checkbox: <input id=\"terms\" type=\"checkbox\" v-model=\"terms\">. The select: <select id=\"plan\" v-model=\"plan\"> with three <option value=\"...\">."
+  ]
+}

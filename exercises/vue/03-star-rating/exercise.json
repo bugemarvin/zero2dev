@@ -1,0 +1,41 @@
+{
+  "title": "A star rating",
+  "lesson": "vue/03-props-and-events",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "StarRating.vue"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "Add max to defineProps: max: { type: Number, default: 5 }, and declare the event: const emit = defineEmits([\"rate\"]);",
+    "v-for=\"n in max\" counts from 1 to max: <button v-for=\"n in max\" :key=\"n\" class=\"star\" ...>★</button>",
+    "A class that depends on a condition: :class=\"{ active: n <= value }\". The click: @click=\"emit('rate', n)\".",
+    "The slot with a fallback: <span class=\"label\"><slot>Rating</slot></span>"
+  ]
+}

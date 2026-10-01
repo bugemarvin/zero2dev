@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms and v-model · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="vue/05-forms-and-v-model">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Vue · lesson 5 of 6</p>
+<h1>Forms and v-model</h1>
+<p class="lede">Two-way binding between form fields and your data, with validation and submitting.</p>
+<h2 id="v-model">v-model</h2>
+<p><code>v-model</code> connects a form field to a <code>ref</code> in <strong>both directions</strong>: typing changes the data, and changing the data changes the field.</p>
+<pre><code class="lang-html">&lt;script setup&gt;
+import { ref } from "vue";
+
+const name = ref("");
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;label for="name"&gt;Name&lt;/label&gt;
+  &lt;input id="name" v-model="name"&gt;
+  &lt;p&gt;Hello, {{ name }}!&lt;/p&gt;
+&lt;/template&gt;</code></pre>
+<p>It is a shorthand for binding the value and listening for input:</p>
+<pre><code class="lang-html">&lt;input :value="name" @input="name = $event.target.value"&gt;</code></pre>
+<h2 id="the-kinds-of-field">The kinds of field</h2>
+<pre><code class="lang-html">&lt;textarea v-model="message"&gt;&lt;/textarea&gt;
+
+&lt;input type="checkbox" v-model="accepted"&gt;                  &lt;!-- true or false --&gt;
+
+&lt;input type="radio" value="basic" v-model="plan"&gt;
+&lt;input type="radio" value="pro" v-model="plan"&gt;             &lt;!-- plan is "basic" or "pro" --&gt;
+
+&lt;select v-model="country"&gt;
+  &lt;option value=""&gt;Choose one&lt;/option&gt;
+  &lt;option value="ke"&gt;Kenya&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+<p>Several checkboxes bound to the same <strong>array</strong> collect their values:</p>
+<pre><code class="lang-html">&lt;input type="checkbox" value="email" v-model="channels"&gt;
+&lt;input type="checkbox" value="sms" v-model="channels"&gt;       &lt;!-- channels is ["email", "sms"] --&gt;</code></pre>
+<h2 id="modifiers">Modifiers</h2>
+<div class="table-wrap"><table><thead><tr><th>Modifier</th><th>Effect</th></tr></thead><tbody><tr><td><code>v-model.trim</code></td><td>removes spaces at both ends</td></tr><tr><td><code>v-model.number</code></td><td>converts the text to a number</td></tr><tr><td><code>v-model.lazy</code></td><td>updates when the field loses focus, not on every key</td></tr></tbody></table></div>
+<pre><code class="lang-html">&lt;input v-model.trim="name"&gt;
+&lt;input type="number" v-model.number="age"&gt;</code></pre>
+<p>Without <code>.number</code>, the value of every input is a string, including <code>type="number"</code>.</p>
+<h2 id="submitting">Submitting</h2>
+<pre><code class="lang-html">&lt;form @submit.prevent="send"&gt;
+  ...
+  &lt;button type="submit"&gt;Send&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+<p><code>@submit</code> on the form catches both the button and the Enter key. <code>.prevent</code> stops the browser from reloading the page.</p>
+<h2 id="validation">Validation</h2>
+<p>Work out the errors with <code>computed</code>, from the data:</p>
+<pre><code class="lang-javascript">const email = ref("");
+const password = ref("");
+
+const errors = computed(() =&gt; {
+  const list = {};
+  if (!email.value.includes("@")) {
+    list.email = "Enter a valid email";
+  }
+  if (password.value.length &lt; 8) {
+    list.password = "At least 8 characters";
+  }
+  return list;
+});
+
+const isValid = computed(() =&gt; Object.keys(errors.value).length === 0);</code></pre>
+<pre><code class="lang-html">&lt;input id="email" v-model.trim="email"&gt;
+&lt;p v-if="errors.email" class="error"&gt;{{ errors.email }}&lt;/p&gt;
+
+&lt;button type="submit" :disabled="!isValid"&gt;Sign up&lt;/button&gt;</code></pre>
+<p>Showing every error before the user has typed anything is unfriendly. A common pattern keeps a <code>submitted</code> flag, or a <code>touched</code> flag per field, and shows errors only after it is set.</p>
+<p>Validation in the browser is a convenience for the user. The <strong>server must check again</strong>: anyone can send a request without your form.</p>
+<h2 id="one-object-for-the-whole-form">One object for the whole form</h2>
+<pre><code class="lang-javascript">import { reactive } from "vue";
+
+const form = reactive({ name: "", email: "", plan: "basic" });</code></pre>
+<pre><code class="lang-html">&lt;input v-model="form.name"&gt;
+&lt;input v-model="form.email"&gt;</code></pre>
+<p>To send it: <code>emit("submit", { ...form })</code>. The spread makes a plain copy, so the receiver does not hold your reactive object.</p>
+<h2 id="labels">Labels</h2>
+<p>Every field needs a <code>label</code> whose <code>for</code> equals the field's <code>id</code>. It makes the label clickable and tells screen readers what the field is. A <code>placeholder</code> is not a label.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>.prevent</code></strong>, so the page reloads on submit.</li><li><strong>Expecting a number</strong> from an input without <code>.number</code>.</li><li><strong>Handling only the button's click</strong>, which misses the Enter key. Listen for <code>submit</code> on the form.</li><li><strong>A separate <code>ref</code> for "is the form valid"</strong> that is updated by hand.</li><li><strong>No server-side validation.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="vue/05-signup-form">
+<h3>A sign-up form <span class="ex-id">vue/05-signup-form</span></h3>
+<p>Write <code>SignupForm.vue</code>.</p>
+<h4>Fields</h4>
+<p>Each field has a <code>label</code> whose <code>for</code> matches the field's <code>id</code>.</p>
+<ul><li>A text input with the id <code>name</code>, bound with <code>v-model.trim</code>.</li><li>An input with the id <code>email</code>, bound with <code>v-model.trim</code>.</li><li>A <code>select</code> with the id <code>plan</code> and the options <code>free</code>, <code>pro</code> and <code>team</code> (these are the <code>value</code>s). It starts on <code>free</code>.</li><li>A checkbox with the id <code>terms</code>.</li></ul>
+<h4>Rules</h4>
+<ul><li>The name must not be empty. Otherwise the error is <code>Name is required</code>.</li><li>The email must contain <code>@</code>. Otherwise the error is <code>Enter a valid email</code>.</li><li>The terms must be accepted. Otherwise the error is <code>Accept the terms</code>.</li></ul>
+<p>Errors are shown <strong>only after the first attempt to submit</strong>. Each one is a paragraph with the class <code>error</code>, and they appear in the order name, email, terms.</p>
+<h4>Submitting</h4>
+<p>The form has a submit button with the text <code>Create account</code>.</p>
+<ul><li>When something is wrong, submitting shows the errors and emits nothing.</li><li>When everything is right, it emits <code>submit</code> with an object <code>{ name, email, plan }</code>, and shows a paragraph with the class <code>ok</code> and the text <code>Welcome, NAME!</code>.</li></ul>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab, and the page reloads when you save.</p>
+<p class="ex-files">Files: <code>exercises/vue/05-signup-form/</code></p>
+<pre><code class="lang-console">$ python3 check.py vue/05-signup-form</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../vue/04-lists-and-conditions.html"><span>Previous</span>Lists and conditions</a><a class="next" href="../vue/06-composables-and-lifecycle.html"><span>Next</span>Lifecycle, data and composables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

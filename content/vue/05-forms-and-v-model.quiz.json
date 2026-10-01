@@ -1,0 +1,44 @@
+[
+ {
+  "q": "What does v-model do?",
+  "options": [
+   "Validates a field",
+   "Binds a field and a ref in both directions",
+   "Submits the form",
+   "Styles the input"
+  ],
+  "answer": 1,
+  "why": "Typing updates the data, and changing the data updates the field."
+ },
+ {
+  "q": "Which modifier removes spaces at both ends?",
+  "options": [
+   ".lazy",
+   ".trim",
+   ".number",
+   ".prevent"
+  ],
+  "answer": 1,
+  "why": "v-model.trim."
+ },
+ {
+  "q": "What type is the value of `<input type=\"number\" v-model=\"age\">`?",
+  "options": [
+   "A number",
+   "A string, unless you add .number"
+  ],
+  "answer": 1,
+  "why": "Inputs give strings. v-model.number converts."
+ },
+ {
+  "q": "Where should you listen to handle a form being sent?",
+  "options": [
+   "@click on the button",
+   "@submit.prevent on the form",
+   "@change on each field",
+   "@keydown.enter everywhere"
+  ],
+  "answer": 1,
+  "why": "The form's submit event covers the button and the Enter key."
+ }
+]
