@@ -1,0 +1,8 @@
+{
+  "name": "zero2dev-sass-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "sass": "^1.105.1"
+  }
+}
