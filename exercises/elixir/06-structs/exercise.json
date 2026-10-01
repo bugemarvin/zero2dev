@@ -1,0 +1,19 @@
+{
+  "title": "A struct and a map",
+  "lesson": "elixir/06-maps-and-structs",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "defstruct [:name, :age, admin: false]",
+    "Match the struct in the head to restrict the type: def birthday(%User{age: age} = user), do: %User{user | age: age + 1}",
+    "Map.update(inventory, item, quantity, &(&1 + quantity)) adds to an existing key or starts a new one.",
+    "For remove, use case Map.fetch(inventory, item) do with a clause for :error and clauses for {:ok, have}."
+  ]
+}

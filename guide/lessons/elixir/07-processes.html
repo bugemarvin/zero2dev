@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Processes and messages · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/07-processes">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 7 of 9</p>
+<h1>Processes and messages</h1>
+<p class="lede">Elixir's model of concurrency. Lightweight processes that share nothing and talk by sending messages.</p>
+<h2 id="processes">Processes</h2>
+<p>An Elixir <strong>process</strong> is not an operating system process. It is a very small, independent unit of execution managed by the virtual machine. One costs a few kilobytes and starts in microseconds. Running hundreds of thousands at once is normal.</p>
+<p>Three rules define them:</p>
+<ol><li><strong>They share no memory.</strong> One process cannot touch another's data.</li><li><strong>They communicate only by messages.</strong> Each process has a mailbox.</li><li><strong>They fail independently.</strong> A crash in one does not corrupt the others.</li></ol>
+<p>Because nothing is shared, the bugs that haunt threads in other languages, where two pieces of code change the same data at once, cannot happen here.</p>
+<h2 id="spawn">spawn</h2>
+<pre><code class="lang-elixir">pid = spawn(fn -&gt; IO.puts("hello from another process") end)</code></pre>
+<p><code>spawn</code> starts a process that runs the given function and returns its <strong>process identifier</strong> (PID) at once, without waiting. When the function finishes, the process ends.</p>
+<p><code>self()</code> is the PID of the current process.</p>
+<h2 id="send-and-receive">send and receive</h2>
+<pre><code class="lang-elixir">send(self(), {:greeting, "hi"})
+
+receive do
+  {:greeting, text} -&gt; IO.puts("got: #{text}")
+end</code></pre>
+<ul><li><code>send(pid, message)</code> puts a message in a mailbox and returns immediately. The message can be any value.</li><li><code>receive</code> waits until a message matching one of its patterns arrives, then runs that branch.</li></ul>
+<p>Add a timeout so a process does not wait for ever:</p>
+<pre><code class="lang-elixir">receive do
+  {:greeting, text} -&gt; text
+after
+  1000 -&gt; :nothing_arrived
+end</code></pre>
+<h2 id="asking-another-process">Asking another process</h2>
+<p>A process answers by sending a message back, so the request must say who is asking:</p>
+<pre><code class="lang-elixir">parent = self()
+
+spawn(fn -&gt;
+  result = 6 * 7
+  send(parent, {:answer, result})
+end)
+
+receive do
+  {:answer, n} -&gt; IO.puts("the answer is #{n}")
+end</code></pre>
+<p><code>self()</code> is captured in <code>parent</code> <strong>outside</strong> the function. Inside the spawned function, <code>self()</code> would be the new process.</p>
+<h2 id="a-process-that-keeps-state">A process that keeps state</h2>
+<p>Data is immutable, so how does anything remember a value? A process runs a function that <strong>calls itself with the new state</strong>, for ever.</p>
+<pre><code class="lang-elixir">defmodule Counter do
+  def start(initial) do
+    spawn(fn -&gt; loop(initial) end)
+  end
+
+  defp loop(count) do
+    receive do
+      :increment -&gt;
+        loop(count + 1)
+
+      {:value, caller} -&gt;
+        send(caller, {:count, count})
+        loop(count)
+    end
+  end
+end</code></pre>
+<pre><code class="lang-elixir">pid = Counter.start(0)
+send(pid, :increment)
+send(pid, :increment)
+send(pid, {:value, self()})
+
+receive do
+  {:count, n} -&gt; n
+end
+# 2</code></pre>
+<p>The state is the argument of <code>loop</code>. Each message produces the next state. The recursive call is in tail position, so this runs indefinitely in constant memory. Messages are handled one at a time, in order, so the count is never corrupted however many processes send to it.</p>
+<p>Wrap the message passing in functions, so users of the module never see the protocol:</p>
+<pre><code class="lang-elixir">def increment(pid), do: send(pid, :increment)
+
+def value(pid) do
+  send(pid, {:value, self()})
+
+  receive do
+    {:count, n} -&gt; n
+  end
+end</code></pre>
+<h2 id="tasks">Tasks</h2>
+<p>For "run this in the background and give me the result", use <code>Task</code>:</p>
+<pre><code class="lang-elixir">task = Task.async(fn -&gt; slow_computation() end)
+other_work()
+result = Task.await(task)</code></pre>
+<p>Running the same function over a list, concurrently:</p>
+<pre><code class="lang-elixir">urls
+|&gt; Enum.map(fn url -&gt; Task.async(fn -&gt; fetch(url) end) end)
+|&gt; Enum.map(&amp;Task.await/1)</code></pre>
+<p>All the tasks start first. Then the results are collected in the original order. Ten jobs of one second each finish in about one second.</p>
+<h2 id="let-it-crash">Let it crash</h2>
+<p>In most languages you defend against every possible error. Elixir takes a different approach: a process that reaches a state it cannot handle should <strong>crash</strong>, and another process, a <strong>supervisor</strong>, restarts it in a known good state.</p>
+<p><code>spawn_link</code> ties two processes together, so that if one dies the other is told. Supervisors are built on that, and you will meet them with GenServer in the next lesson. This is how systems written for the BEAM stay up for years.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Calling <code>self()</code> inside the spawned function</strong> when you meant the parent.</li><li><strong>A <code>receive</code> with no matching message and no <code>after</code>.</strong> The process waits for ever.</li><li><strong>Forgetting the recursive call</strong> in a loop. The process handles one message and exits.</li><li><strong>Expecting an immediate reply.</strong> <code>send</code> never waits. You must <code>receive</code> the answer.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/07-processes">
+<h3>A counter process and a parallel map <span class="ex-id">elixir/07-processes</span></h3>
+<p><code>solution.ex</code> holds two modules. Build them from <code>spawn</code>, <code>send</code> and <code>receive</code>. Do not use <code>GenServer</code> or <code>Agent</code> here: the next lesson is about those.</p>
+<h4><code>Counter</code></h4>
+<p>A process that holds a number.</p>
+<ul><li><code>Counter.start(initial)</code> starts the process and returns its PID.</li><li><code>Counter.increment(pid)</code> adds one. It does not wait for a reply.</li><li><code>Counter.value(pid)</code> asks the process for its current number and returns it.</li></ul>
+<pre><code class="lang-elixir">pid = Counter.start(10)
+Counter.increment(pid)
+Counter.value(pid)      # 11</code></pre>
+<h4><code>Parallel</code></h4>
+<ul><li><code>Parallel.map(list, fun)</code> returns the same result as <code>Enum.map(list, fun)</code>, with every call to <code>fun</code> running in its <strong>own process at the same time</strong>. The results are in the original order.</li></ul>
+<p>Five calls that each sleep for 200 ms must finish in well under a second. You may use <code>Task.async</code> and <code>Task.await</code>, or <code>spawn</code> with <code>send</code> and <code>receive</code>.</p>
+<p class="ex-files">Files: <code>exercises/elixir/07-processes/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/07-processes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/06-maps-and-structs.html"><span>Previous</span>Maps, keyword lists and structs</a><a class="next" href="../elixir/08-genserver.html"><span>Next</span>GenServer</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

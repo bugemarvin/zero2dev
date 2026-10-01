@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lists and recursion · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/04-lists-and-recursion">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 4 of 9</p>
+<h1>Lists and recursion</h1>
+<p class="lede">There are no loops. Repetition is a function that calls itself, and lists are built for exactly that.</p>
+<h2 id="lists-are-linked-lists">Lists are linked lists</h2>
+<p>An Elixir list is a chain: each element points to the rest of the list. Every list is either empty, <code>[]</code>, or a <strong>head</strong> followed by a <strong>tail</strong> that is itself a list.</p>
+<pre><code class="lang-elixir">[1, 2, 3] == [1 | [2 | [3 | []]]]     # true</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th>Cost</th></tr></thead><tbody><tr><td>add at the front: <code>[0 | list]</code></td><td>O(1)</td></tr><tr><td>take the head and tail</td><td>O(1)</td></tr><tr><td><code>length(list)</code></td><td>O(n)</td></tr><tr><td>add at the end: <code>list ++ [x]</code></td><td>O(n)</td></tr><tr><td>read the i-th element</td><td>O(n)</td></tr></tbody></table></div>
+<p>So Elixir code builds lists from the front.</p>
+<h2 id="no-loops">No loops</h2>
+<p>There is no <code>for</code> or <code>while</code> that changes a counter, because nothing can change. Repetition is done by <strong>recursion</strong>.</p>
+<p>A function over a list has two clauses:</p>
+<ul><li>the empty list: the base case;</li><li><code>[head | tail]</code>: do something with the head, and recurse on the tail.</li></ul>
+<pre><code class="lang-elixir">defmodule MyList do
+  def sum([]), do: 0
+  def sum([head | tail]), do: head + sum(tail)
+end
+
+MyList.sum([1, 2, 3])</code></pre>
+<p>It unfolds like this:</p>
+<pre><code class="lang-text">sum([1, 2, 3])
+1 + sum([2, 3])
+1 + (2 + sum([3]))
+1 + (2 + (3 + sum([])))
+1 + (2 + (3 + 0))
+6</code></pre>
+<h2 id="the-same-shape-again-and-again">The same shape, again and again</h2>
+<p>Counting:</p>
+<pre><code class="lang-elixir">def count([]), do: 0
+def count([_ | tail]), do: 1 + count(tail)</code></pre>
+<p>Transforming every element:</p>
+<pre><code class="lang-elixir">def double_all([]), do: []
+def double_all([head | tail]), do: [head * 2 | double_all(tail)]</code></pre>
+<p>Keeping some elements, with a guard:</p>
+<pre><code class="lang-elixir">def evens([]), do: []
+def evens([head | tail]) when rem(head, 2) == 0, do: [head | evens(tail)]
+def evens([_ | tail]), do: evens(tail)</code></pre>
+<p>Passing the operation in as a function gives you your own <code>map</code>:</p>
+<pre><code class="lang-elixir">def map([], _fun), do: []
+def map([head | tail], fun), do: [fun.(head) | map(tail, fun)]</code></pre>
+<h2 id="tail-recursion-and-accumulators">Tail recursion and accumulators</h2>
+<p>In <code>sum</code> above, each call must wait for the next one to return before it can add. A very long list builds a very long chain of waiting calls.</p>
+<p>If the recursive call is the <strong>very last thing</strong> a function does, Elixir reuses the same stack frame and the recursion runs in constant memory, like a loop. This is <strong>tail recursion</strong>. The trick is to carry the result so far in an extra argument, an <strong>accumulator</strong>:</p>
+<pre><code class="lang-elixir">def sum(list), do: sum(list, 0)
+
+defp sum([], acc), do: acc
+defp sum([head | tail], acc), do: sum(tail, acc + head)</code></pre>
+<p><code>sum/1</code> is the public function. <code>sum/2</code> does the work. Nothing remains to be done after the recursive call, so no frame needs to be kept.</p>
+<h2 id="reversing">Reversing</h2>
+<p>Building a list with an accumulator naturally produces it in reverse, since each element goes on the front:</p>
+<pre><code class="lang-elixir">def reverse(list), do: reverse(list, [])
+
+defp reverse([], acc), do: acc
+defp reverse([head | tail], acc), do: reverse(tail, [head | acc])</code></pre>
+<p>That is why accumulator-based code that builds a list often ends with a final reverse.</p>
+<h2 id="recursion-on-numbers">Recursion on numbers</h2>
+<pre><code class="lang-elixir">def factorial(0), do: 1
+def factorial(n) when n &gt; 0, do: n * factorial(n - 1)
+
+def countdown(0), do: [0]
+def countdown(n) when n &gt; 0, do: [n | countdown(n - 1)]</code></pre>
+<p>The guard <code>when n &gt; 0</code> stops a negative argument from recursing for ever. It fails with <code>FunctionClauseError</code> instead.</p>
+<h2 id="do-you-write-all-this-by-hand">Do you write all this by hand?</h2>
+<p>Rarely. The <code>Enum</code> module, in the next lesson, already contains <code>map</code>, <code>filter</code>, <code>reduce</code>, <code>sum</code> and many more. But they are all built in the way shown here, and whenever a problem does not fit a ready-made function you write the recursion yourself. Knowing the pattern is what makes the rest of Elixir readable.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No clause for <code>[]</code>.</strong> The recursion ends in <code>FunctionClauseError</code>.</li><li><strong>Appending with <code>++</code> at each step.</strong> That makes the whole function O(n²). Prepend, and reverse once at the end.</li><li><strong>Believing a function is tail-recursive</strong> when something still happens after the call, as in <code>head + sum(tail)</code>.</li><li><strong>A numeric recursion with no guard</strong>, which never ends for negative input.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/04-recursion">
+<h3>Recursion over lists <span class="ex-id">elixir/04-recursion</span></h3>
+<p>Complete the module <code>Rec</code> in <code>solution.ex</code>, using recursion and pattern matching on <code>[head | tail]</code>.</p>
+<p><strong>Do not use <code>Enum</code>, <code>List</code> or <code>Stream</code>.</strong> The tests check for that. You are writing those functions yourself.</p>
+<ul><li><code>sum/1</code>: the sum of a list of numbers. 0 for an empty list.</li><li><code>count/1</code>: the number of elements.</li><li><code>reverse/1</code>: the list in reverse order.</li><li><code>map/2</code>: <code>map(list, fun)</code> returns a list with <code>fun</code> applied to each element.</li><li><code>largest/1</code>: the largest element, or <code>nil</code> for an empty list.</li></ul>
+<p><code>reverse/1</code> must be fast on a list of 200,000 elements, so do not append with <code>++</code> at each step. Use an accumulator.</p>
+<p class="ex-files">Files: <code>exercises/elixir/04-recursion/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/04-recursion</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/03-functions-and-modules.html"><span>Previous</span>Functions and modules</a><a class="next" href="../elixir/05-enum-and-pipes.html"><span>Next</span>Enum, pipes and comprehensions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

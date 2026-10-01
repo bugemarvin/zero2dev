@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenServer · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/08-genserver">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 8 of 9</p>
+<h1>GenServer</h1>
+<p class="lede">The standard way to write a process that holds state and answers requests.</p>
+<h2 id="from-a-hand-written-loop-to-genserver">From a hand-written loop to GenServer</h2>
+<p>The counter in the last lesson needed a receive loop, a message protocol, and care with replies. Every stateful process needs the same parts. <strong>GenServer</strong> ("generic server") supplies them. You write only what is specific to your server: how the state starts, and how each request changes it.</p>
+<h2 id="a-complete-example">A complete example</h2>
+<pre><code class="lang-elixir">defmodule Counter do
+  use GenServer
+
+  # ---- client API: runs in the caller's process ----
+
+  def start_link(initial \\ 0) do
+    GenServer.start_link(__MODULE__, initial)
+  end
+
+  def increment(pid), do: GenServer.cast(pid, :increment)
+
+  def value(pid), do: GenServer.call(pid, :value)
+
+  # ---- server callbacks: run inside the server process ----
+
+  @impl true
+  def init(initial) do
+    {:ok, initial}
+  end
+
+  @impl true
+  def handle_cast(:increment, count) do
+    {:noreply, count + 1}
+  end
+
+  @impl true
+  def handle_call(:value, _from, count) do
+    {:reply, count, count}
+  end
+end</code></pre>
+<pre><code class="lang-elixir">{:ok, pid} = Counter.start_link(10)
+Counter.increment(pid)
+Counter.value(pid)        # 11</code></pre>
+<h2 id="the-two-halves">The two halves</h2>
+<p>A GenServer module has two parts that run in <strong>different processes</strong>.</p>
+<p>The <strong>client API</strong> is a set of ordinary functions that other code calls. They only send a request to the server.</p>
+<p>The <strong>callbacks</strong> run inside the server process. GenServer calls them when a request arrives, passing in the current state.</p>
+<p><code>__MODULE__</code> is the name of the current module. <code>@impl true</code> tells the compiler that the next function implements a callback, so a misspelled name is reported.</p>
+<h2 id="call-and-cast">call and cast</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th><code>GenServer.call</code></th><th><code>GenServer.cast</code></th></tr></thead><tbody><tr><td>Waits for a reply</td><td>yes</td><td>no</td></tr><tr><td>Handled by</td><td><code>handle_call/3</code></td><td><code>handle_cast/2</code></td></tr><tr><td>Use for</td><td>reading, or anything whose result or success you need</td><td>fire and forget</td></tr></tbody></table></div>
+<p>When unsure, use <code>call</code>. It tells you that the request was really handled, and it naturally slows down a caller who sends faster than the server can work.</p>
+<h2 id="what-the-callbacks-return">What the callbacks return</h2>
+<div class="table-wrap"><table><thead><tr><th>Callback</th><th>Arguments</th><th>Returns</th></tr></thead><tbody><tr><td><code>init/1</code></td><td>the argument given to <code>start_link</code></td><td><code>{:ok, state}</code></td></tr><tr><td><code>handle_call/3</code></td><td>request, caller, state</td><td><code>{:reply, reply, new_state}</code></td></tr><tr><td><code>handle_cast/2</code></td><td>request, state</td><td><code>{:noreply, new_state}</code></td></tr><tr><td><code>handle_info/2</code></td><td>any other message, state</td><td><code>{:noreply, new_state}</code></td></tr></tbody></table></div>
+<p>The state can be any value: a number, a list, a map, a struct. The last element of each return tuple is the state for the next request.</p>
+<p>Match on the request in the function head to handle different requests, as with any function:</p>
+<pre><code class="lang-elixir">@impl true
+def handle_call(:pop, _from, [top | rest]) do
+  {:reply, {:ok, top}, rest}
+end
+
+def handle_call(:pop, _from, []) do
+  {:reply, :empty, []}
+end
+
+@impl true
+def handle_cast({:push, item}, stack) do
+  {:noreply, [item | stack]}
+end</code></pre>
+<h2 id="one-request-at-a-time">One request at a time</h2>
+<p>A GenServer handles its messages strictly in order, one after another. Two callers can never change the state at the same moment. That is why no locks are needed.</p>
+<p>It also means the server is a single lane. A slow callback holds up every other caller. Keep callbacks quick, and hand long work to a <code>Task</code>.</p>
+<h2 id="naming-a-server">Naming a server</h2>
+<p>Passing PIDs around gets awkward. A server can register under a name:</p>
+<pre><code class="lang-elixir">GenServer.start_link(__MODULE__, initial, name: __MODULE__)
+
+def value, do: GenServer.call(__MODULE__, :value)</code></pre>
+<h2 id="supervisors">Supervisors</h2>
+<p>A <strong>supervisor</strong> is a process whose only job is to start other processes, watch them, and restart them when they crash.</p>
+<pre><code class="lang-elixir">children = [
+  {Counter, 0}
+]
+
+Supervisor.start_link(children, strategy: :one_for_one)</code></pre>
+<p><code>:one_for_one</code> means: if a child dies, restart that child only. The restarted server begins again from <code>init</code>, in a clean state.</p>
+<p>This is "let it crash" made practical. You do not write code to repair a broken state. You let the process die and start a fresh one. Supervisors can supervise other supervisors, forming a tree that keeps an application running through failures.</p>
+<h2 id="do-you-need-a-process">Do you need a process?</h2>
+<p>Not for most code. A process is for something that must <strong>exist over time</strong>: state shared between callers, a connection, a periodic job, a resource that needs one owner. A calculation that turns input into output is a plain function in a plain module.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Doing the work in the client function.</strong> It runs in the caller's process and cannot see the state.</li><li><strong>Returning the wrong tuple shape</strong> from a callback. The server crashes with a clear message.</li><li><strong>Forgetting to return the new state.</strong> Returning the old one silently discards the change.</li><li><strong><code>cast</code> when the caller needs to know it worked.</strong></li><li><strong>A server calling itself with <code>GenServer.call</code>.</strong> It waits for itself and times out.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/08-genserver">
+<h3>A stack server <span class="ex-id">elixir/08-genserver</span></h3>
+<p>Write the module <code>Stack</code> in <code>solution.ex</code> as a <code>GenServer</code> whose state is a list.</p>
+<p>Client functions:</p>
+<ul><li><code>Stack.start_link(initial \\ [])</code> starts the server and returns <code>{:ok, pid}</code>. The first element of <code>initial</code> is the top of the stack.</li><li><code>Stack.push(pid, item)</code> puts an item on top. It returns <code>:ok</code>.</li><li><code>Stack.pop(pid)</code> removes the top item and returns <code>{:ok, item}</code>, or <code>:empty</code> when there is nothing to pop.</li><li><code>Stack.peek(pid)</code> returns <code>{:ok, item}</code> without removing it, or <code>:empty</code>.</li><li><code>Stack.size(pid)</code> returns the number of items.</li></ul>
+<pre><code class="lang-elixir">{:ok, pid} = Stack.start_link([1, 2])
+Stack.push(pid, 0)
+Stack.pop(pid)       # {:ok, 0}
+Stack.size(pid)      # 2</code></pre>
+<p>Use <code>GenServer.call</code> for the functions that return something, and write the matching <code>handle_call</code> clauses.</p>
+<p class="ex-files">Files: <code>exercises/elixir/08-genserver/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/08-genserver</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/07-processes.html"><span>Previous</span>Processes and messages</a><a class="next" href="../elixir/09-mix-and-exunit.html"><span>Next</span>Mix and ExUnit</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

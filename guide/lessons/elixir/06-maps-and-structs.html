@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maps, keyword lists and structs · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/06-maps-and-structs">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 6 of 9</p>
+<h1>Maps, keyword lists and structs</h1>
+<p class="lede">Key-value data in three forms, how to "update" what cannot change, and your own named data types.</p>
+<h2 id="maps">Maps</h2>
+<p>A map holds key-value pairs.</p>
+<pre><code class="lang-elixir">user = %{"name" =&gt; "Sam", "age" =&gt; 30}
+user["name"]             # "Sam"
+user["email"]            # nil: no such key</code></pre>
+<p>When the keys are atoms, there is a shorter syntax, and the dot reads a key:</p>
+<pre><code class="lang-elixir">user = %{name: "Sam", age: 30}
+user.name                # "Sam"
+user[:age]               # 30
+user.email               # ** (KeyError): the dot insists that the key exists</code></pre>
+<p>Use <code>user.name</code> when the key must be there, and <code>user[:name]</code> or <code>Map.get</code> when it may be missing.</p>
+<h2 id="changing-a-map">"Changing" a map</h2>
+<p>Nothing changes. Every operation returns a new map.</p>
+<pre><code class="lang-elixir">older = %{user | age: 31}                 # update an EXISTING key
+Map.put(user, :email, "sam@example.com")  # add or replace a key
+Map.delete(user, :age)
+Map.get(user, :email, "none")             # with a default
+Map.has_key?(user, :name)                 # true
+Map.keys(user)                            # [:age, :name]
+Map.update(user, :age, 0, &amp;(&amp;1 + 1))      # apply a function to a value
+Map.merge(user, %{age: 40, city: "Lagos"})</code></pre>
+<p><code>%{map | key: value}</code> raises an error if the key does not exist, which catches typing mistakes. Use it to update, and <code>Map.put</code> to add.</p>
+<p>The new map shares most of its structure with the old one, so this is cheap.</p>
+<h2 id="matching-on-maps">Matching on maps</h2>
+<p>A map pattern matches when the map contains the listed keys, whatever else it holds:</p>
+<pre><code class="lang-elixir">def greeting(%{name: name}), do: "Hello, #{name}"
+
+def describe(%{admin: true}), do: "administrator"
+def describe(%{}), do: "regular user"</code></pre>
+<p><code>%{}</code> as a pattern matches <strong>any</strong> map, not only an empty one.</p>
+<h2 id="keyword-lists">Keyword lists</h2>
+<p>A keyword list is a list of two-element tuples whose first element is an atom, with a friendlier syntax:</p>
+<pre><code class="lang-elixir">opts = [timeout: 5000, retries: 3]
+opts == [{:timeout, 5000}, {:retries, 3}]     # true
+opts[:timeout]                                # 5000
+Keyword.get(opts, :verbose, false)            # false</code></pre>
+<p>It keeps its order and allows repeated keys. Its main use is <strong>optional arguments</strong>. When it is the last argument of a call, the square brackets can be left out:</p>
+<pre><code class="lang-elixir">String.split("a,b,c", ",", trim: true)</code></pre>
+<div class="table-wrap"><table><thead><tr><th></th><th>Map</th><th>Keyword list</th></tr></thead><tbody><tr><td>Keys</td><td>anything</td><td>atoms</td></tr><tr><td>Order kept</td><td>no</td><td>yes</td></tr><tr><td>Duplicate keys</td><td>no</td><td>yes</td></tr><tr><td>Lookup</td><td>fast</td><td>walks the list</td></tr><tr><td>Use for</td><td>data</td><td>options</td></tr></tbody></table></div>
+<h2 id="structs">Structs</h2>
+<p>A <strong>struct</strong> is a map with a name and a fixed set of keys. It gives your data a type.</p>
+<pre><code class="lang-elixir">defmodule User do
+  defstruct [:name, :age, admin: false]
+end
+
+user = %User{name: "Sam", age: 30}
+user.name                         # "Sam"
+user.admin                        # false: the default
+%User{user | age: 31}             # update
+
+%User{nmae: "Sam"}                # ** compile error: unknown key :nmae</code></pre>
+<p>Keys given with a value have that default. The others default to <code>nil</code>. Unlike a bare map, a struct refuses unknown keys at compile time.</p>
+<p>Matching on the struct name makes a function accept only that type:</p>
+<pre><code class="lang-elixir">defmodule User do
+  defstruct [:name, :age, admin: false]
+
+  def new(name, age), do: %User{name: name, age: age}
+
+  def birthday(%User{age: age} = user), do: %User{user | age: age + 1}
+
+  def adult?(%User{age: age}), do: age &gt;= 18
+end</code></pre>
+<p><code>%User{age: age} = user</code> both checks the type, pulls out <code>age</code>, and keeps the whole struct in <code>user</code>.</p>
+<p>The usual arrangement is the one shown: a module defines a struct and the functions that work on it. This is how Elixir groups data with behaviour, without classes and without mutation. <code>birthday</code> does not change a user. It returns a new one.</p>
+<h2 id="nested-data">Nested data</h2>
+<p>Updating something deep inside nested maps by hand is tedious. These helpers take a path of keys:</p>
+<pre><code class="lang-elixir">data = %{user: %{profile: %{city: "Lagos"}}}
+
+get_in(data, [:user, :profile, :city])                 # "Lagos"
+put_in(data, [:user, :profile, :city], "Accra")
+update_in(data, [:user, :profile, :city], &amp;String.upcase/1)</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>%{map | new_key: 1}</code></strong> to add a key. That syntax only updates existing keys.</li><li><strong>Mixing <code>"name"</code> and <code>:name</code>.</strong> A string key and an atom key are different keys.</li><li><strong>Forgetting to use the returned value.</strong> <code>Map.put(user, :age, 31)</code> on its own line changes nothing you can see.</li><li><strong>Using a map where a struct would catch mistakes.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/06-structs">
+<h3>A struct and a map <span class="ex-id">elixir/06-structs</span></h3>
+<p><code>solution.ex</code> holds two modules.</p>
+<h4><code>User</code></h4>
+<p>A struct with the fields <code>name</code>, <code>age</code> and <code>admin</code>, where <code>admin</code> defaults to <code>false</code>.</p>
+<ul><li><code>User.new(name, age)</code> returns a <code>%User{}</code>.</li><li><code>User.birthday(user)</code> returns the user with the age increased by one.</li><li><code>User.adult?(user)</code> is <code>true</code> when the age is 18 or more.</li><li><code>User.promote(user)</code> returns the user with <code>admin</code> set to <code>true</code>.</li></ul>
+<p>These functions accept only a <code>%User{}</code>. Called with a plain map they must raise <code>FunctionClauseError</code>, which is what a <code>%User{}</code> pattern in the function head gives you.</p>
+<h4><code>Inventory</code></h4>
+<p>Works on a plain map from item name to quantity, such as <code>%{"apple" =&gt; 3}</code>.</p>
+<ul><li><code>Inventory.add(inventory, item, quantity)</code> returns the inventory with the quantity added. A new item starts from 0.</li><li><code>Inventory.remove(inventory, item, quantity)</code> returns <code>{:ok, new_inventory}</code>. If the item is not present it returns <code>{:error, :unknown_item}</code>. If there are fewer than <code>quantity</code> it returns <code>{:error, :not_enough}</code>. An item whose quantity reaches 0 stays in the map with 0.</li><li><code>Inventory.total(inventory)</code> returns the sum of all quantities.</li></ul>
+<p class="ex-files">Files: <code>exercises/elixir/06-structs/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/06-structs</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/05-enum-and-pipes.html"><span>Previous</span>Enum, pipes and comprehensions</a><a class="next" href="../elixir/07-processes.html"><span>Next</span>Processes and messages</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

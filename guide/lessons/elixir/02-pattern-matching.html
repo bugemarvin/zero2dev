@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pattern matching · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/02-pattern-matching">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 2 of 9</p>
+<h1>Pattern matching</h1>
+<p class="lede">The equals sign does not assign. It matches shapes, and takes values apart as it does so.</p>
+<h2 id="is-a-match">= is a match</h2>
+<p>In Elixir, <code>=</code> is the <strong>match operator</strong>. It tries to make the left side fit the right side.</p>
+<pre><code class="lang-elixir">x = 1          # matches by binding x to 1
+1 = x          # also fine: 1 matches 1
+2 = x          # ** (MatchError) no match of right hand side value: 1</code></pre>
+<p>With a plain variable on the left it looks like assignment. With a more interesting shape on the left, it takes data apart.</p>
+<h2 id="destructuring">Destructuring</h2>
+<p><strong>Tuples:</strong></p>
+<pre><code class="lang-elixir">{a, b} = {1, 2}                   # a = 1, b = 2
+{:ok, value} = {:ok, 42}          # value = 42
+{:ok, value} = {:error, :nope}    # MatchError: :ok does not match :error</code></pre>
+<p>The last line is the point. A pattern can <strong>demand</strong> a particular value in a position. Here the code states that it expects success, and it fails loudly otherwise.</p>
+<p><strong>Lists.</strong> <code>[head | tail]</code> splits a list into its first element and the rest:</p>
+<pre><code class="lang-elixir">[head | tail] = [1, 2, 3]         # head = 1, tail = [2, 3]
+[first, second | rest] = [1, 2, 3, 4]
+[only] = [7]                      # matches a list of exactly one element
+[head | tail] = []                # MatchError: an empty list has no head</code></pre>
+<p><strong>Maps.</strong> A map pattern matches any map that contains <strong>at least</strong> the given keys:</p>
+<pre><code class="lang-elixir">%{name: name} = %{name: "Sam", age: 30}     # name = "Sam"</code></pre>
+<h2 id="ignoring-parts">Ignoring parts</h2>
+<p>The underscore matches anything and keeps nothing:</p>
+<pre><code class="lang-elixir">{_, second} = {1, 2}
+[first | _] = [1, 2, 3]</code></pre>
+<h2 id="tagged-tuples">Tagged tuples</h2>
+<p>Functions that can fail conventionally return <code>{:ok, value}</code> or <code>{:error, reason}</code>:</p>
+<pre><code class="lang-elixir">File.read("notes.txt")
+# {:ok, "the contents"}   or   {:error, :enoent}
+
+Integer.parse("42abc")
+# {42, "abc"}             or   :error</code></pre>
+<p>Pattern matching is how you tell them apart.</p>
+<h2 id="case">case</h2>
+<p><code>case</code> tries patterns from top to bottom and runs the first that matches:</p>
+<pre><code class="lang-elixir">case File.read("notes.txt") do
+  {:ok, content} -&gt;
+    "read #{String.length(content)} characters"
+
+  {:error, :enoent} -&gt;
+    "no such file"
+
+  {:error, reason} -&gt;
+    "failed: #{reason}"
+end</code></pre>
+<p>The variables bound by a pattern exist inside that branch. If nothing matches, a <code>CaseClauseError</code> is raised. A final <code>_ -&gt;</code> branch catches everything else.</p>
+<p>The order matters: <code>{:error, :enoent}</code> must come before the more general <code>{:error, reason}</code>.</p>
+<h2 id="the-pin-operator">The pin operator</h2>
+<p>A variable in a pattern is normally <strong>rebound</strong>. To match against the value it already holds, pin it with <code>^</code>:</p>
+<pre><code class="lang-elixir">expected = 5
+^expected = 5      # fine
+^expected = 6      # MatchError
+
+case result do
+  {:ok, ^expected} -&gt; "exactly what we wanted"
+  {:ok, other} -&gt; "got #{other}"
+end</code></pre>
+<h2 id="matching-in-function-heads">Matching in function heads</h2>
+<p>Patterns can go straight into a function's parameters. Write several <strong>clauses</strong> of the same function, and Elixir runs the first one whose patterns match the arguments:</p>
+<pre><code class="lang-elixir">defmodule Shape do
+  def area({:circle, r}), do: 3.14159 * r * r
+  def area({:rect, w, h}), do: w * h
+  def area({:square, s}), do: s * s
+end
+
+Shape.area({:rect, 3, 4})     # 12</code></pre>
+<p>There is no <code>if</code> and no <code>switch</code>. Each case is a separate, readable line. Most Elixir code is written in this style, and the next lesson builds on it.</p>
+<h2 id="if-and-cond">if and cond</h2>
+<p>They exist, and are used less than in other languages:</p>
+<pre><code class="lang-elixir">if age &gt;= 18 do
+  "adult"
+else
+  "minor"
+end
+
+cond do
+  score &gt;= 90 -&gt; "A"
+  score &gt;= 80 -&gt; "B"
+  true -&gt; "C"
+end</code></pre>
+<p><code>cond</code> runs the first branch whose condition is true. The final <code>true -&gt;</code> is the catch-all.</p>
+<p>Only <code>false</code> and <code>nil</code> count as false. Everything else, including <code>0</code> and <code>""</code>, counts as true.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Reading <code>=</code> as assignment</strong> and being surprised by a <code>MatchError</code>.</li><li><strong>General patterns before specific ones.</strong> The specific clause never runs. The compiler warns.</li><li><strong>Forgetting the pin</strong> and silently rebinding a variable in a pattern.</li><li><strong>Matching <code>[head | tail]</code> against an empty list.</strong> Handle <code>[]</code> in a separate clause.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/02-matching">
+<h3>Take data apart <span class="ex-id">elixir/02-matching</span></h3>
+<p>Complete the module <code>Match</code> in <code>solution.ex</code>. Use pattern matching in the function heads: write several clauses of the same function. You should not need <code>if</code>.</p>
+<ul><li><code>swap/1</code> takes a two-element tuple and returns it with the elements exchanged: <code>swap({1, 2})</code> is <code>{2, 1}</code></li><li><code>first/1</code> takes a list and returns <code>{:ok, element}</code> with its first element, or <code>:error</code> for an empty list</li><li><code>second/1</code> returns the second element of a list, or <code>nil</code> if the list has fewer than two elements</li><li><code>describe/1</code> takes a result tuple: <code>describe({:ok, 5})</code> is <code>"ok: 5"</code> and <code>describe({:error, "boom"})</code> is <code>"error: boom"</code>. Anything else gives <code>"unknown"</code>.</li><li><code>area/1</code> takes a shape: <code>{:circle, radius}</code>, <code>{:rect, width, height}</code> or <code>{:square, side}</code>. Use <code>3.14</code> for pi.</li></ul>
+<p class="ex-files">Files: <code>exercises/elixir/02-matching/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/02-matching</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/01-basics.html"><span>Previous</span>Elixir basics</a><a class="next" href="../elixir/03-functions-and-modules.html"><span>Next</span>Functions and modules</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

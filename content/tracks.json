@@ -33,5 +33,10 @@
     "id": "java",
     "title": "Java",
     "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams."
+  },
+  {
+    "id": "elixir",
+    "title": "Elixir",
+    "blurb": "Functional programming on the BEAM: pattern matching, recursion, pipelines, processes and GenServer."
   }
 ]

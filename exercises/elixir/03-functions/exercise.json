@@ -1,0 +1,19 @@
+{
+  "title": "Clauses, guards and functions as values",
+  "lesson": "elixir/03-functions-and-modules",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "A guard goes after the arguments: def sign(n) when n > 0, do: :positive",
+    "Put the fizzbuzz clause for 15 first. The first matching clause wins.",
+    "apply_n: one clause for n of 0 that returns the value, and one that calls apply_n(fun, n - 1, fun.(value)).",
+    "compose returns fn x -> g.(f.(x)) end. Remember the dot when calling a function held in a variable."
+  ]
+}

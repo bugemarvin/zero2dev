@@ -1,0 +1,18 @@
+{
+  "title": "Enum and pipelines",
+  "lesson": "elixir/05-enum-and-pipes",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "Start each function with the data and pipe it: numbers |> Enum.filter(...) |> Enum.map(...) |> Enum.sum()",
+    "String.split() with no second argument splits on any whitespace. Enum.frequencies counts for you.",
+    "Sort by a tuple to break ties: Enum.sort_by(fn {word, count} -> {-count, word} end)"
+  ]
+}

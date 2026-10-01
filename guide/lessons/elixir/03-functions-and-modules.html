@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions and modules · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="elixir/03-functions-and-modules">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Elixir · lesson 3 of 9</p>
+<h1>Functions and modules</h1>
+<p class="lede">Several clauses per function, guards, private helpers, anonymous functions and the pipe operator.</p>
+<h2 id="clauses">Clauses</h2>
+<p>A function can have several clauses. Elixir tries them from top to bottom and runs the first whose patterns match.</p>
+<pre><code class="lang-elixir">defmodule Text do
+  def greet(""), do: "Hello, stranger!"
+  def greet(name), do: "Hello, #{name}!"
+end</code></pre>
+<p>The specific case comes first. The general one catches the rest.</p>
+<h2 id="guards">Guards</h2>
+<p>A pattern checks the <strong>shape</strong> of an argument. A <strong>guard</strong>, written with <code>when</code>, adds a condition:</p>
+<pre><code class="lang-elixir">defmodule Num do
+  def sign(n) when n &gt; 0, do: :positive
+  def sign(n) when n &lt; 0, do: :negative
+  def sign(0), do: :zero
+
+  def describe(x) when is_integer(x), do: "an integer"
+  def describe(x) when is_binary(x), do: "a string"
+  def describe(_), do: "something else"
+end</code></pre>
+<p>Only a limited set of expressions is allowed in guards: comparisons, arithmetic, <code>and</code>, <code>or</code>, <code>not</code>, <code>in</code>, and type checks such as <code>is_integer</code>, <code>is_float</code>, <code>is_number</code>, <code>is_binary</code> (strings), <code>is_atom</code>, <code>is_list</code> and <code>is_map</code>. <code>rem</code> and <code>div</code> are allowed too:</p>
+<pre><code class="lang-elixir">def even?(n) when rem(n, 2) == 0, do: true
+def even?(_), do: false</code></pre>
+<p>A function whose name ends in <code>?</code> returns <code>true</code> or <code>false</code>. That is a naming convention.</p>
+<p>If no clause matches, Elixir raises <code>FunctionClauseError</code>. That is often what you want: the function refuses input it was not written for.</p>
+<h2 id="private-functions">Private functions</h2>
+<p><code>defp</code> defines a function that can be called only from inside its module:</p>
+<pre><code class="lang-elixir">defmodule Order do
+  def total(items), do: items |&gt; subtotal() |&gt; add_tax()
+
+  defp subtotal(items), do: Enum.sum(items)
+  defp add_tax(amount), do: amount * 1.2
+end</code></pre>
+<h2 id="default-arguments">Default arguments</h2>
+<pre><code class="lang-elixir">def greet(name, greeting \\ "Hello") do
+  "#{greeting}, #{name}!"
+end
+
+greet("Sam")           # "Hello, Sam!"
+greet("Sam", "Hi")     # "Hi, Sam!"</code></pre>
+<p>This defines both <code>greet/1</code> and <code>greet/2</code>.</p>
+<h2 id="anonymous-functions">Anonymous functions</h2>
+<p>A function can be a value, stored in a variable and passed around:</p>
+<pre><code class="lang-elixir">double = fn x -&gt; x * 2 end
+double.(5)             # 10</code></pre>
+<p>Note the <strong>dot</strong> when calling a function held in a variable.</p>
+<p>The <strong>capture</strong> operator <code>&amp;</code> is a shorter way to write one. <code>&amp;1</code> is the first argument:</p>
+<pre><code class="lang-elixir">double = &amp;(&amp;1 * 2)
+add = &amp;(&amp;1 + &amp;2)</code></pre>
+<p><code>&amp;</code> also turns a named function into a value. Give its name and arity:</p>
+<pre><code class="lang-elixir">upcase = &amp;String.upcase/1
+upcase.("hi")          # "HI"</code></pre>
+<h2 id="functions-that-take-functions">Functions that take functions</h2>
+<pre><code class="lang-elixir">Enum.map([1, 2, 3], fn x -&gt; x * 2 end)       # [2, 4, 6]
+Enum.map([1, 2, 3], &amp;(&amp;1 * 2))               # the same
+Enum.map(["a", "b"], &amp;String.upcase/1)       # ["A", "B"]</code></pre>
+<p>And functions can return functions:</p>
+<pre><code class="lang-elixir">def multiplier(n), do: fn x -&gt; x * n end
+
+triple = multiplier(3)
+triple.(5)             # 15</code></pre>
+<p>The returned function remembers <code>n</code>. That is called a <strong>closure</strong>.</p>
+<h2 id="the-pipe-operator">The pipe operator</h2>
+<p>Nested calls read inside out:</p>
+<pre><code class="lang-elixir">String.split(String.upcase(String.trim("  hello world  ")))</code></pre>
+<p>The pipe <code>|&gt;</code> takes the value on its left and passes it as the <strong>first argument</strong> of the function on its right:</p>
+<pre><code class="lang-elixir">"  hello world  "
+|&gt; String.trim()
+|&gt; String.upcase()
+|&gt; String.split()
+# ["HELLO", "WORLD"]</code></pre>
+<p>The same steps, in the order they happen. Elixir's standard library is designed for this: the data being worked on is always the first parameter.</p>
+<h2 id="using-other-modules">Using other modules</h2>
+<pre><code class="lang-elixir">alias MyApp.Accounts.User     # write User in place of the full name
+import Enum, only: [map: 2]   # call map(...) with no module prefix</code></pre>
+<p>Use <code>alias</code> freely. Use <code>import</code> sparingly, since it hides where a function comes from.</p>
+<h2 id="documentation">Documentation</h2>
+<pre><code class="lang-elixir">defmodule Circle do
+  @moduledoc "Functions for circles."
+
+  @doc "Returns the area of a circle with the given radius."
+  def area(r), do: 3.14159 * r * r
+end</code></pre>
+<p><code>h Circle.area</code> in <code>iex</code> then shows the text.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Calling an anonymous function without the dot</strong>: <code>double(5)</code> in place of <code>double.(5)</code>.</li><li><strong>Clauses in the wrong order.</strong> A general clause placed first hides the others.</li><li><strong>Clauses of one function separated by other functions.</strong> Keep them together.</li><li><strong>A normal function call in a guard.</strong> Only the permitted guard expressions work there.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="elixir/03-functions">
+<h3>Clauses, guards and functions as values <span class="ex-id">elixir/03-functions</span></h3>
+<p>Complete the module <code>Calc</code> in <code>solution.ex</code>.</p>
+<ul><li><code>sign/1</code>: <code>:positive</code>, <code>:negative</code> or <code>:zero</code> for a number. Use guards.</li><li><code>fizzbuzz/1</code>: for a positive integer, <code>"FizzBuzz"</code> if it is divisible by 15, <code>"Fizz"</code> if by 3, <code>"Buzz"</code> if by 5, and otherwise the number as a string, such as <code>"7"</code>. Use guards with <code>rem</code>.</li><li><code>greet/2</code>: <code>greet("Sam")</code> is <code>"Hello, Sam!"</code> and <code>greet("Sam", "Hi")</code> is <code>"Hi, Sam!"</code>. The greeting is a default argument.</li><li><code>apply_n/3</code>: <code>apply_n(fun, n, value)</code> applies the function <code>n</code> times, feeding each result into the next call. <code>apply_n(fn x -&gt; x * 2 end, 3, 1)</code> is <code>8</code>. With <code>n</code> of 0 it returns the value unchanged.</li><li><code>compose/2</code>: <code>compose(f, g)</code> returns a <strong>new function</strong> that applies <code>f</code> first and then <code>g</code> to the result.</li></ul>
+<p class="ex-files">Files: <code>exercises/elixir/03-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py elixir/03-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/02-pattern-matching.html"><span>Previous</span>Pattern matching</a><a class="next" href="../elixir/04-lists-and-recursion.html"><span>Next</span>Lists and recursion</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

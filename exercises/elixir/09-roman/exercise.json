@@ -1,0 +1,18 @@
+{
+  "title": "Roman numerals",
+  "lesson": "elixir/09-mix-and-exunit",
+  "kind": "harness",
+  "lang": "elixir",
+  "run": [
+    "elixir",
+    "-r",
+    "solution.ex",
+    "tests.exs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "Keep the table as a list of {value, symbol} tuples, largest first, including the subtractive pairs such as {900, \"CM\"}.",
+    "to_roman: if n is at least the first value in the list, emit its symbol and recurse with n - value and the SAME list. Otherwise drop the first entry and recurse.",
+    "from_roman: with the same table, if the text starts with the first symbol, add its value and remove that prefix. Otherwise move on to the next entry."
+  ]
+}
