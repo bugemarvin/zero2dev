@@ -429,10 +429,16 @@ def build():
     paths = json.loads(paths_file.read_text(encoding="utf-8")) if paths_file.exists() else []
     track_ids = {t["id"] for t in tracks}
     for path in paths:
+        named = list(path.get("electives", []))
         for stage in path["stages"]:
-            unknown = [t for t in stage["tracks"] if t not in track_ids]
-            if unknown:
-                raise BuildError(f"paths.json: path {path['id']} names unknown tracks: {', '.join(unknown)}")
+            named += stage.get("tracks", []) + stage.get("pick", [])
+            if not stage.get("tracks") and not stage.get("pick"):
+                raise BuildError(f"paths.json: path {path['id']}, stage {stage['title']!r} has no tracks")
+        unknown = sorted({t for t in named if t not in track_ids})
+        if unknown:
+            raise BuildError(f"paths.json: path {path['id']} names unknown tracks: {', '.join(unknown)}")
+        if path.get("group", "work") not in ("start", "work", "language"):
+            raise BuildError(f"paths.json: path {path['id']} has an unknown group: {path['group']}")
     curriculum = {"paths": paths, "tracks": [{
         "id": t["id"], "title": t["title"], "blurb": t.get("blurb", ""),
         "lessons": [{

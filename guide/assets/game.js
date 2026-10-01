@@ -77,6 +77,10 @@
     Object.keys(other.tour || {}).forEach(function (id) { into.tour[id] = into.tour[id] || other.tour[id]; });
     if (other.last && (!into.last || (other.last.at || 0) > (into.last.at || 0))) into.last = other.last;
     if (!into.path && other.path) { into.path = other.path; into.electives = other.electives || []; }
+    Object.keys(other.picks || {}).forEach(function (key) {
+      into.picks = into.picks || {};
+      if (!into.picks[key]) into.picks[key] = other.picks[key];
+    });
     if (other.daily && other.daily.date && (!into.daily.date || other.daily.date > into.daily.date)) into.daily = other.daily;
     into.dailyPoints = Math.max(into.dailyPoints || 0, other.dailyPoints || 0);
     return into;
@@ -523,11 +527,51 @@
   function pathById(id) {
     return (curriculum.paths || []).filter(function (p) { return p.id === id; })[0] || null;
   }
-  function pathTracks(path) {
-    var ids = [];
-    path.stages.forEach(function (stage) { stage.tracks.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); });
-    (state.electives || []).forEach(function (id) { if (ids.indexOf(id) < 0 && (path.electives || []).indexOf(id) >= 0) ids.push(id); });
+  // A stage may let the learner pick one track out of several: {"pick": ["python", "java", ...]}.
+  function pickOf(path, i) {
+    var stage = path.stages[i];
+    if (!stage.pick || !stage.pick.length) return null;
+    var mine = (state.picks || {})[path.id + ":" + i];
+    return stage.pick.indexOf(mine) >= 0 ? mine : stage.pick[0];
+  }
+  function stageTracks(path, i) {
+    var ids = (path.stages[i].tracks || []).slice();
+    var pick = pickOf(path, i);
+    if (pick && ids.indexOf(pick) < 0) ids.push(pick);
     return ids;
+  }
+  function stagesTracks(path) {
+    var ids = [];
+    path.stages.forEach(function (stage, i) {
+      stageTracks(path, i).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
+    });
+    return ids;
+  }
+  // The optional tracks of a path: its own list, and the choices the learner did not pick.
+  function electivesOf(path) {
+    var taken = stagesTracks(path), ids = [];
+    path.stages.forEach(function (stage) {
+      (stage.pick || []).forEach(function (id) { if (taken.indexOf(id) < 0 && ids.indexOf(id) < 0) ids.push(id); });
+    });
+    (path.electives || []).forEach(function (id) { if (taken.indexOf(id) < 0 && ids.indexOf(id) < 0) ids.push(id); });
+    return ids;
+  }
+  function pathTracks(path) {
+    var ids = stagesTracks(path), allowed = electivesOf(path);
+    (state.electives || []).forEach(function (id) { if (ids.indexOf(id) < 0 && allowed.indexOf(id) >= 0) ids.push(id); });
+    return ids;
+  }
+  function trackTitle(id) {
+    var track = trackById(id);
+    return track ? track.title : id;
+  }
+  var PATH_GROUPS = [
+    { id: "start", title: "New to all of this", note: "" },
+    { id: "work", title: "By the kind of work", note: "Routes towards a job: what you build decides what you learn." },
+    { id: "language", title: "By language or framework", note: "Routes built around one language, from its first program to shipping something real with it." }
+  ];
+  function pathsIn(group) {
+    return (curriculum.paths || []).filter(function (p) { return (p.group || "work") === group; });
   }
   function applyPath() {
     var path = pathById(state.path);
@@ -563,7 +607,24 @@
         el("h4", {}, [el("span", { class: "pt-step", text: String(i + 1) }), document.createTextNode(stage.title)])
       ]);
       if (!compact) item.appendChild(el("p", { class: "pt-why", text: stage.why }));
-      item.appendChild(el("div", { class: "pt-tracks" }, stage.tracks.map(trackRow)));
+      if (!compact && stage.pick) {
+        var chosen = pickOf(path, i);
+        var choices = el("div", { class: "pt-pick", role: "group", "aria-label": "Choose one for this stage" }, [
+          el("span", { class: "pt-pick-label", text: "Choose one:" })
+        ]);
+        stage.pick.forEach(function (id) {
+          var b = button(trackTitle(id), id === chosen ? "gm-primary" : "", function () {
+            state.picks = state.picks || {};
+            state.picks[path.id + ":" + i] = id;
+            state.electives = (state.electives || []).filter(function (x) { return x !== id; });
+            applyPath();
+          });
+          b.setAttribute("aria-pressed", id === chosen ? "true" : "false");
+          choices.appendChild(b);
+        });
+        item.appendChild(choices);
+      }
+      item.appendChild(el("div", { class: "pt-tracks" }, stageTracks(path, i).map(trackRow)));
       list.appendChild(item);
     });
     return list;
@@ -580,11 +641,12 @@
         el("p", { text: chosen.outcome }),
         roadmap(chosen, false)
       ]);
-      if ((chosen.electives || []).length) {
+      var optional = electivesOf(chosen);
+      if (optional.length) {
         section.appendChild(el("h3", { text: "Go further: pick what interests you" }));
         section.appendChild(el("p", { class: "pt-why", text: "Optional tracks that fit this path. Ticked ones join your plan and move to the top of the home page." }));
         var electives = el("div", { class: "pt-electives" });
-        chosen.electives.forEach(function (id) {
+        optional.forEach(function (id) {
           var track = trackById(id);
           if (!track) return;
           var box = el("input", { type: "checkbox" });
@@ -606,13 +668,24 @@
       mount.appendChild(section);
       mount.appendChild(el("h2", { text: "All paths" }));
     }
-    var grid = el("div", { class: "pt-grid" });
-    (curriculum.paths || []).forEach(function (path) {
+    PATH_GROUPS.forEach(function (group) {
+      var members = pathsIn(group.id);
+      if (!members.length) return;
+      mount.appendChild(el("h3", { class: "pt-group", text: group.title }));
+      if (group.note) mount.appendChild(el("p", { class: "pt-why", text: group.note }));
+      var grid = el("div", { class: "pt-grid" });
+      members.forEach(function (path) { grid.appendChild(pathCard(path)); });
+      mount.appendChild(grid);
+    });
+  }
+  function pathCard(path) {
+    {
       var card = el("article", { class: "pt-card" + (state.path === path.id ? " chosen" : "") }, [
         el("h3", { text: path.title }),
         el("p", { text: path.blurb }),
         el("ol", { class: "pt-mini" }, path.stages.map(function (stage) {
-          var names = stage.tracks.map(function (id) { var t = trackById(id); return t ? t.title : id; }).join(", ");
+          var names = (stage.tracks || []).map(trackTitle).join(", ");
+          if (stage.pick) names += (names ? ", and " : "") + "one of " + stage.pick.map(trackTitle).join(", ");
           return el("li", {}, [el("strong", { text: stage.title + ": " }), document.createTextNode(names)]);
         })),
         el("p", { class: "pt-outcome", text: "At the end: " + path.outcome })
@@ -623,9 +696,8 @@
         applyPath();
         window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
       }));
-      grid.appendChild(card);
-    });
-    mount.appendChild(grid);
+      return card;
+    }
   }
 
   // ---------------------------------------------------------------- home page
@@ -641,15 +713,20 @@
       } else {
         pathBox.appendChild(el("h2", { text: "Where do you want to go?" }));
         pathBox.appendChild(el("p", { text: "Pick a path and the guide lays out the tracks in order: from the first terminal command to the job you are aiming for. You can change it at any time." }));
-        var row = el("div", { class: "pt-quick" });
-        (curriculum.paths || []).forEach(function (p) {
-          row.appendChild(button(p.title, p.id === "zero" ? "gm-primary" : "", function () {
-            state.path = p.id;
-            state.electives = [];
-            applyPath();
-          }));
+        PATH_GROUPS.forEach(function (group) {
+          var members = pathsIn(group.id);
+          if (!members.length) return;
+          var row = el("div", { class: "pt-quick" });
+          if (group.id !== "start") row.appendChild(el("span", { class: "pt-quick-label", text: group.title + ":" }));
+          members.forEach(function (p) {
+            row.appendChild(button(p.title, p.id === "zero" ? "gm-primary" : "", function () {
+              state.path = p.id;
+              state.electives = [];
+              applyPath();
+            }));
+          });
+          pathBox.appendChild(row);
         });
-        pathBox.appendChild(row);
         pathBox.appendChild(el("p", {}, [el("a", { href: root + "paths.html", text: "Compare the paths" })]));
       }
     }
