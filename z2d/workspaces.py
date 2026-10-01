@@ -86,7 +86,7 @@ def stage(name, ex, exdir):
     """Copy an exercise into the workspace. Returns (workspace_root, relative_run_folder)."""
     base = ensure(name)
     rel = f"run/{ex.track}-{ex.dir.name}-{uuid.uuid4().hex[:8]}"
-    shutil.copytree(exdir, base / rel, ignore=shutil.ignore_patterns("node_modules", ".next", "exercise.json"))
+    shutil.copytree(exdir, base / rel, ignore=shutil.ignore_patterns("node_modules", ".next", "exercise.json", "README.md"))
     return base, rel
 
 

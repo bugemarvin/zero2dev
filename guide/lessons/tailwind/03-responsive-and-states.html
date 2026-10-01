@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive design, states and dark mode · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="tailwind/03-responsive-and-states">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Tailwind CSS · lesson 3 of 5</p>
+<h1>Responsive design, states and dark mode</h1>
+<p class="lede">A prefix decides when a class applies: from a screen width, on hover, in dark mode.</p>
+<h2 id="variants">Variants</h2>
+<p>A class can have a <strong>variant</strong> in front of it, with a colon. The class then applies only in that situation:</p>
+<pre><code class="lang-html">&lt;button class="bg-blue-600 hover:bg-blue-700"&gt;Order&lt;/button&gt;</code></pre>
+<p><code>bg-blue-600</code> always. <code>hover:bg-blue-700</code> when the mouse is over the button. That is the whole idea, and it covers everything you needed media queries and pseudo-classes for.</p>
+<h2 id="responsive-mobile-first">Responsive: mobile first</h2>
+<p>Breakpoint variants mean "from this width <strong>and up</strong>":</p>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>From</th></tr></thead><tbody><tr><td><code>sm:</code></td><td>640px (40rem)</td></tr><tr><td><code>md:</code></td><td>768px (48rem)</td></tr><tr><td><code>lg:</code></td><td>1024px (64rem)</td></tr><tr><td><code>xl:</code></td><td>1280px (80rem)</td></tr><tr><td><code>2xl:</code></td><td>1536px (96rem)</td></tr></tbody></table></div>
+<p>A class with no variant applies at every width. So you write the <strong>small-screen</strong> design first, and add what changes as the screen grows:</p>
+<pre><code class="lang-html">&lt;div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"&gt;</code></pre>
+<p>One column on a phone, two from 768px, four from 1024px. This is the <a href="../css/06-responsive.html">mobile-first approach</a> of the CSS track, in one attribute.</p>
+<pre><code class="lang-html">&lt;nav class="hidden md:flex gap-4"&gt;...&lt;/nav&gt;         &lt;!-- hidden on a phone, a flex row from 768px --&gt;
+&lt;h1 class="text-2xl md:text-4xl"&gt;...&lt;/h1&gt;           &lt;!-- bigger on bigger screens --&gt;
+&lt;div class="flex flex-col md:flex-row"&gt;...&lt;/div&gt;    &lt;!-- stacked, then side by side --&gt;</code></pre>
+<p>There is no variant for "phones only". <code>sm:</code> does not mean "on small screens": it means 640px and wider. For the phone, write the class with no variant.</p>
+<h2 id="states">States</h2>
+<div class="table-wrap"><table><thead><tr><th>Variant</th><th>When</th></tr></thead><tbody><tr><td><code>hover:</code></td><td>the pointer is over the element</td></tr><tr><td><code>focus:</code></td><td>the element has keyboard focus</td></tr><tr><td><code>focus-visible:</code></td><td>focus that should be shown: keyboard use</td></tr><tr><td><code>active:</code></td><td>while pressed</td></tr><tr><td><code>disabled:</code></td><td>a disabled form control</td></tr><tr><td><code>first:</code>, <code>last:</code>, <code>odd:</code>, <code>even:</code></td><td>position among siblings</td></tr></tbody></table></div>
+<pre><code class="lang-html">&lt;button class="bg-blue-600 hover:bg-blue-700 focus-visible:outline-2 disabled:opacity-50"&gt;
+  Order
+&lt;/button&gt;
+&lt;input class="border border-gray-300 focus:border-blue-500"&gt;</code></pre>
+<p>Always style focus. People who use the keyboard need to see where they are.</p>
+<h2 id="transitions">Transitions</h2>
+<p>A change of state looks better when it is not instant:</p>
+<pre><code class="lang-html">&lt;button class="bg-blue-600 hover:bg-blue-700 transition-colors duration-200"&gt;Order&lt;/button&gt;</code></pre>
+<h2 id="parent-and-sibling-state">Parent and sibling state</h2>
+<p>Mark a parent with <code>group</code>, and its children can react to <strong>its</strong> state:</p>
+<pre><code class="lang-html">&lt;a class="group" href="#"&gt;
+  &lt;h3 class="group-hover:underline"&gt;House blend&lt;/h3&gt;
+  &lt;p&gt;Chocolate and hazelnut&lt;/p&gt;
+&lt;/a&gt;</code></pre>
+<p><code>peer</code> does the same between siblings: a message that appears when the input before it is invalid.</p>
+<h2 id="dark-mode">Dark mode</h2>
+<p><code>dark:</code> applies when the visitor's system is set to dark:</p>
+<pre><code class="lang-html">&lt;body class="bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100"&gt;</code></pre>
+<p>To switch with a button instead, the variant can be redefined to follow a class on the page:</p>
+<pre><code class="lang-css">@import "tailwindcss";
+@custom-variant dark (&amp;:where(.dark, .dark *));</code></pre>
+<h2 id="stacking-variants">Stacking variants</h2>
+<p>Variants combine, read from left to right:</p>
+<pre><code class="lang-html">&lt;button class="md:hover:bg-blue-700 dark:hover:bg-blue-500"&gt;</code></pre>
+<p>From 768px, on hover. In dark mode, on hover.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Designing for the desktop first</strong>, then trying to undo it with <code>sm:</code>.</li><li><strong>Reading <code>sm:</code> as "small screens only".</strong></li><li><strong><code>hidden md:block</code> on something that should be flex</strong>: use <code>md:flex</code>.</li><li><strong>Hover styles with no focus styles.</strong></li><li><strong>A variant on a class that is not there by default</strong> and wondering why nothing changed: <code>md:grid-cols-3</code> needs <code>grid</code> too.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="tailwind/03-responsive">
+<h3>A page that adapts, and a button that reacts <span class="ex-id">tailwind/03-responsive</span></h3>
+<p>Add classes in <code>index.html</code>. Design for the phone first, then add what changes on wider screens. Do not write any CSS.</p>
+<ul><li>The <code>nav</code> is hidden on a phone, and a flex row from the <code>md</code> breakpoint: <code>hidden</code> and <code>md:flex</code>.</li><li>The <code>h1</code> is <code>text-2xl</code>, and <code>text-4xl</code> from <code>md</code>.</li><li>The element with the id <code>cards</code> is a <code>grid</code> with a <code>gap-4</code>: one column on a phone (<code>grid-cols-1</code>), two from <code>md</code>, four from <code>lg</code>.</li><li>The <code>button</code> has the background <code>bg-blue-600</code> and white text (<code>text-white</code>). On hover the background is <code>bg-blue-700</code>. With keyboard focus it shows <code>outline-2</code>: use <code>focus-visible:</code> (or <code>focus:</code>).</li><li>The <code>body</code> is <code>bg-white</code>, and <code>bg-gray-900</code> in dark mode.</li></ul>
+<p><strong>Run tests</strong> builds the CSS with Tailwind and checks the classes on the page. <strong>Open preview</strong> shows the styled page, and builds again when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/tailwind/03-responsive/</code></p>
+<pre><code class="lang-console">$ python3 check.py tailwind/03-responsive</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../tailwind/02-layout.html"><span>Previous</span>Layout: flexbox, grid and sizing</a><a class="next" href="../tailwind/04-theme.html"><span>Next</span>Your own theme, and one-off values</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

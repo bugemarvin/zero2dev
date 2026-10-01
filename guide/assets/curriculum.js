@@ -60,6 +60,15 @@ window.Z2D_CURRICULUM = {
      ]
     },
     {
+     "title": "Styling at scale",
+     "why": "Real sites outgrow one stylesheet. Pick a tool: Tailwind puts small classes in the markup, Sass organises the stylesheets. The other stays available as an optional track.",
+     "tracks": [],
+     "pick": [
+      "tailwind",
+      "scss"
+     ]
+    },
+    {
      "title": "JavaScript",
      "why": "The language that makes pages do things.",
      "tracks": [
@@ -76,7 +85,6 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
-    "scss",
     "vue",
     "gamedev",
     "node",
@@ -194,6 +202,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "tailwind",
     "scss",
     "vue",
     "mongodb",
@@ -824,6 +833,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "tailwind",
     "scss",
     "vue",
     "redis",
@@ -877,6 +887,7 @@ window.Z2D_CURRICULUM = {
     }
    ],
    "electives": [
+    "tailwind",
     "scss",
     "sql",
     "react",
@@ -2292,6 +2303,73 @@ window.Z2D_CURRICULUM = {
       {
        "id": "scss/05-loops",
        "title": "Utility classes from a map and a loop"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tailwind",
+   "title": "Tailwind CSS",
+   "blurb": "Style pages with small utility classes in the HTML: spacing, colour, layout, responsive and hover variants, and your own theme.",
+   "lessons": [
+    {
+     "id": "tailwind/01-utility-first",
+     "title": "Utility-first CSS",
+     "summary": "Style an element by listing small classes on it, and how Tailwind builds only the CSS you use.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "tailwind/01-card",
+       "title": "A card, with utilities only"
+      }
+     ]
+    },
+    {
+     "id": "tailwind/02-layout",
+     "title": "Layout: flexbox, grid and sizing",
+     "summary": "The layout tools of CSS, as classes.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "tailwind/02-layout",
+       "title": "A header and a grid of cards"
+      }
+     ]
+    },
+    {
+     "id": "tailwind/03-responsive-and-states",
+     "title": "Responsive design, states and dark mode",
+     "summary": "A prefix decides when a class applies: from a screen width, on hover, in dark mode.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "tailwind/03-responsive",
+       "title": "A page that adapts, and a button that reacts"
+      }
+     ]
+    },
+    {
+     "id": "tailwind/04-theme",
+     "title": "Your own theme, and one-off values",
+     "summary": "Add your brand's colours, fonts and breakpoints, and step off the scale when you must.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "tailwind/04-theme",
+       "title": "A brand colour and a display font"
+      }
+     ]
+    },
+    {
+     "id": "tailwind/05-components",
+     "title": "Reuse without repeating classes",
+     "summary": "Components first, @apply second, and how to keep long class lists readable.",
+     "quiz": 4,
+     "exercises": [
+      {
+       "id": "tailwind/05-components",
+       "title": "Buttons with @apply"
       }
      ]
     }

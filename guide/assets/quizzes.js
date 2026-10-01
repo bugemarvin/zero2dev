@@ -4149,6 +4149,228 @@ window.Z2D_QUIZZES = {
 "why": "Every generated class is downloaded by every visitor."
 }
 ],
+"tailwind/01-utility-first": [
+{
+"q": "What does the class `p-4` set?",
+"options": [
+"A padding of 4px",
+"A padding of 1rem",
+"A padding of 4rem",
+"Four paragraphs"
+],
+"answer": 1,
+"why": "One step of the spacing scale is 0.25rem, so 4 steps are 1rem."
+},
+{
+"q": "Which CSS does Tailwind generate?",
+"options": [
+"Every class it knows",
+"Only the classes it finds in your files",
+"None: it runs in the browser",
+"Only colours"
+],
+"answer": 1,
+"why": "It reads your files and generates CSS for the class names in them."
+},
+{
+"q": "Why does a bare <h1> look like normal text with Tailwind?",
+"options": [
+"A bug",
+"Tailwind's reset removes the browser's default styles",
+"The font is missing",
+"h1 is not supported"
+],
+"answer": 1,
+"why": "Every element starts blank. Add classes such as text-3xl font-bold."
+},
+{
+"q": "Why does `\"text-\" + colour + \"-600\"` not work?",
+"options": [
+"Colours need a hash",
+"Tailwind reads files as text and never sees the complete class name",
+"The plus sign is not allowed",
+"It works"
+],
+"answer": 1,
+"why": "Write complete class names so that Tailwind can find them."
+}
+],
+"tailwind/02-layout": [
+{
+"q": "Which classes centre a column with a maximum width?",
+"options": [
+"max-w-4xl mx-auto",
+"w-full center",
+"flex-1 gap-4",
+"text-center"
+],
+"answer": 0,
+"why": "A maximum width, and automatic margins left and right."
+},
+{
+"q": "`justify-between` does nothing. What is the likely reason?",
+"options": [
+"The element is not flex or grid",
+"It needs a number",
+"It only works on links",
+"The gap is missing"
+],
+"answer": 0,
+"why": "Alignment classes need display: flex or grid on the same element."
+},
+{
+"q": "Which class makes a grid item two columns wide?",
+"accept": [
+"col-span-2"
+],
+"why": "Type the class name."
+},
+{
+"q": "On which element do `grid` and `grid-cols-3` go?",
+"options": [
+"On each item",
+"On the container",
+"On the body",
+"On any of them"
+],
+"answer": 1,
+"why": "Layout is set on the container. The items are placed by it."
+}
+],
+"tailwind/03-responsive-and-states": [
+{
+"q": "When does `md:flex` apply?",
+"options": [
+"Only on medium screens",
+"From 768px and wider",
+"Up to 768px",
+"Always"
+],
+"answer": 1,
+"why": "Breakpoint variants mean: from this width and up."
+},
+{
+"q": "How do you style the phone layout?",
+"options": [
+"With the sm: variant",
+"With classes that have no variant",
+"With the phone: variant",
+"With max-w-sm"
+],
+"answer": 1,
+"why": "Mobile first: no variant is the base, variants add what changes on wider screens."
+},
+{
+"q": "Which class makes a background darker while the pointer is over the element?",
+"options": [
+"hover:bg-blue-700",
+"bg-blue-700:hover",
+"on-hover-bg-blue-700",
+"bg-hover-blue-700"
+],
+"answer": 0,
+"why": "The variant comes first, then a colon, then the class."
+},
+{
+"q": "A child should change when its parent is hovered. What does the parent need?",
+"options": [
+"The class group",
+"The class parent",
+"An id",
+"Nothing"
+],
+"answer": 0,
+"why": "Mark the parent with group, and use group-hover: on the child."
+}
+],
+"tailwind/04-theme": [
+{
+"q": "Which theme variable creates the class `bg-brand`?",
+"options": [
+"--brand",
+"--bg-brand",
+"--color-brand",
+"--theme-brand"
+],
+"answer": 2,
+"why": "A colour variable starts with --color-, and gives every colour class: bg-, text-, border-."
+},
+{
+"q": "How do you write a width of exactly 320 pixels?",
+"options": [
+"w-320",
+"w-[320px]",
+"w-(320)",
+"width-320px"
+],
+"answer": 1,
+"why": "Arbitrary values go in square brackets."
+},
+{
+"q": "What does `bg-black/50` mean?",
+"options": [
+"Black, at 50% opacity",
+"Half the element is black",
+"Black divided by 50",
+"Shade 50 of black"
+],
+"answer": 0,
+"why": "The number after the slash is the opacity."
+},
+{
+"q": "In which block do theme variables go?",
+"accept": [
+"@theme"
+],
+"why": "Type the at-rule, with the @."
+}
+],
+"tailwind/05-components": [
+{
+"q": "In a React or Vue project, what is the first answer to a repeated list of classes?",
+"options": [
+"@apply",
+"A component",
+"A Sass mixin",
+"Copy and paste"
+],
+"answer": 1,
+"why": "The repetition is in the markup, so it is removed in the markup."
+},
+{
+"q": "What does @apply do?",
+"options": [
+"Imports a file",
+"Copies the declarations of utilities into your own rule",
+"Applies a theme",
+"Runs Tailwind"
+],
+"answer": 1,
+"why": "It gives a set of utilities a class name."
+},
+{
+"q": "Why put .btn in `@layer components`?",
+"options": [
+"It compiles faster",
+"So that utilities on the element can still override it",
+"It is required for @apply",
+"For dark mode"
+],
+"answer": 1,
+"why": "The components layer comes before the utilities in the cascade."
+},
+{
+"q": "What is wrong with using @apply for every element?",
+"options": [
+"It is slow",
+"You rebuild a hand-written stylesheet, with names to invent and CSS that grows",
+"It breaks hover",
+"Nothing"
+],
+"answer": 1,
+"why": "Keep it for a few small, much-repeated things."
+}
+],
 "java/01-hello-jvm": [
 {
 "q": "What does `javac` produce?",

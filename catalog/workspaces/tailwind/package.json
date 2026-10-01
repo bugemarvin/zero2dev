@@ -1,0 +1,9 @@
+{
+  "name": "zero2dev-tailwind-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "tailwindcss": "^4.3.3",
+    "@tailwindcss/cli": "^4.3.3"
+  }
+}

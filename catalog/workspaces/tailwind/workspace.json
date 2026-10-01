@@ -1,5 +1,5 @@
 {
-  "title": "Sass",
+  "title": "Tailwind CSS",
   "needs": [
     "node",
     "npm"
@@ -15,10 +15,10 @@
   ],
   "compile": [
     "npx",
-    "sass",
-    "--no-source-map",
-    "--quiet-deps",
+    "@tailwindcss/cli",
+    "-i",
     "{source}",
+    "-o",
     "{target}"
   ]
 }

@@ -1,0 +1,46 @@
+[
+ {
+  "q": "What does the class `p-4` set?",
+  "options": [
+   "A padding of 4px",
+   "A padding of 1rem",
+   "A padding of 4rem",
+   "Four paragraphs"
+  ],
+  "answer": 1,
+  "why": "One step of the spacing scale is 0.25rem, so 4 steps are 1rem."
+ },
+ {
+  "q": "Which CSS does Tailwind generate?",
+  "options": [
+   "Every class it knows",
+   "Only the classes it finds in your files",
+   "None: it runs in the browser",
+   "Only colours"
+  ],
+  "answer": 1,
+  "why": "It reads your files and generates CSS for the class names in them."
+ },
+ {
+  "q": "Why does a bare <h1> look like normal text with Tailwind?",
+  "options": [
+   "A bug",
+   "Tailwind's reset removes the browser's default styles",
+   "The font is missing",
+   "h1 is not supported"
+  ],
+  "answer": 1,
+  "why": "Every element starts blank. Add classes such as text-3xl font-bold."
+ },
+ {
+  "q": "Why does `\"text-\" + colour + \"-600\"` not work?",
+  "options": [
+   "Colours need a hash",
+   "Tailwind reads files as text and never sees the complete class name",
+   "The plus sign is not allowed",
+   "It works"
+  ],
+  "answer": 1,
+  "why": "Write complete class names so that Tailwind can find them."
+ }
+]
