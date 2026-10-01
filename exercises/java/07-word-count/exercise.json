@@ -1,0 +1,44 @@
+{
+  "title": "Word frequencies",
+  "lesson": "java/07-collections",
+  "kind": "program",
+  "lang": "java",
+  "timeout": 30,
+  "cases": [
+    {
+      "name": "a short sentence",
+      "stdin": "the cat and the hat and the bat\n",
+      "stdout": "the 3\nand 2\nbat 1\ncat 1\nhat 1\n"
+    },
+    {
+      "name": "upper and lower case are the same word",
+      "stdin": "Dog dog DOG cat\n",
+      "stdout": "dog 3\ncat 1\n"
+    },
+    {
+      "name": "several lines and extra spaces",
+      "stdin": "one  two\n\n  two three\nthree three\n",
+      "stdout": "three 3\ntwo 2\none 1\n"
+    },
+    {
+      "name": "one word",
+      "stdin": "hello\n",
+      "stdout": "hello 1\n"
+    },
+    {
+      "name": "equal counts are ordered alphabetically",
+      "stdin": "pear apple fig apple pear fig\n",
+      "stdout": "apple 2\nfig 2\npear 2\n"
+    },
+    {
+      "name": "no input prints nothing",
+      "stdin": "",
+      "stdout": ""
+    }
+  ],
+  "hints": [
+    "Read words with while (in.hasNext()) and in.next(), and convert each to lower case.",
+    "Count with a HashMap<String, Integer>: counts.merge(word, 1, Integer::sum);",
+    "Copy the entries into an ArrayList and sort them: by value descending, then by key."
+  ]
+}

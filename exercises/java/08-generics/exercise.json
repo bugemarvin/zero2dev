@@ -1,0 +1,26 @@
+{
+  "title": "A generic stack",
+  "lesson": "java/08-generics",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "ArrayStack.java",
+    "Util.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "Keep the items in a private ArrayList<T>. The top of the stack is the last element.",
+    "items.remove(items.size() - 1) removes and returns the last element.",
+    "max: start with items.get(0) and replace it when item.compareTo(best) > 0."
+  ]
+}

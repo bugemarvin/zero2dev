@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classes and objects · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/05-classes-and-objects">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 5 of 10</p>
+<h1>Classes and objects</h1>
+<p class="lede">Define your own types that keep data together with the methods that work on it, and protect their own rules.</p>
+<h2 id="a-class-is-a-blueprint">A class is a blueprint</h2>
+<p>A <strong>class</strong> describes a kind of thing. An <strong>object</strong> is one such thing, created with <code>new</code>.</p>
+<pre><code class="lang-java">public class Dog {
+    private String name;
+    private int age;
+
+    public Dog(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void birthday() {
+        age++;
+    }
+}</code></pre>
+<pre><code class="lang-java">Dog rex = new Dog("Rex", 3);
+rex.birthday();
+System.out.println(rex.getName());</code></pre>
+<ul><li><strong>Fields</strong> (<code>name</code>, <code>age</code>) hold each object's data.</li><li>The <strong>constructor</strong> has the same name as the class and no return type. It runs when <code>new</code> is called and sets up the fields.</li><li><strong>Methods</strong> without <code>static</code> are <strong>instance methods</strong>. They are called on an object and can use its fields.</li><li><strong><code>this</code></strong> is the object the method was called on. <code>this.name = name</code> separates the field from the parameter with the same name.</li></ul>
+<p>Each object has its own copy of the fields. <code>rex.birthday()</code> changes Rex and no other dog.</p>
+<h2 id="encapsulation">Encapsulation</h2>
+<p>Make fields <code>private</code>, and offer <code>public</code> methods. Other code cannot then put an object into a state that makes no sense.</p>
+<pre><code class="lang-java">public class BankAccount {
+    private long balance;
+
+    public void deposit(long amount) {
+        if (amount &lt;= 0) {
+            throw new IllegalArgumentException("amount must be positive");
+        }
+        balance += amount;
+    }
+
+    public long getBalance() {
+        return balance;
+    }
+}</code></pre>
+<p>With a public field, any code could write <code>account.balance = -500</code>. Here the only way in is <code>deposit</code>, which checks.</p>
+<div class="table-wrap"><table><thead><tr><th>Modifier</th><th>Visible from</th></tr></thead><tbody><tr><td><code>private</code></td><td>this class only</td></tr><tr><td>none</td><td>classes in the same package</td></tr><tr><td><code>protected</code></td><td>the same package, and subclasses</td></tr><tr><td><code>public</code></td><td>everywhere</td></tr></tbody></table></div>
+<p>Start with <code>private</code>, and open up only what must be used from outside. Methods that read a field are called <strong>getters</strong>. Add a setter only when changing the field from outside really should be allowed.</p>
+<h2 id="static-and-instance">static and instance</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Instance member</th><th>Static member</th></tr></thead><tbody><tr><td>Belongs to</td><td>each object</td><td>the class</td></tr><tr><td>Used as</td><td><code>rex.getName()</code></td><td><code>Math.max(1, 2)</code></td></tr><tr><td>Can use <code>this</code></td><td>yes</td><td>no</td></tr></tbody></table></div>
+<pre><code class="lang-java">public class Counter {
+    private static int created = 0;    // one value, shared by all
+    private int value = 0;             // one per object
+
+    public Counter() {
+        created++;
+    }
+}</code></pre>
+<h2 id="tostring">toString</h2>
+<p>Printing an object calls its <code>toString</code> method. The version you inherit prints something like <code>Dog@1b6d3586</code>. Provide your own:</p>
+<pre><code class="lang-java">@Override
+public String toString() {
+    return "Dog(" + name + ", " + age + ")";
+}</code></pre>
+<p><code>@Override</code> asks the compiler to confirm that you really are replacing an inherited method. If you misspell the name, you get an error and not a silent bug.</p>
+<h2 id="equals-and-hashcode">equals and hashCode</h2>
+<p><code>==</code> asks whether two variables refer to the same object. To say when two <strong>different</strong> objects count as equal, override <code>equals</code>, and always <code>hashCode</code> with it:</p>
+<pre><code class="lang-java">@Override
+public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof Point)) return false;
+    Point p = (Point) other;
+    return x == p.x &amp;&amp; y == p.y;
+}
+
+@Override
+public int hashCode() {
+    return java.util.Objects.hash(x, y);
+}</code></pre>
+<p>The rule: objects that are equal must have the same hash code. If they do not, <code>HashMap</code> and <code>HashSet</code> cannot find them.</p>
+<h2 id="records">Records</h2>
+<p>For a class that only carries data, a <strong>record</strong> writes the constructor, the accessors, <code>equals</code>, <code>hashCode</code> and <code>toString</code> for you:</p>
+<pre><code class="lang-java">public record Point(int x, int y) {}
+
+Point p = new Point(3, 4);
+p.x()                                // 3
+p.equals(new Point(3, 4))            // true
+System.out.println(p);               // Point[x=3, y=4]</code></pre>
+<p>Records are immutable: their fields cannot change after creation.</p>
+<h2 id="immutability">Immutability</h2>
+<p>An object that cannot change after it is built is easy to reason about, since nothing can alter it behind your back. Make fields <code>final</code> when they should never change:</p>
+<pre><code class="lang-java">private final String owner;</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Public fields.</strong></li><li><strong><code>name = name;</code> in a constructor.</strong> That assigns the parameter to itself. Write <code>this.name = name;</code>.</li><li><strong>Giving the constructor a return type</strong>, such as <code>void Dog(...)</code>. It becomes an ordinary method, and the fields are never set.</li><li><strong>Calling an instance method from <code>main</code> with no object.</strong></li><li><strong>Overriding <code>equals</code> and not <code>hashCode</code>.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/05-bank-account">
+<h3>A bank account class <span class="ex-id">java/05-bank-account</span></h3>
+<p>Write the class <code>BankAccount</code> in <code>BankAccount.java</code>.</p>
+<pre><code class="lang-java">BankAccount account = new BankAccount("Sam");
+account.deposit(100);
+account.withdraw(30);
+account.getBalance();     // 70
+account.getOwner();       // "Sam"
+account.toString();       // "BankAccount(Sam, 70)"</code></pre>
+<ul><li>The constructor takes the owner's name. A new account has a balance of 0.</li><li><code>void deposit(long amount)</code> and <code>void withdraw(long amount)</code> throw <code>IllegalArgumentException</code> when the amount is zero or negative.</li><li><code>withdraw</code> throws <code>IllegalStateException</code> when the amount is more than the balance.</li><li>A failed call leaves the balance unchanged.</li><li><code>long getBalance()</code> and <code>String getOwner()</code> return the values.</li><li><code>toString()</code> returns text of the form <code>BankAccount(Sam, 70)</code>.</li><li>The fields must be <code>private</code>. The balance can only change through <code>deposit</code> and <code>withdraw</code>.</li></ul>
+<p class="ex-files">Files: <code>exercises/java/05-bank-account/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/05-bank-account</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/04-arrays-and-strings.html"><span>Previous</span>Arrays and strings</a><a class="next" href="../java/06-interfaces-and-inheritance.html"><span>Next</span>Interfaces and inheritance</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

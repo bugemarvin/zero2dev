@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generics · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/08-generics">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 8 of 10</p>
+<h1>Generics</h1>
+<p class="lede">Write a class or method once and use it safely with any type.</p>
+<h2 id="the-problem">The problem</h2>
+<p>Suppose you write a stack of integers. Next week you need a stack of strings. Copying the class for every type is not acceptable. Storing everything as <code>Object</code> works, and throws away type checking:</p>
+<pre><code class="lang-java">Object item = stack.pop();
+String s = (String) item;      // crashes at run time if it was not a String</code></pre>
+<p><strong>Generics</strong> let a class take a type as a parameter. You have used them already: <code>List&lt;String&gt;</code>, <code>Map&lt;String, Integer&gt;</code>.</p>
+<h2 id="a-generic-class">A generic class</h2>
+<pre><code class="lang-java">import java.util.ArrayList;
+import java.util.List;
+
+public class Box&lt;T&gt; {
+    private final List&lt;T&gt; items = new ArrayList&lt;&gt;();
+
+    public void add(T item) {
+        items.add(item);
+    }
+
+    public T last() {
+        return items.get(items.size() - 1);
+    }
+
+    public int size() {
+        return items.size();
+    }
+}</code></pre>
+<p><code>T</code> is a <strong>type parameter</strong>, a placeholder. It is filled in wherever the class is used:</p>
+<pre><code class="lang-java">Box&lt;String&gt; names = new Box&lt;&gt;();
+names.add("Ada");
+String s = names.last();       // no cast needed
+
+names.add(42);                 // compile error: 42 is not a String</code></pre>
+<p>The mistake is caught by the compiler, before the program runs.</p>
+<p>By convention type parameters are single capital letters: <code>T</code> for a type, <code>E</code> for an element, <code>K</code> and <code>V</code> for key and value.</p>
+<h2 id="a-generic-method">A generic method</h2>
+<p>A method can have its own type parameter, written before the return type:</p>
+<pre><code class="lang-java">public static &lt;T&gt; T firstOrDefault(List&lt;T&gt; items, T fallback) {
+    return items.isEmpty() ? fallback : items.get(0);
+}
+
+String s = firstOrDefault(List.of("a", "b"), "none");
+int n = firstOrDefault(new ArrayList&lt;Integer&gt;(), 0);</code></pre>
+<p>The compiler works out <code>T</code> from the arguments.</p>
+<h2 id="bounded-types">Bounded types</h2>
+<p>Inside a generic method you may only do things that every possible <code>T</code> supports, and by default that is very little. To compare two values, they must be comparable. A <strong>bound</strong> states the requirement:</p>
+<pre><code class="lang-java">public static &lt;T extends Comparable&lt;T&gt;&gt; T max(List&lt;T&gt; items) {
+    T best = items.get(0);
+    for (T item : items) {
+        if (item.compareTo(best) &gt; 0) {
+            best = item;
+        }
+    }
+    return best;
+}</code></pre>
+<p><code>&lt;T extends Comparable&lt;T&gt;&gt;</code> means: any type <code>T</code> that can be compared with other <code>T</code>s. <code>Integer</code>, <code>String</code> and <code>Double</code> all qualify. <code>a.compareTo(b)</code> returns a negative number, zero or a positive number when <code>a</code> is smaller than, equal to or larger than <code>b</code>.</p>
+<h2 id="making-your-own-class-comparable">Making your own class comparable</h2>
+<pre><code class="lang-java">public class Version implements Comparable&lt;Version&gt; {
+    private final int major;
+    private final int minor;
+
+    public Version(int major, int minor) {
+        this.major = major;
+        this.minor = minor;
+    }
+
+    @Override
+    public int compareTo(Version other) {
+        if (major != other.major) {
+            return Integer.compare(major, other.major);
+        }
+        return Integer.compare(minor, other.minor);
+    }
+}</code></pre>
+<p>Now <code>Collections.sort</code>, <code>TreeMap</code> and the <code>max</code> method above all work with <code>Version</code>.</p>
+<h2 id="wildcards">Wildcards</h2>
+<p><code>List&lt;Integer&gt;</code> is <strong>not</strong> a kind of <code>List&lt;Number&gt;</code>, even though <code>Integer</code> is a kind of <code>Number</code>. If it were, you could add a <code>Double</code> to a list of integers through the wider type.</p>
+<p>When a method only reads from a list, a wildcard accepts the whole family:</p>
+<pre><code class="lang-java">static double sum(List&lt;? extends Number&gt; numbers) {
+    double total = 0;
+    for (Number n : numbers) {
+        total += n.doubleValue();
+    }
+    return total;
+}
+
+sum(List.of(1, 2, 3));        // List&lt;Integer&gt;
+sum(List.of(1.5, 2.5));       // List&lt;Double&gt;</code></pre>
+<p><code>? extends Number</code> means "some unknown type that is a <code>Number</code>". You can read <code>Number</code>s from such a list and cannot add to it.</p>
+<h2 id="what-generics-cannot-do">What generics cannot do</h2>
+<p>Generic type information is removed when the code is compiled. This is called <strong>type erasure</strong>. As a result:</p>
+<ul><li>no primitives: <code>Box&lt;int&gt;</code> is not allowed. Use <code>Box&lt;Integer&gt;</code>;</li><li>no <code>new T()</code> and no <code>new T[10]</code>;</li><li>no <code>instanceof Box&lt;String&gt;</code>.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Raw types.</strong> <code>List names = new ArrayList();</code> switches type checking off. Always give the type argument.</li><li><strong>Forgetting the bound</strong> and then finding that <code>compareTo</code> does not exist on <code>T</code>.</li><li><strong>Expecting <code>List&lt;Integer&gt;</code> to be accepted where <code>List&lt;Number&gt;</code> is required.</strong></li><li><strong><code>&lt;T&gt;</code> in the wrong place</strong> on a generic method. It goes before the return type.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/08-generics">
+<h3>A generic stack <span class="ex-id">java/08-generics</span></h3>
+<p>Complete two generic pieces of code.</p>
+<h4><code>ArrayStack&lt;T&gt;</code> in <code>ArrayStack.java</code></h4>
+<p>A stack that can hold any one type.</p>
+<ul><li><code>void push(T item)</code></li><li><code>T pop()</code>: removes and returns the top item. Throws <code>java.util.NoSuchElementException</code> if the stack is empty.</li><li><code>T peek()</code>: returns the top item without removing it. Throws <code>NoSuchElementException</code> if empty.</li><li><code>boolean isEmpty()</code></li><li><code>int size()</code></li></ul>
+<h4><code>Util.max</code> in <code>Util.java</code></h4>
+<p><code>static &lt;T extends Comparable&lt;T&gt;&gt; T max(List&lt;T&gt; items)</code> returns the largest item, using <code>compareTo</code>. It throws <code>IllegalArgumentException</code> for an empty list.</p>
+<pre><code class="lang-java">ArrayStack&lt;String&gt; s = new ArrayStack&lt;&gt;();
+s.push("a");
+s.push("b");
+s.pop();                               // "b"
+Util.max(List.of(3, 9, 4));            // 9
+Util.max(List.of("pear", "apple"));    // "pear"</code></pre>
+<p class="ex-files">Files: <code>exercises/java/08-generics/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/08-generics</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/07-collections.html"><span>Previous</span>Collections</a><a class="next" href="../java/09-exceptions.html"><span>Next</span>Exceptions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

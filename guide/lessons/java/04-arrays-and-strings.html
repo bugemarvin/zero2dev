@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays and strings · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/04-arrays-and-strings">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 4 of 10</p>
+<h1>Arrays and strings</h1>
+<p class="lede">Fixed-size arrays, the loops that go with them, and efficient work with text.</p>
+<h2 id="arrays">Arrays</h2>
+<p>An array holds a fixed number of values of one type.</p>
+<pre><code class="lang-java">int[] scores = {90, 72, 85};
+int[] counts = new int[5];        // five zeros
+String[] names = new String[3];   // three nulls</code></pre>
+<pre><code class="lang-java">scores[0]          // 90: indexes start at 0
+scores[2] = 88;    // change an element
+scores.length      // 3: a field, with no brackets</code></pre>
+<p>The size cannot change after creation. For a list that grows, use an <code>ArrayList</code>, covered in <a href="../java/07-collections.html">collections</a>.</p>
+<p>Java checks every index. Going outside the array stops the program with an <code>ArrayIndexOutOfBoundsException</code>, which names the bad index and the line.</p>
+<h2 id="looping">Looping</h2>
+<pre><code class="lang-java">for (int i = 0; i &lt; scores.length; i++) {
+    System.out.println(i + ": " + scores[i]);
+}
+
+for (int score : scores) {          // for-each: when the index is not needed
+    System.out.println(score);
+}</code></pre>
+<p>The for-each loop gives you a copy of each element. Assigning to <code>score</code> does not change the array.</p>
+<h2 id="helpers-in-java-util-arrays">Helpers in java.util.Arrays</h2>
+<pre><code class="lang-java">import java.util.Arrays;
+
+Arrays.toString(scores)            // "[90, 72, 85]"
+Arrays.sort(scores);               // sorts in place
+Arrays.fill(counts, 7);            // every element becomes 7
+int[] copy = Arrays.copyOf(scores, scores.length);
+Arrays.equals(scores, copy)        // true: same contents</code></pre>
+<p>Printing an array directly gives something like <code>[I@1b6d3586</code>. Use <code>Arrays.toString</code>.</p>
+<p><code>scores == copy</code> is false. As with strings, <code>==</code> asks whether they are the same object.</p>
+<h2 id="arrays-are-references">Arrays are references</h2>
+<pre><code class="lang-java">int[] a = {1, 2, 3};
+int[] b = a;          // no copy: both names refer to one array
+b[0] = 99;
+System.out.println(a[0]);    // 99</code></pre>
+<p>Make a real copy with <code>Arrays.copyOf</code> or <code>a.clone()</code>.</p>
+<h2 id="two-dimensions">Two dimensions</h2>
+<pre><code class="lang-java">int[][] grid = new int[3][4];     // 3 rows, 4 columns
+grid[1][2] = 5;
+grid.length        // 3
+grid[0].length     // 4</code></pre>
+<h2 id="strings-character-by-character">Strings, character by character</h2>
+<pre><code class="lang-java">String word = "level";
+for (int i = 0; i &lt; word.length(); i++) {
+    char c = word.charAt(i);
+}
+
+for (char c : word.toCharArray()) {
+}</code></pre>
+<p>A <code>char</code> is a number underneath, so characters can be compared and adjusted:</p>
+<pre><code class="lang-java">char c = 'b';
+c &gt;= 'a' &amp;&amp; c &lt;= 'z'               // true
+Character.isLetter(c)              // true
+Character.isDigit('7')             // true
+Character.toUpperCase(c)           // 'B'</code></pre>
+<h2 id="useful-string-methods">Useful string methods</h2>
+<pre><code class="lang-java">"a,b,c".split(",")                 // {"a", "b", "c"}
+"  hi  ".trim()                    // "hi"
+"Hello".toLowerCase()              // "hello"
+"hello".indexOf("l")               // 2, or -1 if absent
+"hello".replace("l", "L")          // "heLLo"
+String.join("-", "a", "b", "c")    // "a-b-c"
+"".isEmpty()                       // true
+"a b  c".split("\\s+")             // split on any run of whitespace</code></pre>
+<h2 id="stringbuilder">StringBuilder</h2>
+<p>Strings cannot be changed, so <code>s = s + x</code> builds a brand-new string each time. Inside a loop that copying adds up to O(n²). A <code>StringBuilder</code> is a changeable buffer made for this:</p>
+<pre><code class="lang-java">StringBuilder sb = new StringBuilder();
+for (int i = 0; i &lt; 5; i++) {
+    sb.append(i).append(' ');
+}
+String result = sb.toString().trim();     // "0 1 2 3 4"</code></pre>
+<p>It can also reverse: <code>new StringBuilder("abc").reverse().toString()</code> is <code>"cba"</code>.</p>
+<h2 id="null">null</h2>
+<p>A variable of an object type can hold <code>null</code>, meaning it refers to nothing. Calling a method on it throws a <code>NullPointerException</code>:</p>
+<pre><code class="lang-java">String s = null;
+s.length();        // NullPointerException</code></pre>
+<p>A new <code>String[3]</code> contains three nulls until you assign to it.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>length</code> for arrays, <code>length()</code> for strings, <code>size()</code> for lists.</strong></li><li><strong><code>&lt;=</code> in the loop condition</strong>, which runs one index too far.</li><li><strong><code>==</code> to compare arrays or strings.</strong></li><li><strong>Assigning one array to another</strong> and expecting a copy.</li><li><strong>Building a long string with <code>+</code> in a loop.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/04-arrays-strings">
+<h3>Arrays and text <span class="ex-id">java/04-arrays-strings</span></h3>
+<p>Complete the static methods in <code>TextUtil.java</code>.</p>
+<ul><li><code>boolean isPalindrome(String s)</code>: whether <code>s</code> reads the same in both directions, ignoring upper and lower case and ignoring every character that is not a letter or a digit. <code>"A man, a plan, a canal: Panama"</code> is a palindrome. So is the empty string.</li><li><code>int countVowels(String s)</code>: how many of the characters are <code>a</code>, <code>e</code>, <code>i</code>, <code>o</code> or <code>u</code>, in either case.</li><li><code>String capitalize(String sentence)</code>: the sentence with the first letter of each word in upper case. Words are separated by single spaces. <code>"hello big world"</code> becomes <code>"Hello Big World"</code>.</li><li><code>int[] rotate(int[] a, int k)</code>: a <strong>new</strong> array with the elements moved <code>k</code> places to the right, wrapping around. <code>rotate({1, 2, 3, 4, 5}, 2)</code> is <code>{4, 5, 1, 2, 3}</code>. <code>k</code> is zero or more and may be larger than the length. The array passed in must not change.</li></ul>
+<p class="ex-files">Files: <code>exercises/java/04-arrays-strings/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/04-arrays-strings</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/03-methods.html"><span>Previous</span>Methods</a><a class="next" href="../java/05-classes-and-objects.html"><span>Next</span>Classes and objects</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

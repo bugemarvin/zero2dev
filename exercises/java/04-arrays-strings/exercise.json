@@ -1,0 +1,25 @@
+{
+  "title": "Arrays and text",
+  "lesson": "java/04-arrays-and-strings",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "TextUtil.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "isPalindrome: use two indexes, one from each end. Skip characters for which Character.isLetterOrDigit is false.",
+    "capitalize: split on a space, upper-case charAt(0) of each word, and join the words back with spaces.",
+    "rotate: the element at index i moves to index (i + k) % length in a new array."
+  ]
+}
