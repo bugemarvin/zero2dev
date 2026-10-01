@@ -1,0 +1,44 @@
+{
+  "title": "Statistics of the input",
+  "lesson": "java/02-types-and-control-flow",
+  "kind": "program",
+  "lang": "java",
+  "timeout": 30,
+  "cases": [
+    {
+      "name": "five numbers",
+      "stdin": "3 9 -2 7 4\n",
+      "stdout": "count: 5\nsum: 21\nmin: -2\nmax: 9\n"
+    },
+    {
+      "name": "one number",
+      "stdin": "42\n",
+      "stdout": "count: 1\nsum: 42\nmin: 42\nmax: 42\n"
+    },
+    {
+      "name": "numbers on several lines",
+      "stdin": "1\n2\n\n3\n",
+      "stdout": "count: 3\nsum: 6\nmin: 1\nmax: 3\n"
+    },
+    {
+      "name": "all negative",
+      "stdin": "-5 -1 -9\n",
+      "stdout": "count: 3\nsum: -15\nmin: -9\nmax: -1\n"
+    },
+    {
+      "name": "the sum is larger than an int can hold",
+      "stdin": "2000000000 2000000000 2000000000\n",
+      "stdout": "count: 3\nsum: 6000000000\nmin: 2000000000\nmax: 2000000000\n"
+    },
+    {
+      "name": "no input",
+      "stdin": "",
+      "stdout": "count: 0\n"
+    }
+  ],
+  "hints": [
+    "Loop with while (in.hasNextInt()) and read each number with in.nextInt().",
+    "Set min and max from the first number you read, not from 0.",
+    "The sum can pass two billion. Declare it as long."
+  ]
+}

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collections · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/07-collections">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 7 of 10</p>
+<h1>Collections</h1>
+<p class="lede">Lists that grow, maps from keys to values, and sets of unique items.</p>
+<h2 id="why-not-arrays">Why not arrays</h2>
+<p>Arrays have a fixed size. The <strong>collections</strong> in <code>java.util</code> grow and shrink, and come with searching, sorting and more.</p>
+<div class="table-wrap"><table><thead><tr><th>Interface</th><th>Meaning</th><th>Usual class</th></tr></thead><tbody><tr><td><code>List</code></td><td>ordered, allows duplicates</td><td><code>ArrayList</code></td></tr><tr><td><code>Set</code></td><td>no duplicates</td><td><code>HashSet</code></td></tr><tr><td><code>Map</code></td><td>keys mapped to values</td><td><code>HashMap</code></td></tr><tr><td><code>Deque</code></td><td>add and remove at both ends</td><td><code>ArrayDeque</code></td></tr></tbody></table></div>
+<h2 id="list">List</h2>
+<pre><code class="lang-java">import java.util.ArrayList;
+import java.util.List;
+
+List&lt;String&gt; names = new ArrayList&lt;&gt;();
+names.add("Ada");
+names.add("Linus");
+names.get(0)              // "Ada"
+names.set(1, "Grace");    // replace
+names.size()              // 2
+names.contains("Ada")     // true
+names.remove("Ada");
+names.isEmpty()           // false</code></pre>
+<p><code>&lt;String&gt;</code> says what the list holds. The compiler then refuses anything else, and <code>get</code> returns a <code>String</code> with no cast. The empty <code>&lt;&gt;</code> on the right is filled in from the left.</p>
+<p>Declare the variable as the interface, <code>List</code>, and create the class, <code>ArrayList</code>. Code that depends only on <code>List</code> keeps working if you switch the implementation.</p>
+<p>A quick fixed list: <code>List.of("a", "b", "c")</code>. It cannot be modified.</p>
+<h2 id="primitives-need-wrappers">Primitives need wrappers</h2>
+<p>Collections hold objects, not primitives. Use the wrapper classes, and Java converts automatically:</p>
+<pre><code class="lang-java">List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+numbers.add(5);              // the int becomes an Integer
+int first = numbers.get(0);  // and back</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Primitive</th><th>Wrapper</th></tr></thead><tbody><tr><td><code>int</code></td><td><code>Integer</code></td></tr><tr><td><code>long</code></td><td><code>Long</code></td></tr><tr><td><code>double</code></td><td><code>Double</code></td></tr><tr><td><code>boolean</code></td><td><code>Boolean</code></td></tr><tr><td><code>char</code></td><td><code>Character</code></td></tr></tbody></table></div>
+<p>Compare wrapper objects with <code>.equals</code>, as with strings.</p>
+<h2 id="looping">Looping</h2>
+<pre><code class="lang-java">for (String name : names) {
+    System.out.println(name);
+}
+
+for (int i = 0; i &lt; names.size(); i++) {
+    System.out.println(i + ": " + names.get(i));
+}</code></pre>
+<h2 id="map">Map</h2>
+<pre><code class="lang-java">import java.util.HashMap;
+import java.util.Map;
+
+Map&lt;String, Integer&gt; ages = new HashMap&lt;&gt;();
+ages.put("ada", 36);
+ages.put("linus", 54);
+ages.get("ada")                    // 36
+ages.get("bob")                    // null: not present
+ages.getOrDefault("bob", 0)        // 0
+ages.containsKey("ada")            // true
+ages.remove("linus");</code></pre>
+<p>Counting is the classic use:</p>
+<pre><code class="lang-java">Map&lt;String, Integer&gt; counts = new HashMap&lt;&gt;();
+for (String word : words) {
+    counts.put(word, counts.getOrDefault(word, 0) + 1);
+}</code></pre>
+<p><code>counts.merge(word, 1, Integer::sum)</code> does the same in one call.</p>
+<p>Looping over a map:</p>
+<pre><code class="lang-java">for (Map.Entry&lt;String, Integer&gt; entry : counts.entrySet()) {
+    System.out.println(entry.getKey() + " " + entry.getValue());
+}</code></pre>
+<p>A <code>HashMap</code> has <strong>no defined order</strong>. A <code>TreeMap</code> keeps its keys sorted. A <code>LinkedHashMap</code> keeps the order in which keys were added.</p>
+<h2 id="set">Set</h2>
+<pre><code class="lang-java">import java.util.HashSet;
+import java.util.Set;
+
+Set&lt;String&gt; seen = new HashSet&lt;&gt;();
+seen.add("a");         // true: it was added
+seen.add("a");         // false: already present
+seen.contains("a")     // true
+seen.size()            // 1</code></pre>
+<h2 id="sorting">Sorting</h2>
+<pre><code class="lang-java">import java.util.Collections;
+import java.util.Comparator;
+
+Collections.sort(numbers);                       // natural order
+names.sort(Comparator.naturalOrder());
+names.sort(Comparator.comparing(String::length));
+names.sort(Comparator.comparing(String::length).reversed());</code></pre>
+<p>A <code>Comparator</code> says how to order two items. Chain them for tie-breaks. To sort map entries by count from high to low, and by word where the counts are equal:</p>
+<pre><code class="lang-java">List&lt;Map.Entry&lt;String, Integer&gt;&gt; entries = new ArrayList&lt;&gt;(counts.entrySet());
+entries.sort(
+    Map.Entry.&lt;String, Integer&gt;comparingByValue().reversed()
+        .thenComparing(Map.Entry.comparingByKey()));</code></pre>
+<h2 id="stack-and-queue">Stack and queue</h2>
+<p><code>ArrayDeque</code> serves as both:</p>
+<pre><code class="lang-java">Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+stack.push(1);
+stack.pop();
+
+Deque&lt;Integer&gt; queue = new ArrayDeque&lt;&gt;();
+queue.addLast(1);
+queue.pollFirst();</code></pre>
+<h2 id="costs">Costs</h2>
+<div class="table-wrap"><table><thead><tr><th>Operation</th><th><code>ArrayList</code></th><th><code>HashMap</code>, <code>HashSet</code></th></tr></thead><tbody><tr><td>get by index</td><td>O(1)</td><td>not applicable</td></tr><tr><td>add at the end</td><td>O(1)</td><td>O(1)</td></tr><tr><td>contains</td><td>O(n)</td><td>O(1)</td></tr><tr><td>remove from the middle</td><td>O(n)</td><td>O(1)</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>List&lt;int&gt;</code>.</strong> Use <code>List&lt;Integer&gt;</code>.</li><li><strong><code>==</code> on <code>Integer</code> objects.</strong> It works for small numbers by accident and fails for large ones. Use <code>.equals</code>.</li><li><strong>Removing from a list while looping over it</strong> with for-each, which throws <code>ConcurrentModificationException</code>. Use <code>removeIf</code>.</li><li><strong>Relying on <code>HashMap</code> order.</strong></li><li><strong><code>list.remove(1)</code> on a <code>List&lt;Integer&gt;</code>.</strong> It removes the element at <strong>index</strong> 1, not the value 1.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/07-word-count">
+<h3>Word frequencies <span class="ex-id">java/07-word-count</span></h3>
+<p>Write a program in <code>Main.java</code> that reads text from standard input and prints how often each word occurs.</p>
+<ul><li>Words are separated by spaces or newlines.</li><li>Upper and lower case count as the same word. Print the words in lower case.</li><li>Print one line per word: the word, a space, its count.</li><li>Order the lines by count, highest first. Words with the same count are ordered alphabetically.</li></ul>
+<pre><code class="lang-console">$ echo "the cat and the hat and the bat" | java Main
+the 3
+and 2
+bat 1
+cat 1
+hat 1</code></pre>
+<p class="ex-files">Files: <code>exercises/java/07-word-count/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/07-word-count</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/06-interfaces-and-inheritance.html"><span>Previous</span>Interfaces and inheritance</a><a class="next" href="../java/08-generics.html"><span>Next</span>Generics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

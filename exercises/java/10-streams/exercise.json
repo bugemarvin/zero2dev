@@ -1,0 +1,25 @@
+{
+  "title": "Streams, Optional and a file",
+  "lesson": "java/10-files-and-streams",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "Stats.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "longNames: names.stream().filter(...).map(String::toUpperCase).sorted().toList()",
+    "countByFirstLetter: collect(Collectors.groupingBy(word -> Character.toLowerCase(word.charAt(0)), Collectors.counting()))",
+    "longest: words.stream().max(Comparator.comparing(String::length)) already returns an Optional."
+  ]
+}

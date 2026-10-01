@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Files, lambdas and streams · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/10-files-and-streams">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 10 of 10</p>
+<h1>Files, lambdas and streams</h1>
+<p class="lede">Read and write files in a few lines, and process collections by describing what you want.</p>
+<h2 id="files">Files</h2>
+<p>The modern file API is in <code>java.nio.file</code>.</p>
+<pre><code class="lang-java">import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+Path path = Path.of("notes.txt");
+
+String text = Files.readString(path);               // the whole file
+List&lt;String&gt; lines = Files.readAllLines(path);      // one string per line
+
+Files.writeString(path, "hello\n");                 // replaces the content
+Files.write(path, List.of("one", "two"));           // one line per element
+
+Files.exists(path)                                  // true or false</code></pre>
+<p>All of these can throw <code>IOException</code>, a <a href="../java/09-exceptions.html">checked exception</a>: catch it, or declare <code>throws IOException</code>.</p>
+<p>For a file too large to hold in memory, read it lazily and close it afterwards:</p>
+<pre><code class="lang-java">try (var lines = Files.lines(path)) {
+    long count = lines.filter(line -&gt; !line.isBlank()).count();
+}</code></pre>
+<h2 id="lambdas">Lambdas</h2>
+<p>A <strong>lambda</strong> is a short function written in place, with no name:</p>
+<pre><code class="lang-java">x -&gt; x * 2                           // one parameter
+(a, b) -&gt; a + b                      // two parameters
+name -&gt; {                            // a body with several statements
+    String t = name.trim();
+    return t.toUpperCase();
+}</code></pre>
+<p>It can be passed wherever a single-method interface is expected:</p>
+<pre><code class="lang-java">names.sort((a, b) -&gt; a.length() - b.length());
+names.removeIf(name -&gt; name.isEmpty());
+names.forEach(name -&gt; System.out.println(name));</code></pre>
+<p>A <strong>method reference</strong> is shorthand for a lambda that only calls one method:</p>
+<div class="table-wrap"><table><thead><tr><th>Lambda</th><th>Method reference</th></tr></thead><tbody><tr><td><code>s -&gt; s.toUpperCase()</code></td><td><code>String::toUpperCase</code></td></tr><tr><td><code>s -&gt; System.out.println(s)</code></td><td><code>System.out::println</code></td></tr><tr><td><code>(a, b) -&gt; Integer.sum(a, b)</code></td><td><code>Integer::sum</code></td></tr></tbody></table></div>
+<h2 id="streams">Streams</h2>
+<p>A <strong>stream</strong> is a pipeline over a collection. You say <strong>what</strong> should happen, step by step, with no loop of your own.</p>
+<pre><code class="lang-java">List&lt;String&gt; names = List.of("ada", "linus", "grace", "bob");
+
+List&lt;String&gt; result = names.stream()
+    .filter(name -&gt; name.length() &gt; 3)       // keep some
+    .map(String::toUpperCase)                // transform each
+    .sorted()                                // order
+    .toList();                               // collect
+
+// [GRACE, LINUS]</code></pre>
+<p>Compare with the pipes of the <a href="../start/05-pipes-and-redirection.html">shell</a>: each stage receives the output of the one before.</p>
+<p>A pipeline has three parts.</p>
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Examples</th></tr></thead><tbody><tr><td>a source</td><td><code>list.stream()</code>, <code>Stream.of(...)</code>, <code>IntStream.range(0, 10)</code>, <code>Files.lines(path)</code></td></tr><tr><td>intermediate steps</td><td><code>filter</code>, <code>map</code>, <code>sorted</code>, <code>distinct</code>, <code>limit</code>, <code>skip</code></td></tr><tr><td>one terminal step</td><td><code>toList</code>, <code>count</code>, <code>sum</code>, <code>collect</code>, <code>forEach</code>, <code>findFirst</code>, <code>anyMatch</code></td></tr></tbody></table></div>
+<p>Nothing runs until the terminal step is called. The original collection is never changed.</p>
+<h2 id="numbers">Numbers</h2>
+<p><code>mapToInt</code> gives a stream of primitive <code>int</code> values, which has <code>sum</code>, <code>average</code>, <code>max</code> and <code>min</code>:</p>
+<pre><code class="lang-java">int total = numbers.stream()
+    .filter(n -&gt; n % 2 == 0)
+    .mapToInt(n -&gt; n * n)
+    .sum();</code></pre>
+<h2 id="collecting">Collecting</h2>
+<pre><code class="lang-java">import java.util.stream.Collectors;
+
+String joined = names.stream().collect(Collectors.joining(", "));
+
+Map&lt;Character, Long&gt; byFirstLetter = names.stream()
+    .collect(Collectors.groupingBy(name -&gt; name.charAt(0), Collectors.counting()));
+
+Map&lt;Integer, List&lt;String&gt;&gt; byLength = names.stream()
+    .collect(Collectors.groupingBy(String::length));</code></pre>
+<p><code>groupingBy</code> does in one line what a loop with a <code>HashMap</code> does in five.</p>
+<h2 id="optional">Optional</h2>
+<p>Some operations may have no result, such as the largest element of an empty list. They return an <code>Optional</code>: a box that either contains a value or is empty.</p>
+<pre><code class="lang-java">Optional&lt;String&gt; longest = names.stream()
+    .max(Comparator.comparing(String::length));
+
+longest.isPresent()                 // true or false
+longest.orElse("none")              // the value, or a fallback
+longest.ifPresent(System.out::println);</code></pre>
+<p>An <code>Optional</code> makes "there may be nothing" visible in the method's type, where a <code>null</code> would be easy to forget.</p>
+<h2 id="streams-or-loops">Streams or loops</h2>
+<div class="table-wrap"><table><thead><tr><th>Use a stream when</th><th>Use a loop when</th></tr></thead><tbody><tr><td>the task is filter, transform, collect</td><td>you need the index</td></tr><tr><td>each step is short</td><td>the body is long, or changes outside state</td></tr><tr><td>you want it to read like a description</td><td>you need to stop in complicated ways</td></tr></tbody></table></div>
+<p>Neither is always better. Choose the one that the next reader will understand faster.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Reusing a stream.</strong> It can be consumed once. Create a new one from the collection.</li><li><strong>Forgetting the terminal step.</strong> <code>names.stream().filter(...)</code> alone does nothing.</li><li><strong>Changing outside variables from inside a lambda.</strong> Local variables used in a lambda must not be reassigned.</li><li><strong>Calling <code>get()</code> on an <code>Optional</code></strong> without checking. On an empty one it throws.</li><li><strong>Not closing <code>Files.lines</code>.</strong> Put it in try-with-resources.</li></ul>
+<p>That completes the Java track. For practice, solve the <a href="../dsa/01-big-o.html">data structures and algorithms</a> exercises in Java: <code>python3 check.py start dsa/01-max-of-list --lang java</code>.</p>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/10-streams">
+<h3>Streams, Optional and a file <span class="ex-id">java/10-streams</span></h3>
+<p>Complete the static methods in <code>Stats.java</code>. Each fits in a single stream pipeline.</p>
+<ul><li><code>List&lt;String&gt; longNames(List&lt;String&gt; names, int minLength)</code>: the names with at least <code>minLength</code> characters, converted to upper case, in alphabetical order.</li><li><code>int sumOfEvenSquares(List&lt;Integer&gt; numbers)</code>: the sum of the squares of the even numbers.</li><li><code>Map&lt;Character, Long&gt; countByFirstLetter(List&lt;String&gt; words)</code>: for each first letter, in lower case, the number of words that start with it. Empty strings are skipped.</li><li><code>Optional&lt;String&gt; longest(List&lt;String&gt; words)</code>: the longest word, or an empty <code>Optional</code> for an empty list. If several are equally long, the first of them.</li><li><code>long countNonBlankLines(Path path) throws IOException</code>: the number of lines in the file that contain something other than spaces.</li></ul>
+<pre><code class="lang-java">Stats.longNames(List.of("ada", "linus", "grace"), 5);   // [GRACE, LINUS]
+Stats.sumOfEvenSquares(List.of(1, 2, 3, 4));            // 20
+Stats.longest(List.of("a", "ccc", "bb"));               // Optional[ccc]</code></pre>
+<p class="ex-files">Files: <code>exercises/java/10-streams/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/10-streams</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/09-exceptions.html"><span>Previous</span>Exceptions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exceptions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/09-exceptions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 9 of 10</p>
+<h1>Exceptions</h1>
+<p class="lede">Signal that something went wrong, handle what you can, and never lose a resource.</p>
+<h2 id="what-an-exception-is">What an exception is</h2>
+<p>When a method cannot do its job, it <strong>throws</strong> an exception. Normal execution stops, and control passes up through the chain of callers until some code <strong>catches</strong> it. If nobody does, the program ends with a stack trace.</p>
+<pre><code class="lang-text">Exception in thread "main" java.lang.ArithmeticException: / by zero
+        at Main.average(Main.java:12)
+        at Main.main(Main.java:5)</code></pre>
+<p>Read it from the top: the type, the message, then where it happened and who called that.</p>
+<h2 id="try-and-catch">try and catch</h2>
+<pre><code class="lang-java">try {
+    int n = Integer.parseInt(text);
+    System.out.println(n * 2);
+} catch (NumberFormatException e) {
+    System.out.println("not a number: " + text);
+}</code></pre>
+<p>If the code in <code>try</code> throws a <code>NumberFormatException</code>, the rest of the block is skipped and the <code>catch</code> block runs. Other exception types pass through.</p>
+<p>Handle several kinds, and add a <code>finally</code> block that runs however the <code>try</code> ends:</p>
+<pre><code class="lang-java">try {
+    process(file);
+} catch (FileNotFoundException e) {
+    System.err.println("missing: " + e.getMessage());
+} catch (IOException e) {
+    System.err.println("cannot read: " + e.getMessage());
+} finally {
+    System.out.println("done");
+}</code></pre>
+<p>Put the more specific type first. <code>FileNotFoundException</code> is a kind of <code>IOException</code>.</p>
+<h2 id="throwing">Throwing</h2>
+<pre><code class="lang-java">public void withdraw(long amount) {
+    if (amount &lt;= 0) {
+        throw new IllegalArgumentException("amount must be positive");
+    }
+    if (amount &gt; balance) {
+        throw new IllegalStateException("insufficient funds");
+    }
+    balance -= amount;
+}</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Exception</th><th>Use it when</th></tr></thead><tbody><tr><td><code>IllegalArgumentException</code></td><td>an argument is not acceptable</td></tr><tr><td><code>IllegalStateException</code></td><td>the object is in the wrong state for this call</td></tr><tr><td><code>NullPointerException</code></td><td>something was <code>null</code> that must not be</td></tr><tr><td><code>IndexOutOfBoundsException</code></td><td>an index is outside the valid range</td></tr><tr><td><code>NoSuchElementException</code></td><td>asked for an element that is not there</td></tr><tr><td><code>UnsupportedOperationException</code></td><td>the operation is not available</td></tr></tbody></table></div>
+<h2 id="checked-and-unchecked">Checked and unchecked</h2>
+<p>Java has two families.</p>
+<p><strong>Unchecked exceptions</strong> extend <code>RuntimeException</code>. They usually indicate a bug: a bad argument, a null, an index out of range. You are not forced to catch them.</p>
+<p><strong>Checked exceptions</strong> extend <code>Exception</code> directly. They stand for failures that a correct program must still expect: a missing file, a dropped connection. The compiler <strong>forces</strong> you to deal with them. A method that can throw one must either catch it or declare it:</p>
+<pre><code class="lang-java">public static String firstLine(Path path) throws IOException {
+    return Files.readAllLines(path).get(0);
+}</code></pre>
+<p><code>throws IOException</code> passes the responsibility on to the caller.</p>
+<h2 id="your-own-exception-types">Your own exception types</h2>
+<p>A named type lets callers catch precisely this problem:</p>
+<pre><code class="lang-java">public class InvalidAgeException extends Exception {
+    public InvalidAgeException(String message) {
+        super(message);
+    }
+}</code></pre>
+<p>Extend <code>Exception</code> for a checked exception, or <code>RuntimeException</code> for an unchecked one.</p>
+<pre><code class="lang-java">public static int parseAge(String text) throws InvalidAgeException {
+    int age;
+    try {
+        age = Integer.parseInt(text.trim());
+    } catch (NumberFormatException e) {
+        throw new InvalidAgeException("not a number: " + text);
+    }
+    if (age &lt; 0 || age &gt; 150) {
+        throw new InvalidAgeException("out of range: " + age);
+    }
+    return age;
+}</code></pre>
+<p>Here a low-level exception is caught and translated into one that means something to the caller.</p>
+<h2 id="try-with-resources">try-with-resources</h2>
+<p>Files, network connections and database connections must be closed, even when an exception occurs. Declare them in the brackets after <code>try</code>, and Java closes them for you:</p>
+<pre><code class="lang-java">try (BufferedReader reader = Files.newBufferedReader(path)) {
+    return reader.readLine();
+}</code></pre>
+<p>The reader is closed when the block ends, by any route. This works for every class that implements <code>AutoCloseable</code>. Always use it for resources.</p>
+<h2 id="handle-it-where-you-can-do-something-about-it">Handle it where you can do something about it</h2>
+<p>Catching an exception only to ignore it hides the failure:</p>
+<pre><code class="lang-java">try {
+    save(data);
+} catch (IOException e) {
+    // nothing here: the data is lost and nobody knows
+}</code></pre>
+<p>If a method cannot recover, let the exception travel up to code that can retry, tell the user, or stop cleanly.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Empty catch blocks.</strong></li><li><strong><code>catch (Exception e)</code> around everything.</strong> It also swallows the bugs you wanted to hear about.</li><li><strong>Using exceptions for ordinary control flow</strong>, such as ending a loop.</li><li><strong>Losing the cause.</strong> When wrapping an exception, pass the original along: <code>new MyException("...", e)</code>.</li><li><strong>Closing resources by hand</strong> in place of try-with-resources.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/09-exceptions">
+<h3>Parse with your own exception <span class="ex-id">java/09-exceptions</span></h3>
+<h4><code>InvalidAgeException</code></h4>
+<p>Make it a <strong>checked</strong> exception: it extends <code>Exception</code>, not <code>RuntimeException</code>. It has a constructor that takes a message.</p>
+<h4><code>Parser</code></h4>
+<p><code>static int parseAge(String text) throws InvalidAgeException</code></p>
+<ul><li>Returns the age as an <code>int</code>. Spaces around the number are allowed.</li><li>If the text is not a whole number, it throws <code>InvalidAgeException</code> with a message that contains <code>not a number</code>.</li><li>If the number is below 0 or above 150, it throws <code>InvalidAgeException</code> with a message that contains <code>out of range</code>.</li></ul>
+<p><code>static int sumValid(List&lt;String&gt; items)</code></p>
+<ul><li>Returns the sum of all the items that are valid whole numbers, after trimming spaces. Items that are not numbers are skipped. It never throws.</li></ul>
+<pre><code class="lang-java">Parser.parseAge(" 42 ");                          // 42
+Parser.parseAge("abc");                           // throws InvalidAgeException: not a number: abc
+Parser.sumValid(List.of("1", "x", " 3 ", ""));    // 4</code></pre>
+<p class="ex-files">Files: <code>exercises/java/09-exceptions/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/09-exceptions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/08-generics.html"><span>Previous</span>Generics</a><a class="next" href="../java/10-files-and-streams.html"><span>Next</span>Files, lambdas and streams</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

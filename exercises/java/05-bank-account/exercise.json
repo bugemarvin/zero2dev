@@ -1,0 +1,25 @@
+{
+  "title": "A bank account class",
+  "lesson": "java/05-classes-and-objects",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "BankAccount.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "Two private fields: the owner and the balance. The constructor stores the owner with this.owner = owner;",
+    "Check the amount first and throw new IllegalArgumentException(...) before changing anything.",
+    "Add @Override public String toString() that builds the text with +."
+  ]
+}

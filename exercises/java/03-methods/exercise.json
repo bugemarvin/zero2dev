@@ -1,0 +1,25 @@
+{
+  "title": "A class of static methods",
+  "lesson": "java/03-methods",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "MathUtil.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "gcd: while b is not 0, replace (a, b) with (b, a % b).",
+    "isPrime: try divisors d while d * d <= n. Compute d * d as a long, or the multiplication overflows near the largest int.",
+    "sumDigits: n % 10 is the last digit and n / 10 removes it. Take Math.abs first."
+  ]
+}

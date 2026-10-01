@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methods · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="java/03-methods">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Java · lesson 3 of 10</p>
+<h1>Methods</h1>
+<p class="lede">Name a piece of work, give it typed inputs and a typed result, and call it from anywhere.</p>
+<h2 id="defining-a-method">Defining a method</h2>
+<pre><code class="lang-java">public class MathUtil {
+    static int square(int x) {
+        return x * x;
+    }
+}</code></pre>
+<ul><li><code>static</code>: the method belongs to the class, so no object is needed to call it. Instance methods come in the lesson on <a href="../java/05-classes-and-objects.html">classes</a>.</li><li><code>int</code>: the type of the value it returns. <code>void</code> means nothing is returned.</li><li><code>square</code>: the name.</li><li><code>int x</code>: a parameter with its type.</li></ul>
+<p>Calling it from another class uses the class name:</p>
+<pre><code class="lang-java">int area = MathUtil.square(5);     // 25</code></pre>
+<p>Inside the same class, <code>square(5)</code> is enough.</p>
+<h2 id="every-path-must-return">Every path must return</h2>
+<p>If the return type is not <code>void</code>, the compiler checks that the method returns a value however it ends:</p>
+<pre><code class="lang-java">static String sign(int n) {
+    if (n &gt; 0) {
+        return "positive";
+    } else if (n &lt; 0) {
+        return "negative";
+    }
+    return "zero";        // without this line the code does not compile
+}</code></pre>
+<h2 id="arguments-are-passed-by-value">Arguments are passed by value</h2>
+<p>A method receives <strong>copies</strong> of the values you pass.</p>
+<pre><code class="lang-java">static void addOne(int n) {
+    n = n + 1;            // changes the copy only
+}
+
+int a = 5;
+addOne(a);
+System.out.println(a);    // still 5</code></pre>
+<p>For objects and arrays, the value that is copied is the <strong>reference</strong>: where the object is. The method therefore reaches the same object, and can change what is inside it:</p>
+<pre><code class="lang-java">static void clearFirst(int[] numbers) {
+    numbers[0] = 0;       // the caller's array changes
+}</code></pre>
+<p>It still cannot make the caller's variable refer to a different object.</p>
+<h2 id="overloading">Overloading</h2>
+<p>Several methods may share a name if their parameter lists differ. The compiler picks the one that matches the call.</p>
+<pre><code class="lang-java">static int max(int a, int b) {
+    return a &gt; b ? a : b;
+}
+
+static double max(double a, double b) {
+    return a &gt; b ? a : b;
+}
+
+static int max(int a, int b, int c) {
+    return max(max(a, b), c);
+}</code></pre>
+<p><code>condition ? x : y</code> is the conditional operator: <code>x</code> when the condition is true, otherwise <code>y</code>.</p>
+<h2 id="scope">Scope</h2>
+<p>A variable exists only inside the block where it is declared. Parameters and local variables vanish when the method returns. Two methods can use the same variable names without affecting each other.</p>
+<h2 id="recursion">Recursion</h2>
+<p>A method may call itself. It needs a base case that stops, and a recursive case that gets closer to it.</p>
+<pre><code class="lang-java">static long factorial(int n) {
+    if (n &lt;= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}</code></pre>
+<p>Returning <code>long</code> matters: <code>13!</code> no longer fits in an <code>int</code>.</p>
+<h2 id="useful-methods-you-already-have">Useful methods you already have</h2>
+<p>The <code>Math</code> class is full of static methods:</p>
+<pre><code class="lang-java">Math.max(3, 7)       // 7
+Math.abs(-4)         // 4
+Math.pow(2, 10)      // 1024.0
+Math.sqrt(16)        // 4.0
+Math.floorMod(-7, 3) // 2: a remainder that is never negative</code></pre>
+<h2 id="documenting">Documenting</h2>
+<p>A <code>/** ... */</code> comment above a method is a <strong>Javadoc</strong> comment. Editors show it when you hover over a call.</p>
+<pre><code class="lang-java">/** Returns the greatest common divisor of a and b. */
+static int gcd(int a, int b) {
+    while (b != 0) {
+        int r = a % b;
+        a = b;
+        b = r;
+    }
+    return a;
+}</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Missing return on some path.</strong></li><li><strong>Forgetting <code>static</code></strong> on a helper called from <code>main</code>. The error says a non-static method cannot be referenced from a static context.</li><li><strong>Expecting a method to change an <code>int</code> you passed in.</strong></li><li><strong>Printing where a return was asked for.</strong></li><li><strong>Recursion with no reachable base case</strong>, which ends in a <code>StackOverflowError</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="java/03-methods">
+<h3>A class of static methods <span class="ex-id">java/03-methods</span></h3>
+<p>Complete the four static methods in <code>MathUtil.java</code>. <code>Tests.java</code> calls them; do not edit it.</p>
+<ul><li><code>int gcd(int a, int b)</code>: the greatest common divisor of two non-negative numbers. <code>gcd(7, 0)</code> is 7.</li><li><code>boolean isPrime(int n)</code>: whether <code>n</code> is prime. Numbers below 2 are not.</li><li><code>long factorial(int n)</code>: <code>n!</code>, with <code>0!</code> equal to 1. It must be correct up to <code>20!</code>, which does not fit in an <code>int</code>.</li><li><code>int sumDigits(long n)</code>: the sum of the decimal digits of <code>n</code>. For a negative number, ignore the sign.</li></ul>
+<p class="ex-files">Files: <code>exercises/java/03-methods/</code></p>
+<pre><code class="lang-console">$ python3 check.py java/03-methods</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../java/02-types-and-control-flow.html"><span>Previous</span>Types and control flow</a><a class="next" href="../java/04-arrays-and-strings.html"><span>Next</span>Arrays and strings</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

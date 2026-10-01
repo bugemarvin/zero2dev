@@ -805,6 +805,123 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "java",
+   "title": "Java",
+   "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",
+   "lessons": [
+    {
+     "id": "java/01-hello-jvm",
+     "title": "Hello, Java",
+     "summary": "How Java code becomes a running program, and the shape every Java program has.",
+     "exercises": [
+      {
+       "id": "java/01-hello",
+       "title": "Hello, Java"
+      }
+     ]
+    },
+    {
+     "id": "java/02-types-and-control-flow",
+     "title": "Types and control flow",
+     "summary": "Variables with fixed types, text, input, and the statements that decide and repeat.",
+     "exercises": [
+      {
+       "id": "java/02-number-stats",
+       "title": "Statistics of the input"
+      }
+     ]
+    },
+    {
+     "id": "java/03-methods",
+     "title": "Methods",
+     "summary": "Name a piece of work, give it typed inputs and a typed result, and call it from anywhere.",
+     "exercises": [
+      {
+       "id": "java/03-methods",
+       "title": "A class of static methods"
+      }
+     ]
+    },
+    {
+     "id": "java/04-arrays-and-strings",
+     "title": "Arrays and strings",
+     "summary": "Fixed-size arrays, the loops that go with them, and efficient work with text.",
+     "exercises": [
+      {
+       "id": "java/04-arrays-strings",
+       "title": "Arrays and text"
+      }
+     ]
+    },
+    {
+     "id": "java/05-classes-and-objects",
+     "title": "Classes and objects",
+     "summary": "Define your own types that keep data together with the methods that work on it, and protect their own rules.",
+     "exercises": [
+      {
+       "id": "java/05-bank-account",
+       "title": "A bank account class"
+      }
+     ]
+    },
+    {
+     "id": "java/06-interfaces-and-inheritance",
+     "title": "Interfaces and inheritance",
+     "summary": "Write code that works with many kinds of object through what they have in common.",
+     "exercises": [
+      {
+       "id": "java/06-shapes",
+       "title": "Shapes behind an interface"
+      }
+     ]
+    },
+    {
+     "id": "java/07-collections",
+     "title": "Collections",
+     "summary": "Lists that grow, maps from keys to values, and sets of unique items.",
+     "exercises": [
+      {
+       "id": "java/07-word-count",
+       "title": "Word frequencies"
+      }
+     ]
+    },
+    {
+     "id": "java/08-generics",
+     "title": "Generics",
+     "summary": "Write a class or method once and use it safely with any type.",
+     "exercises": [
+      {
+       "id": "java/08-generics",
+       "title": "A generic stack"
+      }
+     ]
+    },
+    {
+     "id": "java/09-exceptions",
+     "title": "Exceptions",
+     "summary": "Signal that something went wrong, handle what you can, and never lose a resource.",
+     "exercises": [
+      {
+       "id": "java/09-exceptions",
+       "title": "Parse with your own exception"
+      }
+     ]
+    },
+    {
+     "id": "java/10-files-and-streams",
+     "title": "Files, lambdas and streams",
+     "summary": "Read and write files in a few lines, and process collections by describing what you want.",
+     "exercises": [
+      {
+       "id": "java/10-streams",
+       "title": "Streams, Optional and a file"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

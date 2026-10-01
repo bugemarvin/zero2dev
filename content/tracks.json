@@ -28,5 +28,10 @@
     "id": "sql",
     "title": "SQL and PostgreSQL",
     "blurb": "Ask a database questions, design tables that reject bad data, and keep queries fast."
+  },
+  {
+    "id": "java",
+    "title": "Java",
+    "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams."
   }
 ]

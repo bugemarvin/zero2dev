@@ -1,0 +1,26 @@
+{
+  "title": "Parse with your own exception",
+  "lesson": "java/09-exceptions",
+  "kind": "harness",
+  "lang": "java",
+  "build": [
+    "javac",
+    "-d",
+    "{build}",
+    "InvalidAgeException.java",
+    "Parser.java",
+    "Tests.java"
+  ],
+  "run": [
+    "java",
+    "-cp",
+    "{build}",
+    "Tests"
+  ],
+  "timeout": 30,
+  "hints": [
+    "A checked exception extends Exception. Then parseAge must declare: throws InvalidAgeException",
+    "Catch NumberFormatException from Integer.parseInt(text.trim()) and throw your own exception with a message.",
+    "sumValid: put the parseInt call for each item inside its own try, with an empty catch for NumberFormatException."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "title": "Hello, Java",
+  "lesson": "java/01-hello-jvm",
+  "kind": "program",
+  "lang": "java",
+  "timeout": 30,
+  "cases": [
+    {
+      "name": "prints the greeting",
+      "stdout": "Hello, Java!\n"
+    }
+  ],
+  "hints": [
+    "System.out.println(\"Hello, Java!\");",
+    "The text must match exactly, including the comma and the exclamation mark."
+  ]
+}
