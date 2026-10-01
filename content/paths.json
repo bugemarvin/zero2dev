@@ -59,6 +59,15 @@
         ]
       },
       {
+        "title": "Styling at scale",
+        "why": "Real sites outgrow one stylesheet. Pick a tool: Tailwind puts small classes in the markup, Sass organises the stylesheets. The other stays available as an optional track.",
+        "tracks": [],
+        "pick": [
+          "tailwind",
+          "scss"
+        ]
+      },
+      {
         "title": "JavaScript",
         "why": "The language that makes pages do things.",
         "tracks": [
@@ -75,7 +84,6 @@
       }
     ],
     "electives": [
-      "scss",
       "vue",
       "gamedev",
       "node",
@@ -193,6 +201,7 @@
       }
     ],
     "electives": [
+      "tailwind",
       "scss",
       "vue",
       "mongodb",
@@ -823,6 +832,7 @@
       }
     ],
     "electives": [
+      "tailwind",
       "scss",
       "vue",
       "redis",
@@ -876,6 +886,7 @@
       }
     ],
     "electives": [
+      "tailwind",
       "scss",
       "sql",
       "react",

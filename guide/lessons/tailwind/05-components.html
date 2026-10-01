@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reuse without repeating classes · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="tailwind/05-components">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Tailwind CSS · lesson 5 of 5</p>
+<h1>Reuse without repeating classes</h1>
+<p class="lede">Components first, @apply second, and how to keep long class lists readable.</p>
+<h2 id="the-problem">The problem</h2>
+<p>A button with twelve classes is fine once. The page has nine buttons.</p>
+<pre><code class="lang-html">&lt;button class="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"&gt;Order&lt;/button&gt;
+&lt;button class="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"&gt;Save&lt;/button&gt;
+&lt;button class="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"&gt;Send&lt;/button&gt;</code></pre>
+<p>Change the radius, and you edit nine places and forget one.</p>
+<h2 id="first-answer-a-component">First answer: a component</h2>
+<p>With React, Vue or any template system, the repetition disappears where it should: in the <strong>markup</strong>.</p>
+<pre><code class="lang-jsx">function Button({ children }) {
+  return (
+    &lt;button className="px-4 py-2 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700"&gt;
+      {children}
+    &lt;/button&gt;
+  );
+}</code></pre>
+<pre><code class="lang-jsx">&lt;Button&gt;Order&lt;/Button&gt;
+&lt;Button&gt;Save&lt;/Button&gt;</code></pre>
+<p>The classes are written once. This is the approach Tailwind is designed for, and in a component framework it is nearly always the right one. A loop over data does the same job for lists.</p>
+<h2 id="second-answer-apply">Second answer: @apply</h2>
+<p>In plain HTML there are no components. There you can give a set of utilities a name in your CSS file:</p>
+<pre><code class="lang-css">@import "tailwindcss";
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md font-semibold;
+  }
+
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+}</code></pre>
+<pre><code class="lang-html">&lt;button class="btn btn-primary"&gt;Order&lt;/button&gt;</code></pre>
+<ul><li><code>@apply</code> copies the declarations of those utilities into your rule. Variants work inside it.</li><li><code>@layer components</code> places the rules <strong>before</strong> the utilities in the cascade. So a utility on the element still wins: <code>class="btn px-8"</code> gets the wider padding.</li></ul>
+<h2 id="do-not-rebuild-css-with-it">Do not rebuild CSS with it</h2>
+<p><code>@apply</code> everywhere brings back what Tailwind removed: names to invent, a stylesheet that grows, and styles far from the markup. Keep it for a few small, much-repeated things: buttons, form inputs, badges. Everything else stays in the markup.</p>
+<h2 id="variants-of-a-component">Variants of a component</h2>
+<p>A component usually has a few looks. Keep each look as one complete list, and choose between them:</p>
+<pre><code class="lang-jsx">const looks = {
+  primary: "bg-blue-600 text-white hover:bg-blue-700",
+  quiet: "bg-transparent text-blue-600 hover:bg-blue-50",
+};
+
+function Button({ look = "primary", children }) {
+  return &lt;button className={"px-4 py-2 rounded-md font-semibold " + looks[look]}&gt;{children}&lt;/button&gt;;
+}</code></pre>
+<p>Every class name is complete in the source, so Tailwind finds them all.</p>
+<h2 id="keeping-class-lists-readable">Keeping class lists readable</h2>
+<ul><li><strong>A fixed order.</strong> The official Prettier plugin sorts classes for you, the same way in every file.</li><li><strong>One concern per line</strong> in long lists: layout, then spacing, then colour, then states.</li><li><strong>The editor extension</strong> (Tailwind CSS IntelliSense) completes names and shows the CSS behind each class.</li></ul>
+<h2 id="when-tailwind-fits-and-when-it-does-not">When Tailwind fits, and when it does not</h2>
+<div class="table-wrap"><table><thead><tr><th>Fits well</th><th>Fits less well</th></tr></thead><tbody><tr><td>applications built from components</td><td>long articles of plain HTML from a CMS</td></tr><tr><td>teams that want one consistent scale</td><td>a design with many unique, one-off pages</td></tr><tr><td>fast changes to the look</td><td>people who are still learning CSS itself</td></tr></tbody></table></div>
+<p>For text that you do not control, such as a blog post rendered from Markdown, the Typography plugin styles it with one class, <code>prose</code>.</p>
+<p>Tailwind and <a href="../scss/01-variables.html">Sass</a> answer the same question differently. Sass keeps the styles in stylesheets and gives you tools to organise them. Tailwind moves the styles into the markup and lets components organise them. Many teams have a strong opinion. Knowing both lets you work in either kind of project.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>@apply</code> for everything</strong>, ending with a hand-written stylesheet again.</li><li><strong>Copying a long class list</strong> to a tenth place in a project that has components.</li><li><strong>Component classes outside <code>@layer components</code></strong>, which then beat the utilities.</li><li><strong>Building class names from pieces</strong> for the variants of a component.</li><li><strong>No class sorting</strong>, so every file orders them differently.</li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="tailwind/05-components">
+<h3>Buttons with @apply <span class="ex-id">tailwind/05-components</span></h3>
+<p>The three buttons in <code>index.html</code> repeat the same long list of classes. Give that list a name.</p>
+<h4><code>input.css</code></h4>
+<p>Inside <code>@layer components</code>, write two classes with <code>@apply</code>:</p>
+<ul><li><code>.btn</code> applies <code>px-4</code>, <code>py-2</code>, <code>rounded-md</code> and <code>font-semibold</code>;</li><li><code>.btn-primary</code> applies <code>bg-blue-600</code>, <code>text-white</code> and <code>hover:bg-blue-700</code>.</li></ul>
+<h4><code>index.html</code></h4>
+<ul><li>Every button has the classes <code>btn</code> and <code>btn-primary</code>, and no longer the utilities those two contain.</li><li>The last button, with the id <code>wide</code>, is wider than the others: keep the utility <code>px-8</code> on it, next to <code>btn</code>. Because <code>.btn</code> is in the components layer, the utility wins.</li></ul>
+<p><strong>Run tests</strong> builds the CSS with Tailwind and checks the classes on the page. <strong>Open preview</strong> shows the styled page, and builds again when you run or save.</p>
+<p class="ex-files">Files: <code>exercises/tailwind/05-components/</code></p>
+<pre><code class="lang-console">$ python3 check.py tailwind/05-components</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../tailwind/04-theme.html"><span>Previous</span>Your own theme, and one-off values</a><a class="next" href="../java/01-hello-jvm.html"><span>Next</span>Hello, Java</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

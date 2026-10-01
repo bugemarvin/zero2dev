@@ -1,0 +1,91 @@
+{
+  "title": "A brand colour and a display font",
+  "lesson": "tailwind/04-theme",
+  "kind": "web",
+  "workspace": "tailwind",
+  "page": "index.html",
+  "compile": {
+    "input.css": "style.css"
+  },
+  "edit": [
+    "index.html",
+    "input.css"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "input.css still imports Tailwind",
+      "source": "input.css",
+      "regex": "@import\\s+[\\\"']tailwindcss[\\\"']",
+      "fail": "Keep the first line: @import \"tailwindcss\";"
+    },
+    {
+      "name": "the theme defines the brand colour",
+      "source": "input.css",
+      "regex": "@theme\\s*\\{[^}]*--color-brand\\s*:\\s*#1a73e8",
+      "fail": "Add: @theme { --color-brand: #1a73e8; }"
+    },
+    {
+      "name": "the theme defines the display font",
+      "source": "input.css",
+      "regex": "@theme\\s*\\{[^}]*--font-display\\s*:\\s*[\\\"']?Georgia[\\\"']?\\s*,\\s*serif",
+      "fail": "Inside @theme add: --font-display: Georgia, serif;"
+    },
+    {
+      "name": "the h1 uses the display font and the brand colour",
+      "select": "h1",
+      "classes": [
+        "font-display",
+        "text-brand"
+      ]
+    },
+    {
+      "name": "the button has the brand background and white text",
+      "select": "button",
+      "classes": [
+        "bg-brand",
+        "text-white"
+      ]
+    },
+    {
+      "name": "the main column is at most 640px wide, and centred",
+      "select": "main",
+      "classes": [
+        "max-w-[640px]",
+        "mx-auto"
+      ]
+    },
+    {
+      "name": "Tailwind built classes from your theme",
+      "source": "style.css",
+      "contains": [
+        ".bg-brand",
+        ".text-brand",
+        ".font-display",
+        "--color-brand: #1a73e8"
+      ],
+      "fail": "The classes bg-brand, text-brand and font-display were not generated. Check the names in @theme: --color-brand and --font-display."
+    },
+    {
+      "name": "the brand colour is not written into the page",
+      "source": "index.html",
+      "not_contains": [
+        "#1a73e8",
+        "bg-blue-",
+        "text-blue-"
+      ]
+    },
+    {
+      "name": "no style attributes: the styling is done with classes",
+      "select": "body *",
+      "attr": {
+        "style": false
+      }
+    }
+  ],
+  "hints": [
+    "input.css: @theme { --color-brand: #1a73e8; --font-display: Georgia, serif; }",
+    "--color-brand gives you bg-brand and text-brand. --font-display gives you font-display.",
+    "The main: class=\"max-w-[640px] mx-auto\". The button: class=\"bg-brand text-white\"."
+  ]
+}

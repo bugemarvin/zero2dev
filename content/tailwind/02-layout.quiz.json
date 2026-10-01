@@ -1,0 +1,42 @@
+[
+ {
+  "q": "Which classes centre a column with a maximum width?",
+  "options": [
+   "max-w-4xl mx-auto",
+   "w-full center",
+   "flex-1 gap-4",
+   "text-center"
+  ],
+  "answer": 0,
+  "why": "A maximum width, and automatic margins left and right."
+ },
+ {
+  "q": "`justify-between` does nothing. What is the likely reason?",
+  "options": [
+   "The element is not flex or grid",
+   "It needs a number",
+   "It only works on links",
+   "The gap is missing"
+  ],
+  "answer": 0,
+  "why": "Alignment classes need display: flex or grid on the same element."
+ },
+ {
+  "q": "Which class makes a grid item two columns wide?",
+  "accept": [
+   "col-span-2"
+  ],
+  "why": "Type the class name."
+ },
+ {
+  "q": "On which element do `grid` and `grid-cols-3` go?",
+  "options": [
+   "On each item",
+   "On the container",
+   "On the body",
+   "On any of them"
+  ],
+  "answer": 1,
+  "why": "Layout is set on the container. The items are placed by it."
+ }
+]

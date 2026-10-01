@@ -1,0 +1,101 @@
+{
+  "title": "Buttons with @apply",
+  "lesson": "tailwind/05-components",
+  "kind": "web",
+  "workspace": "tailwind",
+  "page": "index.html",
+  "compile": {
+    "input.css": "style.css"
+  },
+  "edit": [
+    "index.html",
+    "input.css"
+  ],
+  "timeout": 120,
+  "checks": [
+    {
+      "name": "input.css still imports Tailwind",
+      "source": "input.css",
+      "regex": "@import\\s+[\\\"']tailwindcss[\\\"']",
+      "fail": "Keep the first line: @import \"tailwindcss\";"
+    },
+    {
+      "name": "the component classes are in @layer components",
+      "source": "input.css",
+      "regex": "@layer\\s+components\\s*\\{.*\\.btn\\s*\\{.*\\.btn-primary\\s*\\{|@layer\\s+components\\s*\\{.*\\.btn-primary\\s*\\{.*\\.btn\\s*\\{",
+      "fail": "Write .btn and .btn-primary inside: @layer components { ... }"
+    },
+    {
+      "name": ".btn applies the shape",
+      "source": "input.css",
+      "regex": "\\.btn\\s*\\{[^}]*@apply[^;}]*\\bpx-4\\b",
+      "contains": [
+        "@apply",
+        "px-4",
+        "py-2",
+        "rounded-md",
+        "font-semibold"
+      ]
+    },
+    {
+      "name": ".btn-primary applies the colours and the hover state",
+      "source": "input.css",
+      "regex": "\\.btn-primary\\s*\\{[^}]*@apply[^}]*\\bbg-blue-600\\b",
+      "contains": [
+        "bg-blue-600",
+        "text-white",
+        "hover:bg-blue-700"
+      ]
+    },
+    {
+      "name": "every button uses btn and btn-primary",
+      "select": "button",
+      "count": 3,
+      "classes": [
+        "btn",
+        "btn-primary"
+      ]
+    },
+    {
+      "name": "the utilities are no longer repeated in the page",
+      "source": "index.html",
+      "not_contains": [
+        "px-4",
+        "py-2",
+        "rounded-md",
+        "font-semibold",
+        "bg-blue-600",
+        "hover:bg-blue-700"
+      ]
+    },
+    {
+      "name": "the wide button keeps px-8",
+      "select": "#wide",
+      "classes": [
+        "btn",
+        "px-8"
+      ]
+    },
+    {
+      "name": "the compiled CSS has your classes, with a hover rule",
+      "source": "style.css",
+      "regex": "\\.btn\\s*\\{[^}]*border-radius.*\\.btn-primary\\s*\\{[^}]*background-color.*&:hover",
+      "contains": [
+        "@layer components"
+      ],
+      "fail": "The compiled style.css should contain .btn with a border radius and .btn-primary with a background and a hover rule."
+    },
+    {
+      "name": "no style attributes: the styling is done with classes",
+      "select": "body *",
+      "attr": {
+        "style": false
+      }
+    }
+  ],
+  "hints": [
+    "@layer components { .btn { @apply px-4 py-2 rounded-md font-semibold; } }",
+    ".btn-primary { @apply bg-blue-600 text-white hover:bg-blue-700; } goes inside the same @layer components block.",
+    "In the page: <button class=\"btn btn-primary\">, and the last one: class=\"btn btn-primary px-8\"."
+  ]
+}

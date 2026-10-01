@@ -1,0 +1,46 @@
+[
+ {
+  "q": "When does `md:flex` apply?",
+  "options": [
+   "Only on medium screens",
+   "From 768px and wider",
+   "Up to 768px",
+   "Always"
+  ],
+  "answer": 1,
+  "why": "Breakpoint variants mean: from this width and up."
+ },
+ {
+  "q": "How do you style the phone layout?",
+  "options": [
+   "With the sm: variant",
+   "With classes that have no variant",
+   "With the phone: variant",
+   "With max-w-sm"
+  ],
+  "answer": 1,
+  "why": "Mobile first: no variant is the base, variants add what changes on wider screens."
+ },
+ {
+  "q": "Which class makes a background darker while the pointer is over the element?",
+  "options": [
+   "hover:bg-blue-700",
+   "bg-blue-700:hover",
+   "on-hover-bg-blue-700",
+   "bg-hover-blue-700"
+  ],
+  "answer": 0,
+  "why": "The variant comes first, then a colon, then the class."
+ },
+ {
+  "q": "A child should change when its parent is hovered. What does the parent need?",
+  "options": [
+   "The class group",
+   "The class parent",
+   "An id",
+   "Nothing"
+  ],
+  "answer": 0,
+  "why": "Mark the parent with group, and use group-hover: on the child."
+ }
+]

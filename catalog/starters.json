@@ -590,6 +590,23 @@
  "start/05-sum": {
   "sum.sh": "#!/usr/bin/env bash\n# Read one number per line from standard input and print the total.\n"
  },
+ "tailwind/01-card": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"\">\n  <article class=\"\">\n    <h2 class=\"\">House blend</h2>\n    <p class=\"\">Chocolate and hazelnut. Roasted here, every morning.</p>\n    <a class=\"\" href=\"#\">Order</a>\n  </article>\n</body>\n</html>\n"
+ },
+ "tailwind/02-layout": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header class=\"\">\n    <strong>Bean</strong>\n    <nav class=\"\">\n      <a href=\"#\">Menu</a>\n      <a href=\"#\">Visit</a>\n      <a href=\"#\">Contact</a>\n    </nav>\n  </header>\n  <main class=\"\">\n    <div id=\"cards\" class=\"\">\n      <article id=\"featured\" class=\"\">House blend</article>\n      <article>Espresso</article>\n      <article>Decaf</article>\n      <article>Filter</article>\n      <article>Cold brew</article>\n    </div>\n  </main>\n</body>\n</html>\n"
+ },
+ "tailwind/03-responsive": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"\">\n  <header>\n    <h1 class=\"\">Bean</h1>\n    <nav class=\"\">\n      <a href=\"#\">Menu</a>\n      <a href=\"#\">Visit</a>\n    </nav>\n  </header>\n  <div id=\"cards\" class=\"\">\n    <article>House blend</article>\n    <article>Espresso</article>\n    <article>Decaf</article>\n    <article>Filter</article>\n  </div>\n  <button class=\"\">Order</button>\n</body>\n</html>\n"
+ },
+ "tailwind/04-theme": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <main class=\"\">\n    <h1 class=\"\">Bean</h1>\n    <p>Roasted here, every morning.</p>\n    <button class=\"\">Order</button>\n  </main>\n</body>\n</html>\n",
+  "input.css": "@import \"tailwindcss\";\n"
+ },
+ "tailwind/05-components": {
+  "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Tailwind</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body class=\"p-8\">\n  <button class=\"px-4 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Order</button>\n  <button class=\"px-4 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Save</button>\n  <button id=\"wide\" class=\"px-8 py-2 rounded-md font-semibold bg-blue-600 text-white hover:bg-blue-700\">Send</button>\n</body>\n</html>\n",
+  "input.css": "@import \"tailwindcss\";\n"
+ },
  "vue/01-profile-card": {
   "ProfileCard.vue": "<script setup>\nimport { ref } from \"vue\";\n\nconst name = \"Ada Lovelace\";\nconst role = \"Engineer\";\nconst photo = \"ada.jpg\";\nconst site = \"https://example.com/ada\";\n\nconst following = ref(false);\n\nfunction toggle() {\n  // switch following between true and false\n}\n</script>\n\n<template>\n  <div class=\"card\">\n    <!-- write the template here -->\n  </div>\n</template>\n"
  },

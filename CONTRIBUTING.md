@@ -245,6 +245,7 @@ For HTML and CSS. The page is parsed and the cascade applied by the checker itse
 ```
 
 - `select` is a CSS selector. `count`, `min` and `max` test how many elements match. `text` is the exact text of the first match, and `contains` a piece of text in any match.
+- `classes` tests the class names of every match: `["grid", "md:grid-cols-3"]`. A list inside the list means "one of these": `[["gap-4", "gap-x-4"]]`.
 - `attr` tests attributes of every match: a value, `true` for "present and not empty", `false` for "absent".
 - `style` tests the value each matched element ends up with: its own declaration by specificity and order, an inherited one for inherited properties, with `var(--x)` resolved. A value can be a list of accepted spellings, `null` in the list means "not set", and `"~text"` means "contains".
 - `state` (`hover`, `focus`, ...) and `media` select the rules that apply in that state or inside that media query.
@@ -253,7 +254,7 @@ For HTML and CSS. The page is parsed and the cascade applied by the checker itse
 
 - `{"source": "style.scss", ...}` tests the text the learner wrote, with comments removed, for things a compiler erases: `contains` and `not_contains` (a text or a list), `regex`, and `count_of` (a regular expression) with `min_count` and `max_count`. `fail` is the message shown.
 
-Styles that are compiled first (Sass) name a package set and what to compile. The exercise is copied into the package set, compiled there, and the checks run on the result. A compiler error is shown to the learner as the first failed check.
+Styles that are compiled first (Sass, Tailwind) name a package set and what to compile. The exercise is copied into the package set, compiled there, and the checks run on the result. A compiler error is shown to the learner as the first failed check. The command is data: the `compile` line of the package set's `workspace.json`, with `{source}` and `{target}`. A `source` check that names the compiled file reads the built one.
 
 ```json
 {"kind": "web", "workspace": "sass", "compile": {"style.scss": "style.css"}, "page": "index.html",

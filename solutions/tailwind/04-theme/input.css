@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #1a73e8;
+  --font-display: Georgia, serif;
+}
