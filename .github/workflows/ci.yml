@@ -1,0 +1,169 @@
+name: CI
+
+# Runs on every pull request into a protected branch, and again after the merge.
+# The jobs marked "required" must be green before a pull request can be merged
+# (see "Branches, and the way a change travels" in CONTRIBUTING.md).
+on:
+  pull_request:
+    branches: [main, development]
+  push:
+    branches: [main, development]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flow:
+    name: Branch flow
+    runs-on: ubuntu-latest
+    steps:
+      - name: A pull request into main comes from development or a hotfix branch
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          HEAD: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        run: |
+          if [ "$HEAD_REPO" = "$THIS_REPO" ] && { [ "$HEAD" = "development" ] || [ "${HEAD#hotfix/}" != "$HEAD" ]; }; then
+            echo "ok: $HEAD -> main"
+          else
+            echo "::error::Pull requests into main come only from the development branch (or hotfix/...) of this repository. Change the base branch of this pull request to development."
+            exit 1
+          fi
+      - name: Nothing to check for this event
+        if: github.event_name != 'pull_request' || github.base_ref != 'main'
+        run: echo "ok"
+
+  guide:
+    name: Guide is built
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The generated pages match the Markdown sources, and every quiz is well formed
+        run: python3 tools/build_guide.py --check
+
+  app:
+    name: App and API tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: The local server, its security rules and its API
+        run: python3 tools/test_app.py
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck on the install scripts
+        run: shellcheck setup/install.sh setup/get.sh
+      - name: The installer can list and plan every stack
+        run: bash setup/install.sh --dry-run --all
+      - name: Python compiles without warnings
+        run: python3 -W error -m compileall -q z2d tools app.py check.py
+      - name: JavaScript parses
+        run: for f in guide/assets/*.js; do node --check "$f"; done
+      - name: JSON data is valid
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          bad = 0
+          for path in list(pathlib.Path("catalog").rglob("*.json")) + list(pathlib.Path("content").rglob("*.json")) \
+                  + list(pathlib.Path("exercises").rglob("exercise.json")) + [pathlib.Path("vercel.json")]:
+              if "node_modules" in path.parts:
+                  continue
+              try:
+                  json.loads(path.read_text(encoding="utf-8"))
+              except ValueError as error:
+                  print(f"::error file={path}::{error}")
+                  bad += 1
+          sys.exit(1 if bad else 0)
+          PY
+
+  exercises:
+    name: Exercises
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GIT_AUTHOR_NAME: ci
+      GIT_AUTHOR_EMAIL: ci@zero2dev.invalid
+      GIT_COMMITTER_NAME: ci
+      GIT_COMMITTER_EMAIL: ci@zero2dev.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          elixir-version: "1.18"
+      - name: What this runner has
+        run: python3 check.py doctor
+      - name: Download the package sets
+        run: python3 check.py prefetch node react next
+      - name: Every exercise fails with its starter and passes with its solution
+        run: python3 tools/selftest.py
+
+  docker-fallback:
+    name: Languages and databases through Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: C, Java and Elixir exercises with the toolchains forced into containers
+        run: Z2D_PROVIDER=docker python3 tools/selftest.py c java elixir
+      - name: Database exercises against containers started by the app
+        run: Z2D_SERVICES=docker python3 tools/selftest.py sql redis mongodb
+
+  install:
+    name: install.sh --stack ${{ matrix.stack }}
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || contains(github.event.pull_request.title, '[installer]')
+    strategy:
+      fail-fast: false
+      matrix:
+        stack: [python, node, java, elixir, go, rust, ruby, php, postgres, sqlite, redis, mongodb]
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: bash setup/install.sh --yes --stack ${{ matrix.stack }}
+      - name: Run it again (must change nothing and still succeed)
+        run: bash setup/install.sh --yes --stack ${{ matrix.stack }}
+
+  powershell:
+    name: Windows scripts parse
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse install.ps1 and get.ps1
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($file in 'setup/install.ps1', 'setup/get.ps1') {
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile("$PWD/$file", [ref]$null, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { Write-Host "::error file=$file::does not parse"; $errors | Format-List; $failed = $true }
+          }
+          if ($failed) { exit 1 }
+      - name: PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $found = Invoke-ScriptAnalyzer -Path setup -Recurse -Severity Error
+          $found | Format-Table -AutoSize
+          if ($found) { exit 1 }
