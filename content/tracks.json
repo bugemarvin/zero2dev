@@ -2,41 +2,67 @@
   {
     "id": "start",
     "title": "Start here",
-    "blurb": "What a program is, the terminal, files, pipes and your first scripts."
+    "blurb": "What a program is, the terminal, files, pipes and your first scripts.",
+    "needs": [
+      "tool:bash"
+    ]
   },
   {
     "id": "git",
     "title": "Git",
-    "blurb": "Save every step of your work, go back in time, and work with other people."
+    "blurb": "Save every step of your work, go back in time, and work with other people.",
+    "needs": [
+      "tool:git"
+    ]
   },
   {
     "id": "c",
     "title": "C",
-    "blurb": "How the machine really works: memory, pointers, and building programs from several files."
+    "blurb": "How the machine really works: memory, pointers, and building programs from several files.",
+    "needs": [
+      "toolchain:c",
+      "tool:make"
+    ]
   },
   {
     "id": "python",
     "title": "Python",
-    "blurb": "The fastest way to get things done: from first functions to classes, generators, tests and type hints."
+    "blurb": "The fastest way to get things done: from first functions to classes, generators, tests and type hints.",
+    "needs": [
+      "toolchain:python"
+    ]
   },
   {
     "id": "dsa",
     "title": "Data structures and algorithms",
-    "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language."
+    "blurb": "From Big-O to graphs, dynamic programming and segment trees. Solve the exercises in any language.",
+    "needs": [
+      "toolchain:python"
+    ]
   },
   {
     "id": "sql",
     "title": "SQL and PostgreSQL",
-    "blurb": "Ask a database questions, design tables that reject bad data, and keep queries fast."
+    "blurb": "Ask a database questions, design tables that reject bad data, and keep queries fast.",
+    "needs": [
+      "toolchain:python",
+      "service:postgres"
+    ]
   },
   {
     "id": "java",
     "title": "Java",
-    "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams."
+    "blurb": "A strictly typed, object-oriented language: classes, interfaces, collections, generics and streams.",
+    "needs": [
+      "toolchain:java"
+    ]
   },
   {
     "id": "elixir",
     "title": "Elixir",
-    "blurb": "Functional programming on the BEAM: pattern matching, recursion, pipelines, processes and GenServer."
+    "blurb": "Functional programming on the BEAM: pattern matching, recursion, pipelines, processes and GenServer.",
+    "needs": [
+      "toolchain:elixir"
+    ]
   }
 ]

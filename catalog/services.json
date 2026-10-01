@@ -1,0 +1,87 @@
+{
+  "postgres": {
+    "name": "PostgreSQL",
+    "image": "postgres:16-alpine",
+    "container_port": 5432,
+    "host_port": 54320,
+    "env": {
+      "POSTGRES_PASSWORD": "z2d"
+    },
+    "volume": "/var/lib/postgresql/data",
+    "ready": [
+      "pg_isready",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "postgres"
+    ],
+    "native": [
+      "psql",
+      "-X",
+      "-q",
+      "-d",
+      "postgres",
+      "-c",
+      "SELECT 1"
+    ],
+    "stack": "postgres",
+    "connect": "psql -h 127.0.0.1 -p 54320 -U postgres   (password: z2d)"
+  },
+  "redis": {
+    "name": "Redis",
+    "image": "redis:7-alpine",
+    "container_port": 6379,
+    "host_port": 63790,
+    "env": {},
+    "volume": "/data",
+    "ready": [
+      "redis-cli",
+      "ping"
+    ],
+    "native": [
+      "redis-cli",
+      "ping"
+    ],
+    "stack": "redis",
+    "connect": "redis-cli -p 63790"
+  },
+  "mysql": {
+    "name": "MySQL",
+    "image": "mysql:8",
+    "container_port": 3306,
+    "host_port": 33060,
+    "env": {
+      "MYSQL_ROOT_PASSWORD": "z2d"
+    },
+    "volume": "/var/lib/mysql",
+    "ready": [
+      "mysqladmin",
+      "ping",
+      "-h",
+      "127.0.0.1",
+      "-uroot",
+      "-pz2d",
+      "--silent"
+    ],
+    "native": null,
+    "stack": null,
+    "connect": "mysql -h 127.0.0.1 -P 33060 -uroot -pz2d"
+  },
+  "mongodb": {
+    "name": "MongoDB",
+    "image": "mongo:7",
+    "container_port": 27017,
+    "host_port": 27170,
+    "env": {},
+    "volume": "/data/db",
+    "ready": [
+      "mongosh",
+      "--quiet",
+      "--eval",
+      "db.runCommand({ping: 1}).ok"
+    ],
+    "native": null,
+    "stack": null,
+    "connect": "mongosh --port 27170"
+  }
+}

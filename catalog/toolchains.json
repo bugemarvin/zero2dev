@@ -1,0 +1,281 @@
+{
+  "c": {
+    "name": "C",
+    "file": "main.c",
+    "needs": [
+      "gcc"
+    ],
+    "stack": "core",
+    "image": "gcc:14",
+    "compiled": true,
+    "cflags": [
+      "-std=gnu11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-unused-parameter",
+      "-g"
+    ],
+    "sanitize": [
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer"
+    ],
+    "build": [
+      "gcc",
+      "{cflags}",
+      "{sources}",
+      "-o",
+      "{out}/prog",
+      "-lm"
+    ],
+    "run": [
+      "{out}/prog"
+    ],
+    "starter": "#include <stdio.h>\n\nint main(void) {\n    /* read the input with scanf, print the answer with printf */\n    return 0;\n}\n",
+    "env": {
+      "ASAN_OPTIONS": "detect_leaks=1:color=never",
+      "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1:color=never"
+    },
+    "version": [
+      "gcc",
+      "--version"
+    ]
+  },
+  "cpp": {
+    "name": "C++",
+    "file": "main.cpp",
+    "needs": [
+      "g++"
+    ],
+    "stack": "core",
+    "image": "gcc:14",
+    "compiled": true,
+    "build": [
+      "g++",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-O1",
+      "{sources}",
+      "-o",
+      "{out}/prog"
+    ],
+    "run": [
+      "{out}/prog"
+    ],
+    "starter": "#include <iostream>\nusing namespace std;\n\nint main() {\n    // read the input with cin, print the answer with cout\n    return 0;\n}\n",
+    "version": [
+      "g++",
+      "--version"
+    ]
+  },
+  "python": {
+    "name": "Python",
+    "file": "solution.py",
+    "needs": [],
+    "stack": "python",
+    "build": [
+      "{python}",
+      "-m",
+      "py_compile",
+      "{sources}"
+    ],
+    "run": [
+      "{python}",
+      "{src}"
+    ],
+    "env": {
+      "PYTHONPYCACHEPREFIX": "{out}/pycache",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "starter": "import sys\n\ndata = sys.stdin.read().split()\n# data is a list of the whitespace-separated tokens of the input\n",
+    "version": [
+      "{python}",
+      "--version"
+    ]
+  },
+  "bash": {
+    "name": "Bash",
+    "file": "solution.sh",
+    "needs": [
+      "bash"
+    ],
+    "stack": "core",
+    "build": [
+      "bash",
+      "-n",
+      "{src}"
+    ],
+    "run": [
+      "bash",
+      "{src}"
+    ],
+    "starter": "#!/usr/bin/env bash\n# read the input from stdin, print the answer\n",
+    "version": [
+      "bash",
+      "--version"
+    ]
+  },
+  "java": {
+    "name": "Java",
+    "file": "Main.java",
+    "needs": [
+      "javac",
+      "java"
+    ],
+    "stack": "java",
+    "image": "eclipse-temurin:21-jdk",
+    "compiled": true,
+    "build": [
+      "javac",
+      "-d",
+      "{out}",
+      "{sources}"
+    ],
+    "run": [
+      "java",
+      "-cp",
+      "{out}",
+      "{main}"
+    ],
+    "starter": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner in = new Scanner(System.in);\n        // read the input with in.nextInt(), in.next(), in.nextLine()\n    }\n}\n",
+    "version": [
+      "javac",
+      "-version"
+    ]
+  },
+  "elixir": {
+    "name": "Elixir",
+    "file": "solution.exs",
+    "needs": [
+      "elixir"
+    ],
+    "stack": "elixir",
+    "image": "elixir:1.18-slim",
+    "run": [
+      "elixir",
+      "{src}"
+    ],
+    "starter": "tokens = IO.read(:stdio, :eof) |> String.split()\n# tokens is a list of the whitespace-separated strings of the input\n",
+    "version": [
+      "elixir",
+      "--short-version"
+    ]
+  },
+  "javascript": {
+    "name": "JavaScript",
+    "file": "solution.js",
+    "needs": [
+      "node"
+    ],
+    "stack": "node",
+    "image": "node:22-slim",
+    "build": [
+      "node",
+      "--check",
+      "{src}"
+    ],
+    "run": [
+      "node",
+      "{src}"
+    ],
+    "starter": "const tokens = require(\"fs\").readFileSync(0, \"utf8\").split(/\\s+/).filter(Boolean);\n// tokens is an array of the whitespace-separated strings of the input\n",
+    "version": [
+      "node",
+      "--version"
+    ]
+  },
+  "typescript": {
+    "name": "TypeScript",
+    "file": "solution.ts",
+    "needs": [
+      "node"
+    ],
+    "stack": "node",
+    "image": "node:22-slim",
+    "run": [
+      "node",
+      "{src}"
+    ],
+    "starter": "import { readFileSync } from \"node:fs\";\n\nconst tokens: string[] = readFileSync(0, \"utf8\").split(/\\s+/).filter(Boolean);\n// tokens is an array of the whitespace-separated strings of the input\n",
+    "version": [
+      "node",
+      "--version"
+    ]
+  },
+  "go": {
+    "name": "Go",
+    "file": "main.go",
+    "needs": [
+      "go"
+    ],
+    "stack": "go",
+    "image": "golang:1-alpine",
+    "compiled": true,
+    "build": [
+      "go",
+      "build",
+      "-o",
+      "{out}/prog",
+      "{sources}"
+    ],
+    "run": [
+      "{out}/prog"
+    ],
+    "starter": "package main\n\nimport (\n\t\"bufio\"\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tin := bufio.NewReader(os.Stdin)\n\tvar n int\n\tfmt.Fscan(in, &n)\n\tfmt.Println(n)\n}\n",
+    "version": [
+      "go",
+      "version"
+    ]
+  },
+  "rust": {
+    "name": "Rust",
+    "file": "main.rs",
+    "needs": [
+      "rustc"
+    ],
+    "stack": "rust",
+    "image": "rust:1-slim",
+    "compiled": true,
+    "build": [
+      "rustc",
+      "--edition",
+      "2021",
+      "-O",
+      "-o",
+      "{out}/prog",
+      "{src}"
+    ],
+    "run": [
+      "{out}/prog"
+    ],
+    "starter": "use std::io::Read;\n\nfn main() {\n    let mut input = String::new();\n    std::io::stdin().read_to_string(&mut input).unwrap();\n    let tokens: Vec<&str> = input.split_whitespace().collect();\n    println!(\"{}\", tokens.len());\n}\n",
+    "version": [
+      "rustc",
+      "--version"
+    ]
+  },
+  "ruby": {
+    "name": "Ruby",
+    "file": "solution.rb",
+    "needs": [
+      "ruby"
+    ],
+    "stack": "ruby",
+    "image": "ruby:3-slim",
+    "build": [
+      "ruby",
+      "-c",
+      "{src}"
+    ],
+    "run": [
+      "ruby",
+      "{src}"
+    ],
+    "starter": "tokens = STDIN.read.split\n# tokens is an array of the whitespace-separated strings of the input\n",
+    "version": [
+      "ruby",
+      "--version"
+    ]
+  }
+}
