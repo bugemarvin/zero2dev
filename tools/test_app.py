@@ -21,7 +21,9 @@ os.environ.update(GIT_AUTHOR_NAME="learner", GIT_AUTHOR_EMAIL="learner@zero2dev.
                   GIT_COMMITTER_NAME="learner", GIT_COMMITTER_EMAIL="learner@zero2dev.invalid")
 sys.path.insert(0, str(ROOT))
 
-from z2d import progress, server  # noqa: E402
+from z2d import origins, progress, server  # noqa: E402
+
+origins.FILE = Path(TMP) / "origins.json"
 
 progress.PROGRESS_FILE = Path(TMP) / "progress.json"
 progress.PROGRESS_JS = Path(TMP) / "nowhere" / "progress.js"
@@ -314,6 +316,53 @@ try:
           and names.get("the active link is bold") is False, str(names)[:300])
 finally:
     (ROOT / "exercises" / CSS / "style.css").write_text(starter_css, encoding="utf-8")
+
+# ---------------------------------------------------------------- the guide hosted on another address
+SITE = "https://zero2dev.example.app"
+status, body, resp = request("GET", "/api/hello", token=None, headers={"Origin": SITE})
+check("any website may ask whether the app is here, and learns nothing else",
+      status == 200 and body == {"app": "zero2dev", "paired": False, "connect": f"http://127.0.0.1:{PORT}/connect.html"}
+      and resp.getheader("Access-Control-Allow-Origin") == "*", str(body))
+status, _, _ = request("GET", "/api/hello", token=None, headers={"Origin": SITE}, host="evil.example")
+check("hello still refuses a wrong Host", status == 403)
+status, _, resp = request("OPTIONS", "/api/run", token=None, headers={"Origin": SITE, "Access-Control-Request-Method": "POST"})
+check("a website that was not approved fails the browser's pre-check", status == 403 and resp.getheader("Access-Control-Allow-Origin") is None)
+status, _, _ = request("GET", "/api/session", token=None, headers={"Origin": SITE})
+check("a website that was not approved cannot get the token", status == 403)
+status, body, _ = request("POST", "/api/pair", {"origin": "http://evil.example"})
+check("only https sites can be approved", status == 400, str(body))
+status, body, _ = request("POST", "/api/pair", {"origin": SITE + "/"})
+check("the learner's own page can approve a website", status == 200 and body["origins"] == [SITE], str(body))
+status, body, resp = request("GET", "/api/hello", token=None, headers={"Origin": SITE})
+check("hello now says the site is approved", body.get("paired") is True)
+status, body, resp = request("GET", "/api/session", token=None, headers={"Origin": SITE})
+check("an approved website gets the token, with a CORS header naming it only",
+      status == 200 and body.get("token") == TOKEN and resp.getheader("Access-Control-Allow-Origin") == SITE)
+status, _, resp = request("OPTIONS", "/api/run", token=None, headers={"Origin": SITE, "Access-Control-Request-Method": "POST"})
+check("an approved website passes the pre-check, including the private-network one",
+      status == 204 and resp.getheader("Access-Control-Allow-Origin") == SITE
+      and resp.getheader("Access-Control-Allow-Private-Network") == "true"
+      and "X-Z2D-Token" in (resp.getheader("Access-Control-Allow-Headers") or ""))
+status, body, resp = request("GET", "/api/state", headers={"Origin": SITE})
+check("an approved website can use the API", status == 200 and "exercises" in body and resp.getheader("Access-Control-Allow-Origin") == SITE)
+status, _, _ = request("GET", "/api/state", token=None, headers={"Origin": SITE})
+check("an approved website still needs the token", status == 401)
+status, _, _ = request("GET", "/api/state", headers={"Origin": SITE}, host="evil.example")
+check("an approved website still fails with a wrong Host", status == 403)
+status, _, _ = request("GET", "/index.html", token=None, headers={"Origin": SITE})
+check("an approved website gets the API and no pages", status == 403)
+status, _, _ = request("POST", "/api/pair", {"origin": "https://another.example"}, headers={"Origin": SITE})
+check("an approved website cannot approve other websites", status == 403)
+status, _, _ = request("POST", "/api/unpair", {"origin": SITE}, headers={"Origin": SITE})
+check("nor remove one", status == 403)
+status, _, _ = request("GET", "/api/session", token=None, headers={"Origin": "https://other.example"})
+check("another website is still refused", status == 403)
+status, body, _ = request("POST", "/api/unpair", {"origin": SITE})
+check("the learner can remove a website", status == 200 and body["origins"] == [])
+status, _, _ = request("GET", "/api/session", token=None, headers={"Origin": SITE})
+check("and it is refused again at once", status == 403)
+status, body, _ = request("GET", "/connect.html", token=None)
+check("the approval page is served by the app itself", status == 200 and b"Allow a website" in body)
 
 srv.shutdown()
 print(f"{count} checks, {len(failures)} failed")

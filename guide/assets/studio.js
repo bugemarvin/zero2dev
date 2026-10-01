@@ -1,10 +1,18 @@
-/* zero2dev studio: the interactive layer. Active only when the page is served by `python3 app.py`.
+/* zero2dev studio: the interactive layer. It needs the app on the learner's own computer.
+   - Served by `python3 app.py`: everything is on.
+   - Served from a public address (the guide hosted online): an Install button explains how to
+     get the app, and a site the learner has approved may use the app from here.
+   - Opened as files: reading only.
    No dependencies. All text from the server is inserted with textContent, never as HTML. */
 (function () {
   "use strict";
 
   var root = document.body.dataset.root || "";
-  var isLocal = location.protocol === "http:" && /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+  var onThisComputer = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+  var isWeb = location.protocol === "http:" || location.protocol === "https:";
+  var LOCAL_APP = "http://127.0.0.1:4750/";
+  var apiBase = root;             // where the API is: this server, or the app on this computer
+  var hosted = false;             // true when this page comes from somewhere other than the app
   var token = null;
 
   // ---------------------------------------------------------------- helpers
@@ -27,7 +35,7 @@
 
   function api(method, name, data) {
     var options = { method: method, headers: { "X-Z2D-Token": token } };
-    var url = root + "api/" + name;
+    var url = apiBase + "api/" + name;
     if (method === "GET" && data) {
       url += "?" + Object.keys(data).map(function (k) {
         return encodeURIComponent(k) + "=" + encodeURIComponent(data[k]);
@@ -848,6 +856,31 @@
         }), mount.firstChild);
         if (window.Z2D && window.Z2D.applyOs) window.Z2D.applyOs(report.platform);
       }
+      // websites that may use this app
+      var sites = el("section", {}, [
+        el("h2", { text: "Websites that may use this app" }),
+        el("p", { text: "The guide can also be read on a public website. A site listed here may run exercises with this app from its own address. Such a site can run code on this computer, so the list is empty until you approve one." })
+      ]);
+      var siteList = el("ul", { class: "st-items" });
+      function showSites(reply) {
+        siteList.textContent = "";
+        if (!reply.origins.length) siteList.appendChild(el("li", { class: "st-item" }, [el("span", { class: "st-item-main", text: "None." })]));
+        reply.origins.forEach(function (origin) {
+          var remove = button("Remove", "", function () {
+            remove.disabled = true;
+            api("POST", "unpair", { origin: origin }).then(showSites);
+          });
+          siteList.appendChild(el("li", { class: "st-item" }, [
+            el("span", { class: "st-badge st-warn", text: "Allowed" }),
+            el("div", { class: "st-item-main" }, [el("strong", { text: origin })]),
+            el("div", { class: "st-actions" }, [remove])
+          ]));
+        });
+      }
+      api("GET", "origins").then(showSites).catch(function () { /* an approved site may not read this list */ });
+      sites.appendChild(siteList);
+      if (!hosted) mount.appendChild(sites);
+
       // keep the app running
       var keep = el("section", {}, [
         el("h2", { text: "Keep the app running" }),
@@ -886,6 +919,193 @@
     }).catch(function (error) { mount.textContent = "Could not read the environment: " + error.message; });
   }
 
+  // ---------------------------------------------------------------- the guide hosted online
+  var REPO_RAW = "https://raw.githubusercontent.com/bugemarvin/zero2dev/main/setup/";
+  var INSTALL = {
+    windows: {
+      label: "Windows",
+      steps: [
+        "Open the Start menu, type PowerShell, right-click it and choose \"Run as administrator\".",
+        "Paste this line and press Enter:",
+        "The first time, Windows installs Ubuntu (a real Linux inside Windows) and asks you to restart. After the restart, open \"Ubuntu\" from the Start menu once, choose a user name and password, then paste the same line into PowerShell again.",
+        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+      ],
+      command: "irm " + REPO_RAW + "get.ps1 | iex"
+    },
+    linux: {
+      label: "Ubuntu / Linux",
+      steps: [
+        "Open a terminal: press Ctrl+Alt+T, or look for \"Terminal\" in your applications.",
+        "Paste this line and press Enter:",
+        "If git or Python is missing, it asks for your password to install them. Nothing shows while you type a password: that is normal.",
+        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+      ],
+      command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
+    },
+    macos: {
+      label: "macOS",
+      steps: [
+        "Open Terminal: press Cmd+Space, type Terminal, press Enter.",
+        "Paste this line and press Enter:",
+        "If macOS offers to install the \"command line developer tools\", accept, wait for it to finish, and paste the line again.",
+        "The app opens in your browser. From now on it works without the internet and starts when you log in."
+      ],
+      command: "curl -fsSL " + REPO_RAW + "get.sh | bash"
+    }
+  };
+
+  function hello() {
+    return fetch(LOCAL_APP + "api/hello", { cache: "no-store" }).then(function (r) { return r.json(); });
+  }
+
+  // The pop-up behind every Install button: the steps for this system, then a check that it worked.
+  function installDialog() {
+    var old = document.querySelector("dialog.in");
+    if (old) old.remove();
+    var dialog = el("dialog", { class: "in", "aria-label": "Install zero2dev" });
+    var close = el("button", { type: "button", class: "qz-close", "aria-label": "Close", text: "✕" });
+    close.addEventListener("click", function () { dialog.close(); });
+    dialog.addEventListener("close", function () { dialog.remove(); });
+    dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+
+    var guess = (document.body.dataset.os || "linux");
+    var current = INSTALL[guess] ? guess : (guess === "wsl" ? "windows" : "linux");
+    var tabs = el("div", { class: "in-tabs", role: "tablist", "aria-label": "Your system" });
+    var body = el("div", { class: "in-body" });
+    var status = el("p", { class: "in-status", role: "status" });
+
+    function show(name) {
+      current = name;
+      Array.prototype.forEach.call(tabs.children, function (tab) {
+        tab.setAttribute("aria-selected", tab.dataset.os === name ? "true" : "false");
+      });
+      var info = INSTALL[name];
+      body.textContent = "";
+      var list = el("ol", { class: "in-steps" });
+      info.steps.forEach(function (text, i) {
+        var item = el("li", { text: text });
+        if (i === 1) {
+          var code = el("code", { text: info.command });
+          var copy = el("button", { type: "button", class: "st-btn", text: "Copy" });
+          copy.addEventListener("click", function () {
+            var done = function () { copy.textContent = "Copied"; setTimeout(function () { copy.textContent = "Copy"; }, 1500); };
+            if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(info.command).then(done, function () {});
+            else {
+              var range = document.createRange();
+              range.selectNodeContents(code);
+              var selection = window.getSelection();
+              selection.removeAllRanges();
+              selection.addRange(range);
+              try { if (document.execCommand("copy")) done(); } catch (e) { /* select it by hand */ }
+            }
+          });
+          item.appendChild(el("div", { class: "in-command" }, [code, copy]));
+        }
+        list.appendChild(item);
+      });
+      body.appendChild(list);
+    }
+
+    Object.keys(INSTALL).forEach(function (name) {
+      var tab = el("button", { type: "button", class: "in-tab", role: "tab", text: INSTALL[name].label });
+      tab.dataset.os = name;
+      tab.addEventListener("click", function () { show(name); });
+      tabs.appendChild(tab);
+    });
+
+    var check = button("I ran it: check", "st-primary", function () {
+      status.className = "in-status";
+      status.textContent = "Looking for the app on this computer ...";
+      hello().then(function (info) {
+        try { localStorage.setItem("z2d-app-seen", "1"); } catch (e) { /* ignore */ }
+        status.className = "in-status st-ok";
+        status.textContent = "Found it. zero2dev is running on this computer. ";
+        status.appendChild(el("a", { class: "st-btn st-primary", href: LOCAL_APP, text: "Open my app" }));
+        if (!info.paired) status.appendChild(connectButton(info));
+        else status.appendChild(button("Use it on this page", "", function () { location.reload(); }));
+      }).catch(function () {
+        status.className = "in-status st-warn";
+        status.textContent = "Not found yet. Finish the steps above, wait until the terminal says it is running, and check again. " +
+          "If your browser asks whether this site may reach apps on your device, allow it.";
+      });
+    });
+
+    dialog.appendChild(close);
+    dialog.appendChild(el("div", { class: "in-head" }, [
+      el("h2", { text: "Install zero2dev on this computer" }),
+      el("p", { text: "One command, about a minute. The app then runs on your own machine: no account, no internet needed, and your code never leaves it." })
+    ]));
+    dialog.appendChild(tabs);
+    dialog.appendChild(body);
+    dialog.appendChild(el("div", { class: "in-foot" }, [
+      check, status,
+      el("p", { class: "st-count", text: "Prefer to do it by hand? git clone https://github.com/bugemarvin/zero2dev.git, then: cd zero2dev && python3 app.py" })
+    ]));
+    document.body.appendChild(dialog);
+    show(current);
+    if (dialog.showModal) dialog.showModal(); else dialog.setAttribute("open", "");
+  }
+
+  // Ask the app, on a page of its own, whether this website may use it.
+  function connectButton(info) {
+    return button("Use it on this page", "", function () {
+      window.open(info.connect + "?origin=" + encodeURIComponent(location.origin), "_blank", "noopener");
+      var tries = 0;
+      var timer = setInterval(function () {
+        tries++;
+        hello().then(function (now) {
+          if (now.paired) { clearInterval(timer); location.reload(); }
+        }).catch(function () { /* keep waiting */ });
+        if (tries > 90) clearInterval(timer);
+      }, 2000);
+    });
+  }
+
+  // A hosted page with no app yet: explain, and offer the Install button everywhere it is needed.
+  function hostedMode(found) {
+    document.body.classList.add("z2d-hosted");
+    function installButton(label, cls) { return button(label, "st-primary " + (cls || ""), installDialog); }
+
+    document.querySelectorAll(".exercise[data-ex]").forEach(function (box) {
+      var note = el("div", { class: "st-static in-note" }, [
+        el("p", { text: found
+          ? "zero2dev is running on this computer. Open it there to write and run this exercise, or allow this site to use it."
+          : "Exercises run on your own computer, with the free zero2dev app. It takes one command to install, and then works offline." })
+      ]);
+      if (found) {
+        note.appendChild(el("a", { class: "st-btn st-primary", href: LOCAL_APP + "lessons/" + (document.body.dataset.lesson || "") + ".html#practice", text: "Open this lesson in my app" }));
+        note.appendChild(connectButton(found));
+      } else {
+        note.appendChild(installButton("Install on this computer"));
+      }
+      box.appendChild(note);
+    });
+
+    var actions = document.querySelector(".hero .actions");
+    if (actions && document.getElementById("tracks")) {
+      var main = found
+        ? el("a", { class: "btn", href: LOCAL_APP, text: "Open my app" })
+        : el("button", { type: "button", class: "btn in-main", text: "Install on this computer" });
+      if (!found) main.addEventListener("click", installDialog);
+      actions.insertBefore(main, actions.firstChild);
+      var first = document.getElementById("continue");
+      if (first) first.className = "btn-ghost";
+      actions.parentNode.appendChild(el("p", { class: "in-pitch", text: found
+        ? "The app is installed on this computer. This site is the same guide, online: fine for reading and quizzes."
+        : "You can read every lesson and take the quizzes right here. To write and run code, install the app: it runs on your own machine, offline, with the tools you have." }));
+    }
+
+    var mount = document.getElementById("setup");
+    if (mount) {
+      mount.textContent = "";
+      mount.appendChild(el("p", { text: found
+        ? "Setup looks at the computer the app runs on. Open it in your app:"
+        : "Setup looks at your own computer, so it needs the app installed there." }));
+      mount.appendChild(found ? el("a", { class: "st-btn st-primary", href: LOCAL_APP + "setup.html", text: "Open Setup in my app" })
+        : installButton("Install on this computer"));
+    }
+  }
+
   // ---------------------------------------------------------------- start
   function staticMode() {
     document.querySelectorAll(".exercise[data-ex]").forEach(function (box) {
@@ -900,9 +1120,7 @@
     }
   }
 
-  if (!isLocal) { staticMode(); return; }
-
-  fetch(root + "api/session").then(function (r) { return r.json(); }).then(function (session) {
+  function interactive(session) {
     token = session.token;
     document.body.classList.add("z2d-local");
     var studios = [];
@@ -919,5 +1137,27 @@
       setProgress(state.progress);
     });
     window.addEventListener("focus", function () { studios.forEach(function (s) { s.syncFromDisk(); }); });
-  }).catch(staticMode);
+  }
+
+  // A page that is not served by the app: is the app on this computer, and may this site use it?
+  function startHosted() {
+    hosted = true;
+    var seen = false;
+    try { seen = localStorage.getItem("z2d-app-seen") === "1"; } catch (e) { seen = false; }
+    // Reaching into the visitor's computer makes some browsers ask for permission, so it is only
+    // tried for someone who has already found the app from this site once.
+    if (!seen) { hostedMode(null); return; }
+    hello().then(function (info) {
+      if (!info.paired) { hostedMode(info); return; }
+      apiBase = LOCAL_APP;
+      return fetch(LOCAL_APP + "api/session").then(function (r) { return r.json(); }).then(interactive);
+    }).catch(function () { hostedMode(null); });
+  }
+
+  if (!isWeb) { staticMode(); return; }
+  if (!onThisComputer) { startHosted(); return; }
+  fetch(root + "api/session").then(function (r) {
+    if (!r.ok) throw new Error("not the app");
+    return r.json();
+  }).then(interactive, startHosted);
 })();

@@ -6,7 +6,9 @@ This server runs the learner's code, so it is locked down:
   - a request that says it comes from another site is refused (Origin / Sec-Fetch-Site);
   - every API call other than /api/session needs the session token, which only a
     page served from this origin can read;
-  - no CORS headers are ever sent.
+  - no CORS headers are sent, except to a website the learner has approved on this
+    computer (see origins.py), which may then use the API from its own address. The Host
+    check still applies to it, and it needs the session token like any other page.
 """
 import hmac
 import json
@@ -17,14 +19,14 @@ import sys
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from . import api, background, core, platforminfo, providers, workspaces
+from . import api, background, core, origins, platforminfo, providers, workspaces
 
 MAX_BODY = 2_000_000
 
 
 def make_handler(token, port):
     hosts = {f"127.0.0.1:{port}", f"localhost:{port}"}
-    origins = {f"http://{h}" for h in hosts}
+    own_origins = {f"http://{h}" for h in hosts}
 
     class Handler(BaseHTTPRequestHandler):
         server_version = "zero2dev"
@@ -34,14 +36,23 @@ def make_handler(token, port):
             pass
 
         # ---- responses
+        cors = None         # the approved website this request comes from, or "*" for /api/hello
+
+        def cors_headers(self):
+            if self.cors is None:
+                return
+            self.send_header("Access-Control-Allow-Origin", self.cors)
+            self.send_header("Vary", "Origin")
+
         def send(self, status, body, content_type):
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
-            self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+            self.send_header("Cross-Origin-Resource-Policy", "cross-origin" if self.cors else "same-origin")
             self.send_header("Referrer-Policy", "no-referrer")
+            self.cors_headers()
             try:
                 self.end_headers()
                 self.wfile.write(body)
@@ -56,17 +67,47 @@ def make_handler(token, port):
 
         # ---- checks
         def trusted(self):
+            self.cors = None
             if self.headers.get("Host") not in hosts:
                 self.refuse(403, "this server only answers on 127.0.0.1")
                 return False
             origin = self.headers.get("Origin")
-            if origin is not None and origin not in origins:
-                self.refuse(403, "requests from other sites are not accepted")
-                return False
+            if origin is not None and origin not in own_origins:
+                if not origins.is_trusted(origin):
+                    self.refuse(403, "requests from other sites are not accepted")
+                    return False
+                self.cors = origin          # a website the learner approved on this computer
+                return True
             if self.headers.get("Sec-Fetch-Site", "same-origin") not in ("same-origin", "none"):
                 self.refuse(403, "requests from other sites are not accepted")
                 return False
             return True
+
+        def hello(self):
+            """The one thing any website may ask: is the app here, and am I approved?
+
+            It reveals nothing else, and it is how a hosted copy of the guide finds the app.
+            """
+            origin = self.headers.get("Origin")
+            self.cors = "*"
+            self.json(200, {"app": "zero2dev", "paired": origins.is_trusted(origin),
+                            "connect": f"http://127.0.0.1:{port}/connect.html"})
+
+        def do_OPTIONS(self):
+            """The browser's question before a request from another site: is this allowed?"""
+            origin = self.headers.get("Origin")
+            path = urllib.parse.urlsplit(self.path).path
+            allowed = self.headers.get("Host") in hosts and (path == "/api/hello" or origins.is_trusted(origin))
+            self.send_response(204 if allowed else 403)
+            if allowed:
+                self.send_header("Access-Control-Allow-Origin", "*" if path == "/api/hello" else origin)
+                self.send_header("Access-Control-Allow-Methods", "GET, POST")
+                self.send_header("Access-Control-Allow-Headers", "X-Z2D-Token, Content-Type")
+                self.send_header("Access-Control-Allow-Private-Network", "true")
+                self.send_header("Access-Control-Max-Age", "600")
+                self.send_header("Vary", "Origin")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
 
         def has_token(self):
             given = self.headers.get("X-Z2D-Token", "")
@@ -87,9 +128,12 @@ def make_handler(token, port):
 
         # ---- methods
         def do_GET(self):
+            url = urllib.parse.urlsplit(self.path)
+            if url.path == "/api/hello" and self.headers.get("Host") in hosts:
+                self.hello()
+                return
             if not self.trusted():
                 return
-            url = urllib.parse.urlsplit(self.path)
             if url.path == "/api/session":
                 self.json(200, {"token": token})
                 return
@@ -100,12 +144,18 @@ def make_handler(token, port):
                 elif self.has_token():
                     self.call(handler, dict(urllib.parse.parse_qsl(url.query)))
                 return
+            if self.cors:
+                self.refuse(403, "pages are served to this computer only")       # an approved site gets the API, nothing else
+                return
             self.static(url.path)
 
         def do_POST(self):
             if not self.trusted():
                 return
             url = urllib.parse.urlsplit(self.path)
+            if self.cors and url.path in ("/api/pair", "/api/unpair"):
+                self.refuse(403, "only this computer can approve or remove a website")
+                return
             handler = api.POST.get(url.path[5:]) if url.path.startswith("/api/") else None
             if handler is None:
                 self.refuse(404, "no such endpoint")
