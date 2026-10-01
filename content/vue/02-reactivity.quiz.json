@@ -1,0 +1,46 @@
+[
+ {
+  "q": "In the script, how do you add 1 to `const count = ref(0)`?",
+  "options": [
+   "count++",
+   "count.value++",
+   "count.set(1)",
+   "setCount(1)"
+  ],
+  "answer": 1,
+  "why": "A ref is an object: its value lives in .value."
+ },
+ {
+  "q": "In the template, how do you show that same count?",
+  "options": [
+   "{{ count.value }}",
+   "{{ count }}",
+   "{ count }",
+   "{{ count() }}"
+  ],
+  "answer": 1,
+  "why": "Templates unwrap refs for you."
+ },
+ {
+  "q": "What is `computed` for?",
+  "options": [
+   "Running code on a timer",
+   "A value worked out from other reactive values, kept up to date",
+   "Fetching data",
+   "Styling"
+  ],
+  "answer": 1,
+  "why": "It is cached and recalculated only when its inputs change."
+ },
+ {
+  "q": "When is `watch` the right tool?",
+  "options": [
+   "To derive a value",
+   "To run a side effect when a value changes",
+   "To declare props",
+   "To loop"
+  ],
+  "answer": 1,
+  "why": "Saving, logging, fetching. For values, use computed."
+ }
+]

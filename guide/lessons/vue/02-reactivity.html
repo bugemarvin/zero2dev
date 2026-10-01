@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reactivity: ref and computed · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<link rel="stylesheet" href="../../assets/game.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="vue/02-reactivity">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<div class="hud" id="hud"></div>
+<a class="top-link" href="../../paths.html">Paths</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="tour-btn" aria-label="Show me around">?</button>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Vue · lesson 2 of 6</p>
+<h1>Reactivity: ref and computed</h1>
+<p class="lede">Data that the page follows, and values that are worked out from other values.</p>
+<h2 id="ref">ref</h2>
+<p><code>ref</code> wraps a value in a small object. Vue watches that object: when its <code>.value</code> changes, everything on the page that uses it is updated.</p>
+<pre><code class="lang-html">&lt;script setup&gt;
+import { ref } from "vue";
+
+const count = ref(0);
+
+function add() {
+  count.value += 1;
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;p&gt;Count: {{ count }}&lt;/p&gt;
+  &lt;button @click="add"&gt;Add&lt;/button&gt;
+&lt;/template&gt;</code></pre>
+<ul><li>In the <strong>script</strong>: <code>count.value</code>.</li><li>In the <strong>template</strong>: <code>count</code>, with no <code>.value</code>.</li></ul>
+<p>A <code>ref</code> can hold anything: a number, a string, an array, an object.</p>
+<h2 id="changing-objects-and-arrays">Changing objects and arrays</h2>
+<p>Unlike React, you <strong>can</strong> change a reactive array or object in place. Vue notices:</p>
+<pre><code class="lang-javascript">const todos = ref([]);
+todos.value.push({ title: "Learn Vue", done: false });     // the page updates
+todos.value[0].done = true;                                 // so does this</code></pre>
+<h2 id="reactive">reactive</h2>
+<p><code>reactive</code> makes an object reactive without the <code>.value</code>:</p>
+<pre><code class="lang-javascript">import { reactive } from "vue";
+
+const form = reactive({ name: "", email: "" });
+form.name = "Sam";</code></pre>
+<p>It works only for objects, and it breaks if you pull a property out into a variable (<code>const { name } = form</code> gives a plain, dead value). Many teams use <code>ref</code> everywhere for that reason. Either is fine: be consistent.</p>
+<h2 id="computed">computed</h2>
+<p>A <strong>computed</strong> value is worked out from other reactive values, and stays up to date by itself:</p>
+<pre><code class="lang-javascript">import { ref, computed } from "vue";
+
+const price = ref(20);
+const quantity = ref(3);
+
+const total = computed(() =&gt; price.value * quantity.value);</code></pre>
+<ul><li><code>total.value</code> is 60. Change <code>quantity</code>, and <code>total</code> is 80 the next time anyone looks.</li><li>It is <strong>cached</strong>: the function runs again only when something it used has changed.</li><li>It is read-only. You never assign to it.</li></ul>
+<p>Use <code>computed</code> for anything that can be derived. Do not keep a second <code>ref</code> that you update by hand: it will fall out of step.</p>
+<pre><code class="lang-javascript">const items = ref([{ done: true }, { done: false }]);
+
+const remaining = computed(() =&gt; items.value.filter((item) =&gt; !item.done).length);
+const isEmpty = computed(() =&gt; items.value.length === 0);</code></pre>
+<h2 id="methods-or-computed">Methods or computed?</h2>
+<p>A function called from the template runs again on <strong>every</strong> render. A computed runs only when its inputs change. For values, prefer <code>computed</code>. Use functions for things that <strong>do</strong> something, such as event handlers.</p>
+<h2 id="watch">watch</h2>
+<p><code>watch</code> runs code when a value changes. It is for <strong>side effects</strong>: saving, logging, fetching.</p>
+<pre><code class="lang-javascript">import { watch } from "vue";
+
+watch(count, (now, before) =&gt; {
+  console.log(`count went from ${before} to ${now}`);
+});</code></pre>
+<p>If you only need a value, <code>computed</code> is the right tool. Reach for <code>watch</code> when something outside the component must happen.</p>
+<h2 id="updates-are-batched">Updates are batched</h2>
+<p>When you change a <code>ref</code>, the page is updated a moment later, once, even if you changed ten things. Code that needs the updated page waits for it:</p>
+<pre><code class="lang-javascript">import { nextTick } from "vue";
+
+count.value++;
+await nextTick();       // now the DOM shows the new count</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>count++</code> in the script</strong> in place of <code>count.value++</code>.</li><li><strong>Destructuring a <code>reactive</code> object</strong>, which loses the reactivity.</li><li><strong>A <code>ref</code> kept in sync by hand</strong> where a <code>computed</code> would do it.</li><li><strong>Changing something inside a <code>computed</code>.</strong> It must only calculate.</li><li><strong><code>watch</code> for a derived value.</strong></li></ul>
+<section class="quiz-box" id="quiz" hidden></section>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="vue/02-counter">
+<h3>A counter with computed values <span class="ex-id">vue/02-counter</span></h3>
+<p>Write <code>Counter.vue</code>.</p>
+<ul><li>A paragraph with the class <code>count</code> shows <code>Count: N</code>. It starts at 0.</li><li>A button <code>Add</code> increases the count by 1.</li><li>A button <code>Subtract</code> decreases it by 1. It is <strong>disabled</strong> when the count is 0, so the count never goes below 0.</li><li>A button <code>Reset</code> sets it back to 0.</li><li>A paragraph with the class <code>double</code> shows <code>Double: N</code>, where N is twice the count. Use <code>computed</code>.</li><li>A paragraph with the class <code>parity</code> shows <code>even</code> or <code>odd</code>. Use <code>computed</code>.</li></ul>
+<p>Run the tests to check your component. <strong>Start app</strong> opens it in a browser tab, and the page reloads when you save.</p>
+<p class="ex-files">Files: <code>exercises/vue/02-counter/</code></p>
+<pre><code class="lang-console">$ python3 check.py vue/02-counter</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../vue/01-components-and-templates.html"><span>Previous</span>Components and templates</a><a class="next" href="../vue/03-props-and-events.html"><span>Next</span>Props, events and slots</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/quizzes.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/game.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

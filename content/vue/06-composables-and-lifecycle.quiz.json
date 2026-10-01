@@ -1,0 +1,44 @@
+[
+ {
+  "q": "Which hook runs when the component has been put on the page?",
+  "options": [
+   "onCreated",
+   "onMounted",
+   "onUpdated",
+   "onUnmounted"
+  ],
+  "answer": 1,
+  "why": "onMounted. Clean up in onUnmounted."
+ },
+ {
+  "q": "Which three states should a data-loading component show?",
+  "options": [
+   "Start, middle, end",
+   "Loading, error, the data",
+   "Get, post, put",
+   "Open, closed, hidden"
+  ],
+  "answer": 1,
+  "why": "A blank page while waiting or after a failure is a bug."
+ },
+ {
+  "q": "What is a composable?",
+  "options": [
+   "A CSS file",
+   "A function that uses Vue's reactivity, to share logic between components",
+   "A kind of slot",
+   "A router"
+  ],
+  "answer": 1,
+  "why": "By convention its name starts with use."
+ },
+ {
+  "q": "Two components call useToggle(). Do they share the same state?",
+  "options": [
+   "Yes",
+   "No: each call creates its own"
+  ],
+  "answer": 1,
+  "why": "A composable shares logic, not data."
+ }
+]

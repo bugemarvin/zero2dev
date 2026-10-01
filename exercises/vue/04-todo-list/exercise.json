@@ -1,0 +1,41 @@
+{
+  "title": "A todo list",
+  "lesson": "vue/04-lists-and-conditions",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "TodoList.vue"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "<p v-if=\"todos.length === 0\" class=\"empty\">Nothing to do.</p> and then <template v-else> around the list, the summary and the toggle button.",
+    "const visible = computed(() => (showDone.value ? props.todos : props.todos.filter((todo) => !todo.done)));",
+    "<li v-for=\"todo in visible\" :key=\"todo.id\" :class=\"{ done: todo.done }\">",
+    "The Delete button: @click=\"emit('remove', todo.id)\", with const emit = defineEmits([\"remove\"])."
+  ]
+}

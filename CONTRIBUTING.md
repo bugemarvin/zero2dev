@@ -105,7 +105,7 @@ Text with `code`, **bold** and a [link to another lesson](c/08-memory).
 
 Supported: `##` and `###` headings, paragraphs, `-` and `1.` lists (one level), fenced code blocks with a language, `>` callouts (start with `**Warning:**` for the warning style), pipe tables (write `\|` for a pipe inside a cell), `` `code` ``, `**bold**`, `*italic*`, links.
 
-Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html`, `css`, `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
+Code block languages with colouring: `c`, `cpp`, `python`, `java`, `elixir`, `go`, `rust`, `ruby`, `php`, `sql`, `bash`, `javascript` (also `jsx`, `typescript`, `json`), `html` (also `vue`), `css`, `dockerfile`, `yaml`, and `console`, where lines starting with `$ ` are commands and the rest is output. Use `text` for diagrams and sample files.
 
 A section that applies to one system only says so in its heading: `## Windows {os=windows}`, `## Ubuntu or Debian Linux {os=linux wsl}`, `## macOS {os=macos}`. The page shows the sections for the learner's system and tucks the others behind a button. The marker is removed from the title, and the section ends at the next `##` heading.
 

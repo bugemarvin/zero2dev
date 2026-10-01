@@ -1,0 +1,40 @@
+{
+  "title": "A counter with computed values",
+  "lesson": "vue/02-reactivity",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "vue",
+  "edit": [
+    "Counter.vue"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "preview": {
+    "start": [
+      "npx",
+      "vite",
+      "--config",
+      "../../vite.config.mjs",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--strictPort"
+    ],
+    "start_timeout": 60
+  },
+  "hints": [
+    "const double = computed(() => count.value * 2); and in the template: <p class=\"double\">Double: {{ double }}</p>",
+    "The parity: computed(() => (count.value % 2 === 0 ? \"even\" : \"odd\"))",
+    "<button :disabled=\"count === 0\" @click=\"count--\">Subtract</button>"
+  ]
+}
