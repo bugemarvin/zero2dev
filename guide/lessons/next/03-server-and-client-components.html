@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Server and client components · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/03-server-and-client-components">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 3 of 8</p>
+<h1>Server and client components</h1>
+<p class="lede">Where each component runs, what each kind can do, and how to combine them.</p>
+<h2 id="two-kinds-of-component">Two kinds of component</h2>
+<p>In the <code>app</code> directory a component is one of two kinds.</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>Server component (the default)</th><th>Client component</th></tr></thead><tbody><tr><td>Runs</td><td>on the server only</td><td>on the server for the first HTML, then in the browser</td></tr><tr><td>Code sent to the browser</td><td>none</td><td>yes</td></tr><tr><td>Can be <code>async</code> and read data directly</td><td>yes</td><td>no</td></tr><tr><td>Can use secrets, the database, the file system</td><td>yes</td><td><strong>no</strong></td></tr><tr><td><code>useState</code>, <code>useEffect</code>, event handlers</td><td>no</td><td>yes</td></tr><tr><td><code>window</code>, <code>document</code>, <code>localStorage</code></td><td>no</td><td>yes</td></tr></tbody></table></div>
+<p>Server components do the reading and the heavy lifting, and cost the browser nothing. Client components add interactivity.</p>
+<h2 id="server-components">Server components</h2>
+<p>A server component can be <code>async</code> and fetch what it needs right in its body:</p>
+<pre><code class="lang-jsx">// app/page.js
+import { getProducts } from "../lib/products.js";
+
+export default async function Home() {
+  const products = await getProducts();
+  return (
+    &lt;ul&gt;
+      {products.map((product) =&gt; (
+        &lt;li key={product.id}&gt;{product.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<p>No <code>useEffect</code>, no loading state, no API endpoint in between. The data never has to travel to the browser as JSON to be rendered there: the browser receives the finished list.</p>
+<h2 id="client-components">Client components</h2>
+<p>Put the directive <code>"use client"</code> on the <strong>first line</strong> of a file to make its components client components:</p>
+<pre><code class="lang-jsx">// app/counter.js
+"use client";
+
+import { useState } from "react";
+
+export default function Counter({ start = 0 }) {
+  const [count, setCount] = useState(start);
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Clicked {count} times&lt;/button&gt;;
+}</code></pre>
+<p>A component needs <code>"use client"</code> when it uses state, effects, event handlers such as <code>onClick</code>, or browser APIs.</p>
+<p>Without the directive, the build fails with a message such as "You're importing a component that needs <code>useState</code>. This React Hook only works in a Client Component."</p>
+<h2 id="combining-them">Combining them</h2>
+<p>A server component can render a client component and pass it props:</p>
+<pre><code class="lang-jsx">// app/page.js  (server)
+import Counter from "./counter.js";
+
+export default async function Home() {
+  const start = await loadStartValue();
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;Counter start={start} /&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<p>Props that cross from server to client must be <strong>serialisable</strong>: strings, numbers, booleans, plain objects and arrays, dates. Functions and class instances cannot be passed.</p>
+<p>The reverse does not work by import: a client component cannot import a server component, because everything a client file imports becomes client code. It <strong>can</strong> receive server-rendered content as <code>children</code>:</p>
+<pre><code class="lang-jsx">// app/panel.js  (client)
+"use client";
+import { useState } from "react";
+
+export default function Panel({ children }) {
+  const [open, setOpen] = useState(true);
+  return (
+    &lt;section&gt;
+      &lt;button onClick={() =&gt; setOpen(!open)}&gt;Toggle&lt;/button&gt;
+      {open &amp;&amp; children}
+    &lt;/section&gt;
+  );
+}</code></pre>
+<pre><code class="lang-jsx">// app/page.js  (server)
+&lt;Panel&gt;
+  &lt;ServerRenderedList /&gt;
+&lt;/Panel&gt;</code></pre>
+<h2 id="keep-the-client-part-small">Keep the client part small</h2>
+<p><code>"use client"</code> marks a boundary. That file and everything it imports is sent to the browser. So put the directive as far down the tree as you can:</p>
+<ul><li>the page stays a server component and loads the data;</li><li>only the interactive piece, a button, a form, a menu, is a client component.</li></ul>
+<p>A common mistake is to add <code>"use client"</code> to a whole page because one button needs a click handler. Extract the button.</p>
+<h2 id="protecting-server-code">Protecting server code</h2>
+<p>Code that uses a secret must never end up in a client bundle. Server components guarantee that for themselves. For shared helper modules, environment variables give a second line of defence: only variables whose names start with <code>NEXT_PUBLIC_</code> are available in the browser.</p>
+<pre><code class="lang-javascript">process.env.DATABASE_URL            // server only
+process.env.NEXT_PUBLIC_SITE_NAME   // also readable in the browser</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>"use client"</code> not on the first line</strong>, or missing its quotes.</li><li><strong><code>"use client"</code> everywhere</strong>, which gives up the benefits of server rendering.</li><li><strong>Hooks or <code>onClick</code> in a server component.</strong></li><li><strong>Passing a function as a prop</strong> from a server component to a client component.</li><li><strong>Reading <code>window</code> or <code>localStorage</code> during rendering</strong> in a client component. Its first render happens on the server. Use an effect.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/03-server-client">
+<h3>A server page with a client button <span class="ex-id">next/03-server-client</span></h3>
+<p><code>lib/products.js</code> is given. It exports an async function <code>getProducts()</code> that returns an array such as <code>[{ id: 1, name: "Keyboard" }, ...]</code>.</p>
+<h4><code>app/like-button.jsx</code>, a client component</h4>
+<ul><li>Its first line is the directive <code>"use client";</code></li><li><code>&lt;LikeButton name="Keyboard" /&gt;</code> renders a button with the text <code>Like Keyboard (0)</code>.</li><li>Each click adds one to the number.</li></ul>
+<h4><code>app/page.jsx</code>, a server component</h4>
+<ul><li>It is an <code>async</code> function, with <strong>no</strong> <code>"use client"</code> directive.</li><li>It awaits <code>getProducts()</code> and renders an <code>&lt;h1&gt;</code> with the text <code>Products</code>, and a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per product. Each item shows the product's name and a <code>LikeButton</code> for it.</li></ul>
+<p>The tests render the page the way the server does, and click the button in a simulated browser.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/03-server-client/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/03-server-client</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/02-layouts-and-links.html"><span>Previous</span>Layouts and navigation</a><a class="next" href="../next/04-dynamic-routes.html"><span>Next</span>Dynamic routes</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

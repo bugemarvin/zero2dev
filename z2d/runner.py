@@ -604,10 +604,14 @@ def judge_response(req, status, headers, body):
         got = next((v for k, v in headers.items() if k.lower() == key.lower()), None)
         if got is None or value.lower() not in got.lower():
             problems.append(f"expected header {key} to contain {value!r}, got {got!r}")
-    if "contains" in req and req["contains"] not in body:
-        problems.append(f"the response should contain: {req['contains']}")
-    if "not_contains" in req and req["not_contains"] in body:
-        problems.append(f"the response should not contain: {req['not_contains']}")
+    wanted = req.get("contains", [])
+    for text in [wanted] if isinstance(wanted, str) else wanted:
+        if text not in body:
+            problems.append(f"the response should contain: {text}")
+    unwanted = req.get("not_contains", [])
+    for text in [unwanted] if isinstance(unwanted, str) else unwanted:
+        if text in body:
+            problems.append(f"the response should not contain: {text}")
     if "json" in req or "json_contains" in req:
         try:
             parsed = json.loads(body)
@@ -623,7 +627,7 @@ def judge_response(req, status, headers, body):
         if re.match(r"\s*<(!doctype|html)", body, re.I):
             # an HTML error page: show its text on one line, not the markup
             shown = "(an HTML page) " + " ".join(re.sub(r"<[^>]+>", " ", body).split())
-        problems.append(block("response:", f"{status} {shown}", 10, 600))
+        problems.append(block("response:", f"{status} {shown}", 10, 400))
     return "\n".join(problems)
 
 

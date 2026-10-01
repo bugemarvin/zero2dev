@@ -1,0 +1,28 @@
+{
+  "title": "Load data, with loading and error states",
+  "lesson": "next/06-data-fetching",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/users/page.jsx",
+    "app/users/loading.jsx",
+    "app/users/error.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "hints": [
+    "const response = await fetch(`${process.env.API_URL}/users`); then check response.ok and throw new Error(\"could not load users\").",
+    "A server component needs no state: await the data, then return the JSX.",
+    "error.jsx starts with \"use client\"; and renders <div role=\"alert\"> with a <button onClick={reset}>Try again</button>."
+  ]
+}

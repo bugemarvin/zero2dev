@@ -1,0 +1,160 @@
+{
+  "title": "An API with route handlers",
+  "lesson": "next/05-route-handlers",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/api/notes/route.js",
+    "app/api/notes/[id]/route.js"
+  ],
+  "start": [
+    "npx",
+    "next",
+    "dev",
+    "-p",
+    "{port}",
+    "-H",
+    "127.0.0.1"
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "start_timeout": 120,
+  "timeout": 90,
+  "requests": [
+    {
+      "name": "GET /api/notes starts as an empty list",
+      "path": "/api/notes",
+      "status": 200,
+      "json": []
+    },
+    {
+      "name": "POST creates a note and answers 201",
+      "method": "POST",
+      "path": "/api/notes",
+      "body": {
+        "text": "Buy milk"
+      },
+      "status": 201,
+      "json": {
+        "id": 1,
+        "text": "Buy milk"
+      }
+    },
+    {
+      "name": "POST trims the text and gives the next id",
+      "method": "POST",
+      "path": "/api/notes",
+      "body": {
+        "text": "  Call Sam  "
+      },
+      "status": 201,
+      "json": {
+        "id": 2,
+        "text": "Call Sam"
+      }
+    },
+    {
+      "name": "POST without text answers 400",
+      "method": "POST",
+      "path": "/api/notes",
+      "body": {},
+      "status": 400,
+      "json": {
+        "error": "text is required"
+      }
+    },
+    {
+      "name": "POST with blank text answers 400",
+      "method": "POST",
+      "path": "/api/notes",
+      "body": {
+        "text": "   "
+      },
+      "status": 400
+    },
+    {
+      "name": "POST with invalid JSON answers 400",
+      "method": "POST",
+      "path": "/api/notes",
+      "raw": "{oops",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "status": 400,
+      "json": {
+        "error": "invalid JSON"
+      }
+    },
+    {
+      "name": "GET /api/notes lists both notes",
+      "path": "/api/notes",
+      "status": 200,
+      "json": [
+        {
+          "id": 1,
+          "text": "Buy milk"
+        },
+        {
+          "id": 2,
+          "text": "Call Sam"
+        }
+      ]
+    },
+    {
+      "name": "GET /api/notes/2 returns one note",
+      "path": "/api/notes/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "text": "Call Sam"
+      }
+    },
+    {
+      "name": "GET /api/notes/99 answers 404",
+      "path": "/api/notes/99",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "DELETE /api/notes/1 answers 204",
+      "method": "DELETE",
+      "path": "/api/notes/1",
+      "status": 204
+    },
+    {
+      "name": "the deleted note is gone",
+      "path": "/api/notes/1",
+      "status": 404
+    },
+    {
+      "name": "DELETE again answers 404",
+      "method": "DELETE",
+      "path": "/api/notes/1",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    },
+    {
+      "name": "the other note is still there",
+      "path": "/api/notes",
+      "status": 200,
+      "json": [
+        {
+          "id": 2,
+          "text": "Call Sam"
+        }
+      ]
+    }
+  ],
+  "hints": [
+    "Response.json(data, { status: 201 }) sets the status. new Response(null, { status: 204 }) has no body.",
+    "Wrap await request.json() in try/catch for the invalid JSON case.",
+    "In the [id] file: const { id } = await params; then use Number(id).",
+    "Export one function per method: GET and POST in the first file, GET and DELETE in the second."
+  ]
+}

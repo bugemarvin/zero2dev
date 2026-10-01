@@ -226,6 +226,35 @@
  "js/10-dom": {
   "dom.js": "export function renderList(container, items) {\n}\n\nexport function setupCounter(button, output) {\n}\n\nexport function setupFilter(input, list) {\n}\n"
  },
+ "next/01-pages": {
+  "app/about/page.jsx": "export default function About() {\n  return null;\n}\n",
+  "app/page.jsx": "export default function Home() {\n  return null;\n}\n"
+ },
+ "next/02-layouts": {
+  "app/blog/layout.jsx": "export default function BlogLayout({ children }) {\n  return children;\n}\n",
+  "app/layout.jsx": "export const metadata = { title: \"My site\" };\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang=\"en\">\n      <body>{children}</body>\n    </html>\n  );\n}\n"
+ },
+ "next/03-server-client": {
+  "app/like-button.jsx": "export default function LikeButton({ name }) {\n  return <button>Like {name} (0)</button>;\n}\n",
+  "app/page.jsx": "export default function Page() {\n  return <h1>Products</h1>;\n}\n"
+ },
+ "next/04-dynamic-routes": {
+  "app/products/[id]/page.jsx": "import { notFound } from \"next/navigation\";\nimport { getProduct } from \"../../../lib/products.js\";\n\nexport default async function ProductPage({ params }) {\n  return <h1>Product</h1>;\n}\n",
+  "app/products/page.jsx": "import Link from \"next/link\";\nimport { getProducts } from \"../../lib/products.js\";\n\nexport default function ProductsPage() {\n  return <ul></ul>;\n}\n"
+ },
+ "next/05-notes-api": {
+  "app/api/notes/[id]/route.js": "import { deleteNote, getNote } from \"../../../../lib/notes.js\";\n\nexport async function GET(request, { params }) {\n  return Response.json({ error: \"not written yet\" }, { status: 501 });\n}\n",
+  "app/api/notes/route.js": "import { addNote, listNotes } from \"../../../lib/notes.js\";\n\nexport async function GET() {\n  return Response.json({ error: \"not written yet\" }, { status: 501 });\n}\n"
+ },
+ "next/06-users-page": {
+  "app/users/error.jsx": "export default function ErrorMessage({ error, reset }) {\n  return null;\n}\n",
+  "app/users/loading.jsx": "export default function Loading() {\n  return null;\n}\n",
+  "app/users/page.jsx": "export default async function UsersPage() {\n  return <p>No users yet.</p>;\n}\n"
+ },
+ "next/07-server-actions": {
+  "app/actions.js": "import { revalidatePath } from \"next/cache\";\nimport { addTodo, deleteTodo } from \"../lib/todos.js\";\n\nexport async function createTodo(formData) {\n  return { error: \"not written yet\" };\n}\n\nexport async function removeTodo(id) {\n  return { error: \"not written yet\" };\n}\n",
+  "app/todos/page.jsx": "import { createTodo } from \"../actions.js\";\nimport { listTodos } from \"../../lib/todos.js\";\n\nexport default function TodosPage() {\n  return <ul></ul>;\n}\n"
+ },
  "python/01-first-functions": {
   "solution.py": "def greeting(name):\n    pass\n\n\ndef to_fahrenheit(celsius):\n    pass\n\n\ndef is_even(n):\n    pass\n"
  },

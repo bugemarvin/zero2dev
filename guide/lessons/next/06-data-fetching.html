@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loading data · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/06-data-fetching">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 6 of 8</p>
+<h1>Loading data</h1>
+<p class="lede">Fetch in server components, show progress and errors, and decide how fresh the data must be.</p>
+<h2 id="fetch-where-you-render">Fetch where you render</h2>
+<p>A server component is <code>async</code>, so it simply awaits its data:</p>
+<pre><code class="lang-jsx">// app/users/page.js
+export default async function UsersPage() {
+  const response = await fetch("https://api.example.com/users");
+  if (!response.ok) {
+    throw new Error(`could not load users: ${response.status}`);
+  }
+  const users = await response.json();
+
+  if (users.length === 0) {
+    return &lt;p&gt;No users yet.&lt;/p&gt;;
+  }
+  return (
+    &lt;ul&gt;
+      {users.map((user) =&gt; (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  );
+}</code></pre>
+<p>Compare this with the <a href="../react/07-fetching-data.html">React version</a>: no <code>useEffect</code>, no loading and error state variables, no race conditions. The component runs once per request on the server, and the browser gets the finished HTML.</p>
+<p>It can equally read a database or a file. The code never reaches the browser, so credentials are safe.</p>
+<h2 id="loading-js">loading.js</h2>
+<p>While an async page is working, Next.js can show a placeholder at once and swap in the real content when it is ready. Add a <code>loading.js</code> next to the page:</p>
+<pre><code class="lang-jsx">// app/users/loading.js
+export default function Loading() {
+  return &lt;p&gt;Loading users...&lt;/p&gt;;
+}</code></pre>
+<p>The layout and navigation appear immediately, and only the slow part waits. This is called <strong>streaming</strong>.</p>
+<p>For finer control, wrap just the slow component in <code>Suspense</code>:</p>
+<pre><code class="lang-jsx">import { Suspense } from "react";
+
+export default function Dashboard() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;Dashboard&lt;/h1&gt;
+      &lt;Suspense fallback={&lt;p&gt;Loading orders...&lt;/p&gt;}&gt;
+        &lt;RecentOrders /&gt;
+      &lt;/Suspense&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<h2 id="error-js">error.js</h2>
+<p>When a page throws, the nearest <code>error.js</code> is shown in its place. It must be a client component, and it receives the error and a function to try again:</p>
+<pre><code class="lang-jsx">// app/users/error.js
+"use client";
+
+export default function Error({ error, reset }) {
+  return (
+    &lt;div role="alert"&gt;
+      &lt;p&gt;Something went wrong.&lt;/p&gt;
+      &lt;button onClick={reset}&gt;Try again&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+<p>So the three states from the React lesson are still there, expressed as three files: <code>loading.js</code>, <code>error.js</code>, and the page itself for success.</p>
+<h2 id="in-parallel">In parallel</h2>
+<p>Awaiting one request after another makes the second wait for the first. Start independent requests together:</p>
+<pre><code class="lang-jsx">const [user, orders] = await Promise.all([getUser(id), getOrders(id)]);</code></pre>
+<h2 id="how-fresh-is-the-data">How fresh is the data?</h2>
+<p>A page can be rendered at different moments:</p>
+<div class="table-wrap"><table><thead><tr><th>Strategy</th><th>Rendered</th><th>Good for</th></tr></thead><tbody><tr><td>static</td><td>once, when the site is built</td><td>pages that are the same for everyone and rarely change</td></tr><tr><td>revalidated</td><td>at most once per time period</td><td>content that may be a little out of date: a blog, a catalogue</td></tr><tr><td>dynamic</td><td>on every request</td><td>personal or fast-changing data</td></tr></tbody></table></div>
+<p>By default a <code>fetch</code> in a server component is <strong>not cached</strong>: it runs on every request. To allow reuse for a period:</p>
+<pre><code class="lang-javascript">const response = await fetch(url, { next: { revalidate: 60 } });     // reuse for up to 60 seconds</code></pre>
+<p>After a change, a server action can mark a path as outdated, so that the next visit renders it afresh:</p>
+<pre><code class="lang-javascript">import { revalidatePath } from "next/cache";
+
+revalidatePath("/users");</code></pre>
+<p>Caching is the part of Next.js that changes most between versions. When in doubt, read the documentation for the version in your <code>package.json</code>, and measure.</p>
+<h2 id="configuration-through-the-environment">Configuration through the environment</h2>
+<p>Addresses and keys differ between your machine and the server. Read them from environment variables, and never hard-code them:</p>
+<pre><code class="lang-javascript">const API_URL = process.env.API_URL ?? "http://localhost:4000";</code></pre>
+<p>During development they go in <code>.env.local</code>, which is not committed to Git.</p>
+<h2 id="testing-a-server-component">Testing a server component</h2>
+<p>A server component is an async function that returns JSX. A test can call it, wait for the result, and render that to HTML:</p>
+<pre><code class="lang-jsx">import { renderToStaticMarkup } from "react-dom/server";
+
+globalThis.fetch = vi.fn(async () =&gt; ({ ok: true, json: async () =&gt; [{ id: 1, name: "Ada" }] }));
+const html = renderToStaticMarkup(await UsersPage());
+expect(html).toContain("Ada");</code></pre>
+<p>The exercise for this lesson is checked that way, so it needs no server.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>useEffect</code> and <code>fetch</code> in a client component</strong> for data the page could load on the server.</li><li><strong>Not checking <code>response.ok</code>.</strong></li><li><strong>Awaiting independent requests one by one.</strong></li><li><strong>Catching an error and rendering nothing.</strong> Throw, and let <code>error.js</code> handle it.</li><li><strong>Assuming data is cached</strong>, or that it is not. Check for your version.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/06-users-page">
+<h3>Load data, with loading and error states <span class="ex-id">next/06-users-page</span></h3>
+<p>Write the three files of the <code>/users</code> route.</p>
+<h4><code>app/users/page.jsx</code>, an async server component</h4>
+<ul><li>It fetches <code>${process.env.API_URL}/users</code> and expects a JSON array of users such as <code>{ "id": 1, "name": "Ada" }</code>.</li><li>If the response is not ok, it <strong>throws</strong> an <code>Error</code> whose message is <code>could not load users</code>.</li><li>For an empty array it renders a <code>&lt;p&gt;</code> with <code>No users yet.</code></li><li>Otherwise it renders a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per user, showing the name.</li></ul>
+<h4><code>app/users/loading.jsx</code></h4>
+<p>Its default export renders a <code>&lt;p&gt;</code> with <code>Loading users...</code></p>
+<h4><code>app/users/error.jsx</code>, a client component</h4>
+<ul><li>Its first line is <code>"use client";</code></li><li>It receives <code>{ error, reset }</code> and renders an element with <code>role="alert"</code> containing the text <code>Something went wrong.</code>, and a button <code>Try again</code> that calls <code>reset</code> when clicked.</li></ul>
+<p>The tests replace <code>fetch</code> with a fake, so no API server is needed.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/06-users-page/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/06-users-page</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/05-route-handlers.html"><span>Previous</span>Route handlers</a><a class="next" href="../next/07-forms-and-server-actions.html"><span>Next</span>Forms and server actions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Next.js and the app router · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/01-app-router">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 1 of 8</p>
+<h1>Next.js and the app router</h1>
+<p class="lede">A framework on top of React where folders become pages, and pages are rendered on the server.</p>
+<h2 id="what-next-js-adds">What Next.js adds</h2>
+<p>React builds user interfaces. It leaves open how pages are routed, where data is loaded, and how the result reaches the browser. <strong>Next.js</strong> is a framework that answers those questions:</p>
+<ul><li><strong>Routing from the file system.</strong> A folder is a URL.</li><li><strong>Rendering on the server.</strong> The browser receives finished HTML, which loads fast and is readable by search engines.</li><li><strong>Data loading on the server</strong>, next to the component that needs it.</li><li><strong>API endpoints</strong> in the same project.</li></ul>
+<p>This track assumes the <a href="../react/01-components-and-jsx.html">React track</a>.</p>
+<h2 id="creating-a-project">Creating a project</h2>
+<pre><code class="lang-console">$ npx create-next-app@latest my-app
+$ cd my-app
+$ npm run dev</code></pre>
+<p>The exercises in this guide use a Next.js package set that the app downloads once (Setup, or <code>python3 check.py prefetch next</code>). Each exercise is a tiny project of its own.</p>
+<h2 id="the-app-directory">The app directory</h2>
+<p>Everything under <code>app/</code> defines routes:</p>
+<pre><code class="lang-text">app/
+    layout.js            wraps every page
+    page.js              the page at /
+    about/
+        page.js          the page at /about
+    blog/
+        page.js          the page at /blog
+        [slug]/
+            page.js      the page at /blog/anything</code></pre>
+<div class="table-wrap"><table><thead><tr><th>File</th><th>Role</th></tr></thead><tbody><tr><td><code>page.js</code></td><td>the content of a route. A folder without one is not a page.</td></tr><tr><td><code>layout.js</code></td><td>shared frame around the pages below it</td></tr><tr><td><code>loading.js</code></td><td>shown while a page is loading</td></tr><tr><td><code>error.js</code></td><td>shown when a page throws an error</td></tr><tr><td><code>not-found.js</code></td><td>shown for a 404</td></tr><tr><td><code>route.js</code></td><td>an API endpoint in place of a page</td></tr></tbody></table></div>
+<p>A file that contains JSX may end in <code>.jsx</code> instead of <code>.js</code>: <code>page.jsx</code>, <code>layout.jsx</code>. The exercises in this track use <code>.jsx</code> for those files.</p>
+<p>Only these special files create routes. Other files in the same folders, such as components and helpers, are ignored by the router, so you can keep them next to the pages that use them.</p>
+<h2 id="a-page">A page</h2>
+<p>A page is a React component, exported as the default:</p>
+<pre><code class="lang-jsx">// app/about/page.js
+export default function About() {
+  return (
+    &lt;main&gt;
+      &lt;h1&gt;About us&lt;/h1&gt;
+      &lt;p&gt;We make things.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<p>Visit <code>/about</code> and it is there. No route table to maintain.</p>
+<h2 id="the-root-layout">The root layout</h2>
+<p><code>app/layout.js</code> is required. It supplies the <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code> tags and receives the current page as <code>children</code>:</p>
+<pre><code class="lang-jsx">// app/layout.js
+export const metadata = {
+  title: "My app",
+  description: "A small Next.js app",
+};
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="en"&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  );
+}</code></pre>
+<p><code>metadata</code> sets the page title and description. A page can export its own to override it.</p>
+<h2 id="server-rendering">Server rendering</h2>
+<p>When a request for <code>/about</code> arrives, Next.js runs the component <strong>on the server</strong>, turns the result into HTML and sends it. Look at the page source in a browser and the text is there, with no waiting for JavaScript.</p>
+<p>By default, components in the <code>app</code> directory run <strong>only on the server</strong>. Their code is not sent to the browser. Lesson 3 covers what that allows, and when a component must run in the browser instead.</p>
+<h2 id="how-the-exercises-are-checked">How the exercises are checked</h2>
+<p>For most exercises in this track the checker starts the real development server on your code, requests pages over HTTP, and looks at the status code and the HTML. The first request compiles the page, so a test run takes some seconds.</p>
+<p><strong>Start app</strong> runs the same server for you and gives you a link.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Naming the file after the route</strong>, such as <code>app/about.js</code>. It must be <code>app/about/page.js</code>.</li><li><strong>No default export</strong> in a page.</li><li><strong>Removing <code>&lt;html&gt;</code> and <code>&lt;body&gt;</code></strong> from the root layout.</li><li><strong>Expecting browser APIs to work</strong> in a page. Server code has no <code>window</code> and no <code>document</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/01-pages">
+<h3>Two pages <span class="ex-id">next/01-pages</span></h3>
+<p>This small project already has a root layout. Add two pages.</p>
+<ul><li><code>app/page.jsx</code>, served at <code>/</code>: an <code>&lt;h1&gt;</code> with the text <code>Welcome to my site</code>.</li><li><code>app/about/page.jsx</code>, served at <code>/about</code>: an <code>&lt;h1&gt;</code> with the text <code>About us</code>, and a <code>&lt;p&gt;</code> with the text <code>We make things.</code></li></ul>
+<p>Each file exports a React component as its default export.</p>
+<p>The checker starts the Next.js development server on your code and requests both pages. The first run takes some seconds while Next.js compiles.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/01-pages/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/01-pages</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../react/09-sharing-state.html"><span>Previous</span>Sharing state</a><a class="next" href="../next/02-layouts-and-links.html"><span>Next</span>Layouts and navigation</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

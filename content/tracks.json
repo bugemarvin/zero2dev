@@ -91,5 +91,14 @@
       "toolchain:javascript",
       "workspace:react"
     ]
+  },
+  {
+    "id": "next",
+    "title": "Next.js",
+    "blurb": "Full web applications with React: file-based routes, server rendering, API endpoints and server actions.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:next"
+    ]
   }
 ]

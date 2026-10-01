@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forms and server actions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="next/07-forms-and-server-actions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Next.js · lesson 7 of 8</p>
+<h1>Forms and server actions</h1>
+<p class="lede">Change data with a function that runs on the server and is called straight from a form.</p>
+<h2 id="server-actions">Server actions</h2>
+<p>Reading data needs no API in Next.js. Changing it does not either. A <strong>server action</strong> is an async function that runs on the server and can be given to a form as its <code>action</code>.</p>
+<pre><code class="lang-javascript">// app/actions.js
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { addTodo } from "../lib/todos.js";
+
+export async function createTodo(formData) {
+  const title = String(formData.get("title") ?? "").trim();
+  if (title === "") {
+    return { error: "A title is required." };
+  }
+  addTodo(title);
+  revalidatePath("/todos");
+  return { ok: true };
+}</code></pre>
+<p><code>"use server"</code> at the top of the file marks every exported function in it as a server action.</p>
+<pre><code class="lang-jsx">// app/todos/page.js
+import { createTodo } from "../actions.js";
+import { listTodos } from "../../lib/todos.js";
+
+export default async function TodosPage() {
+  const todos = listTodos();
+  return (
+    &lt;main&gt;
+      &lt;form action={createTodo}&gt;
+        &lt;label&gt;
+          Title &lt;input name="title" /&gt;
+        &lt;/label&gt;
+        &lt;button type="submit"&gt;Add&lt;/button&gt;
+      &lt;/form&gt;
+      &lt;ul&gt;
+        {todos.map((todo) =&gt; (
+          &lt;li key={todo.id}&gt;{todo.title}&lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+<p>When the form is submitted:</p>
+<ol><li>the browser sends the form fields to the server;</li><li><code>createTodo</code> runs there, with a <code>FormData</code> object as its argument;</li><li><code>revalidatePath("/todos")</code> marks the page as outdated;</li><li>the page is rendered again with the new todo, and the browser shows it.</li></ol>
+<p>No <code>fetch</code>, no route handler, no state for the list. The form even works before JavaScript has loaded.</p>
+<h2 id="formdata">FormData</h2>
+<p>Each field is read by the <code>name</code> attribute of its input:</p>
+<pre><code class="lang-javascript">formData.get("title")        // the value, as a string, or null if there is no such field
+formData.getAll("tag")       // every value, for fields that repeat</code></pre>
+<p>Values are strings. Convert and validate them.</p>
+<h2 id="validate-on-the-server">Validate on the server</h2>
+<p>A server action is a public endpoint. Anyone can call it with any data, bypassing your form completely. So it must:</p>
+<ul><li><strong>validate</strong> every value: type, length, range;</li><li><strong>check permission</strong>: is this user allowed to do this?</li></ul>
+<p>Checks in the browser are a convenience for the user. The checks in the action are the ones that count.</p>
+<h2 id="showing-the-result">Showing the result</h2>
+<p>To display an error from the action, or to disable the button while it runs, the form needs a client component. <code>useActionState</code> connects the two:</p>
+<pre><code class="lang-jsx">"use client";
+
+import { useActionState } from "react";
+import { createTodo } from "../actions.js";
+
+export default function TodoForm() {
+  const [state, formAction, pending] = useActionState(
+    async (previous, formData) =&gt; createTodo(formData),
+    null
+  );
+
+  return (
+    &lt;form action={formAction}&gt;
+      &lt;label&gt;
+        Title &lt;input name="title" /&gt;
+      &lt;/label&gt;
+      &lt;button type="submit" disabled={pending}&gt;
+        {pending ? "Adding..." : "Add"}
+      &lt;/button&gt;
+      {state?.error &amp;&amp; &lt;p role="alert"&gt;{state.error}&lt;/p&gt;}
+    &lt;/form&gt;
+  );
+}</code></pre>
+<ul><li><code>state</code> is whatever the action last returned.</li><li><code>pending</code> is true while it is running.</li></ul>
+<h2 id="after-a-change">After a change</h2>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>From</th><th>Effect</th></tr></thead><tbody><tr><td><code>revalidatePath("/todos")</code></td><td><code>next/cache</code></td><td>the page is rendered again with fresh data</td></tr><tr><td><code>redirect("/todos/5")</code></td><td><code>next/navigation</code></td><td>send the user to another page</td></tr></tbody></table></div>
+<p><code>redirect</code> works by throwing a special error, so do not call it inside a <code>try</code> block that would catch it.</p>
+<h2 id="actions-outside-forms">Actions outside forms</h2>
+<p>A server action is an ordinary async function to the code that calls it. A client component can call one from an event handler:</p>
+<pre><code class="lang-jsx">&lt;button onClick={async () =&gt; { await removeTodo(todo.id); }}&gt;Remove&lt;/button&gt;</code></pre>
+<h2 id="server-action-or-route-handler">Server action or route handler?</h2>
+<div class="table-wrap"><table><thead><tr><th>Need</th><th>Use</th></tr></thead><tbody><tr><td>your own pages change data</td><td>a server action</td></tr><tr><td>other programs call your app over HTTP</td><td>a <a href="../next/05-route-handlers.html">route handler</a></td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>"use server"</code>.</strong></li><li><strong>Trusting form data</strong> because the form already checked it.</li><li><strong>No <code>revalidatePath</code></strong>, so the page keeps showing old data.</li><li><strong>An input with no <code>name</code>.</strong> It is not part of the form data.</li><li><strong>Returning something that cannot be sent to the browser</strong>, such as a class instance.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="next/07-server-actions">
+<h3>Change data with server actions <span class="ex-id">next/07-server-actions</span></h3>
+<p><code>lib/todos.js</code> is given, with <code>listTodos()</code>, <code>addTodo(title)</code> and <code>deleteTodo(id)</code>.</p>
+<h4><code>app/actions.js</code></h4>
+<p>Its first line is <code>"use server";</code>. It exports two async functions.</p>
+<p><code>createTodo(formData)</code>:</p>
+<ul><li>reads the field <code>title</code> and trims it;</li><li>if it is empty, returns <code>{ error: "A title is required." }</code> and adds nothing;</li><li>if it is longer than 50 characters, returns <code>{ error: "A title can have at most 50 characters." }</code> and adds nothing;</li><li>otherwise adds the todo, calls <code>revalidatePath("/todos")</code>, and returns <code>{ ok: true }</code>.</li></ul>
+<p><code>removeTodo(id)</code>:</p>
+<ul><li>deletes the todo with that id (a number), calls <code>revalidatePath("/todos")</code>, and returns <code>{ ok: true }</code>. For an unknown id it returns <code>{ error: "No such todo." }</code> and does not revalidate.</li></ul>
+<h4><code>app/todos/page.jsx</code>, a server component</h4>
+<ul><li>a <code>&lt;form&gt;</code> whose <code>action</code> is <code>createTodo</code>, with an <code>&lt;input name="title" /&gt;</code> and a submit button <code>Add</code>;</li><li>a <code>&lt;ul&gt;</code> with one <code>&lt;li&gt;</code> per todo from <code>listTodos()</code>, showing the title.</li></ul>
+<p><code>revalidatePath</code> comes from <code>next/cache</code>. The tests replace it with a fake and check that you call it.</p>
+<p>This exercise uses the Next.js package set. Download it once from Setup, or run <code>python3 check.py prefetch next</code>.</p>
+<p class="ex-files">Files: <code>exercises/next/07-server-actions/</code></p>
+<pre><code class="lang-console">$ python3 check.py next/07-server-actions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../next/06-data-fetching.html"><span>Previous</span>Loading data</a><a class="next" href="../next/08-building-and-deploying.html"><span>Next</span>Building and deploying</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

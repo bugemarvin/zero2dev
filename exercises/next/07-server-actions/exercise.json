@@ -1,0 +1,28 @@
+{
+  "title": "Change data with server actions",
+  "lesson": "next/07-forms-and-server-actions",
+  "kind": "harness",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/actions.js",
+    "app/todos/page.jsx"
+  ],
+  "run": [
+    "npx",
+    "vitest",
+    "run",
+    "--config",
+    "../../vitest.config.mjs",
+    "--root",
+    ".",
+    "--reporter=tap-flat"
+  ],
+  "timeout": 120,
+  "hints": [
+    "The first line of actions.js is \"use server\";",
+    "const title = String(formData.get(\"title\") ?? \"\").trim(); handles a missing field as well.",
+    "Return early with the error object. Only after addTodo call revalidatePath(\"/todos\").",
+    "<form action={createTodo}> with <input name=\"title\" /> and <button type=\"submit\">Add</button>"
+  ]
+}

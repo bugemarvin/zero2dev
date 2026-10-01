@@ -1,0 +1,87 @@
+{
+  "title": "A shared frame and a nested layout",
+  "lesson": "next/02-layouts-and-links",
+  "kind": "http",
+  "lang": "javascript",
+  "workspace": "next",
+  "edit": [
+    "app/layout.jsx",
+    "app/blog/layout.jsx"
+  ],
+  "start": [
+    "npx",
+    "next",
+    "dev",
+    "-p",
+    "{port}",
+    "-H",
+    "127.0.0.1"
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "start_timeout": 120,
+  "timeout": 90,
+  "requests": [
+    {
+      "name": "/ has the navigation with three links",
+      "path": "/",
+      "status": 200,
+      "contains": [
+        "<nav",
+        "href=\"/\"",
+        "href=\"/blog\"",
+        "href=\"/about\""
+      ]
+    },
+    {
+      "name": "/ still shows its page, inside <main>",
+      "path": "/",
+      "contains": [
+        "<main>",
+        "<h1>Home page</h1>"
+      ]
+    },
+    {
+      "name": "/ has the footer",
+      "path": "/",
+      "contains": "<footer>My site</footer>"
+    },
+    {
+      "name": "/about gets the same frame",
+      "path": "/about",
+      "status": 200,
+      "contains": [
+        "<nav",
+        "<h1>About page</h1>",
+        "<footer>My site</footer>"
+      ]
+    },
+    {
+      "name": "/blog shows the sidebar and its page",
+      "path": "/blog",
+      "status": 200,
+      "contains": [
+        "<aside>Blog sidebar</aside>",
+        "<h1>Latest posts</h1>",
+        "<nav",
+        "<footer>My site</footer>"
+      ]
+    },
+    {
+      "name": "the sidebar is not on /",
+      "path": "/",
+      "not_contains": "Blog sidebar"
+    },
+    {
+      "name": "the sidebar is not on /about",
+      "path": "/about",
+      "not_contains": "Blog sidebar"
+    }
+  ],
+  "hints": [
+    "import Link from \"next/link\"; then <Link href=\"/blog\">Blog</Link> inside a <nav>.",
+    "The page arrives as children. Render it: <main>{children}</main>",
+    "The blog layout returns the <aside> followed by {children}, wrapped in one element."
+  ]
+}
