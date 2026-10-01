@@ -317,6 +317,23 @@ try:
 finally:
     (ROOT / "exercises" / CSS / "style.css").write_text(starter_css, encoding="utf-8")
 
+# ---------------------------------------------------------------- following a link from another site
+CLICK = {"Sec-Fetch-Site": "cross-site", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "document"}
+status, body, resp = request("GET", "/", token=None, headers=CLICK)
+check("a link from another site may open the app's pages", status == 200 and b"zero2dev" in body, str(status))
+check("pages may not be shown inside a frame", resp.getheader("X-Frame-Options") == "DENY"
+      and "frame-ancestors 'none'" in (resp.getheader("Content-Security-Policy") or ""))
+status, body, _ = request("GET", "/connect.html?origin=https%3A%2F%2Fexample.com", token=None, headers=CLICK)
+check("the approval page opens from a link on the other site", status == 200 and b"Allow a website" in body, str(status))
+status, _, _ = request("GET", "/api/session", token=None, headers=CLICK)
+check("but the token is not given to a request that comes from another site", status == 403)
+status, _, _ = request("GET", "/api/state", headers=CLICK)
+check("nor is the API, even with a token", status == 403)
+status, _, _ = request("POST", "/api/run", {"id": "python/01-first-functions"}, headers={"Sec-Fetch-Site": "cross-site"})
+check("nor can another site post to it", status == 403)
+status, _, _ = request("GET", "/", token=None, headers=CLICK, host="evil.example")
+check("a page request with a wrong Host is still refused", status == 403)
+
 # ---------------------------------------------------------------- the guide hosted on another address
 SITE = "https://zero2dev.example.app"
 status, body, resp = request("GET", "/api/hello", token=None, headers={"Origin": SITE})
