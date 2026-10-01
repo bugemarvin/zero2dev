@@ -1,0 +1,22 @@
+{
+  "title": "Promises in practice",
+  "lesson": "js/04-async",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "delay: return new Promise((resolve) => setTimeout(() => resolve(value), ms));",
+    "fetchAll: Promise.all(ids.map((id) => fetchOne(id))) starts everything first and keeps the order.",
+    "retry: a for loop with try { return await fn(); } catch (error) { lastError = error; } and throw lastError after the loop.",
+    "withTimeout: Promise.race([promise, a promise that rejects with new Error(\"timeout\") after ms])"
+  ]
+}

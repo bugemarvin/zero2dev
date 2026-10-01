@@ -1,0 +1,22 @@
+{
+  "title": "Arrays and objects",
+  "lesson": "js/02-arrays-and-objects",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "total: prices.reduce((sum, price) => sum + price, 0). The 0 makes it work for an empty array.",
+    "names is a map, adults is a filter.",
+    "byId: start with an empty object and set result[user.id] = user in a loop.",
+    "withDefaults: { theme: \"light\", fontSize: 14, sidebar: true, ...options }. What comes later wins."
+  ]
+}

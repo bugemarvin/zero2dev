@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arrays and objects · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/02-arrays-and-objects">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 2 of 11</p>
+<h1>Arrays and objects</h1>
+<p class="lede">The two structures all JavaScript data is built from, and the methods that transform them.</p>
+<h2 id="arrays">Arrays</h2>
+<pre><code class="lang-javascript">const scores = [90, 72, 85];
+scores[0]             // 90
+scores.length         // 3
+scores.push(60);      // add at the end
+scores.includes(72)   // true
+scores.indexOf(85)    // 2, or -1 when absent</code></pre>
+<p>Loop with <code>for...of</code>:</p>
+<pre><code class="lang-javascript">for (const score of scores) {
+  console.log(score);
+}</code></pre>
+<h2 id="the-three-methods-that-matter">The three methods that matter</h2>
+<p>Each takes a function and returns something new. The original array is not changed.</p>
+<pre><code class="lang-javascript">const numbers = [1, 2, 3, 4];
+
+numbers.map((n) =&gt; n * 2);              // [2, 4, 6, 8]    transform each
+numbers.filter((n) =&gt; n % 2 === 0);     // [2, 4]          keep some
+numbers.reduce((sum, n) =&gt; sum + n, 0); // 10              combine into one value</code></pre>
+<p><code>reduce</code> carries a running value, here <code>sum</code>, starting from the second argument, <code>0</code>.</p>
+<p>They chain:</p>
+<pre><code class="lang-javascript">const total = orders
+  .filter((order) =&gt; order.paid)
+  .map((order) =&gt; order.amount)
+  .reduce((sum, amount) =&gt; sum + amount, 0);</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Method</th><th>Returns</th></tr></thead><tbody><tr><td><code>find(fn)</code></td><td>the first element that matches, or <code>undefined</code></td></tr><tr><td><code>some(fn)</code>, <code>every(fn)</code></td><td>whether any, or all, match</td></tr><tr><td><code>slice(start, end)</code></td><td>a copy of part of the array</td></tr><tr><td><code>concat(other)</code></td><td>a new array with both</td></tr><tr><td><code>join(", ")</code></td><td>a string</td></tr><tr><td><code>sort((a, b) =&gt; a - b)</code></td><td>sorts <strong>in place</strong>, by the compare function</td></tr><tr><td><code>toSorted(fn)</code></td><td>a sorted copy</td></tr></tbody></table></div>
+<p>Without a compare function <code>sort</code> compares as text, so <code>[10, 9].sort()</code> gives <code>[10, 9]</code>. Always pass one for numbers.</p>
+<h2 id="objects">Objects</h2>
+<p>An object groups named values, called <strong>properties</strong>.</p>
+<pre><code class="lang-javascript">const user = { name: "Sam", age: 30 };
+user.name             // "Sam"
+user["age"]           // 30: the same, with the name as a string
+user.email            // undefined: no such property
+user.email = "sam@example.com";    // add or change
+delete user.age;
+"name" in user        // true</code></pre>
+<p>When the variable has the same name as the property, write it once:</p>
+<pre><code class="lang-javascript">const name = "Sam";
+const age = 30;
+const user = { name, age };       // same as { name: name, age: age }</code></pre>
+<p>Looping:</p>
+<pre><code class="lang-javascript">Object.keys(user)       // ["name", "email"]
+Object.values(user)     // ["Sam", "sam@example.com"]
+for (const [key, value] of Object.entries(user)) {
+  console.log(key, value);
+}</code></pre>
+<h2 id="destructuring">Destructuring</h2>
+<p>Take values out of arrays and objects in one statement:</p>
+<pre><code class="lang-javascript">const [first, second] = [10, 20];
+const { name, age } = user;
+const { name: userName, role = "guest" } = user;    // rename, and give a default
+
+function describe({ name, age }) {                  // directly in the parameters
+  return `${name} (${age})`;
+}</code></pre>
+<h2 id="spread">Spread</h2>
+<p><code>...</code> spreads the contents of an array or object into a new one. This is how you copy and "change" data without modifying the original:</p>
+<pre><code class="lang-javascript">const more = [...scores, 100];                  // a new array
+const older = { ...user, age: 31 };             // a copy with one property changed
+const settings = { theme: "light", size: 10, ...options };   // defaults, then overrides</code></pre>
+<p>In the last line, properties in <code>options</code> replace the defaults that come before it.</p>
+<h2 id="variables-hold-references">Variables hold references</h2>
+<pre><code class="lang-javascript">const a = [1, 2];
+const b = a;          // not a copy: the same array
+b.push(3);
+a                     // [1, 2, 3]</code></pre>
+<p><code>const</code> only stops the variable being reassigned. The array or object it points to can still change. To get an independent copy, spread it: <code>[...a]</code> or <code>{ ...user }</code>.</p>
+<h2 id="optional-chaining">Optional chaining</h2>
+<p>Reading a property of <code>undefined</code> throws an error. <code>?.</code> stops and gives <code>undefined</code> instead, and <code>??</code> supplies a fallback:</p>
+<pre><code class="lang-javascript">const city = user.address?.city ?? "unknown";</code></pre>
+<h2 id="json">JSON</h2>
+<p>JSON is the text format programs use to exchange data. It looks like JavaScript objects with double-quoted names.</p>
+<pre><code class="lang-javascript">const text = JSON.stringify({ name: "Sam", tags: ["a", "b"] });
+// '{"name":"Sam","tags":["a","b"]}'
+const data = JSON.parse(text);</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Changing an array or object you were given.</strong> Callers do not expect it. Return a new one.</li><li><strong><code>sort()</code> on numbers with no compare function.</strong></li><li><strong>Forgetting the start value of <code>reduce</code>.</strong> On an empty array it then throws.</li><li><strong><code>map</code> when you meant <code>forEach</code>, or the reverse.</strong> <code>map</code> builds a new array from the returned values.</li><li><strong>Comparing arrays or objects with <code>===</code>.</strong> That asks whether they are the same object, not whether they hold the same values.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/02-collections">
+<h3>Arrays and objects <span class="ex-id">js/02-collections</span></h3>
+<p>Write five exported functions in <code>solution.mjs</code>. Users look like <code>{ id: 1, name: "Ada", age: 36 }</code>.</p>
+<ul><li><code>total(prices)</code> returns the sum of an array of numbers. <code>0</code> for an empty array.</li><li><code>names(users)</code> returns an array of the users' names.</li><li><code>adults(users)</code> returns the users aged 18 or more, in the same order.</li><li><code>byId(users)</code> returns an object that maps each id to its user: <code>{ 1: {...}, 2: {...} }</code>.</li><li><code>withDefaults(options)</code> returns a new object with the defaults <code>theme: "light"</code>, <code>fontSize: 14</code> and <code>sidebar: true</code>, overridden by whatever <code>options</code> contains.</li></ul>
+<p>None of the functions may change the array or object it receives.</p>
+<p class="ex-files">Files: <code>exercises/js/02-collections/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/02-collections</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/01-values-and-functions.html"><span>Previous</span>Values and functions</a><a class="next" href="../js/03-modules.html"><span>Next</span>Modules</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

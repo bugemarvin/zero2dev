@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The browser and the DOM · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/10-the-browser-and-dom">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 10 of 11</p>
+<h1>The browser and the DOM</h1>
+<p class="lede">How JavaScript changes a web page and reacts to the user. The foundation under React.</p>
+<h2 id="a-page-is-a-tree">A page is a tree</h2>
+<p>A browser turns HTML into a tree of objects called the <strong>DOM</strong> (Document Object Model). Each element, such as a paragraph or a button, is a node in that tree. JavaScript can read and change it, and the page updates at once.</p>
+<pre><code class="lang-html">&lt;body&gt;
+  &lt;h1 id="title"&gt;Shopping&lt;/h1&gt;
+  &lt;ul id="list"&gt;&lt;/ul&gt;
+  &lt;button id="add"&gt;Add&lt;/button&gt;
+  &lt;script type="module" src="app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+<p><code>type="module"</code> makes the script an ES module, and makes it run after the page has been parsed.</p>
+<h2 id="finding-elements">Finding elements</h2>
+<pre><code class="lang-javascript">const title = document.querySelector("#title");        // the first match of a CSS selector
+const items = document.querySelectorAll("li");         // all matches</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Selector</th><th>Matches</th></tr></thead><tbody><tr><td><code>#title</code></td><td>the element with <code>id="title"</code></td></tr><tr><td><code>.done</code></td><td>elements with <code>class="done"</code></td></tr><tr><td><code>li</code></td><td>every <code>&lt;li&gt;</code></td></tr><tr><td><code>ul &gt; li</code></td><td><code>&lt;li&gt;</code> elements directly inside a <code>&lt;ul&gt;</code></td></tr></tbody></table></div>
+<p><code>querySelector</code> returns <code>null</code> when nothing matches.</p>
+<h2 id="changing-elements">Changing elements</h2>
+<pre><code class="lang-javascript">title.textContent = "My list";              // set the text
+title.classList.add("big");                 // add a CSS class
+title.classList.toggle("hidden");           // add it if absent, remove it if present
+title.setAttribute("title", "tooltip");
+title.style.color = "teal";</code></pre>
+<h2 id="creating-elements">Creating elements</h2>
+<pre><code class="lang-javascript">const list = document.querySelector("#list");
+const item = document.createElement("li");
+item.textContent = "Milk";
+list.append(item);
+
+item.remove();                              // take it out again
+list.replaceChildren();                     // remove everything inside</code></pre>
+<div class="callout warn"><p><strong>Warning:</strong> use <code>textContent</code> for text that comes from users or from a server. <code>innerHTML</code> interprets its value as HTML, so a name such as <code>&lt;img src=x onerror=...&gt;</code> would run code in the page. That attack is called <strong>cross-site scripting</strong> (XSS).</p></div>
+<h2 id="events">Events</h2>
+<p>The browser reports what the user does through <strong>events</strong>. You register a function to be called when one happens:</p>
+<pre><code class="lang-javascript">const button = document.querySelector("#add");
+
+button.addEventListener("click", (event) =&gt; {
+  console.log("clicked", event.target);
+});</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>When</th></tr></thead><tbody><tr><td><code>click</code></td><td>an element is clicked</td></tr><tr><td><code>input</code></td><td>the value of a form field changes</td></tr><tr><td><code>submit</code></td><td>a form is submitted</td></tr><tr><td><code>keydown</code></td><td>a key is pressed</td></tr><tr><td><code>DOMContentLoaded</code></td><td>the page has been parsed</td></tr></tbody></table></div>
+<p>Forms reload the page when submitted, unless you stop that:</p>
+<pre><code class="lang-javascript">form.addEventListener("submit", (event) =&gt; {
+  event.preventDefault();
+  const title = form.elements.title.value;
+});</code></pre>
+<h2 id="state-and-rendering">State and rendering</h2>
+<p>A reliable way to build an interactive page: keep the data in plain variables, the <strong>state</strong>, and have one function that makes the DOM match it.</p>
+<pre><code class="lang-javascript">let items = ["Milk", "Bread"];
+
+function render() {
+  list.replaceChildren(
+    ...items.map((text) =&gt; {
+      const li = document.createElement("li");
+      li.textContent = text;
+      return li;
+    })
+  );
+}
+
+button.addEventListener("click", () =&gt; {
+  items = [...items, "Eggs"];      // change the state
+  render();                        // and redraw
+});
+
+render();</code></pre>
+<p>The event handlers never touch the DOM directly. They change the state and call <code>render</code>. The page is always a reflection of the data.</p>
+<p>Hold on to that idea. It is exactly what React does, with the redrawing handled for you.</p>
+<h2 id="fetching-data-in-a-page">Fetching data in a page</h2>
+<pre><code class="lang-javascript">async function load() {
+  const response = await fetch("/api/todos");
+  items = await response.json();
+  render();
+}</code></pre>
+<p>A page may freely call the server it came from. Calls to a <strong>different</strong> origin are blocked by the browser unless that server allows them with CORS headers.</p>
+<h2 id="testing-dom-code-without-a-browser">Testing DOM code without a browser</h2>
+<p>The exercises for this lesson and for React run in <strong>jsdom</strong>, an implementation of the DOM in JavaScript. A test creates elements, calls your function, simulates a click and inspects the result, with no window opening. It comes with the React package set, downloaded once from the Setup page.</p>
+<h2 id="developer-tools">Developer tools</h2>
+<p>Press F12 in any browser. The <strong>Console</strong> shows <code>console.log</code> output and errors and lets you type JavaScript against the page. <strong>Elements</strong> shows the live DOM. <strong>Network</strong> shows every request. These are the tools you will use every day.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Running a script before the elements exist</strong>, so <code>querySelector</code> returns <code>null</code>. Use <code>type="module"</code>.</li><li><strong><code>innerHTML</code> with untrusted text.</strong></li><li><strong>Calling the handler in place of passing it</strong>: <code>addEventListener("click", save())</code> runs <code>save</code> immediately.</li><li><strong>Changing the DOM in many places</strong> until it no longer matches the data.</li><li><strong>Forgetting <code>event.preventDefault()</code></strong> on a form.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/10-dom">
+<h3>Change a page with the DOM <span class="ex-id">js/10-dom</span></h3>
+<p>Write three exported functions in <code>dom.js</code>. The tests run them in a simulated browser.</p>
+<ul><li><code>renderList(container, items)</code> replaces whatever is inside <code>container</code> with a single <code>&lt;ul&gt;</code> that holds one <code>&lt;li&gt;</code> per item, with the item as its text. Calling it again replaces the old list. Item text must be shown <strong>as text</strong>, even if it looks like HTML.</li><li><code>setupCounter(button, output)</code> shows <code>0</code> in <code>output</code>, and adds 1 every time <code>button</code> is clicked.</li><li><code>setupFilter(input, list)</code> hides the <code>&lt;li&gt;</code> children of <code>list</code> whose text does not contain what is typed in <code>input</code>, ignoring upper and lower case. It reacts to the <code>input</code> event. Hide an element by setting its <code>hidden</code> property to <code>true</code>. An empty input shows everything.</li></ul>
+<p>This exercise uses the React package set, which includes the simulated browser. Download it once from Setup, or run <code>python3 check.py prefetch react</code>.</p>
+<p class="ex-files">Files: <code>exercises/js/10-dom/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/10-dom</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/09-typescript-basics.html"><span>Previous</span>TypeScript basics</a><a class="next" href="../js/11-tooling.html"><span>Next</span>Tooling and what comes next</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

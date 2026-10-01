@@ -1123,6 +1123,129 @@ window.Z2D_CURRICULUM = {
      ]
     }
    ]
+  },
+  {
+   "id": "js",
+   "title": "JavaScript and TypeScript",
+   "blurb": "The language of the web, from first functions to a REST API, types and the browser.",
+   "lessons": [
+    {
+     "id": "js/01-values-and-functions",
+     "title": "Values and functions",
+     "summary": "The language of the web, run from your terminal with Node. Variables, types, text and functions.",
+     "exercises": [
+      {
+       "id": "js/01-functions",
+       "title": "First functions"
+      }
+     ]
+    },
+    {
+     "id": "js/02-arrays-and-objects",
+     "title": "Arrays and objects",
+     "summary": "The two structures all JavaScript data is built from, and the methods that transform them.",
+     "exercises": [
+      {
+       "id": "js/02-collections",
+       "title": "Arrays and objects"
+      }
+     ]
+    },
+    {
+     "id": "js/03-modules",
+     "title": "Modules",
+     "summary": "Split a program into files that share exactly what they choose to.",
+     "exercises": [
+      {
+       "id": "js/03-modules",
+       "title": "A cart module"
+      }
+     ]
+    },
+    {
+     "id": "js/04-async",
+     "title": "Asynchronous code",
+     "summary": "Waiting for files, timers and the network without freezing everything. Promises and async/await.",
+     "exercises": [
+      {
+       "id": "js/04-async",
+       "title": "Promises in practice"
+      }
+     ]
+    },
+    {
+     "id": "js/05-classes-and-closures",
+     "title": "Classes, closures and errors",
+     "summary": "Two ways to keep state together with behaviour, and how to signal and handle failure.",
+     "exercises": [
+      {
+       "id": "js/05-classes",
+       "title": "A stack class and a counter closure"
+      }
+     ]
+    },
+    {
+     "id": "js/06-node-and-npm",
+     "title": "Node and npm",
+     "summary": "Files, arguments and exit codes in Node, and the package manager that the whole JavaScript world shares.",
+     "exercises": [
+      {
+       "id": "js/06-cli",
+       "title": "A word counter for the command line"
+      }
+     ]
+    },
+    {
+     "id": "js/07-http-and-servers",
+     "title": "HTTP and a server from scratch",
+     "summary": "How browsers and servers talk, and a working server with nothing but Node.",
+     "exercises": [
+      {
+       "id": "js/07-http-server",
+       "title": "A server with node:http"
+      }
+     ]
+    },
+    {
+     "id": "js/08-express-api",
+     "title": "A REST API with Express",
+     "summary": "Routes, parameters, JSON bodies and proper status codes, in the most widely used Node framework.",
+     "exercises": [
+      {
+       "id": "js/08-todo-api",
+       "title": "A todo API with Express"
+      }
+     ]
+    },
+    {
+     "id": "js/09-typescript-basics",
+     "title": "TypeScript basics",
+     "summary": "JavaScript with types. Mistakes that used to appear when the program ran are caught while you type.",
+     "exercises": [
+      {
+       "id": "js/09-typescript",
+       "title": "Typed functions"
+      }
+     ]
+    },
+    {
+     "id": "js/10-the-browser-and-dom",
+     "title": "The browser and the DOM",
+     "summary": "How JavaScript changes a web page and reacts to the user. The foundation under React.",
+     "exercises": [
+      {
+       "id": "js/10-dom",
+       "title": "Change a page with the DOM"
+      }
+     ]
+    },
+    {
+     "id": "js/11-tooling",
+     "title": "Tooling and what comes next",
+     "summary": "The tools around the language. Formatters, linters, bundlers and debugging.",
+     "exercises": []
+    }
+   ]
   }
  ]
 };

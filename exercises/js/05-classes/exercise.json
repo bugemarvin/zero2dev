@@ -1,0 +1,22 @@
+{
+  "title": "A stack class and a counter closure",
+  "lesson": "js/05-classes-and-closures",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "In the error class: constructor() { super(\"the stack is empty\"); this.name = \"EmptyStackError\"; }",
+    "A private field is declared at the top of the class: #items = []; and used as this.#items.",
+    "get size() { return this.#items.length; } defines the getter.",
+    "counter: let count = start; then return an object whose three functions use and change count."
+  ]
+}

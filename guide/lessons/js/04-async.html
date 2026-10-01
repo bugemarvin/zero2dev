@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asynchronous code · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/04-async">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 4 of 11</p>
+<h1>Asynchronous code</h1>
+<p class="lede">Waiting for files, timers and the network without freezing everything. Promises and async/await.</p>
+<h2 id="why-asynchronous">Why asynchronous</h2>
+<p>JavaScript runs your code on a single thread: one thing at a time. A request to a server can take a second. If the language simply waited, the whole page or server would freeze for that second.</p>
+<p>So slow operations do not block. They start, your code carries on, and the result is delivered later. Code written for this is called <strong>asynchronous</strong>.</p>
+<h2 id="promises">Promises</h2>
+<p>A <strong>promise</strong> is an object that stands for a result that is not there yet. It is in one of three states: pending, fulfilled with a value, or rejected with an error.</p>
+<pre><code class="lang-javascript">const promise = fetch("https://example.com/data.json");</code></pre>
+<p><code>fetch</code> returns at once, with a promise. The response arrives later.</p>
+<h2 id="async-and-await">async and await</h2>
+<p><code>await</code> pauses the surrounding function until a promise settles, and gives you its value. It may only be used inside a function marked <code>async</code>, or at the top level of a module.</p>
+<pre><code class="lang-javascript">async function loadUser(id) {
+  const response = await fetch(`https://api.example.com/users/${id}`);
+  const user = await response.json();
+  return user.name;
+}</code></pre>
+<p>It reads from top to bottom like ordinary code. While this function waits, other code keeps running.</p>
+<p>An <code>async</code> function <strong>always returns a promise</strong>. The caller awaits it too:</p>
+<pre><code class="lang-javascript">const name = await loadUser(7);</code></pre>
+<h2 id="errors">Errors</h2>
+<p>A rejected promise becomes an exception at the <code>await</code>. Handle it with <code>try</code> and <code>catch</code>:</p>
+<pre><code class="lang-javascript">async function loadUserSafely(id) {
+  try {
+    return await loadUser(id);
+  } catch (error) {
+    console.error("could not load user:", error.message);
+    return null;
+  }
+}</code></pre>
+<p>Throwing inside an <code>async</code> function rejects the promise it returned:</p>
+<pre><code class="lang-javascript">async function mustBePositive(n) {
+  if (n &lt;= 0) {
+    throw new Error("must be positive");
+  }
+  return n;
+}</code></pre>
+<h2 id="making-a-promise-yourself">Making a promise yourself</h2>
+<p>Wrap something that calls back later, such as a timer:</p>
+<pre><code class="lang-javascript">function delay(ms) {
+  return new Promise((resolve) =&gt; {
+    setTimeout(resolve, ms);
+  });
+}
+
+await delay(1000);
+console.log("one second later");</code></pre>
+<p>The function passed to <code>new Promise</code> receives <code>resolve</code> and <code>reject</code>. Call <code>resolve(value)</code> to fulfil the promise, or <code>reject(error)</code> to fail it.</p>
+<h2 id="one-after-another-or-all-at-once">One after another, or all at once</h2>
+<p>Awaiting in a loop runs the operations <strong>one after another</strong>:</p>
+<pre><code class="lang-javascript">const users = [];
+for (const id of ids) {
+  users.push(await loadUser(id));      // each waits for the one before
+}</code></pre>
+<p>If they do not depend on each other, start them all and wait once. <code>Promise.all</code> takes an array of promises and gives the results in the same order:</p>
+<pre><code class="lang-javascript">const users = await Promise.all(ids.map((id) =&gt; loadUser(id)));</code></pre>
+<p>Ten requests of one second each now take about one second, not ten.</p>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Settles when</th></tr></thead><tbody><tr><td><code>Promise.all(list)</code></td><td>all are fulfilled. Rejects as soon as one rejects.</td></tr><tr><td><code>Promise.allSettled(list)</code></td><td>all have finished, whatever the outcome</td></tr><tr><td><code>Promise.race(list)</code></td><td>the first one settles, either way</td></tr><tr><td><code>Promise.any(list)</code></td><td>the first one is fulfilled</td></tr></tbody></table></div>
+<p><code>Promise.race</code> gives a simple timeout: race the real work against a timer that rejects.</p>
+<pre><code class="lang-javascript">function withTimeout(promise, ms) {
+  const timer = new Promise((_, reject) =&gt; {
+    setTimeout(() =&gt; reject(new Error("timeout")), ms);
+  });
+  return Promise.race([promise, timer]);
+}</code></pre>
+<h2 id="retrying">Retrying</h2>
+<p>Network calls fail now and then. Trying again a few times is a loop with <code>try</code> and <code>catch</code>:</p>
+<pre><code class="lang-javascript">async function retry(fn, times) {
+  let lastError;
+  for (let attempt = 0; attempt &lt; times; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}</code></pre>
+<h2 id="then-and-catch">then and catch</h2>
+<p>Before <code>async</code> and <code>await</code>, promises were chained with methods. You will see this style in older code:</p>
+<pre><code class="lang-javascript">fetch(url)
+  .then((response) =&gt; response.json())
+  .then((data) =&gt; console.log(data))
+  .catch((error) =&gt; console.error(error));</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>await</code>.</strong> You then hold a promise, not the value, and <code>user.name</code> is <code>undefined</code>.</li><li><strong><code>await</code> in a loop</strong> when the operations could run together.</li><li><strong><code>array.forEach(async ...)</code>.</strong> <code>forEach</code> does not wait for the promises. Use <code>for...of</code>, or <code>Promise.all</code> with <code>map</code>.</li><li><strong>No error handling.</strong> An unhandled rejection crashes a Node program.</li><li><strong>Returning a value from inside a callback</strong> and expecting the outer function to return it.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/04-async">
+<h3>Promises in practice <span class="ex-id">js/04-async</span></h3>
+<p>Write four exported functions in <code>solution.mjs</code>.</p>
+<ul><li><code>delay(ms, value)</code> returns a promise that is fulfilled with <code>value</code> after <code>ms</code> milliseconds.</li><li><code>fetchAll(ids, fetchOne)</code> calls the async function <code>fetchOne(id)</code> for every id <strong>at the same time</strong> and returns a promise of the results, in the same order as the ids.</li><li><code>retry(fn, times)</code> calls the async function <code>fn()</code>. If it rejects, it tries again, up to <code>times</code> attempts in total. It returns the first successful result. If every attempt fails, it rejects with the last error.</li><li><code>withTimeout(promise, ms)</code> returns a promise that settles like <code>promise</code>, but rejects with an <code>Error</code> whose message is <code>timeout</code> if <code>ms</code> milliseconds pass first.</li></ul>
+<p class="ex-files">Files: <code>exercises/js/04-async/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/04-async</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/03-modules.html"><span>Previous</span>Modules</a><a class="next" href="../js/05-classes-and-closures.html"><span>Next</span>Classes, closures and errors</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "title": "Node (Express and TypeScript)",
+  "needs": ["node", "npm"],
+  "stack": "node",
+  "setup": [["npm", "ci", "--no-audit", "--no-fund"]]
+}

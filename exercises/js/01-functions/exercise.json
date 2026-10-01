@@ -1,0 +1,22 @@
+{
+  "title": "First functions",
+  "lesson": "js/01-values-and-functions",
+  "kind": "harness",
+  "lang": "javascript",
+  "edit": [
+    "solution.mjs"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 30,
+  "hints": [
+    "A default value goes in the parameter list: function greet(name = \"world\")",
+    "age >= 18 is already true or false. Return it directly.",
+    "Test for 15 first. String(n) turns a number into text.",
+    "function sum(...numbers) collects all arguments into an array."
+  ]
+}

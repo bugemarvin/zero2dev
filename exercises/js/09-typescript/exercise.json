@@ -1,0 +1,39 @@
+{
+  "title": "Typed functions",
+  "lesson": "js/09-typescript-basics",
+  "kind": "harness",
+  "lang": "typescript",
+  "workspace": "node",
+  "edit": [
+    "solution.ts"
+  ],
+  "build": [
+    "npx",
+    "tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "es2022",
+    "--module",
+    "nodenext",
+    "--moduleResolution",
+    "nodenext",
+    "--allowImportingTsExtensions",
+    "--skipLibCheck",
+    "solution.ts",
+    "usage.ts"
+  ],
+  "run": [
+    "node",
+    "--test",
+    "--test-reporter=tap",
+    "tests.mjs"
+  ],
+  "timeout": 60,
+  "hints": [
+    "displayName: user.email is string | undefined. Test it before you use it.",
+    "parsePort: narrow with typeof value === \"number\". Use Number(value) for the string, and Number.isInteger to validate.",
+    "first<T>(items: T[]): T | undefined returns items[0].",
+    "area: switch (shape.kind) with a case for \"circle\" and a case for \"rect\"."
+  ]
+}

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A REST API with Express · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/08-express-api">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 8 of 11</p>
+<h1>A REST API with Express</h1>
+<p class="lede">Routes, parameters, JSON bodies and proper status codes, in the most widely used Node framework.</p>
+<h2 id="express">Express</h2>
+<p>Express is a small framework that handles the plumbing of an HTTP server.</p>
+<pre><code class="lang-javascript">import express from "express";
+
+const app = express();
+app.use(express.json());                 // parse JSON request bodies into req.body
+
+app.get("/health", (req, res) =&gt; {
+  res.json({ status: "ok" });
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () =&gt; console.log(`listening on ${port}`));</code></pre>
+<p><code>res.json(data)</code> sets the content type, converts to JSON and sends, with status 200 unless you say otherwise.</p>
+<p>Express is a package, so it has to be installed. In this guide it comes from the Node package set: open Setup in the app and download it once, or run <code>python3 check.py prefetch node</code>.</p>
+<h2 id="routes">Routes</h2>
+<p>A route is a method, a path and a handler:</p>
+<pre><code class="lang-javascript">app.get("/todos", (req, res) =&gt; { ... });
+app.post("/todos", (req, res) =&gt; { ... });
+app.get("/todos/:id", (req, res) =&gt; { ... });
+app.patch("/todos/:id", (req, res) =&gt; { ... });
+app.delete("/todos/:id", (req, res) =&gt; { ... });</code></pre>
+<div class="table-wrap"><table><thead><tr><th>In the request</th><th>Read it from</th></tr></thead><tbody><tr><td>a <code>:name</code> part of the path</td><td><code>req.params.name</code></td></tr><tr><td><code>?page=2</code> in the URL</td><td><code>req.query.page</code></td></tr><tr><td>the JSON body</td><td><code>req.body</code></td></tr><tr><td>a header</td><td><code>req.get("Authorization")</code></td></tr></tbody></table></div>
+<p>Path parameters and query values are <strong>strings</strong>. Convert them: <code>Number(req.params.id)</code>.</p>
+<h2 id="rest">REST</h2>
+<p>REST is a set of conventions for designing an API around <strong>resources</strong>, the things your system manages:</p>
+<div class="table-wrap"><table><thead><tr><th>Action</th><th>Method and path</th><th>Success</th></tr></thead><tbody><tr><td>list all</td><td><code>GET /todos</code></td><td>200 and an array</td></tr><tr><td>read one</td><td><code>GET /todos/1</code></td><td>200 and the object</td></tr><tr><td>create</td><td><code>POST /todos</code></td><td>201 and the new object</td></tr><tr><td>change</td><td><code>PATCH /todos/1</code></td><td>200 and the updated object</td></tr><tr><td>delete</td><td><code>DELETE /todos/1</code></td><td>204 and no body</td></tr></tbody></table></div>
+<p>Paths name things, with plural nouns. The method says what to do with them. Avoid paths like <code>/getTodos</code> or <code>/deleteTodo</code>.</p>
+<h2 id="a-complete-resource">A complete resource</h2>
+<pre><code class="lang-javascript">let todos = [];
+let nextId = 1;
+
+app.get("/todos", (req, res) =&gt; {
+  res.json(todos);
+});
+
+app.post("/todos", (req, res) =&gt; {
+  const title = req.body?.title;
+  if (typeof title !== "string" || title.trim() === "") {
+    return res.status(400).json({ error: "title is required" });
+  }
+  const todo = { id: nextId++, title: title.trim(), done: false };
+  todos.push(todo);
+  res.status(201).json(todo);
+});
+
+app.get("/todos/:id", (req, res) =&gt; {
+  const todo = todos.find((t) =&gt; t.id === Number(req.params.id));
+  if (!todo) {
+    return res.status(404).json({ error: "not found" });
+  }
+  res.json(todo);
+});
+
+app.delete("/todos/:id", (req, res) =&gt; {
+  const before = todos.length;
+  todos = todos.filter((t) =&gt; t.id !== Number(req.params.id));
+  if (todos.length === before) {
+    return res.status(404).json({ error: "not found" });
+  }
+  res.status(204).end();
+});</code></pre>
+<p>Notice the pattern in every handler: <strong>validate, and leave early with a 4xx when something is wrong</strong>. Then do the work, then respond. The <code>return</code> matters: without it the code carries on and tries to send a second response.</p>
+<p>This example keeps the data in memory, so it is gone when the server restarts. A real API stores it in a database, which the <a href="../sql/01-select.html">SQL track</a> covers.</p>
+<h2 id="middleware">Middleware</h2>
+<p>A <strong>middleware</strong> is a function that runs before the route handlers. It can inspect or change the request, answer it, or pass it on with <code>next()</code>.</p>
+<pre><code class="lang-javascript">app.use((req, res, next) =&gt; {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});</code></pre>
+<p><code>express.json()</code> is a middleware too. They run in the order they were added.</p>
+<p>A handler for unknown routes goes after all the routes, and an error handler, recognised by its four parameters, goes last:</p>
+<pre><code class="lang-javascript">app.use((req, res) =&gt; {
+  res.status(404).json({ error: "not found" });
+});
+
+app.use((error, req, res, next) =&gt; {
+  console.error(error);
+  res.status(error.status || 500).json({ error: "something went wrong" });
+});</code></pre>
+<p>If a client sends invalid JSON, <code>express.json()</code> raises an error with <code>status</code> 400, and this handler answers with it.</p>
+<h2 id="never-trust-the-client">Never trust the client</h2>
+<p>Everything in <code>req.body</code>, <code>req.params</code> and <code>req.query</code> comes from outside. Check the type and the range of each value before you use it. An API that crashes, or stores nonsense, when given odd input has a bug.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>express.json()</code>.</strong> <code>req.body</code> is then <code>undefined</code>.</li><li><strong>Forgetting <code>return</code></strong> after sending an error response.</li><li><strong>Comparing <code>req.params.id</code> with a number</strong> without converting it.</li><li><strong>200 for everything.</strong> Use 201, 204, 400 and 404 where they apply.</li><li><strong>Verbs in paths.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/08-todo-api">
+<h3>A todo API with Express <span class="ex-id">js/08-todo-api</span></h3>
+<p>Complete <code>server.mjs</code>. Keep the todos in an array in memory. Ids start at 1 and go up by one.</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /todos</code></td><td>200 and the array of todos</td></tr><tr><td><code>POST /todos</code> with <code>{"title": "..."}</code></td><td>201 and the new todo: <code>{"id": 1, "title": "...", "done": false}</code>. The title is trimmed.</td></tr><tr><td><code>POST /todos</code> with a missing or blank title</td><td>400 <code>{"error": "title is required"}</code></td></tr><tr><td><code>GET /todos/:id</code></td><td>200 and the todo, or 404 <code>{"error": "not found"}</code></td></tr><tr><td><code>PATCH /todos/:id</code> with <code>{"done": true}</code></td><td>200 and the updated todo, or 404</td></tr><tr><td><code>DELETE /todos/:id</code></td><td>204 with no body, or 404</td></tr></tbody></table></div>
+<p>Listen on the port in the <code>PORT</code> environment variable.</p>
+<p>This exercise uses Express from the Node package set. If the app says it is not downloaded yet, use the Download button, or run <code>python3 check.py prefetch node</code> once.</p>
+<p class="ex-files">Files: <code>exercises/js/08-todo-api/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/08-todo-api</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/07-http-and-servers.html"><span>Previous</span>HTTP and a server from scratch</a><a class="next" href="../js/09-typescript-basics.html"><span>Next</span>TypeScript basics</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

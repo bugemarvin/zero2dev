@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modules · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/03-modules">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 3 of 11</p>
+<h1>Modules</h1>
+<p class="lede">Split a program into files that share exactly what they choose to.</p>
+<h2 id="one-file-one-module">One file, one module</h2>
+<p>In modern JavaScript every file is a <strong>module</strong>. What is inside stays private unless it is exported, and other files state what they need with <code>import</code>.</p>
+<p><code>cart.mjs</code>:</p>
+<pre><code class="lang-javascript">export const TAX_RATE = 0.2;
+
+export function total(items) {
+  return items.reduce((sum, item) =&gt; sum + item.price, 0);
+}
+
+function round(n) {              // not exported: private to this file
+  return Math.round(n * 100) / 100;
+}</code></pre>
+<p><code>main.mjs</code>:</p>
+<pre><code class="lang-javascript">import { total, TAX_RATE } from "./cart.mjs";
+
+console.log(total([{ price: 5 }, { price: 7 }]) * (1 + TAX_RATE));</code></pre>
+<ul><li>The path starts with <code>./</code> for a file next to this one, and includes the file ending.</li><li>The names in the braces must match the exported names.</li></ul>
+<h2 id="named-and-default-exports">Named and default exports</h2>
+<p>A module can have many <strong>named</strong> exports, and at most one <strong>default</strong> export.</p>
+<pre><code class="lang-javascript">// format.mjs
+export function money(n) {
+  return n.toFixed(2);
+}
+
+export default function summary(items) {
+  return `${items.length} items`;
+}</code></pre>
+<pre><code class="lang-javascript">import summary, { money } from "./format.mjs";    // default first, no braces
+import describe from "./format.mjs";              // a default can be given any name
+import { money as formatMoney } from "./format.mjs";
+import * as format from "./format.mjs";           // everything, as format.money</code></pre>
+<p>Prefer named exports. The name stays the same everywhere, and editors can find and rename it.</p>
+<h2 id="imports-are-live-and-read-only">Imports are live and read-only</h2>
+<p>An imported name cannot be reassigned by the importing file. A module's code runs <strong>once</strong>, the first time it is imported, however many files import it. So a module can hold shared state, such as a connection or a cache.</p>
+<h2 id="pure-functions">Pure functions</h2>
+<p>A module of functions is easiest to trust when those functions are <strong>pure</strong>: the result depends only on the arguments, and nothing outside is modified.</p>
+<pre><code class="lang-javascript">// impure: changes the array it was given
+export function addItem(cart, item) {
+  cart.push(item);
+  return cart;
+}
+
+// pure: returns a new array
+export function addItem(cart, item) {
+  return [...cart, item];
+}</code></pre>
+<p>Pure functions can be tested with no setup, and callers are never surprised. React, later in this guide, depends on this style: it detects changes by noticing that you produced a <strong>new</strong> array or object.</p>
+<h2 id="the-two-module-systems">The two module systems</h2>
+<p>You will meet two systems in existing code.</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>ES modules</th><th>CommonJS</th></tr></thead><tbody><tr><td>Syntax</td><td><code>import</code> and <code>export</code></td><td><code>require()</code> and <code>module.exports</code></td></tr><tr><td>Where</td><td>browsers, modern Node</td><td>older Node code</td></tr><tr><td>File ending in Node</td><td><code>.mjs</code>, or <code>.js</code> with <code>"type": "module"</code> in <code>package.json</code></td><td><code>.cjs</code>, or <code>.js</code> by default</td></tr></tbody></table></div>
+<pre><code class="lang-javascript">// CommonJS, for recognition
+const fs = require("fs");
+module.exports = { total };</code></pre>
+<p>Write ES modules. This track uses the <code>.mjs</code> ending so that Node treats each file as one with no further configuration.</p>
+<h2 id="built-in-modules">Built-in modules</h2>
+<p>Node ships with modules of its own, imported with the <code>node:</code> prefix:</p>
+<pre><code class="lang-javascript">import { readFileSync } from "node:fs";
+import path from "node:path";
+import test from "node:test";</code></pre>
+<p>Packages installed from npm are imported by their bare name, such as <code>import express from "express"</code>. Lesson 6 covers npm.</p>
+<h2 id="organising-a-project">Organising a project</h2>
+<ul><li>One topic per file: <code>cart.mjs</code>, <code>format.mjs</code>, <code>api.mjs</code>.</li><li>Keep what a module exports small. The less other files can reach, the freer you are to change the inside.</li><li>Avoid two modules that import each other.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Leaving off <code>./</code>.</strong> <code>import x from "cart.mjs"</code> looks for an installed package of that name.</li><li><strong>Leaving off the file ending</strong> in Node.</li><li><strong>Braces around a default import</strong>, or none around a named one.</li><li><strong>Mixing <code>require</code> and <code>import</code></strong> in the same file.</li><li><strong>Mutating arguments</strong> in a function others rely on.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/03-modules">
+<h3>A cart module <span class="ex-id">js/03-modules</span></h3>
+<p>Write the module <code>cart.mjs</code>. A cart is an array of items such as <code>{ id: 1, name: "Pen", price: 2.5 }</code>.</p>
+<p>Named exports:</p>
+<ul><li><code>TAX_RATE</code>, the constant <code>0.2</code>.</li><li><code>addItem(cart, item)</code> returns a <strong>new</strong> array with the item added at the end.</li><li><code>removeItem(cart, id)</code> returns a new array without the item that has that id.</li><li><code>total(cart)</code> returns the sum of the prices plus tax, rounded to 2 decimals. An empty cart costs <code>0</code>.</li></ul>
+<p>Default export:</p>
+<ul><li>a function <code>summary(cart)</code> that returns text such as <code>2 items, total 6.60</code>. Use <code>1 item</code> for a single item. The total always has two decimals.</li></ul>
+<p>The functions must not change the cart they are given. A helper that rounds does not need to be exported.</p>
+<p class="ex-files">Files: <code>exercises/js/03-modules/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/03-modules</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/02-arrays-and-objects.html"><span>Previous</span>Arrays and objects</a><a class="next" href="../js/04-async.html"><span>Next</span>Asynchronous code</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

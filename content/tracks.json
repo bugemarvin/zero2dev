@@ -72,5 +72,15 @@
     "needs": [
       "toolchain:elixir"
     ]
+  },
+  {
+    "id": "js",
+    "title": "JavaScript and TypeScript",
+    "blurb": "The language of the web, from first functions to a REST API, types and the browser.",
+    "needs": [
+      "toolchain:javascript",
+      "workspace:node",
+      "workspace:react"
+    ]
   }
 ]

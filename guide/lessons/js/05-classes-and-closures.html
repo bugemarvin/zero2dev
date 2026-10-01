@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Classes, closures and errors · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/05-classes-and-closures">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 5 of 11</p>
+<h1>Classes, closures and errors</h1>
+<p class="lede">Two ways to keep state together with behaviour, and how to signal and handle failure.</p>
+<h2 id="closures">Closures</h2>
+<p>A function can use the variables of the place where it was created, even after that place has finished running. The function together with those remembered variables is a <strong>closure</strong>.</p>
+<pre><code class="lang-javascript">function counter() {
+  let count = 0;
+  return {
+    increment() {
+      count += 1;
+    },
+    value() {
+      return count;
+    },
+  };
+}
+
+const a = counter();
+a.increment();
+a.increment();
+a.value();          // 2
+
+const b = counter();
+b.value();          // 0: its own count</code></pre>
+<p>Nothing outside can reach <code>count</code> except through the two functions. That is real privacy, with no class involved. Each call to <code>counter</code> creates a fresh <code>count</code>.</p>
+<p>Closures are everywhere in JavaScript: event handlers, callbacks, and React hooks all rely on them.</p>
+<h2 id="classes">Classes</h2>
+<p>A class describes objects that share the same methods.</p>
+<pre><code class="lang-javascript">class Stack {
+  #items = [];                  // a private field: only code inside the class can use it
+
+  push(item) {
+    this.#items.push(item);
+  }
+
+  pop() {
+    if (this.#items.length === 0) {
+      throw new EmptyStackError();
+    }
+    return this.#items.pop();
+  }
+
+  get size() {                  // a getter: read as stack.size, with no brackets
+    return this.#items.length;
+  }
+}
+
+const stack = new Stack();
+stack.push(1);
+stack.size;         // 1</code></pre>
+<ul><li><code>new Stack()</code> creates an object. A method named <code>constructor</code>, if present, runs at that moment.</li><li><code>this</code> is the object the method was called on.</li><li>A name starting with <code>#</code> is private.</li><li><code>get</code> defines a property that is computed when read.</li></ul>
+<pre><code class="lang-javascript">class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  distanceTo(other) {
+    return Math.hypot(this.x - other.x, this.y - other.y);
+  }
+
+  static origin() {             // called on the class: Point.origin()
+    return new Point(0, 0);
+  }
+}</code></pre>
+<h2 id="inheritance">Inheritance</h2>
+<pre><code class="lang-javascript">class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  speak() {
+    return `${this.name} makes a sound`;
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    return `${this.name} barks`;
+  }
+}</code></pre>
+<p>A subclass that defines its own <code>constructor</code> must call <code>super(...)</code> before using <code>this</code>.</p>
+<h2 id="the-trouble-with-this">The trouble with this</h2>
+<p><code>this</code> is decided by <strong>how a function is called</strong>, not where it was written. Take a method off its object and <code>this</code> is lost:</p>
+<pre><code class="lang-javascript">const pop = stack.pop;
+pop();                          // error: this is undefined
+
+button.addEventListener("click", stack.pop);              // same problem
+button.addEventListener("click", () =&gt; stack.pop());      // correct</code></pre>
+<p>Arrow functions have no <code>this</code> of their own. They use the one from where they were written, which is why they are the usual choice for callbacks.</p>
+<h2 id="errors">Errors</h2>
+<pre><code class="lang-javascript">function parseAge(text) {
+  const age = Number(text);
+  if (Number.isNaN(age)) {
+    throw new Error(`not a number: ${text}`);
+  }
+  return age;
+}
+
+try {
+  parseAge("abc");
+} catch (error) {
+  console.error(error.message);
+} finally {
+  console.log("done");
+}</code></pre>
+<p>Always throw an <code>Error</code> object, never a bare string. It carries a <code>message</code> and a stack trace.</p>
+<h2 id="your-own-error-types">Your own error types</h2>
+<p>A named error class lets callers tell one failure from another:</p>
+<pre><code class="lang-javascript">class EmptyStackError extends Error {
+  constructor() {
+    super("the stack is empty");
+    this.name = "EmptyStackError";
+  }
+}
+
+try {
+  stack.pop();
+} catch (error) {
+  if (error instanceof EmptyStackError) {
+    console.log("nothing to pop");
+  } else {
+    throw error;                // not ours to handle: pass it on
+  }
+}</code></pre>
+<h2 id="class-or-closure">Class or closure?</h2>
+<div class="table-wrap"><table><thead><tr><th></th><th>Closure</th><th>Class</th></tr></thead><tbody><tr><td>Privacy</td><td>automatic</td><td>with <code>#</code> fields</td></tr><tr><td>Many objects of the same shape</td><td>each gets its own copies of the functions</td><td>methods are shared</td></tr><tr><td><code>instanceof</code> checks, inheritance</td><td>no</td><td>yes</td></tr><tr><td>Problems with <code>this</code></td><td>none</td><td>possible</td></tr></tbody></table></div>
+<p>For a small bundle of state and a few functions, a closure is the simplest thing. For a type with many instances, or one that others extend, use a class.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>new</code>.</strong> Calling a class as a function is an error.</li><li><strong>Passing a method as a callback</strong> and losing <code>this</code>.</li><li><strong>Throwing strings.</strong></li><li><strong>A <code>catch</code> that swallows every error</strong>, including the ones that reveal bugs.</li><li><strong>Forgetting <code>super()</code></strong> in a subclass constructor.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/05-classes">
+<h3>A stack class and a counter closure <span class="ex-id">js/05-classes</span></h3>
+<p>Write three exports in <code>solution.mjs</code>.</p>
+<h4><code>EmptyStackError</code></h4>
+<p>A class that extends <code>Error</code>. Its <code>name</code> is <code>"EmptyStackError"</code> and its message is <code>the stack is empty</code>.</p>
+<h4><code>Stack</code></h4>
+<ul><li><code>push(item)</code> puts an item on top.</li><li><code>pop()</code> removes and returns the top item. On an empty stack it throws an <code>EmptyStackError</code>.</li><li><code>peek()</code> returns the top item without removing it, and throws <code>EmptyStackError</code> when empty.</li><li><code>size</code> is a <strong>getter</strong>: <code>stack.size</code>, with no brackets.</li><li><code>isEmpty()</code> returns <code>true</code> or <code>false</code>.</li><li>The items are stored in a private field, so <code>stack.items</code> is <code>undefined</code>.</li></ul>
+<h4><code>counter(start)</code></h4>
+<p>A function that returns an object with three functions: <code>increment()</code>, <code>reset()</code> and <code>value()</code>. Each call to <code>counter</code> has its own count, which starts at <code>start</code>, or at 0 when no argument is given. <code>reset()</code> goes back to the starting value. The count itself is not reachable from outside.</p>
+<p class="ex-files">Files: <code>exercises/js/05-classes/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/05-classes</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../js/04-async.html"><span>Previous</span>Asynchronous code</a><a class="next" href="../js/06-node-and-npm.html"><span>Next</span>Node and npm</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

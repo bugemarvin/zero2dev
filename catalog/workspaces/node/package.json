@@ -1,0 +1,9 @@
+{
+  "name": "zero2dev-node-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^5.2.1",
+    "typescript": "^7.0.2"
+  }
+}

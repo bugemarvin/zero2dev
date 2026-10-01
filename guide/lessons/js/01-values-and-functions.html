@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Values and functions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="js/01-values-and-functions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">JavaScript and TypeScript · lesson 1 of 11</p>
+<h1>Values and functions</h1>
+<p class="lede">The language of the web, run from your terminal with Node. Variables, types, text and functions.</p>
+<h2 id="where-javascript-runs">Where JavaScript runs</h2>
+<p>JavaScript started in the browser, where it makes pages interactive. <strong>Node.js</strong> runs the same language outside the browser: on your machine and on servers. This track uses Node first, because it needs nothing but a terminal. The browser comes in <a href="../js/10-the-browser-and-dom.html">lesson 10</a>, and then React.</p>
+<p>The app checks whether Node is already installed and uses it. If it is not, the exercises can run in a Docker container instead.</p>
+<pre><code class="lang-console">$ node --version
+$ node
+&gt; 1 + 2
+3
+&gt; .exit</code></pre>
+<p>Run a file with <code>node file.mjs</code>. The <code>.mjs</code> ending tells Node the file is a modern <strong>module</strong>, which lesson 3 explains.</p>
+<h2 id="variables">Variables</h2>
+<pre><code class="lang-javascript">const name = "Sam";      // cannot be reassigned
+let count = 0;           // can be reassigned
+count = count + 1;</code></pre>
+<p>Use <code>const</code> by default, and <code>let</code> only when the variable must change. Do not use the old <code>var</code>.</p>
+<h2 id="types">Types</h2>
+<div class="table-wrap"><table><thead><tr><th>Type</th><th>Examples</th></tr></thead><tbody><tr><td>number</td><td><code>42</code>, <code>3.14</code>, <code>-1</code> (one type for whole numbers and fractions)</td></tr><tr><td>string</td><td><code>"hello"</code>, <code>'hello'</code>, or text between backticks</td></tr><tr><td>boolean</td><td><code>true</code>, <code>false</code></td></tr><tr><td>undefined</td><td>a variable with no value yet</td></tr><tr><td>null</td><td>"no value", set on purpose</td></tr><tr><td>object</td><td><code>{ name: "Sam" }</code>, arrays, functions</td></tr></tbody></table></div>
+<p><code>typeof value</code> tells you the type as a string.</p>
+<h2 id="strings">Strings</h2>
+<p>Backticks make a <strong>template literal</strong>, which can contain expressions and line breaks:</p>
+<pre><code class="lang-javascript">const name = "Sam";
+const age = 30;
+console.log(`${name} is ${age} years old`);</code></pre>
+<pre><code class="lang-javascript">"hello".length              // 5
+"hello".toUpperCase()       // "HELLO"
+"a,b,c".split(",")          // ["a", "b", "c"]
+"  hi  ".trim()             // "hi"
+"hello".includes("ell")     // true
+"hello".slice(1, 3)         // "el"
+String(42)                  // "42"
+Number("42")                // 42</code></pre>
+<h2 id="equality">Equality</h2>
+<p>Always use <code>===</code> and <code>!==</code>. The two-character <code>==</code> converts types before comparing, with surprising results:</p>
+<pre><code class="lang-javascript">1 === 1       // true
+1 === "1"     // false: different types
+1 == "1"      // true: avoid this</code></pre>
+<h2 id="truthy-and-falsy">Truthy and falsy</h2>
+<p>In a condition, these count as false: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code> and <code>NaN</code>. Everything else counts as true, including <code>[]</code> and <code>{}</code>.</p>
+<pre><code class="lang-javascript">if (name) {
+  console.log("a name was given");
+}</code></pre>
+<h2 id="conditions-and-loops">Conditions and loops</h2>
+<pre><code class="lang-javascript">if (age &gt;= 18) {
+  console.log("adult");
+} else if (age &gt;= 13) {
+  console.log("teenager");
+} else {
+  console.log("child");
+}
+
+for (let i = 0; i &lt; 3; i++) {
+  console.log(i);
+}
+
+const kind = age &gt;= 18 ? "adult" : "minor";    // the conditional operator</code></pre>
+<h2 id="functions">Functions</h2>
+<pre><code class="lang-javascript">function area(width, height) {
+  return width * height;
+}</code></pre>
+<p>The <strong>arrow function</strong> is a shorter form, used constantly:</p>
+<pre><code class="lang-javascript">const area = (width, height) =&gt; {
+  return width * height;
+};
+
+const double = (n) =&gt; n * 2;     // one expression: no braces, no return needed</code></pre>
+<p>Default values and "any number of arguments":</p>
+<pre><code class="lang-javascript">function greet(name = "world") {
+  return `Hello, ${name}!`;
+}
+
+function sum(...numbers) {       // numbers is an array of all the arguments
+  let total = 0;
+  for (const n of numbers) {
+    total += n;
+  }
+  return total;
+}
+
+sum(1, 2, 3);    // 6
+sum();           // 0</code></pre>
+<p>A function with no <code>return</code> gives back <code>undefined</code>.</p>
+<h2 id="the-exercises">The exercises</h2>
+<p>Each exercise has a file for your code and a test file you can read. Functions are shared with the tests through <code>export</code>:</p>
+<pre><code class="lang-javascript">export function greet(name) {
+  return `Hello, ${name}!`;
+}</code></pre>
+<p>Run them in the app, or in a terminal: <code>python3 check.py js/01-functions</code></p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>==</code> in place of <code>===</code>.</strong></li><li><strong>Forgetting <code>return</code>.</strong> With braces, an arrow function returns nothing unless you say so.</li><li><strong><code>console.log</code> where a return was asked for.</strong></li><li><strong>Adding a number to a string.</strong> <code>"5" + 1</code> is <code>"51"</code>. Convert first with <code>Number("5")</code>.</li><li><strong>Leaving out <code>export</code>.</strong> The tests then cannot see your function.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="js/01-functions">
+<h3>First functions <span class="ex-id">js/01-functions</span></h3>
+<p>Write four functions in <code>solution.mjs</code> and export each of them.</p>
+<ul><li><code>greet(name)</code> returns <code>Hello, NAME!</code>. With no argument it returns <code>Hello, world!</code>.</li><li><code>isAdult(age)</code> returns <code>true</code> when the age is 18 or more, otherwise <code>false</code>.</li><li><code>fizzbuzz(n)</code> returns <code>"FizzBuzz"</code> if <code>n</code> is divisible by 15, <code>"Fizz"</code> if by 3, <code>"Buzz"</code> if by 5, and otherwise the number as a string, such as <code>"7"</code>.</li><li><code>sum(...numbers)</code> returns the sum of all its arguments, and <code>0</code> when there are none.</li></ul>
+<p>The functions return their result. They do not print.</p>
+<p class="ex-files">Files: <code>exercises/js/01-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py js/01-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../elixir/09-mix-and-exunit.html"><span>Previous</span>Mix and ExUnit</a><a class="next" href="../js/02-arrays-and-objects.html"><span>Next</span>Arrays and objects</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>
