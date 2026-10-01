@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Queues and workers · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/04-queues-and-workers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 4 of 6</p>
+<h1>Queues and workers</h1>
+<p class="lede">Not everything has to happen while the user waits. Hand slow work to a queue and let a worker do it.</p>
+<h2 id="the-limits-of-calling-and-waiting">The limits of calling and waiting</h2>
+<p>So far every interaction was synchronous: a service calls another and waits. That has two weaknesses.</p>
+<ul><li><strong>Slow work blocks the caller.</strong> Resizing an image or sending a hundred emails does not fit in the half second a user will wait.</li><li><strong>The caller depends on the callee being up right now.</strong> If the mail service is down, the sign-up fails, although the mail could just as well go out a minute later.</li></ul>
+<h2 id="asynchronous-messaging">Asynchronous messaging</h2>
+<p>With a <strong>queue</strong> in between, the caller only records that work needs doing, and returns at once. A separate process, a <strong>worker</strong>, picks jobs off the queue and does them.</p>
+<pre><code class="lang-text">client --&gt; [api] --push--&gt; ( queue ) --pop--&gt; [worker]
+        &lt;-- 202 Accepted                         |
+                                                 v
+client --&gt; GET /jobs/7 --&gt; [api] &lt;--read--  ( results )</code></pre>
+<ul><li>The API answers immediately with <strong>202 Accepted</strong> and a job id.</li><li>The worker processes jobs at its own pace.</li><li>The client asks for the result later, or is notified.</li></ul>
+<p>If the worker is down, jobs wait in the queue. Nothing is lost, and the API keeps accepting work. If jobs pile up, start more workers: they all take from the same queue.</p>
+<h2 id="redis-as-a-queue">Redis as a queue</h2>
+<p><strong>Redis</strong> is an in-memory data store that also makes a simple, fast queue. A Redis <strong>list</strong> with two commands is enough:</p>
+<div class="table-wrap"><table><thead><tr><th>Command</th><th>Effect</th></tr></thead><tbody><tr><td><code>LPUSH jobs value</code></td><td>add at the left end</td></tr><tr><td><code>BRPOP jobs 5</code></td><td>take from the right end, waiting up to 5 seconds if the list is empty</td></tr><tr><td><code>SET key value</code>, <code>GET key</code></td><td>store and read a value</td></tr><tr><td><code>INCR key</code></td><td>add one to a counter, and return it</td></tr></tbody></table></div>
+<p>Push on one side and pop on the other, and jobs come out in the order they went in.</p>
+<p><code>BRPOP</code> <strong>blocks</strong>: it waits for a job to arrive. So an idle worker costs nothing, and reacts the moment a job is pushed.</p>
+<h2 id="the-producer">The producer</h2>
+<pre><code class="lang-javascript">// api: accept a job
+const id = await redis.command("INCR", "job:next-id");
+const job = { id, text };
+await redis.command("LPUSH", "jobs", JSON.stringify(job));
+sendJson(res, 202, { id, status: "pending" });</code></pre>
+<p>A job is a small JSON document with everything the worker needs.</p>
+<h2 id="the-worker">The worker</h2>
+<p>A worker is not a web server. It is a loop:</p>
+<pre><code class="lang-javascript">while (true) {
+  const reply = await redis.command("BRPOP", "jobs", "5");
+  if (reply === null) {
+    continue;                              // nothing arrived within 5 seconds: wait again
+  }
+  const job = JSON.parse(reply[1]);        // reply is [list name, value]
+  const result = handle(job);
+  await redis.command("SET", `result:${job.id}`, JSON.stringify(result));
+}</code></pre>
+<p>Do not name your own function <code>process</code>. In Node that name already belongs to the object that holds <code>process.env</code>, and a function of the same name would hide it.</p>
+<h2 id="reading-the-result">Reading the result</h2>
+<pre><code class="lang-javascript">// api: GET /jobs/:id
+const stored = await redis.command("GET", `result:${id}`);
+if (stored === null) {
+  return sendJson(res, 200, { id, status: "pending" });
+}
+sendJson(res, 200, { id, status: "done", result: JSON.parse(stored) });</code></pre>
+<h2 id="things-will-happen-twice">Things will happen twice</h2>
+<p>A worker can crash after doing the work and before recording that it is done. The job is then delivered again. Message systems generally promise <strong>at-least-once</strong> delivery, so:</p>
+<p><strong>Make jobs idempotent</strong>: doing one twice must have the same effect as doing it once.</p>
+<ul><li>"Set the status of order 7 to paid" is idempotent.</li><li>"Add 10 to the balance" is not. Record the job id with the change, and skip a job that was already applied.</li></ul>
+<h2 id="when-a-job-keeps-failing">When a job keeps failing</h2>
+<p>A job that crashes the worker every time would be retried for ever and block everything behind it. After a few attempts, move it aside to a <strong>dead-letter queue</strong>, where a person can look at it, and carry on.</p>
+<h2 id="events">Events</h2>
+<p>A variation of the same idea: instead of telling a specific worker to do something, a service <strong>announces what happened</strong>, and any number of other services react.</p>
+<pre><code class="lang-text">[orders] --publishes--&gt; "order placed" --+--&gt; [mail]       sends the confirmation
+                                         +--&gt; [stock]      reserves the items
+                                         +--&gt; [analytics]  counts it</code></pre>
+<p>The orders service does not know who listens. A new consumer is added without changing it. This is <strong>publish and subscribe</strong>. Kafka, RabbitMQ and NATS are the systems commonly used for it.</p>
+<h2 id="synchronous-or-asynchronous">Synchronous or asynchronous?</h2>
+<div class="table-wrap"><table><thead><tr><th>Use a direct call when</th><th>Use a queue when</th></tr></thead><tbody><tr><td>the caller needs the answer to continue</td><td>the work can happen later</td></tr><tr><td>it is fast</td><td>it is slow, or comes in bursts</td></tr><tr><td>failing immediately is acceptable</td><td>the work must not be lost if a service is down</td></tr></tbody></table></div>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Doing slow work inside the request.</strong></li><li><strong>Jobs that are not idempotent.</strong></li><li><strong>A worker that polls in a tight loop</strong>, in place of a blocking pop.</li><li><strong>No limit on retries.</strong></li><li><strong>Large payloads in the queue.</strong> Put the data in storage, and its id in the job.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="microservices/03-queue-worker">
+<h3>A queue and a worker <span class="ex-id">microservices/03-queue-worker</span></h3>
+<p>Three containers: <strong>api</strong>, <strong>worker</strong> and <strong>redis</strong>. The API and a small Redis client, <code>redis.mjs</code>, are given. Read <code>api/server.mjs</code> to see what it puts on the queue.</p>
+<ul><li><code>POST /jobs</code> with <code>{"text": "..."}</code> answers 202 at once, and pushes a job <code>{"id": N, "text": "..."}</code>, as JSON, onto the Redis list <code>jobs</code> with <code>LPUSH</code>.</li><li><code>GET /jobs/N</code> answers <code>pending</code> until a result is stored under the key <code>result:N</code>.</li></ul>
+<p>Write the worker in <code>worker/worker.mjs</code>. In an endless loop it:</p>
+<ol><li>takes the next job from the list <code>jobs</code> with <code>BRPOP jobs 5</code>, which waits up to 5 seconds and returns <code>null</code> if nothing came;</li><li>computes the result: <code>{"upper": the text in upper case, "words": the number of words in the text}</code>, where words are separated by whitespace;</li><li>stores it as JSON under <code>result:ID</code> with <code>SET</code>.</li></ol>
+<p><code>BRPOP</code> returns an array: the list name, then the value.</p>
+<p>The Redis host is in the environment variable <code>REDIS_HOST</code>. The worker is not a web server: it has no port.</p>
+<p>To run it yourself: <code>PORT=8080 docker compose up -d --build</code>, then <code>curl http://127.0.0.1:8080/health</code>, and <code>PORT=8080 docker compose down</code> when you are done. <code>docker compose logs -f</code> shows what the services print.</p>
+<p class="ex-files">Files: <code>exercises/microservices/03-queue-worker/</code></p>
+<pre><code class="lang-console">$ python3 check.py microservices/03-queue-worker</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../microservices/03-api-gateway.html"><span>Previous</span>The API gateway</a><a class="next" href="../microservices/05-data-and-consistency.html"><span>Next</span>Data and consistency</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

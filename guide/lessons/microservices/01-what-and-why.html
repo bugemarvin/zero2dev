@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What microservices are, and when to use them · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/01-what-and-why">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 1 of 6</p>
+<h1>What microservices are, and when to use them</h1>
+<p class="lede">One program or many small ones. What you gain, what it costs, and how to decide.</p>
+<h2 id="the-monolith">The monolith</h2>
+<p>Most systems start as one program: one code base, one deployment, one database. This is a <strong>monolith</strong>, and it is a perfectly good way to build software.</p>
+<pre><code class="lang-text">+--------------------------------------+
+|              the app                 |
+|   users   orders   payments   mail   |
++-------------------+------------------+
+                    |
+               one database</code></pre>
+<p>It is simple to run, simple to test, and a call from one part to another is an ordinary function call that cannot fail halfway.</p>
+<h2 id="microservices">Microservices</h2>
+<p>With <strong>microservices</strong> the system is split into small programs, each responsible for one business capability, each running on its own and talking to the others over the network.</p>
+<pre><code class="lang-text">           +-----------+
+client --&gt; |  gateway  |
+           +-----+-----+
+        +--------+--------+
+        v        v        v
+    +-------+ +--------+ +----------+
+    | users | | orders | | payments |
+    +---+---+ +---+----+ +----+-----+
+        |         |           |
+      its db    its db      its db</code></pre>
+<p>Each service:</p>
+<ul><li>has <strong>one job</strong>, and owns the data for it;</li><li>is <strong>deployed on its own</strong>, without redeploying the others;</li><li>exposes an <strong>API</strong> as its only way in;</li><li>can be written in a different language from its neighbours.</li></ul>
+<h2 id="what-you-gain">What you gain</h2>
+<ul><li><strong>Independent deployment.</strong> A change to payments ships without touching orders.</li><li><strong>Independent scaling.</strong> If search is busy, run ten copies of search only.</li><li><strong>Isolation of failure.</strong> If the mail service is down, orders can still be placed, provided you designed for it.</li><li><strong>Team autonomy.</strong> A team owns a service from code to production.</li><li><strong>Freedom of technology</strong> per service.</li></ul>
+<h2 id="what-it-costs">What it costs</h2>
+<p>Every gain is paid for with complexity that a monolith does not have:</p>
+<ul><li><strong>The network.</strong> A function call becomes a request that can be slow, fail, or time out. Every call needs error handling.</li><li><strong>Data consistency.</strong> There is no single transaction across services any more. Lesson 5 is about that.</li><li><strong>Operations.</strong> Ten services mean ten deployments, ten sets of logs, ten things to monitor.</li><li><strong>Debugging.</strong> One user action passes through several services. Finding where it went wrong needs tooling.</li><li><strong>Testing.</strong> Checking that services still work <strong>together</strong> is harder than testing one program.</li></ul>
+<h2 id="when-to-choose-which">When to choose which</h2>
+<div class="table-wrap"><table><thead><tr><th>Situation</th><th>Choose</th></tr></thead><tbody><tr><td>a new product, a small team, unclear requirements</td><td>a monolith</td></tr><tr><td>parts with very different load or release rhythm</td><td>consider splitting those parts off</td></tr><tr><td>several teams blocked by one shared code base</td><td>microservices start to pay off</td></tr><tr><td>"because large companies do it"</td><td>not a reason</td></tr></tbody></table></div>
+<p>The usual advice from people who have done both: <strong>start with a well-structured monolith</strong>. Split out a service when a concrete problem demands it. Boundaries drawn too early are usually drawn in the wrong place, and moving them across services is expensive.</p>
+<p>A badly split system, where every request needs five services to answer and nothing can be deployed alone, is called a <strong>distributed monolith</strong>. It has the costs of both styles and the benefits of neither.</p>
+<h2 id="finding-the-boundaries">Finding the boundaries</h2>
+<p>A good service boundary follows the <strong>business</strong>, not the technology.</p>
+<ul><li>Good: users, orders, payments, catalogue.</li><li>Poor: "the database service", "the validation service".</li></ul>
+<p>Two tests:</p>
+<ol><li>Can this service do its main job when its neighbours are down?</li><li>Does a typical change touch only this service?</li></ol>
+<p>If the answer to either is no, the boundary is in the wrong place.</p>
+<h2 id="what-this-track-builds">What this track builds</h2>
+<p>Small systems of two to four services in containers, using what the <a href="../docker/04-compose.html">Docker track</a> taught:</p>
+<ul><li>services that call each other over HTTP;</li><li>an API gateway in front of them;</li><li>a queue and a worker for work that can happen later;</li><li>timeouts, retries and fallbacks for when a service misbehaves.</li></ul>
+<p>The services are written in JavaScript with nothing but Node's standard library, so that every line is visible. They run in containers, so Node does not need to be installed on your machine. Docker does.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Starting with microservices</strong> for a system nobody understands yet.</li><li><strong>Splitting by technical layer</strong> instead of by business capability.</li><li><strong>A shared database</strong> behind several services. That is one system with extra steps.</li><li><strong>Ignoring the network</strong>, as if a remote call were as reliable as a local one.</li></ul>
+
+<nav class="pager"><a class="prev" href="../docker/06-good-practice.html"><span>Previous</span>Good practice</a><a class="next" href="../microservices/02-services-talking.html"><span>Next</span>Services that call each other</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

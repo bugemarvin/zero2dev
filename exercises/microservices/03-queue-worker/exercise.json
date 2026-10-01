@@ -1,0 +1,134 @@
+{
+  "title": "A queue and a worker",
+  "lesson": "microservices/04-queues-and-workers",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "worker/worker.mjs"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms03-{port}",
+    "up",
+    "-d",
+    "--build"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms03-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "--rmi",
+    "local",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 300,
+  "timeout": 30,
+  "requests": [
+    {
+      "name": "the API is up",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok"
+      },
+      "retry": 20
+    },
+    {
+      "name": "POST /jobs is accepted at once",
+      "method": "POST",
+      "path": "/jobs",
+      "body": {
+        "text": "hello queue world"
+      },
+      "status": 202,
+      "json": {
+        "id": 1,
+        "status": "pending"
+      }
+    },
+    {
+      "name": "the worker finishes job 1",
+      "path": "/jobs/1",
+      "status": 200,
+      "json": {
+        "id": 1,
+        "status": "done",
+        "result": {
+          "upper": "HELLO QUEUE WORLD",
+          "words": 3
+        }
+      },
+      "retry": 12
+    },
+    {
+      "name": "a second job is accepted",
+      "method": "POST",
+      "path": "/jobs",
+      "body": {
+        "text": "  two   words "
+      },
+      "status": 202,
+      "json": {
+        "id": 2,
+        "status": "pending"
+      }
+    },
+    {
+      "name": "the worker keeps running and finishes job 2",
+      "path": "/jobs/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "status": "done",
+        "result": {
+          "upper": "  TWO   WORDS ",
+          "words": 2
+        }
+      },
+      "retry": 12
+    },
+    {
+      "name": "a job with no words",
+      "method": "POST",
+      "path": "/jobs",
+      "body": {
+        "text": ""
+      },
+      "status": 202
+    },
+    {
+      "name": "the empty job is done too",
+      "path": "/jobs/3",
+      "status": 200,
+      "json": {
+        "id": 3,
+        "status": "done",
+        "result": {
+          "upper": "",
+          "words": 0
+        }
+      },
+      "retry": 12
+    },
+    {
+      "name": "an unknown job answers 404",
+      "path": "/jobs/99",
+      "status": 404
+    }
+  ],
+  "hints": [
+    "while (true) { const reply = await redis.command(\"BRPOP\", \"jobs\", \"5\"); if (reply === null) continue; ... }",
+    "The job is in reply[1], as JSON text: const job = JSON.parse(reply[1]);",
+    "Count words with job.text.split(/\\s+/).filter(Boolean).length, which gives 0 for an empty text.",
+    "await redis.command(\"SET\", `result:${job.id}`, JSON.stringify(result));"
+  ]
+}

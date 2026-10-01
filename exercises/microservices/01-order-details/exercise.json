@@ -1,0 +1,104 @@
+{
+  "title": "One service calls another",
+  "lesson": "microservices/02-services-talking",
+  "kind": "http",
+  "needs": [
+    "docker"
+  ],
+  "edit": [
+    "orders/server.mjs"
+  ],
+  "up": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms01-{port}",
+    "up",
+    "-d",
+    "--build"
+  ],
+  "down": [
+    "docker",
+    "compose",
+    "-p",
+    "z2d-ms01-{port}",
+    "down",
+    "-v",
+    "--remove-orphans",
+    "--rmi",
+    "local",
+    "-t",
+    "2"
+  ],
+  "start_timeout": 300,
+  "timeout": 30,
+  "requests": [
+    {
+      "name": "GET /health",
+      "path": "/health",
+      "status": 200,
+      "json": {
+        "status": "ok"
+      }
+    },
+    {
+      "name": "GET /orders/1 includes the user from the users service",
+      "path": "/orders/1",
+      "status": 200,
+      "json": {
+        "id": 1,
+        "item": "Book",
+        "user": {
+          "id": 1,
+          "name": "Ada"
+        }
+      },
+      "retry": 15
+    },
+    {
+      "name": "GET /orders/2",
+      "path": "/orders/2",
+      "status": 200,
+      "json": {
+        "id": 2,
+        "item": "Pen",
+        "user": {
+          "id": 2,
+          "name": "Linus"
+        }
+      }
+    },
+    {
+      "name": "an order whose user is unknown has user null",
+      "path": "/orders/3",
+      "status": 200,
+      "json": {
+        "id": 3,
+        "item": "Lamp",
+        "user": null
+      }
+    },
+    {
+      "name": "an unknown order answers 404",
+      "path": "/orders/99",
+      "status": 404,
+      "json": {
+        "error": "order not found"
+      }
+    },
+    {
+      "name": "any other path answers 404",
+      "path": "/nope",
+      "status": 404,
+      "json": {
+        "error": "not found"
+      }
+    }
+  ],
+  "hints": [
+    "const match = req.url.match(/^\\/orders\\/(\\d+)$/); gives the id in match[1]. Convert it with Number.",
+    "const response = await fetch(`${USERS_URL}/users/${order.userId}`);",
+    "A 404 from the users service is a normal answer: the user is null. Anything else that is not ok is a failure: answer 502.",
+    "Wrap the call in try/catch. fetch rejects when the service cannot be reached."
+  ]
+}

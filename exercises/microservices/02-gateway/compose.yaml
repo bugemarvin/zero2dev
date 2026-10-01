@@ -1,0 +1,20 @@
+# Given. Do not edit.
+services:
+  gateway:
+    build: ./gateway
+    environment:
+      USERS_URL: http://users:3000
+      ORDERS_URL: http://orders:3000
+    ports:
+      - "127.0.0.1:${PORT}:3000"
+    depends_on:
+      - users
+      - orders
+
+  users:
+    build: ./users
+
+  orders:
+    build: ./orders
+    environment:
+      USERS_URL: http://users:3000

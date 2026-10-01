@@ -1510,6 +1510,69 @@ window.Z2D_CURRICULUM = {
      "exercises": []
     }
    ]
+  },
+  {
+   "id": "microservices",
+   "title": "Microservices",
+   "blurb": "Several small services in containers: calls between them, a gateway, a queue with a worker, and surviving failure.",
+   "lessons": [
+    {
+     "id": "microservices/01-what-and-why",
+     "title": "What microservices are, and when to use them",
+     "summary": "One program or many small ones. What you gain, what it costs, and how to decide.",
+     "exercises": []
+    },
+    {
+     "id": "microservices/02-services-talking",
+     "title": "Services that call each other",
+     "summary": "One service needs data that another one owns. Make the call, and handle everything that can go wrong with it.",
+     "exercises": [
+      {
+       "id": "microservices/01-order-details",
+       "title": "One service calls another"
+      }
+     ]
+    },
+    {
+     "id": "microservices/03-api-gateway",
+     "title": "The API gateway",
+     "summary": "One front door for all the services, so that clients do not need to know how the system is split.",
+     "exercises": [
+      {
+       "id": "microservices/02-gateway",
+       "title": "An API gateway"
+      }
+     ]
+    },
+    {
+     "id": "microservices/04-queues-and-workers",
+     "title": "Queues and workers",
+     "summary": "Not everything has to happen while the user waits. Hand slow work to a queue and let a worker do it.",
+     "exercises": [
+      {
+       "id": "microservices/03-queue-worker",
+       "title": "A queue and a worker"
+      }
+     ]
+    },
+    {
+     "id": "microservices/05-data-and-consistency",
+     "title": "Data and consistency",
+     "summary": "Each service owns its data. That removes the single transaction, and this is how systems cope.",
+     "exercises": []
+    },
+    {
+     "id": "microservices/06-resilience-and-observability",
+     "title": "Resilience and observability",
+     "summary": "Services will fail. Make the system survive it, and make it possible to see what happened.",
+     "exercises": [
+      {
+       "id": "microservices/04-resilience",
+       "title": "Survive a flaky service"
+      }
+     ]
+    }
+   ]
   }
  ]
 };

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Services that call each other · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/02-services-talking">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 2 of 6</p>
+<h1>Services that call each other</h1>
+<p class="lede">One service needs data that another one owns. Make the call, and handle everything that can go wrong with it.</p>
+<h2 id="a-request-across-the-network">A request across the network</h2>
+<p>The orders service knows that order 7 belongs to user 3. The user's name lives in the users service. To answer "show order 7 with the customer's name", orders must ask users:</p>
+<pre><code class="lang-text">client --&gt; GET /orders/7 --&gt; [orders] --&gt; GET /users/3 --&gt; [users]
+                                      &lt;-- {"id": 3, "name": "Ada"}
+       &lt;-- {"id": 7, "item": "Book", "user": {"id": 3, "name": "Ada"}}</code></pre>
+<p>This is <strong>synchronous</strong> communication over HTTP: the caller waits for the answer.</p>
+<h2 id="where-is-the-other-service">Where is the other service?</h2>
+<p>Never write another service's address into the code. It differs between your machine, the test system and production. Read it from the environment:</p>
+<pre><code class="lang-javascript">const USERS_URL = process.env.USERS_URL ?? "http://localhost:3001";</code></pre>
+<p>In Compose, the address is the <strong>service name</strong>:</p>
+<pre><code class="lang-yaml">services:
+  orders:
+    build: ./orders
+    environment:
+      USERS_URL: http://users:3000
+    ports:
+      - "127.0.0.1:${PORT}:3000"
+
+  users:
+    build: ./users</code></pre>
+<p><code>users</code> is reachable from <code>orders</code> as <code>http://users:3000</code>. It has no published port: nothing outside the system needs to reach it directly.</p>
+<h2 id="making-the-call">Making the call</h2>
+<pre><code class="lang-javascript">async function getUser(id) {
+  const response = await fetch(`${USERS_URL}/users/${id}`);
+  if (response.status === 404) {
+    return null;                       // a legitimate answer: there is no such user
+  }
+  if (!response.ok) {
+    throw new Error(`users service answered ${response.status}`);
+  }
+  return response.json();
+}</code></pre>
+<p>Three outcomes, each handled on purpose:</p>
+<div class="table-wrap"><table><thead><tr><th>Outcome</th><th>Meaning</th><th>What to do</th></tr></thead><tbody><tr><td>200</td><td>here is the data</td><td>use it</td></tr><tr><td>404</td><td>no such thing</td><td>a normal result: often <code>null</code></td></tr><tr><td>5xx, or no answer at all</td><td>the other service is in trouble</td><td>an error. Decide what your service does without it.</td></tr></tbody></table></div>
+<h2 id="putting-it-in-a-handler">Putting it in a handler</h2>
+<pre><code class="lang-javascript">import { createServer } from "node:http";
+
+const server = createServer(async (req, res) =&gt; {
+  const match = req.url.match(/^\/orders\/(\d+)$/);
+  if (req.method === "GET" &amp;&amp; match) {
+    const order = orders.find((o) =&gt; o.id === Number(match[1]));
+    if (!order) {
+      return sendJson(res, 404, { error: "order not found" });
+    }
+    try {
+      const user = await getUser(order.userId);
+      return sendJson(res, 200, { id: order.id, item: order.item, user });
+    } catch (error) {
+      return sendJson(res, 502, { error: "users service unavailable" });
+    }
+  }
+  sendJson(res, 404, { error: "not found" });
+});</code></pre>
+<p>Status <strong>502 Bad Gateway</strong> means: I am fine, but a service I depend on is not. It tells whoever reads the logs where to look.</p>
+<h2 id="every-service-has-a-health-endpoint">Every service has a health endpoint</h2>
+<pre><code class="lang-javascript">if (req.method === "GET" &amp;&amp; req.url === "/health") {
+  return sendJson(res, 200, { status: "ok" });
+}</code></pre>
+<p>Orchestrators, load balancers and other services use it to see whether this one is alive. Keep it cheap, and do not make it depend on other services, or one failure takes everything down with it.</p>
+<h2 id="do-not-chain-too-deep">Do not chain too deep</h2>
+<p>If A calls B, which calls C, which calls D, then:</p>
+<ul><li>the response time is the sum of all four;</li><li>A fails when <strong>any</strong> of them fails. Four services that are each up 99.9% of the time give a chain that is up 99.6%.</li></ul>
+<p>Keep call chains short. If a service constantly needs data from another one to do anything at all, they may belong together.</p>
+<h2 id="contracts">Contracts</h2>
+<p>The JSON a service returns is a <strong>contract</strong>. Other services are written against it, and they are deployed separately from yours.</p>
+<ul><li><strong>Adding</strong> a field is safe.</li><li><strong>Removing or renaming</strong> a field, or changing its type, breaks every caller.</li><li>When a breaking change is unavoidable, offer the new form next to the old one, for example under <code>/v2/</code>, until the callers have moved.</li></ul>
+<h2 id="running-and-inspecting">Running and inspecting</h2>
+<pre><code class="lang-console">$ PORT=8080 docker compose up -d --build
+$ curl http://127.0.0.1:8080/orders/1
+$ docker compose logs -f orders
+$ docker compose exec orders node -e "fetch('http://users:3000/users/1').then(r =&gt; r.json()).then(console.log)"
+$ docker compose down</code></pre>
+<p>The last but one line tests the connection from <strong>inside</strong> the orders container, which is the quickest way to tell a networking problem from a bug in your code.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>A hard-coded address</strong>, or <code>localhost</code>, for another service.</li><li><strong>Treating a 404 as a crash.</strong> It is an answer.</li><li><strong>No error handling around the call</strong>, so one failing service returns a 500 with a stack trace from another.</li><li><strong>Publishing every service's port.</strong></li><li><strong>A health check that calls other services.</strong></li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="microservices/01-order-details">
+<h3>One service calls another <span class="ex-id">microservices/01-order-details</span></h3>
+<p>The system has two services, each in its own container. <code>compose.yaml</code> and both Dockerfiles are given.</p>
+<ul><li><strong>users</strong> is complete. <code>GET /users/1</code> returns <code>{"id": 1, "name": "Ada"}</code>, and an unknown id gives 404.</li><li><strong>orders</strong> is yours to write, in <code>orders/server.mjs</code>. Its data is in <code>orders/data.mjs</code>: each order has an <code>id</code>, an <code>item</code> and a <code>userId</code>.</li></ul>
+<p>Make the orders service answer:</p>
+<div class="table-wrap"><table><thead><tr><th>Request</th><th>Response</th></tr></thead><tbody><tr><td><code>GET /health</code></td><td>200 <code>{"status": "ok"}</code></td></tr><tr><td><code>GET /orders/1</code></td><td>200 <code>{"id": 1, "item": "Book", "user": {"id": 1, "name": "Ada"}}</code></td></tr><tr><td>an order whose user does not exist</td><td>200 with <code>"user": null</code></td></tr><tr><td>an unknown order id</td><td>404 <code>{"error": "order not found"}</code></td></tr><tr><td>the users service cannot be reached or answers 5xx</td><td>502 <code>{"error": "users service unavailable"}</code></td></tr><tr><td>anything else</td><td>404 <code>{"error": "not found"}</code></td></tr></tbody></table></div>
+<p>The user comes from the users service, whose address is in the environment variable <code>USERS_URL</code>. Listen on port 3000.</p>
+<p>The checker starts both containers with Compose and calls the orders service.</p>
+<p>To run it yourself: <code>PORT=8080 docker compose up -d --build</code>, then <code>curl http://127.0.0.1:8080/health</code>, and <code>PORT=8080 docker compose down</code> when you are done. <code>docker compose logs -f</code> shows what the services print.</p>
+<p class="ex-files">Files: <code>exercises/microservices/01-order-details/</code></p>
+<pre><code class="lang-console">$ python3 check.py microservices/01-order-details</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../microservices/01-what-and-why.html"><span>Previous</span>What microservices are, and when to use them</a><a class="next" href="../microservices/03-api-gateway.html"><span>Next</span>The API gateway</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

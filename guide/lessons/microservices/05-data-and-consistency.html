@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data and consistency · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../../assets/studio.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="microservices/05-data-and-consistency">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<a class="top-link" href="../../setup.html">Setup</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">Microservices · lesson 5 of 6</p>
+<h1>Data and consistency</h1>
+<p class="lede">Each service owns its data. That removes the single transaction, and this is how systems cope.</p>
+<h2 id="one-database-per-service">One database per service</h2>
+<p>In a monolith every part of the code reads and writes one database. With microservices, each service has <strong>its own</strong>, and no other service may touch it.</p>
+<pre><code class="lang-text">[users]  --&gt; users database        [orders] --&gt; orders database</code></pre>
+<p>The reason is independence. If two services share tables, a change to a table by one team breaks the other, and neither can be deployed alone. The database becomes the hidden coupling that makes the system a distributed monolith.</p>
+<p>The only way to another service's data is its API.</p>
+<h2 id="what-you-lose">What you lose</h2>
+<p><strong>Joins.</strong> <code>SELECT ... FROM orders JOIN users</code> is no longer possible: the tables are in different databases. The orders service has to ask the users service, or keep a copy of what it needs.</p>
+<p><strong>Transactions.</strong> In one database, "take the money and create the order" either happens completely or not at all. Across two services there is no such guarantee. The payment can succeed and the order creation fail.</p>
+<h2 id="keeping-a-copy">Keeping a copy</h2>
+<p>A service that often needs a little data from another can store its own copy, kept up to date through events:</p>
+<pre><code class="lang-text">[users] --"user 3 renamed to Ada L."--&gt; [orders] updates its copy of the name</code></pre>
+<p>The orders service can then answer without calling anyone. The copy may be a moment out of date, which leads to the central idea of this lesson.</p>
+<h2 id="eventual-consistency">Eventual consistency</h2>
+<p>In a distributed system you often accept that different services see slightly different states for a short time, and that they <strong>converge</strong>. This is <strong>eventual consistency</strong>.</p>
+<p>It is more familiar than it sounds. A bank transfer between two banks takes a day. The money is "in transit", and nobody considers the system broken.</p>
+<p>The question to ask for each piece of data is: <strong>what happens if this is a few seconds out of date?</strong> For a display name, nothing. For an account balance at the moment of a withdrawal, a great deal. That one needs a single owner making the decision.</p>
+<h2 id="sagas">Sagas</h2>
+<p>A <strong>saga</strong> replaces one transaction with a sequence of local steps. Each step has a <strong>compensating action</strong> that undoes it. If a step fails, the steps already done are compensated in reverse order.</p>
+<p>Placing an order:</p>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Action</th><th>Compensation</th></tr></thead><tbody><tr><td>1</td><td>orders: create the order as <code>pending</code></td><td>mark the order <code>cancelled</code></td></tr><tr><td>2</td><td>stock: reserve the items</td><td>release the reservation</td></tr><tr><td>3</td><td>payments: charge the card</td><td>refund the charge</td></tr><tr><td>4</td><td>orders: mark the order <code>confirmed</code></td><td></td></tr></tbody></table></div>
+<p>If the payment in step 3 fails: release the stock, cancel the order. The system ends in a consistent state, having passed through intermediate ones.</p>
+<p>Two points follow.</p>
+<ul><li><strong>Intermediate states are visible.</strong> An order really is <code>pending</code> for a moment. Design for that, and show it honestly.</li><li><strong>A compensation is not a rollback.</strong> A refund is a second transaction. An email that was sent cannot be unsent.</li></ul>
+<h2 id="idempotency-keys">Idempotency keys</h2>
+<p>Networks lose responses. The caller then does not know whether its request worked, and has to retry. If "charge the card" is simply repeated, the customer pays twice.</p>
+<p>The caller sends a unique <strong>idempotency key</strong> with the request. The service remembers the keys it has handled:</p>
+<pre><code class="lang-javascript">const key = req.headers["idempotency-key"];
+const earlier = await store.get(`payment:${key}`);
+if (earlier) {
+  return sendJson(res, 200, earlier);        // same answer as before, no second charge
+}
+const result = await charge(amount);
+await store.set(`payment:${key}`, result);
+sendJson(res, 201, result);</code></pre>
+<p>A retry with the same key is safe. This one technique removes a whole class of duplicate-action bugs.</p>
+<h2 id="the-outbox">The outbox</h2>
+<p>A service needs to change its database <strong>and</strong> publish an event. If it crashes between the two, the event is lost, or announced for a change that never happened.</p>
+<p>The <strong>outbox pattern</strong>: write the event into a table of the same database, <strong>in the same transaction</strong> as the change. A separate process reads that table and publishes the events, retrying until it succeeds. Either both the change and the event exist, or neither.</p>
+<h2 id="choosing-where-the-truth-lives">Choosing where the truth lives</h2>
+<p>For every piece of data, name <strong>one</strong> service as its owner. Others may cache it, and only the owner changes it. When two services both believe they own something, they will eventually disagree, and there is no way to tell which is right.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Services sharing a database.</strong></li><li><strong>Assuming a remote update is instant</strong> and reading it back from another service immediately.</li><li><strong>No compensation</strong> designed for the steps of a multi-service operation.</li><li><strong>Retries without idempotency.</strong></li><li><strong>Two owners</strong> for the same data.</li></ul>
+
+<nav class="pager"><a class="prev" href="../microservices/04-queues-and-workers.html"><span>Previous</span>Queues and workers</a><a class="next" href="../microservices/06-resilience-and-observability.html"><span>Next</span>Resilience and observability</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+<script src="../../assets/studio.js"></script>
+</body>
+</html>

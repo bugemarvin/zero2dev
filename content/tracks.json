@@ -108,5 +108,13 @@
     "needs": [
       "tool:docker"
     ]
+  },
+  {
+    "id": "microservices",
+    "title": "Microservices",
+    "blurb": "Several small services in containers: calls between them, a gateway, a queue with a worker, and surviving failure.",
+    "needs": [
+      "tool:docker"
+    ]
   }
 ]
