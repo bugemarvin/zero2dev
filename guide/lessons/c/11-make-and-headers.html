@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Headers and Makefiles · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/11-make-and-headers">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 11 of 12</p>
+<h1>Headers and Makefiles</h1>
+<p class="lede">Split a program across several files, and let make rebuild only what changed.</p>
+<h2 id="why-split-a-program">Why split a program</h2>
+<p>One file is fine for 100 lines. At 5,000 it is hard to find anything, and every small change recompiles everything. Real C programs are split into several <code>.c</code> files, each with a matching <code>.h</code> <strong>header</strong>.</p>
+<ul><li>The <strong><code>.c</code> file</strong> contains the function definitions: the actual code.</li><li>The <strong><code>.h</code> file</strong> contains the declarations: what other files need to know in order to call those functions.</li></ul>
+<h2 id="a-small-example">A small example</h2>
+<p><code>greet.h</code> says what exists:</p>
+<pre><code class="lang-c">#ifndef GREET_H
+#define GREET_H
+
+void greet(const char *name);
+
+#endif</code></pre>
+<p><code>greet.c</code> provides it:</p>
+<pre><code class="lang-c">#include &lt;stdio.h&gt;
+#include "greet.h"
+
+void greet(const char *name) {
+    printf("Hello, %s\n", name);
+}</code></pre>
+<p><code>main.c</code> uses it:</p>
+<pre><code class="lang-c">#include "greet.h"
+
+int main(void) {
+    greet("make");
+    return 0;
+}</code></pre>
+<p>Use <code>#include "file.h"</code> with quotes for your own headers, and <code>#include &lt;file.h&gt;</code> with angle brackets for system ones.</p>
+<h2 id="include-guards">Include guards</h2>
+<p>The three lines <code>#ifndef</code>, <code>#define</code> and <code>#endif</code> are an <strong>include guard</strong>. If a header is included twice, by two different routes, the guard makes the second copy empty. Without it you get "redefinition" errors. Put one in every header, with a unique name.</p>
+<h2 id="compiling-in-two-steps">Compiling in two steps</h2>
+<p>Building a program is really two jobs:</p>
+<ol><li><strong>Compile</strong> each <code>.c</code> file into an <strong>object file</strong> (<code>.o</code>): machine code with gaps where it calls functions defined elsewhere.</li><li><strong>Link</strong> the object files together, filling in those gaps, to make the program.</li></ol>
+<pre><code class="lang-console">$ gcc -Wall -Wextra -c main.c
+$ gcc -Wall -Wextra -c greet.c
+$ gcc main.o greet.o -o app
+$ ./app
+Hello, make</code></pre>
+<p><code>-c</code> means <em>compile only, do not link</em>. The advantage: after changing <code>greet.c</code>, only <code>greet.o</code> needs rebuilding.</p>
+<p>An <code>undefined reference to 'greet'</code> error comes from the linker. It means a function was declared and called, and no object file that defines it was given.</p>
+<h2 id="make">make</h2>
+<p>Typing those commands by hand does not scale. <code>make</code> reads a file named <code>Makefile</code> that describes what depends on what, and runs only the commands that are needed.</p>
+<p>A rule has three parts:</p>
+<pre><code class="lang-text">target: dependencies
+	command</code></pre>
+<div class="callout warn"><p><strong>Warning:</strong> the command line must start with a real <strong>Tab</strong> character, not spaces. This is the most common Makefile error. It shows up as <code>missing separator</code>.</p></div>
+<p>A Makefile for the example:</p>
+<pre><code class="lang-text">CC = gcc
+CFLAGS = -Wall -Wextra -g
+
+all: app
+
+app: main.o greet.o
+	$(CC) $(CFLAGS) main.o greet.o -o app
+
+main.o: main.c greet.h
+	$(CC) $(CFLAGS) -c main.c
+
+greet.o: greet.c greet.h
+	$(CC) $(CFLAGS) -c greet.c
+
+clean:
+	rm -f app *.o
+
+.PHONY: all clean</code></pre>
+<ul><li><code>make</code> with no arguments builds the <strong>first</strong> target, here <code>all</code>, which depends on <code>app</code>.</li><li>A target is rebuilt when it does not exist, or when any of its dependencies is newer than it. That is how <code>make</code> skips unnecessary work.</li><li><code>CC</code> and <code>CFLAGS</code> are variables. <code>$(CC)</code> uses one.</li><li><code>clean</code> deletes what was built.</li><li><code>.PHONY</code> marks targets that are commands, not files.</li></ul>
+<pre><code class="lang-console">$ make
+gcc -Wall -Wextra -g -c main.c
+gcc -Wall -Wextra -g -c greet.c
+gcc -Wall -Wextra -g main.o greet.o -o app
+$ make
+make: Nothing to be done for 'all'.
+$ touch greet.c
+$ make
+gcc -Wall -Wextra -g -c greet.c
+gcc -Wall -Wextra -g main.o greet.o -o app</code></pre>
+<p>The third run rebuilt <code>greet.o</code> and relinked, and left <code>main.o</code> alone.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Spaces where a Tab is required.</strong></li><li><strong>Putting function definitions in a header.</strong> Include it from two <code>.c</code> files and the linker reports a duplicate. Headers hold declarations.</li><li><strong>Leaving a header out of the dependencies.</strong> You change the header, and <code>make</code> does not rebuild the files that use it.</li><li><strong>Forgetting to include your own header</strong> in the matching <code>.c</code> file, so the compiler cannot check that declaration and definition agree.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/13-makefile">
+<h3>Write a Makefile <span class="ex-id">c/13-makefile</span></h3>
+<p>Your working folder contains a small program in three files: <code>main.c</code>, <code>greet.c</code> and <code>greet.h</code>.</p>
+<p>Write a <code>Makefile</code> there so that:</p>
+<ol><li><code>make</code> builds a program named <code>app</code>.</li><li>Each <code>.c</code> file is compiled to its own <code>.o</code> file, and the two are then linked.</li><li>The compile commands use <code>-Wall</code>.</li><li>Running <code>make</code> a second time rebuilds nothing.</li><li>After <code>greet.c</code> changes, only <code>greet.o</code> is recompiled, not <code>main.o</code>.</li><li><code>make clean</code> deletes <code>app</code> and the <code>.o</code> files.</li></ol>
+<p>Do not change the <code>.c</code> and <code>.h</code> files.</p>
+<p class="ex-files">Files: <code>exercises/c/13-makefile/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/13-makefile</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/10-files.html"><span>Previous</span>Files and command-line arguments</a><a class="next" href="../c/12-debugging.html"><span>Next</span>Debugging</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

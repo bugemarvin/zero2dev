@@ -1,0 +1,42 @@
+{
+  "title": "Collatz steps",
+  "lesson": "c/03-control-flow",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "n = 1",
+      "stdin": "1\n",
+      "stdout": "0\n"
+    },
+    {
+      "name": "n = 2",
+      "stdin": "2\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "n = 6",
+      "stdin": "6\n",
+      "stdout": "8\n"
+    },
+    {
+      "name": "n = 27",
+      "stdin": "27\n",
+      "stdout": "111\n"
+    },
+    {
+      "name": "n = 97",
+      "stdin": "97\n",
+      "stdout": "118\n"
+    },
+    {
+      "name": "n = 837799",
+      "stdin": "837799\n",
+      "stdout": "524\n"
+    }
+  ],
+  "hints": [
+    "Use a while loop that runs until n equals 1, and count the rounds.",
+    "The value can grow far beyond the starting number. Store it in a long and read it with %ld."
+  ]
+}

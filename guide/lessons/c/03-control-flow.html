@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Control flow · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/03-control-flow">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 3 of 12</p>
+<h1>Control flow</h1>
+<p class="lede">Make decisions with if and switch, and repeat work with while and for.</p>
+<h2 id="conditions">Conditions</h2>
+<p>A condition is an expression that is true or false.</p>
+<div class="table-wrap"><table><thead><tr><th>Operator</th><th>Meaning</th></tr></thead><tbody><tr><td><code>==</code></td><td>equal</td></tr><tr><td><code>!=</code></td><td>not equal</td></tr><tr><td><code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></td><td>comparisons</td></tr><tr><td><code>&amp;&amp;</code></td><td>and: both sides true</td></tr><tr><td><code>||</code></td><td>or: at least one side true</td></tr><tr><td><code>!</code></td><td>not</td></tr></tbody></table></div>
+<p>C has no separate true and false values underneath. <strong>Zero is false, anything else is true.</strong></p>
+<h2 id="if">if</h2>
+<pre><code class="lang-c">if (score &gt;= 90) {
+    printf("excellent\n");
+} else if (score &gt;= 50) {
+    printf("pass\n");
+} else {
+    printf("fail\n");
+}</code></pre>
+<p>The branches are tested from the top, and only the first one that matches runs.</p>
+<p>Always use braces, even for one line. Without them only the next single statement belongs to the <code>if</code>, which leads to bugs when you add a second line later.</p>
+<h2 id="while">while</h2>
+<p>Repeats as long as the condition is true. The condition is checked before each round.</p>
+<pre><code class="lang-c">int n = 3;
+while (n &gt; 0) {
+    printf("%d\n", n);
+    n--;
+}
+printf("lift off\n");</code></pre>
+<pre><code class="lang-text">3
+2
+1
+lift off</code></pre>
+<p>Something inside the loop must eventually make the condition false. Otherwise it runs forever. <code>Ctrl+C</code> stops a program stuck in a loop.</p>
+<p>A common pattern is to read until the input ends:</p>
+<pre><code class="lang-c">int x;
+while (scanf("%d", &amp;x) == 1) {
+    printf("got %d\n", x);
+}</code></pre>
+<h2 id="for">for</h2>
+<p>When you know how many times to repeat, <code>for</code> puts the three parts of a counting loop on one line:</p>
+<pre><code class="lang-c">for (int i = 0; i &lt; 5; i++) {
+    printf("%d ", i);
+}</code></pre>
+<pre><code class="lang-text">0 1 2 3 4</code></pre>
+<ol><li><code>int i = 0</code> runs once, at the start.</li><li><code>i &lt; 5</code> is checked before each round.</li><li><code>i++</code> runs after each round.</li></ol>
+<p>Counting from 0 up to, and not including, <code>n</code> is the standard shape in C. It gives exactly <code>n</code> rounds and matches how arrays are numbered.</p>
+<h2 id="break-and-continue">break and continue</h2>
+<ul><li><code>break</code> leaves the loop immediately.</li><li><code>continue</code> skips the rest of this round and starts the next.</li></ul>
+<pre><code class="lang-c">for (int i = 1; i &lt;= 10; i++) {
+    if (i % 2 == 0) {
+        continue;       // skip even numbers
+    }
+    if (i &gt; 7) {
+        break;          // stop completely
+    }
+    printf("%d ", i);   // prints 1 3 5 7
+}</code></pre>
+<h2 id="switch">switch</h2>
+<p><code>switch</code> picks a branch by comparing one whole-number or character value against constants:</p>
+<pre><code class="lang-c">switch (grade) {
+    case 'A':
+        printf("great\n");
+        break;
+    case 'B':
+    case 'C':
+        printf("fine\n");
+        break;
+    default:
+        printf("unknown\n");
+}</code></pre>
+<p>Each case needs its own <code>break</code>. Without it, execution <strong>falls through</strong> into the next case. Stacking labels, as with <code>'B'</code> and <code>'C'</code> above, is the one deliberate use of that.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>=</code> in place of <code>==</code>.</strong> <code>if (x = 5)</code> assigns 5 to <code>x</code> and is always true. <code>-Wall</code> warns about it.</li><li><strong>A semicolon after the condition.</strong> <code>if (x &gt; 0);</code> ends the <code>if</code> right there, and the block below always runs.</li><li><strong>Off by one.</strong> <code>i &lt;= n</code> runs <code>n + 1</code> times when starting from 0. Decide whether the end is included, and test with a small number.</li><li><strong>A forgotten <code>break</code></strong> in a <code>switch</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/04-fizzbuzz">
+<h3>FizzBuzz <span class="ex-id">c/04-fizzbuzz</span></h3>
+<p>Read a whole number <code>n</code>. For every number from 1 to <code>n</code>, print one line:</p>
+<ul><li><code>Fizz</code> if the number is a multiple of 3</li><li><code>Buzz</code> if it is a multiple of 5</li><li><code>FizzBuzz</code> if it is a multiple of both</li><li>the number itself otherwise</li></ul>
+<pre><code class="lang-console">$ echo 5 | ./fizzbuzz
+1
+2
+Fizz
+4
+Buzz</code></pre>
+<p class="ex-files">Files: <code>exercises/c/04-fizzbuzz/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/04-fizzbuzz</code></pre>
+</article>
+<article class="exercise" data-ex="c/05-collatz">
+<h3>Collatz steps <span class="ex-id">c/05-collatz</span></h3>
+<p>Start with a positive whole number <code>n</code> and repeat:</p>
+<ul><li>if <code>n</code> is even, halve it;</li><li>if <code>n</code> is odd, replace it with <code>3 * n + 1</code>.</li></ul>
+<p>Read <code>n</code> and print how many steps it takes to reach 1.</p>
+<pre><code class="lang-console">$ echo 6 | ./collatz
+8</code></pre>
+<p>That is 6, 3, 10, 5, 16, 8, 4, 2, 1: eight steps. For <code>n = 1</code> the answer is 0.</p>
+<p>The values along the way can become much larger than the starting number, so use a <code>long</code>.</p>
+<p class="ex-files">Files: <code>exercises/c/05-collatz/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/05-collatz</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/02-types-and-variables.html"><span>Previous</span>Types and variables</a><a class="next" href="../c/04-functions.html"><span>Next</span>Functions</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hello, C · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/01-hello">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 1 of 12</p>
+<h1>Hello, C</h1>
+<p class="lede">Write, compile and run your first C program, and learn to read what the compiler tells you.</p>
+<h2 id="why-start-with-c">Why start with C</h2>
+<p>C is small, and it hides very little. You see how memory, numbers and text really work inside the machine. Languages like Python, Java and JavaScript are themselves built in C or its descendants, so what you learn here explains a lot of what they do for you.</p>
+<h2 id="the-program">The program</h2>
+<p>Create a file named <code>hello.c</code>:</p>
+<pre><code class="lang-c">#include &lt;stdio.h&gt;
+
+int main(void) {
+    printf("Hello, world!\n");
+    return 0;
+}</code></pre>
+<p>Line by line:</p>
+<ul><li><code>#include &lt;stdio.h&gt;</code> brings in the declarations for input and output functions, including <code>printf</code>.</li><li><code>int main(void)</code> defines the function where every C program starts. <code>int</code> says it returns a whole number. <code>void</code> says it takes no arguments.</li><li>The braces <code>{ }</code> hold the body of the function.</li><li><code>printf("...")</code> prints text. <code>\n</code> is the newline character. Without it, the next output continues on the same line.</li><li>Every statement ends with a semicolon.</li><li><code>return 0;</code> ends the program and reports success to the operating system. Remember <a href="../start/06-shell-scripts.html">exit codes</a>: 0 means success.</li></ul>
+<h2 id="compile-and-run">Compile and run</h2>
+<pre><code class="lang-console">$ gcc hello.c -o hello
+$ ./hello
+Hello, world!</code></pre>
+<p><code>gcc</code> is the compiler. <code>-o hello</code> names the output file. Without it the program is called <code>a.out</code>.</p>
+<h2 id="turn-the-warnings-on">Turn the warnings on</h2>
+<p>By default the compiler stays quiet about code that is legal but suspicious. Always ask for warnings:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra hello.c -o hello</code></pre>
+<div class="table-wrap"><table><thead><tr><th>Flag</th><th>Meaning</th></tr></thead><tbody><tr><td><code>-Wall</code></td><td>the common warnings</td></tr><tr><td><code>-Wextra</code></td><td>more warnings</td></tr><tr><td><code>-Werror</code></td><td>treat every warning as an error</td></tr><tr><td><code>-g</code></td><td>include information for the debugger</td></tr><tr><td><code>-o name</code></td><td>name of the program to produce</td></tr></tbody></table></div>
+<p>The checker in this guide compiles with <code>-Wall -Wextra -Werror</code>, so a warning fails the build. That is on purpose. In C, a warning is nearly always a real bug.</p>
+<h2 id="reading-a-compiler-error">Reading a compiler error</h2>
+<p>Remove the semicolon after <code>printf(...)</code> and compile:</p>
+<pre><code class="lang-text">hello.c: In function 'main':
+hello.c:4:30: error: expected ';' before 'return'
+    4 |     printf("Hello, world!\n")
+      |                              ^
+      |                              ;
+    5 |     return 0;</code></pre>
+<p>The format is <code>file:line:column: error: message</code>. Go to that line. If the line looks fine, look at the line <strong>above</strong>: a missing semicolon or bracket is usually reported where the compiler noticed it, which is a little later than where it happened.</p>
+<p>Fix the <strong>first</strong> error, then compile again. Later errors are often caused by the first one.</p>
+<h2 id="comments">Comments</h2>
+<pre><code class="lang-c">// A comment that runs to the end of the line.
+
+/* A comment that can
+   span several lines. */</code></pre>
+<p>The compiler ignores comments. Use them to explain <em>why</em> the code does something, when the reason is not obvious from the code.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting <code>\n</code></strong>, so that your output and the next prompt run together.</li><li><strong>Editing the file and forgetting to compile again.</strong> You then run the old program.</li><li><strong>Writing <code>Printf</code> or <code>Main</code>.</strong> C is case-sensitive.</li><li><strong>Running <code>hello</code> with no <code>./</code></strong>, which gives <code>command not found</code>.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/01-hello">
+<h3>Hello, C <span class="ex-id">c/01-hello</span></h3>
+<p>Edit <code>main.c</code> so that the program prints exactly:</p>
+<pre><code class="lang-text">Hello, world!</code></pre>
+<p>followed by a newline.</p>
+<p>To try it yourself before running the tests:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra main.c -o hello
+$ ./hello</code></pre>
+<p class="ex-files">Files: <code>exercises/c/01-hello/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/01-hello</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../git/09-pull-requests.html"><span>Previous</span>The pull request workflow</a><a class="next" href="../c/02-types-and-variables.html"><span>Next</span>Types and variables</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

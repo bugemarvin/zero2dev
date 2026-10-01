@@ -344,6 +344,8 @@ def check_program(ex, exdir, lang_override=None):
                 parts.append(block("args:    ", " ".join(case["args"])))
             if code != want_exit:
                 parts.append(f"the program {describe_exit(code)}, expected exit code {want_exit}")
+                if out.strip():
+                    parts.append(block("stdout:  ", norm(out)))
                 if err.strip():
                     parts.append(block("stderr:  ", err))
                 results.append(Result(False, name, "\n".join(parts)))

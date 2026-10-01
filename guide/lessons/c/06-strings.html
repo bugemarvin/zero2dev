@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strings · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/06-strings">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 6 of 12</p>
+<h1>Strings</h1>
+<p class="lede">In C a string is an array of characters with a zero at the end. Everything about strings follows from that.</p>
+<h2 id="what-a-string-is">What a string is</h2>
+<p>C has no string type. A string is a <code>char</code> array whose text is followed by a special character with the value 0, written <code>'\0'</code> and called the <strong>null terminator</strong>.</p>
+<pre><code class="lang-c">char name[] = "Sam";</code></pre>
+<pre><code class="lang-text">index:   0     1     2     3
+value:  'S'   'a'   'm'   '\0'</code></pre>
+<p>The array has <strong>4</strong> elements for a 3-letter word. Every function that works on strings walks forward until it meets <code>'\0'</code>. If the terminator is missing, the function keeps reading past the end of the array.</p>
+<h2 id="characters-are-numbers">Characters are numbers</h2>
+<p>A <code>char</code> is a small whole number. The value is the character's code in the ASCII table: <code>'A'</code> is 65, <code>'a'</code> is 97, <code>'0'</code> is 48.</p>
+<pre><code class="lang-c">char c = 'A';
+printf("%c %d\n", c, c);     // A 65
+printf("%c\n", c + 1);       // B</code></pre>
+<p>Letters are in order, so you can compare them and do arithmetic:</p>
+<pre><code class="lang-c">if (c &gt;= 'a' &amp;&amp; c &lt;= 'z') {
+    c = c - 'a' + 'A';       // to upper case
+}</code></pre>
+<p>The header <code>&lt;ctype.h&gt;</code> has ready-made helpers: <code>isalpha</code>, <code>isdigit</code>, <code>isspace</code>, <code>toupper</code>, <code>tolower</code>.</p>
+<h2 id="walking-through-a-string">Walking through a string</h2>
+<p>The loop stops at the terminator, so no length is needed:</p>
+<pre><code class="lang-c">int count_spaces(const char s[]) {
+    int count = 0;
+    for (int i = 0; s[i] != '\0'; i++) {
+        if (s[i] == ' ') {
+            count++;
+        }
+    }
+    return count;
+}</code></pre>
+<h2 id="library-functions">Library functions</h2>
+<p>They live in <code>&lt;string.h&gt;</code>.</p>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>What it does</th></tr></thead><tbody><tr><td><code>strlen(s)</code></td><td>number of characters before the terminator</td></tr><tr><td><code>strcmp(a, b)</code></td><td>0 if equal, negative or positive otherwise</td></tr><tr><td><code>strcpy(dest, src)</code></td><td>copy <code>src</code> into <code>dest</code></td></tr><tr><td><code>strcat(dest, src)</code></td><td>add <code>src</code> to the end of <code>dest</code></td></tr><tr><td><code>strchr(s, c)</code></td><td>find the first <code>c</code> in <code>s</code></td></tr></tbody></table></div>
+<p><strong>You cannot compare strings with <code>==</code>.</strong> That compares where the two arrays are in memory, not their contents. Use <code>strcmp</code>:</p>
+<pre><code class="lang-c">if (strcmp(answer, "yes") == 0) {
+    printf("confirmed\n");
+}</code></pre>
+<h2 id="printing-and-reading">Printing and reading</h2>
+<pre><code class="lang-c">char name[] = "Sam";
+printf("Hello, %s\n", name);</code></pre>
+<p>To read a whole line safely, use <code>fgets</code>. You tell it the size of your buffer, and it never writes more than that:</p>
+<pre><code class="lang-c">char line[100];
+if (fgets(line, sizeof(line), stdin) != NULL) {
+    printf("You typed: %s", line);
+}</code></pre>
+<p><code>fgets</code> keeps the newline that ended the line. A common way to remove it:</p>
+<pre><code class="lang-c">line[strcspn(line, "\n")] = '\0';</code></pre>
+<h2 id="room-for-the-terminator">Room for the terminator</h2>
+<p><code>strcpy</code> and <code>strcat</code> do not check that the destination is big enough. That is your job.</p>
+<pre><code class="lang-c">char small[4];
+strcpy(small, "hello");   // writes 6 bytes into 4: buffer overflow</code></pre>
+<p>A buffer for a string of length <code>n</code> needs <code>n + 1</code> bytes.</p>
+<h2 id="string-literals-are-read-only">String literals are read-only</h2>
+<p>Text in double quotes written directly in the code must not be modified:</p>
+<pre><code class="lang-c">char *fixed = "hello";     // points at read-only text
+char mine[] = "hello";     // a copy in your own array, safe to change
+mine[0] = 'J';             // fine</code></pre>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>Forgetting space for <code>'\0'</code>.</strong></li><li><strong>Comparing with <code>==</code></strong> in place of <code>strcmp</code>.</li><li><strong>Using <code>scanf("%s", ...)</code> or <code>gets</code></strong> with no size limit. A long input overflows the buffer. Use <code>fgets</code>.</li><li><strong>Building a string by hand and not adding the terminator</strong> at the end.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/08-strings">
+<h3>String functions <span class="ex-id">c/08-strings</span></h3>
+<p>Implement the functions declared in <code>strs.h</code>. Write your code in <code>strs.c</code>. Do not call the library's <code>strlen</code>: write the loop yourself.</p>
+<ul><li><code>int my_strlen(const char s[])</code>: the number of characters before the terminator.</li><li><code>int count_char(const char s[], char c)</code>: how many times <code>c</code> appears in <code>s</code>.</li><li><code>void to_upper(char s[])</code>: change every lower-case letter to upper case, in place. Other characters stay as they are.</li><li><code>int is_palindrome(const char s[])</code>: 1 if <code>s</code> reads the same forwards and backwards, 0 otherwise. The empty string is a palindrome.</li></ul>
+<p class="ex-files">Files: <code>exercises/c/08-strings/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/08-strings</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/05-arrays.html"><span>Previous</span>Arrays</a><a class="next" href="../c/07-pointers.html"><span>Next</span>Pointers</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

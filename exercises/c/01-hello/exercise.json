@@ -1,0 +1,16 @@
+{
+  "title": "Hello, C",
+  "lesson": "c/01-hello",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "prints the greeting",
+      "stdout": "Hello, world!\n"
+    }
+  ],
+  "hints": [
+    "printf(\"Hello, world!\\n\"); and do not forget the semicolon.",
+    "The output must match exactly: capital H, comma, exclamation mark, newline."
+  ]
+}

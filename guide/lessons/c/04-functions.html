@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functions · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/04-functions">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 4 of 12</p>
+<h1>Functions</h1>
+<p class="lede">Give a piece of code a name, inputs and a result, so you can use it again and test it on its own.</p>
+<h2 id="defining-a-function">Defining a function</h2>
+<pre><code class="lang-c">int square(int x) {
+    return x * x;
+}</code></pre>
+<ul><li><code>int</code> before the name is the <strong>return type</strong>: the kind of value the function gives back.</li><li><code>square</code> is the name.</li><li><code>int x</code> is a <strong>parameter</strong>: an input, with its type.</li><li><code>return</code> hands a value back and ends the function.</li></ul>
+<p>Calling it:</p>
+<pre><code class="lang-c">int area = square(5);            // 25
+printf("%d\n", square(3) + 1);   // 10</code></pre>
+<p>A function that returns nothing has the return type <code>void</code>:</p>
+<pre><code class="lang-c">void greet(int times) {
+    for (int i = 0; i &lt; times; i++) {
+        printf("hello\n");
+    }
+}</code></pre>
+<h2 id="declare-before-use">Declare before use</h2>
+<p>The compiler reads a file from top to bottom. It must have seen a function before the line that calls it. Either define the function above the call, or put a <strong>prototype</strong> at the top: the first line of the function followed by a semicolon.</p>
+<pre><code class="lang-c">#include &lt;stdio.h&gt;
+
+int square(int x);        // prototype: a promise that this exists
+
+int main(void) {
+    printf("%d\n", square(4));
+    return 0;
+}
+
+int square(int x) {       // definition
+    return x * x;
+}</code></pre>
+<h2 id="arguments-are-copies">Arguments are copies</h2>
+<p>When you call a function, each parameter receives a <strong>copy</strong> of the value you passed. Changing the copy does not change the original.</p>
+<pre><code class="lang-c">void add_one(int n) {
+    n = n + 1;            // changes the copy only
+}
+
+int main(void) {
+    int a = 5;
+    add_one(a);
+    printf("%d\n", a);    // still 5
+    return 0;
+}</code></pre>
+<p>This is called <strong>pass by value</strong>. To let a function change the caller's variable you pass its address, which is what <a href="../c/07-pointers.html">pointers</a> are for.</p>
+<h2 id="scope">Scope</h2>
+<p>A variable exists only inside the braces where it was declared. Two functions can each have a variable named <code>i</code>. They are unrelated.</p>
+<pre><code class="lang-c">int twice(int x) {
+    int result = x * 2;   // exists only inside twice
+    return result;
+}</code></pre>
+<p>Variables declared outside every function are <strong>global</strong>: visible everywhere. Avoid them. Any function can change one, which makes bugs hard to trace.</p>
+<h2 id="recursion">Recursion</h2>
+<p>A function may call itself. Every recursive function needs two parts:</p>
+<ul><li>a <strong>base case</strong> that returns without calling itself again;</li><li>a <strong>recursive case</strong> that moves closer to the base case.</li></ul>
+<pre><code class="lang-c">long factorial(int n) {
+    if (n &lt;= 1) {
+        return 1;                       // base case
+    }
+    return n * factorial(n - 1);        // recursive case
+}</code></pre>
+<p><code>factorial(4)</code> becomes <code>4 * factorial(3)</code>, then <code>4 * 3 * factorial(2)</code>, and so on down to 1. Without the base case the calls never stop and the program crashes with a stack overflow.</p>
+<h2 id="why-bother-with-functions">Why bother with functions</h2>
+<ul><li><strong>Reuse.</strong> Write it once, call it from many places.</li><li><strong>Names.</strong> <code>is_prime(n)</code> says what a block of loops does.</li><li><strong>Testing.</strong> A small function with clear inputs and one output can be checked on its own. The exercises from here on test your functions directly.</li></ul>
+<p>Keep each function short and focused on one job.</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong>No <code>return</code> on some path.</strong> A non-<code>void</code> function must return a value however it ends. <code>-Wall</code> reports this.</li><li><strong>Expecting a function to change its argument.</strong> It received a copy.</li><li><strong>A prototype that does not match the definition</strong>: different types, or a different number of parameters.</li><li><strong>Printing when you should return.</strong> If the task says a function <em>returns</em> a value, use <code>return</code>. The caller decides what to do with it.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/06-functions">
+<h3>A small maths library <span class="ex-id">c/06-functions</span></h3>
+<p>Implement the four functions declared in <code>mathx.h</code>. Write your code in <code>mathx.c</code>. Do not change <code>mathx.h</code> or <code>test_main.c</code>.</p>
+<ul><li><code>int gcd(int a, int b)</code>: the greatest common divisor of two non-negative numbers. <code>gcd(7, 0)</code> is 7.</li><li><code>int is_prime(int n)</code>: 1 if <code>n</code> is prime, 0 otherwise. Numbers below 2 are not prime.</li><li><code>long factorial(int n)</code>: <code>n!</code>, with <code>0!</code> equal to 1.</li><li><code>int fib(int n)</code>: the n-th Fibonacci number, where <code>fib(0)</code> is 0 and <code>fib(1)</code> is 1.</li></ul>
+<p>The functions <strong>return</strong> their result. They do not print anything.</p>
+<p class="ex-files">Files: <code>exercises/c/06-functions/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/06-functions</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/03-control-flow.html"><span>Previous</span>Control flow</a><a class="next" href="../c/05-arrays.html"><span>Next</span>Arrays</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>

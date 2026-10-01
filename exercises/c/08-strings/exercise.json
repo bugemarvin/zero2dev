@@ -1,0 +1,45 @@
+{
+  "title": "String functions",
+  "lesson": "c/06-strings",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "strs.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "my_strlen",
+      "args": [
+        "len"
+      ],
+      "stdout": "5\n0\n11\n"
+    },
+    {
+      "name": "count_char",
+      "args": [
+        "count"
+      ],
+      "stdout": "3\n0\n2\n"
+    },
+    {
+      "name": "to_upper",
+      "args": [
+        "upper"
+      ],
+      "stdout": "HELLO, WORLD 42!\n\nABC\n"
+    },
+    {
+      "name": "is_palindrome",
+      "args": [
+        "palindrome"
+      ],
+      "stdout": "racecar 1\nabba 1\nabca 0\na 1\n(empty) 1\nab 0\n"
+    }
+  ],
+  "hints": [
+    "Loop until you reach the terminator: for (int i = 0; s[i] != '\\0'; i++)",
+    "to_upper: only letters 'a' to 'z' change. s[i] = s[i] - 'a' + 'A'",
+    "is_palindrome: compare s[i] with s[len - 1 - i], and stop at the middle."
+  ]
+}

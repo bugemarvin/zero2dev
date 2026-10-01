@@ -1,0 +1,32 @@
+{
+  "title": "Area and perimeter",
+  "lesson": "c/02-types-and-variables",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "3 by 4",
+      "stdin": "3 4\n",
+      "stdout": "area: 12\nperimeter: 14\n"
+    },
+    {
+      "name": "a square",
+      "stdin": "5 5\n",
+      "stdout": "area: 25\nperimeter: 20\n"
+    },
+    {
+      "name": "one side is zero",
+      "stdin": "0 9\n",
+      "stdout": "area: 0\nperimeter: 18\n"
+    },
+    {
+      "name": "large sides",
+      "stdin": "1000 2000\n",
+      "stdout": "area: 2000000\nperimeter: 6000\n"
+    }
+  ],
+  "hints": [
+    "Read both numbers with one call: scanf(\"%d %d\", &width, &height);",
+    "The perimeter is 2 * (width + height)."
+  ]
+}

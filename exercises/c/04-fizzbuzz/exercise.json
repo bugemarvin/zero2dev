@@ -1,0 +1,32 @@
+{
+  "title": "FizzBuzz",
+  "lesson": "c/03-control-flow",
+  "kind": "program",
+  "lang": "c",
+  "cases": [
+    {
+      "name": "n = 15",
+      "stdin": "15\n",
+      "stdout": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz\n"
+    },
+    {
+      "name": "n = 5",
+      "stdin": "5\n",
+      "stdout": "1\n2\nFizz\n4\nBuzz\n"
+    },
+    {
+      "name": "n = 1",
+      "stdin": "1\n",
+      "stdout": "1\n"
+    },
+    {
+      "name": "n = 0 prints nothing",
+      "stdin": "0\n",
+      "stdout": ""
+    }
+  ],
+  "hints": [
+    "i % 3 == 0 is true when i is a multiple of 3.",
+    "Test for multiples of both 3 and 5 first. Otherwise the Fizz branch catches 15 before FizzBuzz can."
+  ]
+}

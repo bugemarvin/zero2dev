@@ -1,0 +1,45 @@
+{
+  "title": "Array functions",
+  "lesson": "c/05-arrays",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "arrays.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "sum_of",
+      "args": [
+        "sum"
+      ],
+      "stdout": "sum = 20\nsum of one = 7\nsum of none = 0\nbig sum = 6000000000\n"
+    },
+    {
+      "name": "max_of",
+      "args": [
+        "max"
+      ],
+      "stdout": "max = 9\nmax of negatives = -2\nmax of one = 7\n"
+    },
+    {
+      "name": "count_even",
+      "args": [
+        "even"
+      ],
+      "stdout": "even = 2\neven of none = 0\n"
+    },
+    {
+      "name": "reverse",
+      "args": [
+        "reverse"
+      ],
+      "stdout": "5 odd: 5 1 9 2 3\n4 even: 4 3 2 1\n1: 7\n"
+    }
+  ],
+  "hints": [
+    "max_of: start with a[0] as the best so far, not with 0. The array may hold only negative numbers.",
+    "reverse: swap a[i] with a[n - 1 - i], and stop at the middle (i < n / 2).",
+    "sum_of returns long: declare the running total as long too."
+  ]
+}

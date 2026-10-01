@@ -1,0 +1,38 @@
+{
+  "title": "Pointer functions",
+  "lesson": "c/07-pointers",
+  "kind": "program",
+  "lang": "c",
+  "sources": [
+    "ptrs.c",
+    "test_main.c"
+  ],
+  "cases": [
+    {
+      "name": "swap",
+      "args": [
+        "swap"
+      ],
+      "stdout": "2 1\n-5 9\n4 4\n"
+    },
+    {
+      "name": "min_max",
+      "args": [
+        "minmax"
+      ],
+      "stdout": "min 1 max 9\nmin -8 max -2\nmin 7 max 7\n"
+    },
+    {
+      "name": "find",
+      "args": [
+        "find"
+      ],
+      "stdout": "found 9 at index 2\nfound 3 at index 0\n4 not found\nafter writing through the pointer: 3 2 90 1 5\n"
+    }
+  ],
+  "hints": [
+    "swap: you need a temporary variable. int tmp = *a;",
+    "min_max: write the results with *min = ... and *max = ...",
+    "find: return &a[i] when a[i] equals the target, and NULL after the loop."
+  ]
+}

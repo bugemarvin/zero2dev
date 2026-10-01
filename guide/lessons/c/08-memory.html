@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory, malloc and free · zero2dev</title>
+<link rel="stylesheet" href="../../assets/style.css">
+<script>try{var t=localStorage.getItem("z2d-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-root="../../" data-lesson="c/08-memory">
+<header class="topbar">
+<button class="icon-btn" id="menu-btn" aria-label="Lessons menu">&#9776;</button>
+<a class="brand" href="../../index.html">zero2dev</a>
+<button class="icon-btn" id="theme-btn" aria-label="Switch light and dark theme">&#9680;</button>
+</header>
+<div class="layout">
+<nav class="sidebar" id="sidebar" aria-label="Lessons"></nav>
+<main class="lesson">
+<p class="crumb">C · lesson 8 of 12</p>
+<h1>Memory, malloc and free</h1>
+<p class="lede">Ask for memory while the program runs, and give it back. This is where C asks the most of you.</p>
+<h2 id="two-kinds-of-memory">Two kinds of memory</h2>
+<p><strong>The stack</strong> holds local variables. Space is taken when a function starts and released when it returns. It is automatic and fast, with two limits: the size must be known in advance, and the data dies with the function.</p>
+<p><strong>The heap</strong> is memory you request by hand. It stays yours until you release it, however many functions come and go.</p>
+<p>You need the heap when:</p>
+<ul><li>the size is only known while the program runs;</li><li>data must outlive the function that created it;</li><li>the data is large.</li></ul>
+<h2 id="malloc-and-free">malloc and free</h2>
+<p>Both live in <code>&lt;stdlib.h&gt;</code>.</p>
+<pre><code class="lang-c">#include &lt;stdlib.h&gt;
+
+int *numbers = malloc(n * sizeof(int));
+if (numbers == NULL) {
+    return 1;                // the system had no memory to give
+}
+
+for (int i = 0; i &lt; n; i++) {
+    numbers[i] = i * i;
+}
+
+free(numbers);</code></pre>
+<ul><li><code>malloc(bytes)</code> returns a pointer to a block of that many bytes, or <code>NULL</code> if it fails.</li><li><code>sizeof(int)</code> is the size of one <code>int</code>, so <code>n * sizeof(int)</code> is room for <code>n</code> of them.</li><li>The block holds <strong>garbage</strong> until you write to it.</li><li><code>free(pointer)</code> gives the block back.</li></ul>
+<p><strong>Every <code>malloc</code> needs exactly one <code>free</code>.</strong></p>
+<div class="table-wrap"><table><thead><tr><th>Function</th><th>Use</th></tr></thead><tbody><tr><td><code>malloc(size)</code></td><td>a block of <code>size</code> bytes, not initialised</td></tr><tr><td><code>calloc(count, size)</code></td><td><code>count</code> elements, all set to zero</td></tr><tr><td><code>realloc(ptr, size)</code></td><td>resize a block, keeping its contents</td></tr><tr><td><code>free(ptr)</code></td><td>release a block</td></tr></tbody></table></div>
+<h2 id="returning-memory-from-a-function">Returning memory from a function</h2>
+<p>A function must not return a pointer to its own local array, because that array vanishes on return. It <strong>can</strong> return heap memory:</p>
+<pre><code class="lang-c">int *make_squares(int n) {
+    int *a = malloc(n * sizeof(int));
+    if (a == NULL) {
+        return NULL;
+    }
+    for (int i = 0; i &lt; n; i++) {
+        a[i] = i * i;
+    }
+    return a;          // the caller must free it
+}</code></pre>
+<p>Whoever ends up holding the pointer is responsible for freeing it. Say so in a comment. This is called <strong>ownership</strong>, and being clear about it prevents most memory bugs.</p>
+<p>For a string, remember the terminator: a copy of <code>s</code> needs <code>strlen(s) + 1</code> bytes.</p>
+<h2 id="growing-a-block">Growing a block</h2>
+<p><code>realloc</code> may have to move the data to a new place. It returns the new address, so assign through a temporary. If it fails, the old block is still valid and must not be lost:</p>
+<pre><code class="lang-c">int *bigger = realloc(numbers, new_n * sizeof(int));
+if (bigger == NULL) {
+    free(numbers);
+    return 1;
+}
+numbers = bigger;</code></pre>
+<h2 id="what-goes-wrong">What goes wrong</h2>
+<div class="table-wrap"><table><thead><tr><th>Bug</th><th>What it is</th><th>Result</th></tr></thead><tbody><tr><td><strong>Memory leak</strong></td><td>never calling <code>free</code></td><td>memory use grows until the program is killed</td></tr><tr><td><strong>Use after free</strong></td><td>reading or writing a block after freeing it</td><td>corrupted data, crashes</td></tr><tr><td><strong>Double free</strong></td><td>freeing the same block twice</td><td>crash, or silent corruption</td></tr><tr><td><strong>Buffer overflow</strong></td><td>writing past the end of a block</td><td>corrupts whatever is next to it</td></tr></tbody></table></div>
+<p>None of these is reported by the compiler, and the program often appears to work.</p>
+<h2 id="let-the-tools-find-them">Let the tools find them</h2>
+<p>The checker compiles your code with <strong>AddressSanitizer</strong>, which reports all four, with the line that caused it:</p>
+<pre><code class="lang-text">ERROR: LeakSanitizer: detected memory leaks
+Direct leak of 40 byte(s) in 1 object(s) allocated from:
+    #0 in malloc
+    #1 in make_squares squares.c:4</code></pre>
+<p>Read it from the top: 40 bytes were never freed, and they were allocated on line 4 of <code>squares.c</code>. Compile with the same flags yourself:</p>
+<pre><code class="lang-console">$ gcc -Wall -Wextra -g -fsanitize=address,undefined squares.c -o squares</code></pre>
+<h2 id="habits-that-prevent-these-bugs">Habits that prevent these bugs</h2>
+<ul><li>Write the <code>free</code> at the same moment you write the <code>malloc</code>.</li><li>After <code>free(p)</code>, set <code>p = NULL</code>, so a later mistaken use crashes cleanly.</li><li>Check every <code>malloc</code> result for <code>NULL</code>.</li><li>Decide who owns each block, and write it down.</li></ul>
+<h2 id="common-mistakes">Common mistakes</h2>
+<ul><li><strong><code>malloc(n)</code> for <code>n</code> integers.</strong> That is <code>n</code> bytes. You need <code>n * sizeof(int)</code>.</li><li><strong>Forgetting <code>+ 1</code></strong> for the terminator when copying a string.</li><li><strong>Losing the only pointer to a block</strong>, by overwriting it or letting it go out of scope. The block can then never be freed.</li><li><strong><code>sizeof(pointer)</code></strong> gives the size of an address, not of the block it points to.</li></ul>
+<section class="practice" id="practice">
+<h2>Test yourself</h2>
+<article class="exercise" data-ex="c/10-heap">
+<h3>Functions that allocate <span class="ex-id">c/10-heap</span></h3>
+<p>Implement the functions declared in <code>heap.h</code>. Write your code in <code>heap.c</code>.</p>
+<p>Each function returns memory from <code>malloc</code>. The caller (the test driver) frees it. Your functions must not free what they return, and must not leak anything else.</p>
+<ul><li><code>int *range(int n)</code>: a new array holding <code>0, 1, ..., n - 1</code>. <code>n</code> is at least 1.</li><li><code>char *repeat(const char *s, int times)</code>: a new string made of <code>s</code> repeated <code>times</code> times. <code>repeat("ab", 3)</code> gives <code>"ababab"</code>. With <code>times</code> 0 the result is an empty string, which is still an allocated block holding just the terminator.</li><li><code>int *filter_even(const int *a, int n, int *out_n)</code>: a new array holding only the even elements of <code>a</code>, in the same order. Store the number of elements kept through <code>out_n</code>.</li></ul>
+<p>The tests run with AddressSanitizer: a write past the end of a block or a leak fails the test and shows you the line.</p>
+<p class="ex-files">Files: <code>exercises/c/10-heap/</code></p>
+<pre><code class="lang-console">$ python3 check.py c/10-heap</code></pre>
+</article>
+</section>
+<nav class="pager"><a class="prev" href="../c/07-pointers.html"><span>Previous</span>Pointers</a><a class="next" href="../c/09-structs.html"><span>Next</span>Structs</a></nav>
+</main>
+</div>
+<script src="../../assets/curriculum.js"></script>
+<script src="../../assets/app.js"></script>
+</body>
+</html>
